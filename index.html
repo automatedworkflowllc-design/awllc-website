@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="Automated Workflow LLC">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F3F0E7">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#161309">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0C0C0D">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20256%20256'%3E%3Cg%20stroke-width='30'%20fill='none'%3E%3Cpath%20d='M128%2052%20A76%2076%200%200%201%20194%2090'%20stroke='%234FAE4A'/%3E%3Cpath%20d='M194%2090%20A76%2076%200%200%201%20204%20128'%20stroke='%23EFC939'/%3E%3Cpath%20d='M204%20128%20A76%2076%200%200%201%20178%20186'%20stroke='%23F08A24'/%3E%3Cpath%20d='M178%20186%20A76%2076%200%200%201%20128%20204'%20stroke='%23E1483E'/%3E%3Cpath%20d='M128%20204%20A76%2076%200%200%201%2068%20172'%20stroke='%239B4FB8'/%3E%3Cpath%20d='M68%20172%20A76%2076%200%200%201%2052%20128'%20stroke='%233E7FD9'/%3E%3Cpath%20d='M52%20128%20A76%2076%200%200%201%20128%2052'%20stroke='%232FA6A0'/%3E%3C/g%3E%3C/svg%3E">
 <style>
 /* Product font: Manrope variable — used ONLY inside the two product mockups (KPI dashboard + AI email). */
@@ -59,8 +59,8 @@
   --shadow-card: 0 1px 2px rgba(46,40,24,.05), 0 12px 32px -16px rgba(46,40,24,.16);
   --shadow-lift: 0 2px 4px rgba(46,40,24,.06), 0 22px 52px -20px rgba(46,40,24,.24);
   /* the two always-dark panels — deep warm near-black in BOTH themes */
-  --panel-bg:    #201C12;
-  --panel-line:  #38321F;
+  --panel-bg:    #121214;
+  --panel-line:  #2A2A2E;
   --panel-ink:   #F2EEDF;
   --panel-soft:  #B3AC97;
   --radius: 18px;
@@ -79,25 +79,25 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     color-scheme: dark;
-    --bg:           #161309;
-    --bg-soft:      #1B1810;
-    --card:         #1E1B11;
-    --well:         #262214;
+    --bg:           #0C0C0D;
+    --bg-soft:      #111113;
+    --card:         #151517;
+    --well:         #1C1C1F;
     --ink:          #F1EDDE;
-    --ink-soft:     #ABA48D;
-    --line:         #302B1B;
-    --line-soft:    #262112;
-    --line-strong:  #5E5740;
+    --ink-soft:     #A8A69D;
+    --line:         #26262A;
+    --line-soft:    #1B1B1E;
+    --line-strong:  #56565E;
     --accent:       #6AC4B8;
-    --header-bg:        rgba(22,19,9,.85);
-    --header-bg-solid:  rgba(22,19,9,.96);
+    --header-bg:        rgba(12,12,13,.85);
+    --header-bg-solid:  rgba(12,12,13,.96);
     --btn-bg:       #F1EDDE;
     --btn-bg-hover: #FFFFFF;
-    --btn-fg:       #191509;
+    --btn-fg:       #111112;
     --shadow-card: 0 1px 2px rgba(0,0,0,.35), 0 12px 32px -16px rgba(0,0,0,.55);
     --shadow-lift: 0 2px 4px rgba(0,0,0,.4), 0 24px 56px -20px rgba(0,0,0,.65);
-    --panel-bg:    #1E1A0F;
-    --panel-line:  #363019;
+    --panel-bg:    #151517;
+    --panel-line:  #2A2A2E;
     --panel-ink:   #F2EEDF;
     --panel-soft:  #B3AC97;
   }
@@ -105,25 +105,25 @@
 /* Explicit dark — the header toggle stamps data-theme on <html> and it must win */
 :root[data-theme="dark"]{
   color-scheme: dark;
-  --bg:           #161309;
-  --bg-soft:      #1B1810;
-  --card:         #1E1B11;
-  --well:         #262214;
+  --bg:           #0C0C0D;
+  --bg-soft:      #111113;
+  --card:         #151517;
+  --well:         #1C1C1F;
   --ink:          #F1EDDE;
-  --ink-soft:     #ABA48D;
-  --line:         #302B1B;
-  --line-soft:    #262112;
-  --line-strong:  #5E5740;
+  --ink-soft:     #A8A69D;
+  --line:         #26262A;
+  --line-soft:    #1B1B1E;
+  --line-strong:  #56565E;
   --accent:       #6AC4B8;
-  --header-bg:        rgba(22,19,9,.85);
-  --header-bg-solid:  rgba(22,19,9,.96);
+  --header-bg:        rgba(12,12,13,.85);
+  --header-bg-solid:  rgba(12,12,13,.96);
   --btn-bg:       #F1EDDE;
   --btn-bg-hover: #FFFFFF;
-  --btn-fg:       #191509;
+  --btn-fg:       #111112;
   --shadow-card: 0 1px 2px rgba(0,0,0,.35), 0 12px 32px -16px rgba(0,0,0,.55);
   --shadow-lift: 0 2px 4px rgba(0,0,0,.4), 0 24px 56px -20px rgba(0,0,0,.65);
-  --panel-bg:    #1E1A0F;
-  --panel-line:  #363019;
+  --panel-bg:    #151517;
+  --panel-line:  #2A2A2E;
   --panel-ink:   #F2EEDF;
   --panel-soft:  #B3AC97;
 }
@@ -274,8 +274,9 @@ h2 .serif-i{ font-weight: 470; font-size: 1.02em; }
 }
 .nav{ display: flex; align-items: center; gap: 1.4rem; }
 .nav .nav-link{
-  color: var(--ink-soft); text-decoration: none; font-weight: 500; font-size: .87rem;
-  letter-spacing: .002em;
+  color: var(--ink-soft); text-decoration: none; font-weight: 500;
+  font-family: var(--mono); font-size: .74rem; text-transform: uppercase;
+  letter-spacing: .08em;
   padding-bottom: 2px;
   background-image: linear-gradient(var(--ink), var(--ink));
   background-repeat: no-repeat; background-size: 0% 1.5px; background-position: 0 100%;
@@ -315,7 +316,7 @@ h2 .serif-i{ font-weight: 470; font-size: 1.02em; }
 /* ============ BUTTONS — quiet pills ============ */
 .btn{
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
-  font-family: var(--sans); font-weight: 560; font-size: .95rem; letter-spacing: -0.004em;
+  font-family: var(--mono); font-weight: 540; font-size: .8rem; text-transform: uppercase; letter-spacing: .07em;
   padding: .82rem 1.55rem; border-radius: 999px; white-space: nowrap;
   text-decoration: none; cursor: pointer; border: 1px solid transparent;
   transition: transform .22s var(--ease), box-shadow .22s var(--ease), background .18s ease, color .18s ease, border-color .18s ease;
@@ -334,7 +335,7 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
 }
 .btn-ghost{ background: transparent; color: var(--ink); border-color: var(--line-strong); }
 .btn-ghost:hover{ border-color: var(--ink); color: var(--ink); transform: translateY(-2px); box-shadow: var(--shadow-card); }
-.btn-sm{ padding: .55rem 1.1rem; font-size: .85rem; }
+.btn-sm{ padding: .55rem 1.1rem; font-size: .72rem; }
 .btn .arr{ display: inline-block; transition: transform .25s var(--ease); }
 .btn:hover .arr, .btn:focus-visible .arr{ transform: translateX(4px); }
 
@@ -348,12 +349,12 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
   --ink-soft: var(--panel-soft);
   --line: var(--panel-line);
   --line-soft: var(--panel-line);
-  --line-strong: #55492e;
-  --card: #2A2515;
-  --well: #2A2515;
+  --line-strong: #4A4A52;
+  --card: #202024;
+  --well: #202024;
   --btn-bg: var(--panel-ink);
   --btn-bg-hover: #FFFFFF;
-  --btn-fg: #1B1810;
+  --btn-fg: #111112;
   --accent: #7FCCC1;
   --focus: #8AB4F8;
   --shadow-card: 0 1px 2px rgba(0,0,0,.3), 0 12px 32px -16px rgba(0,0,0,.5);
