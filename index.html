@@ -81,6 +81,8 @@
   --rainbow: linear-gradient(90deg,#E1483E,#F08A24,#EFC939,#4FAE4A,#3E7FD9,#9B4FB8);
   --rainbow-v: linear-gradient(180deg,#E1483E,#F08A24,#EFC939,#4FAE4A,#3E7FD9,#9B4FB8);
   --ease: cubic-bezier(.22,.75,.3,1);
+  --grain-o: .055;   /* grain: black speckle on cream */
+  --grain-flip: 0;
 }
 
 /* System dark — applies unless the visitor explicitly picked light */
@@ -97,8 +99,11 @@
     --line-soft:    #1B1B1E;
     --line-strong:  #56565E;
     --accent:       #6AC4B8;
+    --focus:        #8AB4F8;
     --header-bg:        rgba(12,12,13,.85);
     --header-bg-solid:  rgba(12,12,13,.96);
+    --grain-o: .07;    /* grain: inverted to white speckle */
+    --grain-flip: 1;
     --btn-bg:       #F1EDDE;
     --btn-bg-hover: #FFFFFF;
     --btn-fg:       #111112;
@@ -123,8 +128,11 @@
   --line-soft:    #1B1B1E;
   --line-strong:  #56565E;
   --accent:       #6AC4B8;
+  --focus:        #8AB4F8;
   --header-bg:        rgba(12,12,13,.85);
   --header-bg-solid:  rgba(12,12,13,.96);
+  --grain-o: .07;    /* grain: inverted to white speckle */
+  --grain-flip: 1;
   --btn-bg:       #F1EDDE;
   --btn-bg-hover: #FFFFFF;
   --btn-fg:       #111112;
@@ -150,6 +158,23 @@ body{
 }
 
 ::selection{ background: var(--ink); color: var(--bg); }
+
+/* ============ PAPER GRAIN — the page is stock, not a hex code ============
+   One fixed noise sheet at z-index:-1: above the page color, below all
+   content. Every card, band, dark panel, and both white product mockups
+   have opaque backgrounds, so the grain lives only on the raw paper
+   between them. Never re-apply it to .demo, .email-card, .sample-thumb,
+   or any card surface — they stay pristine by construction. */
+body::before{
+  content: "";
+  position: fixed; inset: 0; z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .34 .34 .34 0 0'/%3E%3C/filter%3E%3Crect width='280' height='280' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 280px 280px;
+  opacity: var(--grain-o, .055);
+  filter: invert(var(--grain-flip, 0));
+}
+@media print{ body::before{ display: none; } }
 
 img, svg { max-width: 100%; display: block; }
 
@@ -301,6 +326,9 @@ h2 .serif-i{ font-weight: 470; font-size: 1.02em; }
   .nav{ gap: .5rem; }
   .theme-toggle{ width: 30px; height: 30px; }
   .header-in .btn-sm{ padding: .44rem .7rem; font-size: .6rem; letter-spacing: .05em; }
+  .brand{ min-width: 0; }
+  .brand-lockup{ min-width: 0; }
+  .brand-word{ min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 }
 
 /* Theme toggle */
@@ -700,6 +728,21 @@ section{ scroll-margin-top: 84px; }
   border-left: 2px solid var(--line-strong); padding-left: .85rem;
 }
 
+/* flagship spans both columns — re-lay so the measure stays editorial */
+.card-offer.flagship{
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr);
+  column-gap: clamp(2.5rem, 5vw, 4.5rem);
+  align-items: start;
+}
+.card-offer.flagship > *{ grid-column: 1; min-width: 0; }
+.card-offer.flagship h3{ font-size: 1.45rem; }
+.card-offer.flagship p{ max-width: 58ch; }
+.card-offer.flagship .spec{ grid-column: 2; grid-row: 1 / 6; align-self: center; margin-top: 0; width: 100%; }
+@media (max-width: 800px){
+  .card-offer.flagship{ display: flex; }
+  .card-offer.flagship h3{ font-size: 1.22rem; }
+}
 .pack-title{
   display:flex; align-items:center; gap: .9rem;
   font-family: var(--mono);
@@ -893,6 +936,8 @@ section{ scroll-margin-top: 84px; }
   overflow-wrap: anywhere;
 }
 .contact-line a:hover{ text-decoration: underline; }
+.copy-email{ margin-left:auto; flex:none; cursor:pointer; font-family:var(--mono); font-size:.64rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); background:transparent; border:1px solid var(--line-strong); border-radius:999px; padding:.28rem .7rem; transition:color .2s ease,border-color .2s ease; }
+.copy-email:hover{ color:var(--ink); border-color:var(--ink); }
 .contact-line small{ display:block; font-family: var(--mono); font-size: .66rem; font-weight: 400; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
 .contact-card .btn{ width: 100%; margin-top: 1.3rem; }
 
@@ -975,7 +1020,7 @@ section{ scroll-margin-top: 84px; }
         <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 019.5 3.5a8.5 8.5 0 1011 11z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
         <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
-      <a class="btn btn-primary btn-sm" href="mailto:colin@automatedworkflowllc.com?subject=Free%20mini-demo%20request&body=Hi%20Colin%2C%0A%0AHere%27s%20the%20spreadsheet%20chore%20that%27s%20eating%20my%20week%3A%20">Free mini-demo</a>
+      <a class="btn btn-primary btn-sm" href="#contact">Free mini-demo</a>
     </nav>
   </div>
 </header>
@@ -993,7 +1038,7 @@ section{ scroll-margin-top: 84px; }
       <div class="hero-facts stage s2">
         <div class="spec-row"><span class="k">Cleanups</span><span class="dots" aria-hidden="true"></span><span class="v">24–48 hours</span></div>
         <div class="spec-row"><span class="k">Pricing</span><span class="dots" aria-hidden="true"></span><span class="v">flat, from $40</span></div>
-        <div class="spec-row"><span class="k">First step</span><span class="dots" aria-hidden="true"></span><span class="v">free 1-day demo</span></div>
+        <div class="spec-row"><span class="k">First step</span><span class="dots" aria-hidden="true"></span><span class="v">free 1-day mini-demo</span></div>
       </div>
     </div>
 
@@ -1003,7 +1048,7 @@ section{ scroll-margin-top: 84px; }
           <h1 id="hero-h">Your spreadsheet<br class="hb hb2">shouldn&rsquo;t need<br class="hb">a&nbsp;full-time<br class="hb hb2"><span class="serif-i">babysitter.</span></h1>
           <p class="hero-answer">It needs&nbsp;an <span class="wm">automated_workflow<span class="wm-bar" aria-hidden="true"></span></span>.</p>
           <div class="hero-ctas">
-            <a class="btn btn-primary" href="#contact">Get the free 1-day demo <span class="arr" aria-hidden="true">&rarr;</span></a>
+            <a class="btn btn-primary" href="#contact">Get the free mini-demo <span class="arr" aria-hidden="true">&rarr;</span></a>
             <a class="btn btn-ghost" href="#samples">See live samples</a>
           </div>
           <p class="hero-note"><strong>No risk, no sales call.</strong> Send one messy file; within a day you get back a working fix on your real data &mdash; yours to keep either way.</p>
@@ -1066,7 +1111,7 @@ section{ scroll-margin-top: 84px; }
 
           <div class="demo-status">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="currentColor"/></svg>
-            <output id="demo-status" aria-live="polite">done &mdash; and it stays done.</output>
+            <output id="demo-status" aria-hidden="true">done &mdash; and it stays done.</output>
             <button class="replay" id="replay" type="button" hidden>&#8635; Replay</button>
           </div>
         </div>
@@ -1107,18 +1152,21 @@ section{ scroll-margin-top: 84px; }
     </div>
 
     <div class="offers">
-      <article class="card-offer rv" style="grid-column: 1 / -1;">
+      <article class="card-offer flagship rv" style="grid-column: 1 / -1;">
         <div class="offer-top">
           <h3>Report Autopilot</h3>
           <span class="badge">Flagship</span>
         </div>
-        <div class="price"><b>$1,000</b><span class="per">one-time setup + $250&ndash;500/mo monitoring</span></div>
+        <div class="price"><b>$1,000</b><span class="per">one-time setup &middot; then $250&ndash;500/mo monitoring, cancel anytime</span></div>
         <p>Your reports write themselves &mdash; on schedule <em>and on demand</em>. Data pulled, formatted, summarized in plain English, delivered weekly or monthly, and any time in between: need fresh numbers before a meeting, just run it and the report is in your inbox in minutes. The hours of copy-paste and formatting, handed back to you.</p>
-        <p class="why">This is the part nobody else does: AI reads your own numbers and writes the brief. Not a once-a-month thing &mdash; a report that&rsquo;s ready whenever you need to know how the business is doing.</p>
+        <p class="why">How this differs from the $650 dashboard: that one shows your numbers with a short weekly note. Autopilot writes the full report &mdash; pulled, formatted, summarized &mdash; and lands it in your inbox on schedule or the moment you ask, with me monitoring so it never silently breaks.</p>
         <div class="spec">
           <div class="spec-row"><span class="k">Time back</span><span class="dots" aria-hidden="true"></span><span class="v">~6 hrs/mo &rarr; ~20 min</span></div>
           <div class="spec-row"><span class="k">Delivered</span><span class="dots" aria-hidden="true"></span><span class="v">On schedule + on demand, anytime</span></div>
-          <div class="spec-row"><span class="k">Monitoring</span><span class="dots" aria-hidden="true"></span><span class="v">$250&ndash;500/mo &middot; I keep it running</span></div>
+          <div class="spec-row"><span class="k">Monitoring</span><span class="dots" aria-hidden="true"></span><span class="v">$250&ndash;500/mo by report count &middot; cancel anytime</span></div>
+        </div>
+        <div class="hero-ctas" style="margin-top:1rem">
+          <a class="btn btn-primary btn-sm" href="#contact">See one written on your data &mdash; free <span class="arr" aria-hidden="true">&rarr;</span></a>
         </div>
       </article>
 
@@ -1147,7 +1195,7 @@ section{ scroll-margin-top: 84px; }
         <div class="spec">
           <div class="spec-row"><span class="k">Time back</span><span class="dots" aria-hidden="true"></span><span class="v">~2 hrs/week &rarr; 0</span></div>
           <div class="spec-row"><span class="k">Lives in</span><span class="dots" aria-hidden="true"></span><span class="v">Your Google Sheets</span></div>
-          <div class="spec-row"><span class="k">AI summary</span><span class="dots" aria-hidden="true"></span><span class="v">Included</span></div>
+          <div class="spec-row"><span class="k">AI summary</span><span class="dots" aria-hidden="true"></span><span class="v">Weekly note included</span></div>
         </div>
       </article>
     </div>
@@ -1218,6 +1266,8 @@ section{ scroll-margin-top: 84px; }
           </div>
 
           <p class="term-quote">The dashboard isn&rsquo;t the product. The fact that nobody has to touch it &mdash; that&rsquo;s the product.</p>
+
+          <a class="btn btn-primary" href="#contact" style="margin-top:1.9rem">Get next Monday&rsquo;s summary written free <span class="arr" aria-hidden="true">&rarr;</span></a>
         </div>
 
         <div class="rv rv-d1">
@@ -1337,7 +1387,7 @@ section{ scroll-margin-top: 84px; }
       </a>
     </div>
 
-    <p class="samples-note rv">Three more portfolio pieces are live on <a href="https://www.upwork.com/freelancers/~016ef90f21b03e98fd" target="_blank" rel="noopener">my Upwork profile</a> &mdash; same work, verified platform.</p>
+    <p class="samples-note rv">Three more portfolio pieces are live on <a href="https://www.upwork.com/freelancers/~016ef90f21b03e98fd" target="_blank" rel="noopener">my Upwork profile</a> &mdash; same work, verified platform. Want one of these running on <em>your</em> numbers? That&rsquo;s exactly what the <a href="#contact">free mini-demo</a> is.</p>
   </div>
 </section>
 
@@ -1395,6 +1445,7 @@ section{ scroll-margin-top: 84px; }
       <div class="contact-line">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M3.5 7l8.5 6 8.5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <div><small>Email</small><a href="mailto:colin@automatedworkflowllc.com">colin@automatedworkflowllc.com</a></div>
+        <button class="copy-email" type="button" aria-label="Copy email address">Copy</button>
       </div>
       <div class="contact-line">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.5 3h3l1.5 4.5-2 1.5a12.5 12.5 0 006 6l1.5-2 4.5 1.5v3a2 2 0 01-2 2C10.6 19.9 4.1 13.4 3.5 5a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
@@ -1457,15 +1508,23 @@ section{ scroll-margin-top: 84px; }
     toggle.setAttribute("aria-label", "Switch to " + next + " theme");
     toggle.setAttribute("title", "Switch to " + next + " theme");
   }
+  function syncThemeColor(){
+    var c = effectiveTheme() === "dark" ? "#0C0C0D" : "#F3F0E7";
+    Array.prototype.forEach.call(document.querySelectorAll('meta[name="theme-color"]'), function(m){
+      m.setAttribute("media", "all"); m.setAttribute("content", c);
+    });
+  }
   if (toggle) {
     toggle.addEventListener("click", function(){
       var next = effectiveTheme() === "dark" ? "light" : "dark";
       rootEl.setAttribute("data-theme", next);
       try { localStorage.setItem("awllc-theme", next); } catch(e){}
       syncToggleLabel();
+      syncThemeColor();
     });
-    if (darkMq.addEventListener) darkMq.addEventListener("change", syncToggleLabel);
+    if (darkMq.addEventListener) darkMq.addEventListener("change", function(){ syncToggleLabel(); syncThemeColor(); });
     syncToggleLabel();
+    if (rootEl.getAttribute("data-theme")) syncThemeColor();
   }
 
   // Hero entrance choreography (visible by default; .js gate means this only ever reveals)
@@ -1570,6 +1629,17 @@ section{ scroll-margin-top: 84px; }
     // one autoplay, then replay-on-demand only
     if (document.readyState === "complete") { runDemo(); }
     else { window.addEventListener("load", runDemo); }
+  }
+  var copyBtn = document.querySelector(".copy-email");
+  if (copyBtn) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      copyBtn.addEventListener("click", function(){
+        navigator.clipboard.writeText("colin@automatedworkflowllc.com").then(function(){
+          copyBtn.textContent = "Copied";
+          window.setTimeout(function(){ copyBtn.textContent = "Copy"; }, 1600);
+        });
+      });
+    } else { copyBtn.hidden = true; }
   }
 })();
 </script>
