@@ -940,12 +940,14 @@ section{ scroll-margin-top: 84px; }
     "@type": "OfferCatalog",
     "name": "Spreadsheet and automation services",
     "itemListElement": [
-      { "@type": "Offer", "price": "40", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Spreadsheet Cleanup", "description": "Duplicates removed, formats fixed, formulas repaired — one clean tab you can trust. Most files back within 24–48 hours." } },
-      { "@type": "Offer", "price": "650", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Automated Dashboard", "description": "A live, self-updating KPI dashboard in Google Sheets — revenue, jobs, and overdue invoices in one view that refreshes itself." } },
-      { "@type": "Offer", "price": "500", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Automation Audit", "description": "A prioritized list of every hour lost to copy-paste, credited toward any build." } },
-      { "@type": "Offer", "price": "600", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Monthly Report Autopilot", "description": "The monthly report assembled automatically — data pulled, formatted, summarized, and delivered on schedule." } },
-      { "@type": "Offer", "price": "750", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Intake-to-Sheet System", "description": "Form, email, or phone-note intake lands in the right sheet, formatted correctly, with a notification." } },
-      { "@type": "Offer", "price": "2000", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Full Workflow Automation", "description": "Intake, tracking, reporting, and follow-ups designed and built end to end." } }
+      { "@type": "Offer", "price": "1000", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Report Autopilot", "description": "Your reports write themselves — data pulled, formatted, summarized in plain English, delivered on schedule and on demand whenever you need fresh numbers. Turns roughly 6 hours a month of report assembly into about 20 minutes of review. $1,000 one-time setup plus $250–500/mo monitoring." } },
+      { "@type": "Offer", "price": "40", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Spreadsheet Cleanup", "description": "Duplicates removed, formats fixed, formulas repaired — one clean tab you can trust. From $40; most jobs land $150–300 flat. Most files back within 24–48 hours." } },
+      { "@type": "Offer", "price": "650", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Automated Dashboard", "description": "A live, self-updating KPI dashboard in Google Sheets — revenue, jobs, and overdue invoices in one view that refreshes itself, saving the couple of hours a week you'd spend rebuilding it by hand." } },
+      { "@type": "Offer", "price": "0", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Free Automation Audit", "description": "A free 30-minute call to find the hours you're losing to copy-paste — no obligation, no pitch." } },
+      { "@type": "Offer", "price": "750", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Automation Roadmap", "description": "A written, prioritized list of every hour lost to copy-paste, with what to fix first and what each fix is worth. Credited in full toward any build of $2,000+." } },
+      { "@type": "Offer", "price": "750", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Intake-to-Sheet System", "description": "Form, email, or phone-note intake lands in the right sheet, formatted correctly, with a notification — no more retyping every entry." } },
+      { "@type": "Offer", "price": "2000", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Full Workflow Automation", "description": "Intake, tracking, reporting, and follow-ups designed and built end to end so the pipeline runs without you." } },
+      { "@type": "Offer", "price": "750", "priceCurrency": "USD", "itemOffered": { "@type": "Service", "name": "Keep It Running", "description": "Ongoing monitoring and maintenance — I keep what we built running as your business changes. From $750/mo, cancel anytime." } }
     ]
   }
 }
@@ -1105,14 +1107,29 @@ section{ scroll-margin-top: 84px; }
     </div>
 
     <div class="offers">
-      <article class="card-offer rv">
+      <article class="card-offer rv" style="grid-column: 1 / -1;">
+        <div class="offer-top">
+          <h3>Report Autopilot</h3>
+          <span class="badge">Flagship</span>
+        </div>
+        <div class="price"><b>$1,000</b><span class="per">one-time setup + $250&ndash;500/mo monitoring</span></div>
+        <p>Your reports write themselves &mdash; on schedule <em>and on demand</em>. Data pulled, formatted, summarized in plain English, delivered weekly or monthly, and any time in between: need fresh numbers before a meeting, just run it and the report is in your inbox in minutes. The hours of copy-paste and formatting, handed back to you.</p>
+        <p class="why">This is the part nobody else does: AI reads your own numbers and writes the brief. Not a once-a-month thing &mdash; a report that&rsquo;s ready whenever you need to know how the business is doing.</p>
+        <div class="spec">
+          <div class="spec-row"><span class="k">Time back</span><span class="dots" aria-hidden="true"></span><span class="v">~6 hrs/mo &rarr; ~20 min</span></div>
+          <div class="spec-row"><span class="k">Delivered</span><span class="dots" aria-hidden="true"></span><span class="v">On schedule + on demand, anytime</span></div>
+          <div class="spec-row"><span class="k">Monitoring</span><span class="dots" aria-hidden="true"></span><span class="v">$250&ndash;500/mo &middot; I keep it running</span></div>
+        </div>
+      </article>
+
+      <article class="card-offer rv rv-d1">
         <div class="offer-top">
           <h3>Spreadsheet Cleanup</h3>
-          <span class="badge">Launch special</span>
+          <span class="badge">Start here</span>
         </div>
-        <div class="price"><b>$40</b><s>$200</s><span class="per">flat</span></div>
-        <p>Duplicates gone, formats fixed, formulas repaired, one clean tab you can actually trust. Most cleanups come back within 24–48 hours — done right, not just done fast.</p>
-        <p class="why">Why $40? It&rsquo;s my launch price while I build my Gainesville client list &mdash; same full cleanup, and it won&rsquo;t stay this low.</p>
+        <div class="price"><b>from $40</b><span class="per">most jobs $150&ndash;300 flat</span></div>
+        <p>Duplicates gone, formats fixed, formulas repaired, one clean tab you can actually trust. The half-day of manual find-and-fix &mdash; done for you, usually back within 24&ndash;48 hours.</p>
+        <p class="why">Why so low to start? $40 is my launch tripwire while I build my Gainesville client list &mdash; a small file is $40, a real one is typically $150&ndash;300 flat, priced before I touch anything.</p>
         <div class="spec">
           <div class="spec-row"><span class="k">Turnaround</span><span class="dots" aria-hidden="true"></span><span class="v">24–48 hours</span></div>
           <div class="spec-row"><span class="k">You get</span><span class="dots" aria-hidden="true"></span><span class="v">One clean, trusted tab</span></div>
@@ -1120,15 +1137,15 @@ section{ scroll-margin-top: 84px; }
         </div>
       </article>
 
-      <article class="card-offer rv rv-d1">
+      <article class="card-offer rv rv-d2">
         <div class="offer-top">
           <h3>Automated Dashboard</h3>
         </div>
         <div class="price"><b>$650</b><span class="per">flat</span></div>
-        <p>Your KPIs live and self-updating &mdash; revenue, jobs, overdue invoices, whatever you check weekly &mdash; pulled together in one view that refreshes itself.</p>
+        <p>Your KPIs live and self-updating &mdash; revenue, jobs, overdue invoices, whatever you check weekly &mdash; pulled together in one view that refreshes itself. The couple of hours a week you&rsquo;d spend rebuilding it by hand, gone.</p>
         <p class="why">The dashboard at the top of this page is this exact build &mdash; and the live sample below it is one click away.</p>
         <div class="spec">
-          <div class="spec-row"><span class="k">Turnaround</span><span class="dots" aria-hidden="true"></span><span class="v">24&ndash;48 hours</span></div>
+          <div class="spec-row"><span class="k">Time back</span><span class="dots" aria-hidden="true"></span><span class="v">~2 hrs/week &rarr; 0</span></div>
           <div class="spec-row"><span class="k">Lives in</span><span class="dots" aria-hidden="true"></span><span class="v">Your Google Sheets</span></div>
           <div class="spec-row"><span class="k">AI summary</span><span class="dots" aria-hidden="true"></span><span class="v">Included</span></div>
         </div>
@@ -1138,18 +1155,18 @@ section{ scroll-margin-top: 84px; }
     <h3 class="pack-title rv" id="packages-h">Fixed packages</h3>
     <div class="ladder rv" role="list" aria-labelledby="packages-h">
       <div class="rung" role="listitem">
-        <h4>Automation Audit</h4>
-        <p class="desc">I sit with your actual workflow, find every hour you&rsquo;re losing to copy-paste, and hand you a prioritized fix list. The full $500 is credited toward any build.</p>
-        <p class="amt">$500 <small>flat &middot; credited to any build</small></p>
+        <h4>Free Automation Audit</h4>
+        <p class="desc">A free 30-minute call where I look at your actual workflow and point to the hours you&rsquo;re losing to copy-paste &mdash; no obligation, no pitch. The low-friction way to find out if any of this is worth doing.</p>
+        <p class="amt">Free <small>30 min &middot; no obligation</small></p>
       </div>
       <div class="rung" role="listitem">
-        <h4>Monthly Report Autopilot</h4>
-        <p class="desc">The report you assemble every month, assembled for you &mdash; data pulled, formatted, summarized, and in your inbox on schedule without anyone touching it.</p>
-        <p class="amt">$600 <small>setup + $150/mo</small></p>
+        <h4>Automation Roadmap</h4>
+        <p class="desc">The paid deliverable: a written, prioritized list of every hour lost to copy-paste across your business, with what to fix first and what each fix is worth. Credited in full toward any build of $2,000+.</p>
+        <p class="amt">$750 <small>flat &middot; credited to any build $2k+</small></p>
       </div>
       <div class="rung" role="listitem">
         <h4>Intake-to-Sheet System</h4>
-        <p class="desc">New client or job comes in by form, email, or phone note &mdash; it lands in the right sheet, formatted correctly, with a notification. No more retyping.</p>
+        <p class="desc">New client or job comes in by form, email, or phone note &mdash; it lands in the right sheet, formatted correctly, with a notification. The few minutes of retyping per entry, gone.</p>
         <p class="amt">$750 <small>flat</small></p>
       </div>
     </div>
@@ -1158,13 +1175,13 @@ section{ scroll-margin-top: 84px; }
     <div class="ladder rv" role="list" aria-labelledby="bigger-h">
       <div class="rung" role="listitem">
         <h4>Full Workflow Automation</h4>
-        <p class="desc">The whole pipeline &mdash; intake, tracking, reporting, follow-ups &mdash; designed and built end to end so it runs without you. Scoped and priced up front.</p>
+        <p class="desc">The whole pipeline &mdash; intake, tracking, reporting, follow-ups &mdash; designed and built end to end so it runs without you. The hours of daily copy-paste that hold the business together, handled. Scoped and priced up front.</p>
         <p class="amt">from $2,000 <small>3&ndash;5 days</small></p>
       </div>
       <div class="rung" role="listitem">
-        <h4>Ongoing Help</h4>
-        <p class="desc">I stay on call: I maintain what we built, keep it running, and keep improving it as your business changes.</p>
-        <p class="amt">from $500/mo <small>cancel anytime</small></p>
+        <h4>Keep it running</h4>
+        <p class="desc">I stay on call: I monitor what we built, keep it running as your business changes, and fix anything that breaks before you notice. The stickiest, quietest kind of help.</p>
+        <p class="amt">from $750/mo <small>cancel anytime</small></p>
       </div>
     </div>
 
