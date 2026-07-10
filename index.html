@@ -498,8 +498,6 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
   padding: .95rem 1.15rem .8rem; border-bottom: 1px solid var(--line-soft);
 }
 .demo-title-wrap{ display: flex; align-items: center; gap: .6rem; min-width: 0; }
-.win-dots{ display: inline-flex; gap: 5px; flex: none; }
-.win-dots i{ width: 8px; height: 8px; border-radius: 50%; background: var(--line-strong); }
 .demo-title{ font-size: .8rem; font-weight: 700; letter-spacing: .02em; }
 .demo-title span{
   display:block; font-family: var(--mono); font-weight: 400; font-size: .66rem;
@@ -716,6 +714,7 @@ section{ scroll-margin-top: 84px; }
 }
 .price{ display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
 .price b{ font-family: var(--mono); font-size: 2.05rem; font-weight: 700; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.price b .from{ font-size: .5em; font-weight: 500; letter-spacing: 0; color: var(--ink-soft); margin-right: .06em; }
 .price s{ color: var(--ink-soft); font-family: var(--mono); font-size: 1.05rem; text-decoration-thickness: 2px; }
 .price .per{ font-family: var(--mono); font-size: .76rem; color: var(--ink-soft); font-weight: 400; }
 /* serif body inside cards — the editorial voice */
@@ -1058,7 +1057,6 @@ section{ scroll-margin-top: 84px; }
           <div class="demo" id="demo" role="img" aria-label="Animated illustration: a messy spreadsheet full of errors and duplicate rows reorganizes itself into a clean, self-updating dashboard with a weekly summary written automatically by AI.">
             <div class="demo-head">
               <div class="demo-title-wrap">
-                <span class="win-dots" aria-hidden="true"><i></i><i></i><i></i></span>
                 <div class="demo-title">Weekly KPI Dashboard<span>Sample &mdash; demo data</span></div>
               </div>
               <span class="live-pill"><span class="live-dot"></span>Self-updating</span>
@@ -1175,7 +1173,7 @@ section{ scroll-margin-top: 84px; }
           <h3>Spreadsheet Cleanup</h3>
           <span class="badge">Start here</span>
         </div>
-        <div class="price"><b>from $40</b><span class="per">most jobs $150&ndash;300 flat</span></div>
+        <div class="price"><b><span class="from">from</span> $40</b><span class="per">most jobs $150&ndash;300 flat</span></div>
         <p>Duplicates gone, formats fixed, formulas repaired, one clean tab you can actually trust. The half-day of manual find-and-fix &mdash; done for you, usually back within 24&ndash;48 hours.</p>
         <p class="why">Why so low to start? $40 is my launch tripwire while I build my Gainesville client list &mdash; a small file is $40, a real one is typically $150&ndash;300 flat, priced before I touch anything.</p>
         <div class="spec">
