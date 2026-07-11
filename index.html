@@ -401,25 +401,12 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
 .dark-panel ::selection{ background: var(--panel-ink); color: var(--panel-bg); }
 
 /* ============ HERO ============
-   Magazine order: the opening band (serif stanza left, spec facts right),
-   then the dark inset card carrying headline-left / live product-right. */
+   Cold open: the mono eyebrow, then straight into the dark inset card
+   carrying headline-left / live product-right. Nothing sits before the
+   pitch (owner ruling, 7/10 — no dead space ahead of the products). */
 .hero{ padding: clamp(1.5rem, 2.6vw, 2.1rem) 0 clamp(3.5rem, 6.5vw, 5.5rem); }
-/* the opening band — stanza left, mono facts right; no empty flank */
-.hero-open{
-  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr);
-  gap: 1.2rem 3.5rem; align-items: end;
-}
-.hero-open .statement{ margin-top: .9rem; }
-.hero-facts{ max-width: 330px; justify-self: end; width: 100%; padding-bottom: .3rem; }
-.hero-facts .spec-row{ padding: .5rem 0; }
-.hero-facts .spec-row:first-child{ border-top: none; }
-@media (max-width: 900px){
-  .hero-open{ grid-template-columns: 1fr; }
-  .hero-facts{ justify-self: start; max-width: 360px; padding-bottom: 0; }
-  .hero-facts .spec-row:first-child{ border-top: 1px solid var(--line); }
-}
 .hero-card{
-  margin-top: clamp(1.4rem, 2.4vw, 2rem);
+  margin-top: clamp(.9rem, 1.8vw, 1.4rem);
   border-radius: var(--radius-lg);
   padding: clamp(1.5rem, 2.9vw, 2.6rem);
   box-shadow: var(--shadow-lift);
@@ -464,7 +451,6 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
 }
 .js .loaded .hero .s1{ transition-delay: .05s; }
 .js .loaded .hero .s2{ transition-delay: .14s; }
-.js .loaded .hero .s3{ transition-delay: .26s; }
 
 /* ============ HERO DEMO — the product is paper in both themes ============
    A real Google Sheet is white; pinning the mockup to paper keeps it honest
@@ -498,6 +484,9 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
   padding: .95rem 1.15rem .8rem; border-bottom: 1px solid var(--line-soft);
 }
 .demo-title-wrap{ display: flex; align-items: center; gap: .6rem; min-width: 0; }
+/* window dots — the one chrome mark the mock shares with the Deliverable frames */
+.demo-dots{ display: flex; gap: .4rem; flex: none; }
+.demo-dots span{ width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
 .demo-title{ font-size: .8rem; font-weight: 700; letter-spacing: .02em; }
 .demo-title span{
   display:block; font-family: var(--mono); font-weight: 400; font-size: .66rem;
@@ -631,17 +620,23 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
 }
 .replay:hover{ color: var(--panel-ink); border-color: var(--panel-ink); }
 
-/* ============ TRUST STRIP ============ */
+/* ============ TRUST STRIP ============
+   The post-hero trust moment: the four claims in a 2×2 grid on the left,
+   the At-a-Glance fact box docked as the band's right column. */
 .trust{
   border-block: 1px solid var(--line);
   background: var(--bg-soft);
 }
 .trust-in{
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem;
-  padding: 1.8rem 0;
+  display: grid; grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 1.6rem clamp(2rem, 4.5vw, 3.75rem);
+  padding: 2rem 0; align-items: center;
 }
-@media (max-width: 860px){ .trust-in{ grid-template-columns: repeat(2, 1fr); row-gap: 1.35rem; } }
-@media (max-width: 560px){ .trust-in{ grid-template-columns: 1fr; } }
+.trust-items{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.4rem 1.5rem; }
+@media (max-width: 980px){
+  .trust-in{ grid-template-columns: 1fr; }
+}
+@media (max-width: 560px){ .trust-items{ grid-template-columns: 1fr; } }
 .trust-item{ display:flex; gap:.7rem; align-items: flex-start; }
 .trust-item svg{ flex:none; margin-top:.15rem; color: var(--ink); }
 .trust-item b{ display:block; font-size:.9rem; letter-spacing:-0.01em; }
@@ -948,7 +943,6 @@ section{ scroll-margin-top: 84px; }
 .cform .btn{ margin-top: .2rem; }
 .cform-sent{ display: none; font-family: var(--mono); font-size: .8rem; color: var(--ink); background: var(--well, var(--bg-soft)); border: 1px solid var(--line-strong); border-radius: 8px; padding: .9rem 1rem; margin-top: 1.3rem; }
 
-
 .site-footer{ border-top: 1px solid var(--line); padding: 2.1rem 0 2.6rem; background: var(--bg-soft); }
 .footer-in{
   display:flex; align-items:center; justify-content: space-between; gap: 1rem 2rem; flex-wrap: wrap;
@@ -965,6 +959,246 @@ section{ scroll-margin-top: 84px; }
 .footer-links{ display:flex; gap: 1.4rem; flex-wrap: wrap; }
 .footer-links a{ color: var(--ink-soft); text-decoration: none; font-weight: 500; transition: color .18s ease; }
 .footer-links a:hover{ color: var(--ink); }
+
+/* ============ MERGE GRAFTS — 2026-07-10 candidate ============
+   1. Hero opens cold: eyebrow, then the dark slab. No stanza, no ring, no
+      fact box ahead of the pitch (owner ruling, 7/10 — the ring lives in
+      the og/social images only).
+   2. At-a-Glance ruled fact box (Broadsheet; owner keep): relocated into
+      the trust strip below the hero as the band's right column.
+   3. Demo mock: mono caption above + docked sheet-tab chips below (ratified v4; product truth).
+   4. "The deliverable": dark + light product windows between hero and services;
+      their window-bar + tab-chip chrome speaks the hero mock's language.
+   5. Pricing: the three offers as ONE ruled three-column rate card (Broadsheet).
+   6. Honesty interstitial, numbered sample cards, contact verification line.
+   All page chrome runs on tokens; hardcoded hexes live ONLY inside product
+   windows — the same pinned-palette convention as .demo and .email-card. */
+
+/* --- At-a-Glance ruled fact box — docked in the trust strip --- */
+.glance{
+  width: 100%; max-width: 380px;
+  background: var(--card);
+  border: 1px solid var(--line-strong); border-radius: 6px; overflow: hidden;
+}
+.glance-h{
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+  padding: .55rem .95rem .5rem; border-bottom: 1px solid var(--line-strong);
+  font-family: var(--mono); font-size: .64rem; font-weight: 600;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--ink);
+}
+.glance-h .fo{ color: var(--ink-soft); font-weight: 400; letter-spacing: .14em; }
+.glance-body{ padding: .1rem .95rem .55rem; }
+.glance .spec-row{ padding: .48rem 0; }
+.glance .spec-row:first-child{ border-top: none; }
+.glance .v a{ color: var(--ink); text-decoration: none; }
+.glance .v a:hover{ text-decoration: underline; }
+.glance-note{
+  margin: 0; padding: .68rem .95rem .72rem;
+  border-top: 1px solid var(--line); background: var(--well);
+  font-family: var(--serif); font-style: italic; font-weight: 440;
+  font-size: .94rem; line-height: 1.45; color: var(--ink-soft);
+}
+
+/* --- demo caption + docked sheet-tab chips (ratified v4 treatment) --- */
+.demo-caption{
+  display: flex; justify-content: center; text-align: center;
+  margin: 0 auto .8rem; max-width: 470px; font-size: .64rem;
+}
+.demo-tabs{
+  display: flex; gap: 5px; align-items: flex-start;
+  max-width: 442px; width: calc(100% - 28px); margin: 4px auto 0;
+}
+.dtab{
+  flex: 1; min-width: 0; height: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: .58rem; font-weight: 500;
+  letter-spacing: .09em; text-transform: uppercase;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 .3rem;
+  border-radius: 0 0 6px 6px;
+  /* pinned paper chips + ink labels — product truth, same palette the mock pins */
+  color: #5C5645; background: #F4F1E8;
+  border: 1px solid #E4DFD1; border-top: none;
+  border-bottom: 4px solid #C7C1AD;
+}
+.dtab.active{ height: 36px; font-weight: 700; color: #211D14; border-bottom-width: 6px; border-radius: 0 0 7px 7px; }
+.dt-dash{ border-bottom-color: #4FAE4A; }
+.dt-rev{ border-bottom-color: #EFC939; }
+.dt-rec{ border-bottom-color: #E1483E; }
+.dt-raw{ border-bottom-color: #3E7FD9; }
+@media (max-width: 460px){ .dtab{ font-size: .52rem; letter-spacing: .05em; } }
+
+/* --- THE DELIVERABLE — dark + light product windows --- */
+.deliverable{ padding: clamp(3.4rem, 6.4vw, 5.2rem) 0 0; }
+.deliv-head{ display: flex; justify-content: center; }
+.pframes{
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; align-items: start;
+  margin-top: clamp(1.5rem, 3vw, 2.3rem);
+}
+@media (max-width: 980px){ .pframes{ grid-template-columns: 1fr; max-width: 640px; margin-inline: auto; } }
+.pframe{
+  font-family: var(--product-sans);
+  border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--app-line, transparent);
+  background: var(--app-bg); color: var(--app-ink);
+}
+/* the product window is pinned, not themed — dark stays dark in BOTH page themes */
+.pframe-dark{
+  --app-bg:#111114; --app-panel:#17171A; --app-line:#26262A; --app-ink:#F1EDDE; --app-soft:#A8A290;
+  --tile:#1B1B1E; --pbar:#3A3A40; --pbar-hi:#F1EDDE; --pos:#6BC28C; --pwarn:#D69A5E; --pdue:#D97B6E;
+  border-color: rgba(255,255,255,.12);
+  box-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 34px 70px -26px rgba(0,0,0,.55), 0 10px 26px -16px rgba(0,0,0,.4);
+}
+/* the light reskin — pinned paper, exactly like .demo and .email-card */
+.pframe-light{
+  --app-bg:#FCFBF7; --app-panel:#F5F2E9; --app-line:#E5DFCC; --app-ink:#211D14; --app-soft:#6B6553;
+  --tile:#FFFFFF; --pbar:#CBC5B1; --pbar-hi:#211D14; --pos:#2F7D53; --pwarn:#B06A3A; --pdue:#A9564C;
+  box-shadow: var(--shadow-lift);
+}
+.pframe-bar{
+  display: flex; align-items: center; gap: .75rem; min-width: 0;
+  padding: .62rem .95rem; border-bottom: 1px solid var(--app-line); background: var(--app-panel);
+}
+.pdots{ display: flex; gap: .4rem; flex: none; }
+.pdots span{ width: 10px; height: 10px; border-radius: 50%; background: var(--app-line); }
+/* filename label — same mono spec voice as the hero mock's window sublabel */
+.pfile{
+  font-family: var(--mono); font-size: .66rem; font-weight: 400;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--app-soft);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+}
+/* corner pill — same proportions as the hero mock's live-pill */
+.ppill{
+  margin-left: auto; flex: none;
+  font-family: var(--mono); font-size: .64rem; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--app-soft);
+  background: var(--tile);
+  border: 1px solid var(--app-line); border-radius: 999px; padding: .26rem .6rem; white-space: nowrap;
+}
+.pframe-body{ padding: clamp(.8rem, 1.6vw, 1.1rem); }
+.pkpis{ display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; }
+.pkpi{ background: var(--tile); border: 1px solid var(--app-line); border-radius: 10px; padding: .68rem .75rem .6rem; min-width: 0; }
+.pkpi .kl{
+  display: block; font-family: var(--mono); font-size: .58rem; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--app-soft);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pkpi .kv{
+  display: block; font-size: clamp(1.05rem, 1.7vw, 1.45rem); font-weight: 800;
+  letter-spacing: -.02em; margin: .22rem 0 .12rem; font-variant-numeric: tabular-nums;
+}
+.pkpi .kd{ font-size: .66rem; font-weight: 700; color: var(--pos); }
+.pkpi .kd.warn{ color: var(--pwarn); }
+.pgrid{ display: grid; grid-template-columns: 1.35fr 1fr; gap: .6rem; margin-top: .6rem; }
+@media (max-width: 560px){ .pgrid{ grid-template-columns: 1fr; } }
+.ppanel{
+  background: var(--tile); border: 1px solid var(--app-line); border-radius: 10px;
+  padding: .75rem .8rem; display: flex; flex-direction: column; min-width: 0;
+}
+.ppanel .ph{ font-family: var(--mono); font-size: .58rem; letter-spacing: .09em; text-transform: uppercase; color: var(--app-soft); margin: 0 0 .6rem; }
+.pbars{ display: flex; align-items: flex-end; gap: .45rem; flex: 1; min-height: 96px; }
+.pb{ flex: 1; background: var(--pbar); border-radius: 4px 4px 2px 2px; min-height: 6px; }
+.pb.hi{ background: var(--pbar-hi); }
+.paxis{ display: flex; gap: .45rem; margin-top: .4rem; }
+.paxis span{ flex: 1; text-align: center; font-family: var(--mono); font-size: .56rem; color: var(--app-soft); font-variant-numeric: tabular-nums; }
+.pside{ display: flex; flex-direction: column; gap: .6rem; min-width: 0; }
+.prec{ display: grid; grid-template-columns: 1fr auto; row-gap: .1rem; align-items: baseline; padding: .45rem 0; border-top: 1px solid var(--app-line); }
+.prec:first-of-type{ border-top: 0; }
+.prec b{ font-size: .74rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.prec .amt{ font-family: var(--mono); font-size: .7rem; font-variant-numeric: tabular-nums; }
+.prec .ptag{ grid-column: 1 / -1; font-family: var(--mono); font-size: .56rem; letter-spacing: .05em; }
+.ptag.due{ color: var(--pdue); }
+.ptag.paid{ color: var(--pos); }
+/* rainbow job #2 — the AI mark, on the AI-written note inside the product window */
+.pai{ background: var(--app-panel); position: relative; overflow: hidden; padding-left: .95rem; }
+.pai::before{ content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--rainbow-v); }
+.pai-tag{
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-family: var(--mono); font-size: .56rem; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--app-soft); margin-bottom: .45rem;
+}
+.pai p{ margin: 0; font-size: .76rem; line-height: 1.5; color: var(--app-ink); }
+/* the sheet-tab strip — product truth (real builds ship color-coded tabs),
+   set in the SAME chip language as the hero mock's docked .dtab strip:
+   equal-width mono uppercase chips, color-underline, taller bold active. */
+.ptabs{
+  display: flex; gap: 5px; align-items: flex-start;
+  padding: 0 .8rem .6rem;
+  background: var(--app-panel); border-top: 1px solid var(--app-line);
+}
+.ptab{
+  flex: 1; min-width: 0; height: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: .58rem; font-weight: 500;
+  letter-spacing: .09em; text-transform: uppercase;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 .3rem;
+  border-radius: 0 0 6px 6px;
+  color: var(--app-soft); background: var(--tile);
+  border: 1px solid var(--app-line); border-top: none;
+  border-bottom: 4px solid var(--app-line);
+}
+.ptab.active{ height: 36px; font-weight: 700; color: var(--app-ink); border-bottom-width: 6px; border-radius: 0 0 7px 7px; }
+.pt-dash{ border-bottom-color: #4FAE4A; }
+.pt-rev{ border-bottom-color: #EFC939; }
+.pt-rec{ border-bottom-color: #E1483E; }
+.pt-raw{ border-bottom-color: #3E7FD9; }
+@media (max-width: 460px){ .ptab{ font-size: .52rem; letter-spacing: .05em; } }
+.deliv-caption{
+  margin: 1.15rem auto 0; text-align: center; max-width: 60ch;
+  font-family: var(--serif); font-style: italic; font-weight: 440;
+  font-size: clamp(1rem, 1.4vw, 1.14rem); color: var(--ink-soft);
+}
+.deliv-caption strong{ color: var(--ink); font-weight: 560; font-style: normal; }
+
+/* --- PRICING — one ruled, one-glance rate card (Broadsheet treatment) --- */
+.rate-grid{
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  border-top: 2px solid var(--line-strong); border-bottom: 1px solid var(--line-strong);
+}
+.rate{
+  display: flex; flex-direction: column; gap: .85rem; min-width: 0;
+  padding: 1.6rem clamp(1.1rem, 2vw, 1.7rem) 1.7rem;
+  border-left: 1px solid var(--line);
+}
+.rate:first-child{ border-left: none; padding-left: 0; }
+.rate:last-child{ padding-right: 0; }
+.rate h3{
+  font-family: var(--mono); font-size: .85rem; font-weight: 650;
+  letter-spacing: .05em; text-transform: uppercase; line-height: 1.4;
+}
+.rate p{
+  font-family: var(--serif); font-weight: 430;
+  color: var(--ink-soft); font-size: .97rem; line-height: 1.55;
+}
+.rate .why{
+  font-style: italic; font-size: .92rem;
+  border-left: 2px solid var(--line-strong); padding-left: .85rem;
+}
+.rate .spec .spec-row:last-child{ border-bottom: none; }
+.rate-cta{ margin-top: 1rem; align-self: flex-start; }
+@media (max-width: 900px){
+  .rate-grid{ grid-template-columns: 1fr; }
+  .rate{ border-left: none; border-top: 1px solid var(--line); padding-left: 0; padding-right: 0; }
+  .rate:first-child{ border-top: none; }
+}
+
+/* --- honesty interstitial --- */
+.honesty{
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 1rem 1.5rem; flex-wrap: wrap; margin-top: 1.6rem;
+}
+.honesty p{
+  font-family: var(--serif); font-style: italic; font-weight: 440;
+  font-size: clamp(1.05rem, 1.5vw, 1.22rem); line-height: 1.45;
+  color: var(--ink); max-width: 56ch;
+}
+.honesty p strong{ font-style: normal; font-weight: 600; color: var(--ink); }
+
+/* --- numbered sample cards (Broadsheet "No. 0x" treatment) --- */
+.card-no{
+  display: block; font-family: var(--mono); font-size: .6rem; font-weight: 500;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--ink-soft);
+  margin-bottom: .5rem;
+}
 </style>
 <script>
 /* Pre-paint theme restore: keeps the saved theme from flashing on load */
@@ -1038,19 +1272,10 @@ section{ scroll-margin-top: 84px; }
 <!-- ============ HERO ============ -->
 <section class="hero" aria-labelledby="hero-h">
   <div class="wrap">
-    <div class="hero-open">
-      <div class="stage s1">
-        <p class="eyebrow">Spreadsheet cleanup &amp; AI automation &middot; Gainesville, FL</p>
-        <p class="statement">Clean numbers, reports that write themselves,<br class="sb"> and <em>evenings that are yours again.</em></p>
-      </div>
-      <div class="hero-facts stage s2">
-        <div class="spec-row"><span class="k">Cleanups</span><span class="dots" aria-hidden="true"></span><span class="v">24–48 hours</span></div>
-        <div class="spec-row"><span class="k">Pricing</span><span class="dots" aria-hidden="true"></span><span class="v">flat, from $40</span></div>
-        <div class="spec-row"><span class="k">First step</span><span class="dots" aria-hidden="true"></span><span class="v">free 1-day mini-demo</span></div>
-      </div>
-    </div>
+    <!-- cold open: eyebrow, then the pitch — nothing sits between them (owner ruling, 7/10) -->
+    <p class="eyebrow stage s1">Spreadsheet cleanup &amp; AI automation &middot; Gainesville, FL</p>
 
-    <div class="hero-card dark-panel stage s3">
+    <div class="hero-card dark-panel stage s2">
       <div class="hero-grid">
         <div class="hero-copy">
           <h1 id="hero-h">Your spreadsheet<br class="hb hb2">shouldn&rsquo;t need<br class="hb">a&nbsp;full-time<br class="hb hb2"><span class="serif-i">babysitter.</span></h1>
@@ -1063,9 +1288,11 @@ section{ scroll-margin-top: 84px; }
         </div>
 
         <div class="hero-demo">
+          <p class="eyebrow demo-caption">This is the thing you get &mdash; look first, read after</p>
           <div class="demo" id="demo" role="img" aria-label="Animated illustration: a messy spreadsheet full of errors and duplicate rows reorganizes itself into a clean, self-updating dashboard with a weekly summary written automatically by AI.">
             <div class="demo-head">
               <div class="demo-title-wrap">
+                <span class="demo-dots" aria-hidden="true"><span></span><span></span><span></span></span>
                 <div class="demo-title">Weekly KPI Dashboard<span>Sample &mdash; demo data</span></div>
               </div>
               <span class="live-pill"><span class="live-dot"></span>Self-updating</span>
@@ -1116,6 +1343,14 @@ section{ scroll-margin-top: 84px; }
             </div>
           </div>
 
+          <!-- ratified v4 tab-chip strip — docked OUTSIDE the mock so the demo animation stays intact -->
+          <div class="demo-tabs" aria-hidden="true">
+            <span class="dtab dt-dash active">Dashboard</span>
+            <span class="dtab dt-rev">Revenue</span>
+            <span class="dtab dt-rec">Receivables</span>
+            <span class="dtab dt-raw">Raw&nbsp;data</span>
+          </div>
+
           <div class="demo-status">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="currentColor"/></svg>
             <output id="demo-status" aria-hidden="true">done &mdash; and it stays done.</output>
@@ -1127,27 +1362,150 @@ section{ scroll-margin-top: 84px; }
   </div>
 </section>
 
-<!-- ============ TRUST STRIP ============ -->
+<!-- ============ TRUST STRIP — the four claims + the At-a-Glance fact box (relocated from the hero; owner keep) ============ -->
 <div class="trust">
   <div class="wrap trust-in">
-    <div class="trust-item rv">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      <div><b>Fast, careful turnarounds</b><span>Most spreadsheet cleanups are back in your inbox within 24–48 hours — built, tested, and double-checked.</span></div>
+    <div class="trust-items">
+      <div class="trust-item rv">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <div><b>Fast, careful turnarounds</b><span>Most spreadsheet cleanups are back in your inbox within 24–48 hours — built, tested, and double-checked.</span></div>
+      </div>
+      <div class="trust-item rv rv-d1">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <div><b>Flat, public prices</b><span>Every price is on this page. No hourly meter, no surprise invoice.</span></div>
+      </div>
+      <div class="trust-item rv rv-d2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div><b>Keep the demo either way</b><span>The free mini-demo is yours whether or not we ever work together.</span></div>
+      </div>
+      <div class="trust-item rv rv-d3">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s-7-4.6-7-10a7 7 0 0114 0c0 5.4-7 10-7 10z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="11" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+        <div><b>Local to Gainesville</b><span>One person, reachable by phone &mdash; <a href="tel:+17039391174">(703) 939-1174</a>. Happy to meet over coffee or a screen share.</span></div>
+      </div>
     </div>
-    <div class="trust-item rv rv-d1">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      <div><b>Flat, public prices</b><span>Every price is on this page. No hourly meter, no surprise invoice.</span></div>
-    </div>
-    <div class="trust-item rv rv-d2">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <div><b>Keep the demo either way</b><span>The free mini-demo is yours whether or not we ever work together.</span></div>
-    </div>
-    <div class="trust-item rv rv-d3">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s-7-4.6-7-10a7 7 0 0114 0c0 5.4-7 10-7 10z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="11" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
-      <div><b>Local to Gainesville</b><span>One person, reachable by phone &mdash; <a href="tel:+17039391174">(703) 939-1174</a>. Happy to meet over coffee or a screen share.</span></div>
-    </div>
+    <aside class="glance rv rv-d1" aria-label="At a glance">
+      <div class="glance-h"><span>At a Glance</span><span class="fo" aria-hidden="true">Fig. 1</span></div>
+      <div class="glance-body">
+        <div class="spec-row"><span class="k">Cleanups</span><span class="dots" aria-hidden="true"></span><span class="v">24–48 hours</span></div>
+        <div class="spec-row"><span class="k">Pricing</span><span class="dots" aria-hidden="true"></span><span class="v">flat, from $40</span></div>
+        <div class="spec-row"><span class="k">First step</span><span class="dots" aria-hidden="true"></span><span class="v">free 1-day mini-demo</span></div>
+        <div class="spec-row"><span class="k">Works with</span><span class="dots" aria-hidden="true"></span><span class="v">Excel &amp; Sheets</span></div>
+        <div class="spec-row"><span class="k">Located</span><span class="dots" aria-hidden="true"></span><span class="v">Gainesville, FL</span></div>
+        <div class="spec-row"><span class="k">Direct line</span><span class="dots" aria-hidden="true"></span><span class="v"><a href="tel:+17039391174">(703) 939-1174</a></span></div>
+      </div>
+      <p class="glance-note">Keep the demo either way &mdash; whether or not we ever work together.</p>
+    </aside>
   </div>
 </div>
+
+<!-- ============ THE DELIVERABLE — the product shot, dark + light reskins ============ -->
+<section class="section deliverable" id="deliverable" aria-labelledby="deliv-eyebrow">
+  <div class="wrap">
+    <div class="deliv-head rv"><p class="eyebrow" id="deliv-eyebrow">The deliverable</p></div>
+
+    <div class="pframes rv rv-d1">
+      <div class="pframe pframe-dark" role="img" aria-label="The $650 automated dashboard build, dark reskin: a Google Sheets KPI dashboard with revenue, jobs-closed and overdue-invoice tiles, a six-week revenue chart, a receivables list, an AI-written weekly summary, and color-coded sheet tabs.">
+        <div class="pframe-bar">
+          <span class="pdots" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="pfile">weekly-kpi-dashboard &middot; Google Sheets &middot; sample data</span>
+          <span class="ppill">Dark reskin</span>
+        </div>
+        <div class="pframe-body">
+          <div class="pkpis">
+            <div class="pkpi"><span class="kl">Revenue</span><span class="kv">$48,270</span><span class="kd">&#9650; 12.4% wk</span></div>
+            <div class="pkpi"><span class="kl">Jobs closed</span><span class="kv">31</span><span class="kd">&#9650; 4 wk</span></div>
+            <div class="pkpi"><span class="kl">Overdue inv.</span><span class="kv">2</span><span class="kd warn">flagged</span></div>
+          </div>
+          <div class="pgrid">
+            <div class="ppanel">
+              <p class="ph">Revenue &mdash; last 6 weeks</p>
+              <div class="pbars">
+                <div class="pb" style="height:38%"></div>
+                <div class="pb" style="height:52%"></div>
+                <div class="pb" style="height:44%"></div>
+                <div class="pb" style="height:66%"></div>
+                <div class="pb" style="height:58%"></div>
+                <div class="pb hi" style="height:92%"></div>
+              </div>
+              <div class="paxis"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span></div>
+            </div>
+            <div class="pside">
+              <div class="ppanel">
+                <p class="ph">Receivables</p>
+                <div class="prec"><b>Hartley Property Mgmt</b><span class="amt">$1,850</span><span class="ptag due">31d overdue</span></div>
+                <div class="prec"><b>Suwannee Vet Clinic</b><span class="amt">$2,300</span><span class="ptag paid">paid</span></div>
+              </div>
+              <div class="ppanel pai">
+                <span class="pai-tag">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 6.5L21 10l-6.8 1.5L12 18l-2.2-6.5L3 10l6.8-1.5L12 2z"/></svg>
+                  Written by the dashboard, not by you
+                </span>
+                <p>Revenue is up 12.4% this week, mostly repeat clients. Two invoices are past 30 days &mdash; both flagged on the Receivables tab.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ptabs" aria-hidden="true">
+          <span class="ptab pt-dash active">Dashboard</span>
+          <span class="ptab pt-rev">Revenue</span>
+          <span class="ptab pt-rec">Receivables</span>
+          <span class="ptab pt-raw">Raw&nbsp;data</span>
+        </div>
+      </div>
+
+      <div class="pframe pframe-light" role="img" aria-label="The same $650 dashboard build in the light reskin — identical layout and data, lighter paper colors. You pick the skin; the build is the same.">
+        <div class="pframe-bar">
+          <span class="pdots" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="pfile">weekly-kpi-dashboard &middot; Google Sheets &middot; sample data</span>
+          <span class="ppill">Light reskin</span>
+        </div>
+        <div class="pframe-body">
+          <div class="pkpis">
+            <div class="pkpi"><span class="kl">Revenue</span><span class="kv">$48,270</span><span class="kd">&#9650; 12.4% wk</span></div>
+            <div class="pkpi"><span class="kl">Jobs closed</span><span class="kv">31</span><span class="kd">&#9650; 4 wk</span></div>
+            <div class="pkpi"><span class="kl">Overdue inv.</span><span class="kv">2</span><span class="kd warn">flagged</span></div>
+          </div>
+          <div class="pgrid">
+            <div class="ppanel">
+              <p class="ph">Revenue &mdash; last 6 weeks</p>
+              <div class="pbars">
+                <div class="pb" style="height:38%"></div>
+                <div class="pb" style="height:52%"></div>
+                <div class="pb" style="height:44%"></div>
+                <div class="pb" style="height:66%"></div>
+                <div class="pb" style="height:58%"></div>
+                <div class="pb hi" style="height:92%"></div>
+              </div>
+              <div class="paxis"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span></div>
+            </div>
+            <div class="pside">
+              <div class="ppanel">
+                <p class="ph">Receivables</p>
+                <div class="prec"><b>Hartley Property Mgmt</b><span class="amt">$1,850</span><span class="ptag due">31d overdue</span></div>
+                <div class="prec"><b>Suwannee Vet Clinic</b><span class="amt">$2,300</span><span class="ptag paid">paid</span></div>
+              </div>
+              <div class="ppanel pai">
+                <span class="pai-tag">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 6.5L21 10l-6.8 1.5L12 18l-2.2-6.5L3 10l6.8-1.5L12 2z"/></svg>
+                  Written by the dashboard, not by you
+                </span>
+                <p>Revenue is up 12.4% this week, mostly repeat clients. Two invoices are past 30 days &mdash; both flagged on the Receivables tab.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ptabs" aria-hidden="true">
+          <span class="ptab pt-dash active">Dashboard</span>
+          <span class="ptab pt-rev">Revenue</span>
+          <span class="ptab pt-rec">Receivables</span>
+          <span class="ptab pt-raw">Raw&nbsp;data</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="deliv-caption rv rv-d2">The <strong>$650 build</strong> &mdash; this exact dashboard, on your numbers.</p>
+  </div>
+</section>
 
 <!-- ============ SERVICES ============ -->
 <section class="section" id="services" aria-labelledby="services-h">
@@ -1158,8 +1516,9 @@ section{ scroll-margin-top: 84px; }
       <p class="lede">Start small. Every job below is a fixed price agreed before I touch anything &mdash; you always know exactly what you&rsquo;re paying and exactly what you get back.</p>
     </div>
 
-    <div class="offers">
-      <article class="card-offer flagship rv" style="grid-column: 1 / -1;">
+    <!-- ONE ruled, one-glance rate card (Broadsheet treatment) — all copy carried over verbatim -->
+    <div class="rate-grid rv" role="list">
+      <article class="rate" role="listitem">
         <div class="offer-top">
           <h3>Report Autopilot</h3>
           <span class="badge">Flagship</span>
@@ -1172,12 +1531,10 @@ section{ scroll-margin-top: 84px; }
           <div class="spec-row"><span class="k">Delivered</span><span class="dots" aria-hidden="true"></span><span class="v">On schedule + on demand, anytime</span></div>
           <div class="spec-row"><span class="k">Monitoring</span><span class="dots" aria-hidden="true"></span><span class="v">$250&ndash;500/mo by report count &middot; cancel anytime</span></div>
         </div>
-        <div class="hero-ctas" style="margin-top:1rem">
-          <a class="btn btn-primary btn-sm" href="#contact">See one written on your data &mdash; free <span class="arr" aria-hidden="true">&rarr;</span></a>
-        </div>
+        <a class="btn btn-primary btn-sm rate-cta" href="#contact">See one written on your data &mdash; free <span class="arr" aria-hidden="true">&rarr;</span></a>
       </article>
 
-      <article class="card-offer rv rv-d1">
+      <article class="rate" role="listitem">
         <div class="offer-top">
           <h3>Spreadsheet Cleanup</h3>
           <span class="badge">Start here</span>
@@ -1192,7 +1549,7 @@ section{ scroll-margin-top: 84px; }
         </div>
       </article>
 
-      <article class="card-offer rv rv-d2">
+      <article class="rate" role="listitem">
         <div class="offer-top">
           <h3>Automated Dashboard</h3>
         </div>
@@ -1205,6 +1562,12 @@ section{ scroll-margin-top: 84px; }
           <div class="spec-row"><span class="k">AI summary</span><span class="dots" aria-hidden="true"></span><span class="v">Weekly note included</span></div>
         </div>
       </article>
+    </div>
+
+    <!-- honesty interstitial — straight after the rate card, where the pricing question is freshest -->
+    <div class="honesty rv">
+      <p>Not sure which one fits? Send the file and I&rsquo;ll tell you honestly &mdash; <strong>sometimes the answer is the $40 cleanup and nothing else.</strong></p>
+      <a class="btn btn-primary btn-sm" href="#contact">Start with the free mini-demo <span class="arr" aria-hidden="true">&rarr;</span></a>
     </div>
 
     <h3 class="pack-title rv" id="packages-h">Fixed packages</h3>
@@ -1240,10 +1603,6 @@ section{ scroll-margin-top: 84px; }
       </div>
     </div>
 
-    <div class="services-foot rv">
-      <p>Not sure which one fits? Send the file and I&rsquo;ll tell you honestly &mdash; <strong>sometimes the answer is the $40 cleanup and nothing else.</strong></p>
-      <a class="btn btn-primary" href="#contact">Start with the free mini-demo <span class="arr" aria-hidden="true">&rarr;</span></a>
-    </div>
   </div>
 </section>
 
@@ -1329,6 +1688,7 @@ section{ scroll-margin-top: 84px; }
           </svg>
         </div>
         <div class="sample-body">
+          <span class="card-no" aria-hidden="true">No. 01</span>
           <h3>Executive KPI Dashboard <span class="ext" aria-hidden="true">&#8599;</span></h3>
           <p>Live KPIs, trend charts, and the AI-written weekly summary &mdash; the full flagship build.</p>
           <div class="spec">
@@ -1361,6 +1721,7 @@ section{ scroll-margin-top: 84px; }
           </svg>
         </div>
         <div class="sample-body">
+          <span class="card-no" aria-hidden="true">No. 02</span>
           <h3>Retail Sales Cleanup <span class="ext" aria-hidden="true">&#8599;</span></h3>
           <p>A genuinely messy sales export, before and after &mdash; see what &ldquo;clean&rdquo; actually means.</p>
           <div class="spec">
@@ -1385,6 +1746,7 @@ section{ scroll-margin-top: 84px; }
           </svg>
         </div>
         <div class="sample-body">
+          <span class="card-no" aria-hidden="true">No. 03</span>
           <h3>Expense Tracker <span class="ext" aria-hidden="true">&#8599;</span></h3>
           <p>Categorized, totaled, and charted automatically &mdash; type an expense, everything else updates.</p>
           <div class="spec">
@@ -1394,7 +1756,7 @@ section{ scroll-margin-top: 84px; }
       </a>
     </div>
 
-    <p class="samples-note rv">Three more portfolio pieces are live on <a href="https://www.upwork.com/freelancers/~016ef90f21b03e98fd" target="_blank" rel="noopener">my Upwork profile</a> &mdash; same work, verified platform. Want one of these running on <em>your</em> numbers? That&rsquo;s exactly what the <a href="#contact">free mini-demo</a> is.</p>
+    <p class="samples-note rv">Three more portfolio pieces are live on <a href="https://www.upwork.com/freelancers/~016ef90f21b03e98fd" target="_blank" rel="noopener">my Upwork profile</a>. Want one of these running on <em>your</em> numbers? That&rsquo;s exactly what the <a href="#contact">free mini-demo</a> is.</p>
   </div>
 </section>
 
@@ -1447,6 +1809,7 @@ section{ scroll-margin-top: 84px; }
       <p class="contact-note">Your file stays private &mdash; never shared, never used for anything else, deleted after the demo. NDA available on request.</p>
       <p class="contact-note">Prefer to talk first? Call or text &mdash; I answer my own phone.</p>
       <p class="contact-note">Anthropic Academy certified &mdash; six credentials in AI&#8209;assisted automation. The AI in these builds isn&rsquo;t a buzzword; it&rsquo;s trained craft.</p>
+      <p class="contact-note">Verified on <a href="https://www.upwork.com/freelancers/~016ef90f21b03e98fd" target="_blank" rel="noopener">Upwork</a> &mdash; same work, reviewed platform.</p>
     </div>
 
     <div class="contact-card rv rv-d1">
