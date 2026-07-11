@@ -1086,8 +1086,12 @@ section{ scroll-margin-top: 84px; }
 .pb.hi{ background: var(--pbar-hi); }
 /* fixed chart height so the bars scale WITHIN a constant box — the panel no
    longer resizes between dashboard/revenue views (was sliding the layout) */
-.demo .pgrid{ align-items: start; }
+.demo .pgrid{ align-items: stretch; }
 .demo .chart-panel .pbars{ flex: none; height: 200px; min-height: 0; }
+/* AI summary is a full-width bar across the bottom (was a tall narrow side box) */
+.demo .pai-wide{ margin-top: .6rem; }
+.demo[data-view="revenue"] .pai-wide,
+.demo[data-view="raw"] .pai-wide{ display: none; }
 .paxis{ display: flex; gap: .45rem; margin-top: .4rem; }
 .paxis span{ flex: 1; text-align: center; font-family: var(--mono); font-size: .56rem; color: var(--app-soft); font-variant-numeric: tabular-nums; }
 .pside{ display: flex; flex-direction: column; gap: .6rem; min-width: 0; }
@@ -1808,14 +1812,15 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
                     <div class="prec"><b>K. Alvarez Builders</b><span class="amt">$2,890</span><span class="ptag due">17d overdue</span></div>
                     <div class="prec"><b>Suwannee Vet Clinic</b><span class="amt">$2,250</span><span class="ptag paid">paid Thu &middot; clears Mon</span></div>
                   </div>
-                  <div class="ppanel pai cell" style="--tx:0px;--ty:36px;--tr:1.5deg;--d:.5s">
-                    <span class="pai-tag">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 6.5L21 10l-6.8 1.5L12 18l-2.2-6.5L3 10l6.8-1.5L12 2z"/></svg>
-                      Written by the dashboard, not by you
-                    </span>
-                    <p id="ai-text">Strong month &mdash; revenue up 12% and net cash up 8%. Two receivables moved since Tuesday: Hartley crossed 30 days at $4,200. Call Hartley first &mdash; everything else is on track.</p>
-                  </div>
                 </div>
+              </div>
+
+              <div class="ppanel pai pai-wide cell" style="--tx:0px;--ty:30px;--tr:0deg;--d:.5s">
+                <span class="pai-tag">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 6.5L21 10l-6.8 1.5L12 18l-2.2-6.5L3 10l6.8-1.5L12 2z"/></svg>
+                  Written by the dashboard, not by you
+                </span>
+                <p id="ai-text">Strong month &mdash; revenue up 12% and net cash up 8%. Two receivables moved since Tuesday: Hartley crossed 30 days at $4,200. Call Hartley first &mdash; everything else is on track.</p>
               </div>
 
               <!-- raw-data view — the cleaned source rows behind the dashboard -->
