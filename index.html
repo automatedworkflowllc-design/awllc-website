@@ -1264,19 +1264,19 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
    only the grid backdrop responds to the theme toggle. */
 .hero.ledger .hero-grid{
   position: relative;
-  background: #17140F; color: var(--ink);
+  background: #151517; color: var(--ink);
   border: 1px solid rgba(255,255,255,.06);
   border-radius: 20px;
   padding: clamp(1.5rem, 3vw, 2.6rem);
   box-shadow: 0 34px 80px -32px rgba(20,17,10,.5);
-  --bg: #17140F; --bg-soft: #201C15; --card: #201C15; --well: #201C15;
-  --ink: #F2EFE4; --ink-soft: #BDB5A1;
-  --line: rgba(255,255,255,.10); --line-soft: rgba(255,255,255,.07); --line-strong: rgba(255,255,255,.18);
-  --btn-bg: #FBFAF3; --btn-bg-hover: #FFFFFF; --btn-fg: #211D14;
+  --bg: #151517; --bg-soft: #111113; --card: #1C1C1F; --well: #1C1C1F;
+  --ink: #F1EDDE; --ink-soft: #C7C5BB;
+  --line: #26262A; --line-soft: #1B1B1E; --line-strong: #56565E;
+  --btn-bg: #F1EDDE; --btn-bg-hover: #FFFFFF; --btn-fg: #1F1C15;
   --shadow-card: 0 1px 2px rgba(0,0,0,.2), 0 12px 32px -16px rgba(0,0,0,.4);
   --shadow-lift: 0 2px 4px rgba(0,0,0,.2), 0 22px 52px -20px rgba(0,0,0,.5);
 }
-.hero.ledger .hero-grid ::selection{ background: #FBFAF3; color: #211D14; }
+.hero.ledger .hero-grid ::selection{ background: #F1EDDE; color: #1F1C15; }
 .hero.ledger .hero-grid .stamp-chip{
   color: #5FCE8C; border-color: rgba(95,206,140,.4); background: rgba(95,206,140,.08);
 }
@@ -1288,7 +1288,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 :root[data-theme="dark"] .lc-rows{ border-right-color: rgba(255,255,255,.08); }
 :root[data-theme="dark"] .lc-rows span{ border-bottom-color: rgba(255,255,255,.05); color: #6B675C; }
 :root[data-theme="dark"] .lc-body{ background-image: linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px); }
-:root[data-theme="dark"] .ledger-eyebrow{ color: #37B06B; }
+:root[data-theme="dark"] .ledger-eyebrow{ color: #4ADE80; }
 @media (prefers-color-scheme: dark){
 :root:not([data-theme="light"]) .ledger-chrome{ color: #6E6A5E; }
 :root:not([data-theme="light"]) .lc-cols{ border-bottom-color: rgba(255,255,255,.08); }
@@ -1296,7 +1296,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 :root:not([data-theme="light"]) .lc-rows{ border-right-color: rgba(255,255,255,.08); }
 :root:not([data-theme="light"]) .lc-rows span{ border-bottom-color: rgba(255,255,255,.05); color: #6B675C; }
 :root:not([data-theme="light"]) .lc-body{ background-image: linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px); }
-:root:not([data-theme="light"]) .ledger-eyebrow{ color: #37B06B; }
+:root:not([data-theme="light"]) .ledger-eyebrow{ color: #4ADE80; }
 }
 .hero.ledger ::selection{ background: #211D14; color: #FBFAF3; }
 
@@ -1341,9 +1341,11 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 
 .ledger-inner{ position: relative; z-index: 1; padding-top: clamp(1.6rem, 3vw, 2.4rem); }
 
-/* blue spreadsheet-link eyebrow (drops the // accent) */
-.ledger-eyebrow{ color: #1E7A47; }
-.ledger-eyebrow::before{ content: none; }
+
+.type-cursor{ display:inline-block; width:.45em; height:1em; margin-left:.35em; vertical-align:-.12em; background: currentColor; animation: cursor-blink 1.1s step-end infinite; }
+@keyframes cursor-blink{ 50%{ opacity: 0; } }
+@media (prefers-reduced-motion: reduce){ .type-cursor{ animation: none; } }
+/* eyebrow: original // treatment in light; green only in dark (theme overrides below) */
 
 /* editorial display-serif headline (roman + italic both serif) */
 .hero.ledger h1{ font-family: var(--serif); font-weight: 500; letter-spacing: -0.012em; }
@@ -1685,7 +1687,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
   </div>
   <div class="wrap ledger-inner">
     <!-- cold open: eyebrow, then the pitch — nothing sits between them (owner ruling, 7/10) -->
-    <p class="eyebrow ledger-eyebrow stage s1">Gainesville, FL &mdash; Spreadsheet cleanup &middot; AI reports</p>
+    <p class="eyebrow ledger-eyebrow stage s1">Spreadsheet cleanup &amp; AI reporting &middot; Gainesville, FL</p>
 
     <div class="stage s2">
       <div class="hero-grid">
@@ -1772,7 +1774,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 
           <div class="demo-status">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="currentColor"/></svg>
-            <output id="demo-status" aria-hidden="true">done &mdash; and it stays done.</output>
+            <output id="demo-status" aria-hidden="true">done &mdash; and it stays done.<span class="type-cursor" aria-hidden="true"></span></output>
             <button class="replay" id="replay" type="button" hidden>&#8635; Replay</button>
           </div>
         </div>
