@@ -2,6 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K2B3YTCPJY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-K2B3YTCPJY');
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spreadsheet Cleanup &amp; Google Sheets Automation — Gainesville, FL | Automated Workflow LLC</title>
 <meta name="description" content="Spreadsheet cleanup, Google Sheets automation, and AI-written weekly reports for small businesses in Gainesville, FL. Flat prices from $40, 24–48h turnaround, and a free 1-day mini-demo on your real data — keep it either way.">
@@ -2012,6 +2020,7 @@ section{ scroll-margin-top: 84px; }
   if (/[?&]sent=1/.test(location.search)) {
     var f = document.querySelector(".cform"), ok = document.getElementById("cform-sent");
     if (f && ok) { f.style.display = "none"; ok.style.display = "block"; }
+    if (typeof gtag === "function") gtag("event", "generate_lead", { method: "contact_form" });
   }
   var copyBtn = document.querySelector(".copy-email");
   if (copyBtn) {
