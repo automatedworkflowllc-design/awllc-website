@@ -494,32 +494,21 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
   width: 100%;
   color: var(--app-ink);
 }
-.demo-head{
-  display:flex; align-items:center; justify-content: space-between; gap: .75rem;
-  padding: .95rem 1.15rem .8rem; border-bottom: 1px solid var(--line-soft);
-}
-.demo-title-wrap{ display: flex; align-items: center; gap: .6rem; min-width: 0; }
-/* window dots — the one chrome mark the mock shares with the Deliverable frames */
-.demo-dots{ display: flex; gap: .4rem; flex: none; }
-.demo-dots span{ width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
-.demo-title{ font-size: .8rem; font-weight: 700; letter-spacing: .02em; }
-.demo-title span{
-  display:block; font-family: var(--mono); font-weight: 400; font-size: .66rem;
-  color: var(--ink-soft); letter-spacing: .06em; text-transform: uppercase; margin-top: .12rem;
-}
-.live-pill{
-  display:inline-flex; align-items:center; gap:.4rem;
-  font-family: var(--mono);
-  font-size:.64rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
-  color: var(--ink-soft); background: var(--well);
-  border: 1px solid var(--line);
-  padding:.26rem .6rem; border-radius:999px; white-space: nowrap;
-}
-.live-dot{ width:7px; height:7px; border-radius:50%; background: var(--ink); }
+/* ---- The hero demo is now a LIVE deliverable window. It reuses the global
+   product-window classes (.pframe-bar / .pkpis / .pkpi / .pgrid / .ppanel /
+   .pbars / .pb / .pai / .ptabs / .ptab) from the Deliverable section, pinned to
+   the light paper reskin above, and layers the animation + interactivity here. ---- */
+
+/* self-updating badge — pulsing dot inside the window-bar pill */
+.demo .ppill{ display: inline-flex; align-items: center; gap: .4rem; }
+.live-dot{ width:7px; height:7px; border-radius:50%; background: var(--app-ink,#211D14); }
 @keyframes pulse{ 0%,100%{ box-shadow: 0 0 0 0 rgba(128,128,128,.45);} 55%{ box-shadow: 0 0 0 5px rgba(128,128,128,0);} }
 .live-dot{ animation: pulse 2.4s ease infinite; }
 
-.demo-body{ padding: 1rem 1.15rem 1.1rem; display: grid; gap: .65rem; position: relative; }
+/* mess tags are absolutely positioned within the body */
+.demo .demo-body{ position: relative; }
+/* reserve the summary card's height so the typed reveal doesn't jump the layout */
+.demo .pai p{ min-height: 4.6em; }
 
 /* every animatable piece — clean state is the default; JS adds .is-messy then removes it */
 .cell{
@@ -532,68 +521,47 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
   transform: translate(var(--tx,0), var(--ty,0)) rotate(var(--tr,0deg)) scale(var(--ts,1));
   opacity: .68; filter: saturate(.25);
 }
+/* the revenue bars grow up out of the baseline as the dashboard rebuilds */
+.demo .pb{ transform-origin: bottom; transition: transform .9s var(--ease) var(--d,0s); }
+.demo.is-messy .pb{ transform: scaleY(.06); }
 
-.kpis{ display:grid; grid-template-columns: repeat(3, 1fr); gap:.55rem; }
-.kpi{
-  background: var(--well); border: 1px solid var(--line-soft); border-radius: 10px;
-  padding: .6rem .65rem .55rem; min-width: 0;
-}
-.kpi b{ display:block; font-family: var(--mono); font-size: clamp(.9rem, 2.4vw, 1.08rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.2; font-variant-numeric: tabular-nums; }
-.kpi span{ display:block; font-family: var(--mono); font-size: .62rem; font-weight: 400; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: .2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.kpi .delta{ font-family: var(--mono); font-size: .68rem; font-weight: 600; color: var(--ink-soft); text-transform: none; letter-spacing: 0; }
-.kpi .delta.warn{ color: var(--ink-soft); text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
+/* NEW BEAT — the overdue flag pulses once when the dashboard lands */
+.demo .pkpi .kd.warn{ display: inline-block; transform-origin: left center; }
+.demo.landed .pkpi .kd.warn{ animation: warnPulse 1.05s var(--ease) 1; }
+@keyframes warnPulse{ 0%{ transform: scale(1);} 28%{ transform: scale(1.14);} 60%{ transform: scale(.98);} 100%{ transform: scale(1);} }
 
-.chart{
-  background: var(--well); border: 1px solid var(--line-soft); border-radius: 10px;
-  padding: .7rem .75rem .55rem;
-}
-.chart-label{ font-family: var(--mono); font-size:.62rem; font-weight:400; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:.5rem; }
-.bars{ display:flex; align-items:flex-end; gap:6%; height: 70px; }
-.bar{
-  flex:1; border-radius: 4px 4px 2px 2px; background: var(--bar);
-  transform-origin: bottom; height: var(--h);
-  transition: transform .9s var(--ease) var(--d,0s), background .9s ease var(--d,0s);
-}
-.bar:last-child{ background: var(--ink); }
-.demo.is-messy .bar{ transform: scaleY(.14) rotate(var(--tr,0deg)); }
-.axis{ display:flex; gap:6%; margin-top:.35rem; }
-.axis span{ flex:1; text-align:center; font-family: var(--mono); font-size:.64rem; font-weight:400; color:var(--ink-soft); }
+/* ---- interactive sheet-tabs: clicking a chip switches the visible panel ---- */
+.demo .ptabs .ptab{ cursor: pointer; -webkit-appearance: none; appearance: none; }
+.demo .ptabs .ptab:hover{ color: var(--app-ink); }
+.demo .praw{ display: none; }
+.demo[data-view="revenue"] .pside{ display: none; }
+.demo[data-view="revenue"] .pgrid{ grid-template-columns: 1fr; }
+.demo[data-view="receivables"] .pkpis{ display: none; }
+.demo[data-view="receivables"] .chart-panel{ display: none; }
+.demo[data-view="receivables"] .pgrid{ grid-template-columns: 1fr; }
+.demo[data-view="raw"] .pkpis,
+.demo[data-view="raw"] .pgrid{ display: none; }
+.demo[data-view="raw"] .praw{ display: block; }
 
-.rows{ display:grid; gap:.4rem; }
-.row{
-  display:grid; grid-template-columns: 1.3fr .7fr auto; gap:.55rem; align-items:center;
-  background: var(--well); border: 1px solid var(--line-soft); border-radius: 8px;
-  padding: .45rem .7rem; font-size: .76rem; color: var(--ink-soft); min-width: 0;
+/* raw-data view — the cleaned source rows behind the dashboard */
+.praw{ margin-top: .6rem; }
+.praw-grid{
+  display: grid; grid-template-columns: auto 1.5fr .9fr auto auto;
+  font-family: var(--mono); font-size: .6rem; color: var(--app-ink);
+  border: 1px solid var(--app-line); border-radius: 10px; overflow: hidden;
+  background: var(--tile);
 }
-.row b{ color: var(--ink); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.row .num{ text-align: right; font-family: var(--mono); font-size: .72rem; font-variant-numeric: tabular-nums; }
-.row .st{ justify-self: end; font-family: var(--mono); font-size:.6rem; font-weight:700; letter-spacing:.07em; text-transform: uppercase; padding:.15rem .45rem; border-radius:5px; white-space: nowrap; }
-.st.paid{ color: var(--bg); background: var(--ink); border:1px solid var(--ink); }
-.st.due{ color: var(--ink); background: transparent; border:1px solid var(--line-strong); }
-
-/* rainbow job #2: the AI mark — vertical spine on the AI-written note */
-.ai-note{
-  position: relative; overflow: hidden;
-  background: var(--well);
-  border: 1px solid var(--line-soft);
-  border-radius: 10px;
-  padding: .8rem .9rem .8rem 1.1rem;
+.praw-grid span{
+  padding: .42rem .5rem; border-bottom: 1px solid var(--app-line);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
 }
-.ai-note::before{
-  content:""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background: var(--rainbow-v);
+.praw-grid .rh{
+  background: var(--app-panel); color: var(--app-soft);
+  text-transform: uppercase; letter-spacing: .06em; font-weight: 600;
 }
-.ai-note-tag{
-  display: flex; align-items: center; gap: .45rem;
-  font-family: var(--mono);
-  font-size: .62rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
-  color: var(--ink-soft); margin-bottom: .35rem;
-}
-.ai-note-tag svg{ color: var(--ink-soft); }
-.ai-note p{
-  font-style: italic; font-size: .88rem;
-  color: var(--ink); line-height: 1.55; min-height: 4.65em;
-}
+.praw-grid span:nth-last-child(-n+5){ border-bottom: none; }
+.praw-grid .rt.due{ color: var(--pdue); }
+.praw-grid .rt.paid{ color: var(--pos); }
 
 /* the mess — visible only during the messy state; pinned to the paper palette */
 .mess{
@@ -612,7 +580,7 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
   .mess{ font-size: .6rem; }
   .mess.m-sm{ display: none; }
 }
-@media (max-width: 460px){ .live-pill{ display: none; } }
+@media (max-width: 460px){ .demo .ppill{ display: none; } }
 
 /* status line under the demo — terminal voice on the dark panel */
 .demo-status{
@@ -697,10 +665,11 @@ section{ scroll-margin-top: 84px; }
 @media (prefers-reduced-motion: reduce){
   .js .rv, .js .hero .stage{ opacity: 1 !important; transform: none !important; transition: none !important; }
   .live-dot{ animation: none !important; }
-  .cell, .bar, .mess{ transition: none !important; }
+  .cell, .demo .pb, .mess{ transition: none !important; }
   .btn, .card-offer, .sample-card, .theme-toggle, .replay{ transition: none !important; }
   .btn .arr, .theme-toggle svg, .nav .nav-link, .sample-body h3 .ext{ transition: none !important; transform: none !important; }
-  .demo.is-messy .cell, .demo.is-messy .bar{ transform: none; opacity: 1; filter: none; }
+  .demo.is-messy .cell, .demo.is-messy .pb{ transform: none; opacity: 1; filter: none; }
+  .demo.landed .pkpi .kd.warn{ animation: none !important; }
 }
 
 /* ============ SERVICES — tan cards with spec rows ============ */
@@ -1014,33 +983,11 @@ section{ scroll-margin-top: 84px; }
   font-size: .94rem; line-height: 1.45; color: var(--ink-soft);
 }
 
-/* --- demo caption + docked sheet-tab chips (ratified v4 treatment) --- */
+/* --- demo caption (the sheet-tab chips now live INSIDE the demo window as .ptabs) --- */
 .demo-caption{
   display: flex; justify-content: center; text-align: center;
   margin: 0 auto .8rem; max-width: 470px; font-size: .64rem;
 }
-.demo-tabs{
-  display: flex; gap: 5px; align-items: flex-start;
-  max-width: 442px; width: calc(100% - 28px); margin: 4px auto 0;
-}
-.dtab{
-  flex: 1; min-width: 0; height: 30px;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--mono); font-size: .58rem; font-weight: 500;
-  letter-spacing: .09em; text-transform: uppercase;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 .3rem;
-  border-radius: 0 0 6px 6px;
-  /* pinned paper chips + ink labels — product truth, same palette the mock pins */
-  color: #5C5645; background: #F4F1E8;
-  border: 1px solid #E4DFD1; border-top: none;
-  border-bottom: 4px solid #C7C1AD;
-}
-.dtab.active{ height: 36px; font-weight: 700; color: #211D14; border-bottom-width: 6px; border-radius: 0 0 7px 7px; }
-.dt-dash{ border-bottom-color: #4FAE4A; }
-.dt-rev{ border-bottom-color: #EFC939; }
-.dt-rec{ border-bottom-color: #E1483E; }
-.dt-raw{ border-bottom-color: #3E7FD9; }
-@media (max-width: 460px){ .dtab{ font-size: .52rem; letter-spacing: .05em; } }
 
 /* --- THE DELIVERABLE — dark + light product windows --- */
 .deliverable{ padding: clamp(3.4rem, 6.4vw, 5.2rem) 0 0; }
@@ -1369,14 +1316,13 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
   white-space: nowrap;
 }
 .ledger-textlink:hover{ text-decoration-thickness: 2px; }
+/* plain non-interactive footnote — NOT a control: no border, no background, no pill */
 .stamp-chip{
-  align-self: center; white-space: nowrap; display: inline-flex; align-items: center; gap: .45rem;
-  font-family: var(--mono); font-size: .66rem; font-weight: 560;
-  letter-spacing: .09em; text-transform: uppercase; color: #1E7A47;
-  border: 1px solid color-mix(in srgb, #1E7A47 38%, transparent);
-  border-radius: 999px; padding: .45rem .85rem; background: color-mix(in srgb, #1E7A47 6%, transparent);
+  align-self: center; white-space: nowrap; display: inline-flex; align-items: center; gap: .4rem;
+  font-family: var(--mono); font-size: .68rem; font-weight: 560;
+  letter-spacing: .1em; text-transform: uppercase; color: #1E7A47;
 }
-.stamp-chip::before{ content: "✓"; font-weight: 700; font-size: .7rem; }
+.stamp-chip::before{ content: "✓"; font-weight: 700; font-size: .72rem; }
 
 /* bottom spec strip */
 .ledger-spec{
@@ -1395,30 +1341,9 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 .hero.ledger .replay{ border-color: #C7C1AD; color: #5C5645; }
 .hero.ledger .replay:hover{ color: #211D14; border-color: #211D14; }
 
-/* THE SIGNATURE ELEMENT — the AI summary panel rendered as a SELECTED RANGE.
-   Blue 2px border + blue corner handles + mono blue range label above it.
-   The rainbow AI spine is retired here in favour of the selection treatment
-   (keeps the composition to a single rainbow: the header lockup). */
-.hero.ledger .ai-note.range-card{
-  overflow: visible;
-  border: 2px solid #2563EB;
-}
-.hero.ledger .ai-note.range-card::before{ display: none; }
-.range-label{
-  position: absolute; left: -2px; bottom: calc(100% + 3px);
-  font-family: var(--mono); font-size: .6rem; font-weight: 600;
-  letter-spacing: .06em; color: #2563EB; white-space: nowrap;
-}
-.range-handle{
-  position: absolute; width: 8px; height: 8px; z-index: 5;
-  background: #2563EB; border: 1.5px solid #FFFFFF; border-radius: 1px;
-  box-shadow: 0 0 0 1px rgba(17,85,204,.25);
-}
-.rh-tl{ top: 0; left: 0; transform: translate(-50%, -50%); }
-.rh-tr{ top: 0; right: 0; transform: translate(50%, -50%); }
-.rh-bl{ bottom: 0; left: 0; transform: translate(-50%, 50%); }
-.rh-br{ bottom: 0; right: 0; transform: translate(50%, 50%); }
-@media (max-width: 460px){ .range-label{ font-size: .54rem; } }
+/* The AI summary card now uses the Deliverable window's rainbow-left-edge
+   treatment (global .pai / .pai::before). The old blue "selected range" chrome
+   — 2px border, corner handles, F8:K13 label — has been removed. */
 
 /* ============================================================
    VARIANT D — FULL VISION additions (design-lead recs 1c/1d/1e + dots)
@@ -1713,54 +1638,70 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 
         <div class="hero-demo">
           <p class="eyebrow demo-caption">This is the thing you get &mdash; look first, read after</p>
-          <div class="demo" id="demo" role="img" aria-label="Animated illustration: a messy spreadsheet full of errors and duplicate rows reorganizes itself into a clean, self-updating dashboard with a weekly summary written automatically by AI.">
-            <div class="demo-head">
-              <div class="demo-title-wrap">
-                <span class="demo-dots" aria-hidden="true"><span></span><span></span><span></span></span>
-                <div class="demo-title">Weekly KPI Dashboard<span>Sample &mdash; demo data</span></div>
-              </div>
-              <span class="live-pill"><span class="live-dot"></span>Self-updating</span>
+          <div class="demo" id="demo" data-view="dashboard" role="img" aria-label="Animated illustration: a messy spreadsheet full of errors and duplicate rows reorganizes itself into a clean, self-updating dashboard — revenue, jobs-closed and overdue-invoice tiles, a six-week revenue chart, a receivables list and a weekly summary written automatically by AI. The sheet tabs switch between the dashboard, revenue, receivables and raw-data views.">
+            <div class="pframe-bar">
+              <span class="pdots" aria-hidden="true"><span></span><span></span><span></span></span>
+              <span class="pfile">weekly-kpi-dashboard &middot; Google Sheets &middot; sample data</span>
+              <span class="ppill"><span class="live-dot" aria-hidden="true"></span>Self-updating</span>
             </div>
-            <div class="demo-body">
-              <div class="kpis">
-                <div class="kpi cell" style="--tx:-38px;--ty:44px;--tr:-7deg;--d:.05s"><span>Revenue</span><b>$48.2k</b><span class="delta">&#9650; 12% wk</span></div>
-                <div class="kpi cell" style="--tx:24px;--ty:-26px;--tr:5deg;--d:.15s"><span>Jobs closed</span><b>31</b><span class="delta">&#9650; 4 wk</span></div>
-                <div class="kpi cell" style="--tx:44px;--ty:38px;--tr:9deg;--d:.1s"><span>Overdue inv.</span><b>2</b><span class="delta warn">flagged</span></div>
-              </div>
-
-              <div class="chart cell" style="--tx:-20px;--ty:26px;--tr:-3deg;--d:.22s">
-                <div class="chart-label">Revenue &mdash; last 6 weeks</div>
-                <div class="bars">
-                  <div class="bar" style="--h:38%;--tr:-6deg;--d:.3s"></div>
-                  <div class="bar" style="--h:52%;--tr:4deg;--d:.36s"></div>
-                  <div class="bar" style="--h:44%;--tr:-3deg;--d:.42s"></div>
-                  <div class="bar" style="--h:66%;--tr:6deg;--d:.48s"></div>
-                  <div class="bar" style="--h:58%;--tr:-5deg;--d:.54s"></div>
-                  <div class="bar" style="--h:88%;--tr:3deg;--d:.6s"></div>
+            <div class="pframe-body demo-body">
+              <div class="pkpis">
+                <div class="pkpi cell" style="--tx:-38px;--ty:44px;--tr:-7deg;--d:.05s">
+                  <span class="kl">Revenue</span>
+                  <span class="kv" data-count="48270" data-prefix="$">$48,270</span>
+                  <span class="kd">&#9650; 12.4% wk</span>
                 </div>
-                <div class="axis"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span></div>
-              </div>
-
-              <div class="rows">
-                <div class="row cell" style="--tx:34px;--ty:18px;--tr:2.5deg;--d:.32s">
-                  <b>Hartley Property Mgmt</b><span class="num">$1,850</span><span class="st due">31d overdue</span>
+                <div class="pkpi cell" style="--tx:24px;--ty:-26px;--tr:5deg;--d:.15s">
+                  <span class="kl">Jobs closed</span>
+                  <span class="kv" data-count="31">31</span>
+                  <span class="kd">&#9650; 4 wk</span>
                 </div>
-                <div class="row cell" style="--tx:-40px;--ty:-14px;--tr:-3deg;--d:.4s">
-                  <b>Suwannee Vet Clinic</b><span class="num">$2,300</span><span class="st paid">paid</span>
+                <div class="pkpi cell" style="--tx:44px;--ty:38px;--tr:9deg;--d:.1s">
+                  <span class="kl">Overdue inv.</span>
+                  <span class="kv" data-count="2">2</span>
+                  <span class="kd warn">flagged</span>
                 </div>
               </div>
 
-              <div class="ai-note cell range-card" style="--tx:0px;--ty:36px;--tr:1.5deg;--d:.5s">
-                <span class="range-label" aria-hidden="true">F8:K13 &mdash; weekly summary</span>
-                <span class="range-handle rh-tl" aria-hidden="true"></span>
-                <span class="range-handle rh-tr" aria-hidden="true"></span>
-                <span class="range-handle rh-bl" aria-hidden="true"></span>
-                <span class="range-handle rh-br" aria-hidden="true"></span>
-                <div class="ai-note-tag">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.2 6.5L21 10l-6.8 1.5L12 18l-2.2-6.5L3 10l6.8-1.5L12 2z" fill="currentColor"/></svg>
-                  Written by the dashboard, not by you
+              <div class="pgrid">
+                <div class="ppanel chart-panel cell" style="--tx:-20px;--ty:26px;--tr:-3deg;--d:.22s">
+                  <p class="ph">Revenue &mdash; last 6 weeks</p>
+                  <div class="pbars">
+                    <div class="pb" style="height:38%;--d:.30s"></div>
+                    <div class="pb" style="height:52%;--d:.36s"></div>
+                    <div class="pb" style="height:44%;--d:.42s"></div>
+                    <div class="pb" style="height:66%;--d:.48s"></div>
+                    <div class="pb" style="height:58%;--d:.54s"></div>
+                    <div class="pb hi" style="height:92%;--d:.60s"></div>
+                  </div>
+                  <div class="paxis"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span></div>
                 </div>
-                <p id="ai-text">Revenue is up 12% this week, mostly repeat clients. Two invoices are past 30 days &mdash; both flagged on the Receivables tab. Nothing else needs your attention.</p>
+                <div class="pside">
+                  <div class="ppanel cell" style="--tx:34px;--ty:18px;--tr:2.5deg;--d:.32s">
+                    <p class="ph">Receivables</p>
+                    <div class="prec"><b>Hartley Property Mgmt</b><span class="amt">$1,850</span><span class="ptag due">31d overdue</span></div>
+                    <div class="prec"><b>Suwannee Vet Clinic</b><span class="amt">$2,300</span><span class="ptag paid">paid</span></div>
+                  </div>
+                  <div class="ppanel pai cell" style="--tx:0px;--ty:36px;--tr:1.5deg;--d:.5s">
+                    <span class="pai-tag">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 6.5L21 10l-6.8 1.5L12 18l-2.2-6.5L3 10l6.8-1.5L12 2z"/></svg>
+                      Written by the dashboard, not by you
+                    </span>
+                    <p id="ai-text">Revenue is up 12.4% this week, mostly repeat clients. Two invoices are past 30 days &mdash; both flagged on the Receivables tab. Nothing else needs your attention.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- raw-data view — the cleaned source rows behind the dashboard -->
+              <div class="praw" aria-hidden="true">
+                <div class="praw-grid">
+                  <span class="rh">Date</span><span class="rh">Client</span><span class="rh">Job</span><span class="rh">Amount</span><span class="rh">Status</span>
+                  <span>07-08</span><span>Hartley Property Mgmt</span><span>Cleanup</span><span>$1,850</span><span class="rt due">Overdue</span>
+                  <span>07-07</span><span>Suwannee Vet Clinic</span><span>Dashboard</span><span>$2,300</span><span class="rt paid">Paid</span>
+                  <span>07-05</span><span>Marion Feed &amp; Seed</span><span>Report</span><span>$640</span><span class="rt paid">Paid</span>
+                  <span>07-03</span><span>Gulf Coast HVAC</span><span>Cleanup</span><span>$1,120</span><span class="rt paid">Paid</span>
+                  <span>07-01</span><span>Alachua Dental</span><span>Dashboard</span><span>$980</span><span class="rt paid">Paid</span>
+                </div>
               </div>
 
               <!-- the mess (visible only during the messy state) -->
@@ -1770,14 +1711,14 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
               <span class="mess" aria-hidden="true" style="top:62%;left:10%;--tr:9deg;--d:.25s">duplicate &times;214</span>
               <span class="mess m-sm" aria-hidden="true" style="top:84%;left:58%;--tr:-7deg;--d:.15s">N/A&nbsp;&nbsp;N/A&nbsp;&nbsp;N/A</span>
             </div>
-          </div>
 
-          <!-- ratified v4 tab-chip strip — docked OUTSIDE the mock so the demo animation stays intact -->
-          <div class="demo-tabs" aria-hidden="true">
-            <span class="dtab dt-dash active">Dashboard</span>
-            <span class="dtab dt-rev">Revenue</span>
-            <span class="dtab dt-rec">Receivables</span>
-            <span class="dtab dt-raw">Raw&nbsp;data</span>
+            <!-- interactive sheet-tab strip — docked inside the window; clicking a chip switches the view -->
+            <div class="ptabs" aria-hidden="true">
+              <button type="button" tabindex="-1" class="ptab pt-dash active" data-view="dashboard">Dashboard</button>
+              <button type="button" tabindex="-1" class="ptab pt-rev" data-view="revenue">Revenue</button>
+              <button type="button" tabindex="-1" class="ptab pt-rec" data-view="receivables">Receivables</button>
+              <button type="button" tabindex="-1" class="ptab pt-raw" data-view="raw">Raw&nbsp;data</button>
+            </div>
           </div>
 
           <div class="demo-status">
@@ -2468,9 +2409,13 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
   ];
   var timers = [];
   var aiTimer = null;
+  var runToken = 0;                       // bumped on every (re)start; stale rAF loops bail out
+  var demoTabs = demo ? demo.querySelectorAll(".ptabs .ptab") : [];
   function clearTimers(){
     timers.forEach(clearTimeout); timers = [];
     if (aiTimer) { clearTimeout(aiTimer); aiTimer = null; }
+    runToken++;
+    if (demo) demo.classList.remove("landed");
     if (aiEl) aiEl.textContent = aiFull;
   }
   function typeAI(){
@@ -2487,9 +2432,45 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
       }
     })();
   }
+  // NEW BEAT — the KPI figures count up from zero as the dashboard lands
+  function countUpKPIs(token){
+    if (!demo) return;
+    var kvs = demo.querySelectorAll(".kv[data-count]");
+    Array.prototype.forEach.call(kvs, function(el){
+      var target = parseFloat(el.getAttribute("data-count")) || 0;
+      var prefix = el.getAttribute("data-prefix") || "";
+      var finalText = el.getAttribute("data-final") || el.textContent;
+      el.setAttribute("data-final", finalText);
+      var dur = 900, start = null;
+      function fmt(n){ return prefix + Math.round(n).toLocaleString("en-US"); }
+      function frame(ts){
+        if (token !== runToken) { el.textContent = finalText; return; }
+        if (start === null) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        el.textContent = fmt(target * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) window.requestAnimationFrame(frame);
+        else el.textContent = finalText;
+      }
+      el.textContent = fmt(0);
+      window.requestAnimationFrame(frame);
+    });
+  }
+  // sheet-tabs: clicking a chip switches which panel the window shows
+  function setView(view){
+    if (!demo) return;
+    demo.setAttribute("data-view", view);
+    Array.prototype.forEach.call(demoTabs, function(t){
+      t.classList.toggle("active", t.getAttribute("data-view") === view);
+    });
+  }
+  Array.prototype.forEach.call(demoTabs, function(tab){
+    tab.addEventListener("click", function(){ setView(tab.getAttribute("data-view")); });
+  });
   function runDemo(){
     if (!demo || !status) return;
     clearTimers();
+    setView("dashboard");
+    var token = runToken;
     if (reduced) {
       demo.classList.remove("is-messy");
       status.textContent = steps[steps.length - 1];
@@ -2503,6 +2484,8 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
     steps.forEach(function(s, i){
       timers.push(setTimeout(function(){ status.textContent = s; }, 500 + i * 560));
     });
+    // once the panels settle, the dashboard "populates": numbers roll up + the overdue flag pulses
+    timers.push(setTimeout(function(){ demo.classList.add("landed"); countUpKPIs(token); }, 1550));
     timers.push(setTimeout(typeAI, 2450));
   }
   if (demo && replay) {
