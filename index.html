@@ -311,6 +311,12 @@ h2 .serif-i{ font-weight: 470; font-size: 1.02em; }
   background: var(--rainbow) bottom left / 100% 3px no-repeat;
 }
 .brand-bar{ display: none; }
+/* header logo lockup (inlined SVG) — dark {a_w} segment + wordmark + rainbow base + blinking cursor */
+.brand-logo{ height: 30px; width: auto; display: block; }
+.brand-logo .cur{ animation: brand-cur 1.1s step-end infinite; transform-origin: center; }
+@keyframes brand-cur{ 50%{ opacity: 0; } }
+@media (prefers-reduced-motion: reduce){ .brand-logo .cur{ animation: none; } }
+@media (max-width: 560px){ .brand-logo{ height: 25px; } }
 .nav{ display: flex; align-items: center; gap: 1.4rem; }
 .nav .nav-link{
   color: var(--ink); text-decoration: none; font-weight: 500;
@@ -452,6 +458,29 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
   font-size: .88rem; line-height: 1.6; color: var(--ink-soft);
 }
 .hero-note strong{ color: var(--ink); font-weight: 620; }
+/* refined splash: price strip · ghost CTA · stamp line · trust bullets */
+.hero-pricing{
+  display: flex; flex-wrap: wrap; align-items: center; gap: .55rem .8rem;
+  margin: 1rem 0 1.9rem; font-family: var(--mono);
+  font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft);
+}
+.hero-pricing b{ color: var(--ink); font-weight: 600; }
+.hero-pricing .sep{ color: var(--line-strong); }
+.btn.btn-ghost{ background: transparent; color: var(--ink); border: 1px solid var(--line-strong); }
+.btn.btn-ghost:hover{ border-color: var(--ink); background: rgba(33,29,20,.05); color: var(--ink); }
+.hero-stamp{
+  display: flex; align-items: center; gap: .5rem; margin: .9rem 0 0;
+  font-family: var(--mono); font-size: .74rem; letter-spacing: .01em; color: var(--ink-soft);
+}
+.hero-stamp .stamp-check{ color: #1E7A47; font-weight: 700; }
+.hero-note-lead{ margin: 0 0 1rem; font-family: var(--serif); font-size: 1.02rem; line-height: 1.55; color: var(--ink-soft); }
+.hero-note-lead strong{ color: var(--ink); font-weight: 600; }
+.hero-trust{
+  list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .6rem;
+  font-family: var(--mono); font-size: .74rem; line-height: 1.5; letter-spacing: .015em; color: var(--ink-soft);
+}
+.hero-trust li{ display: flex; gap: .7rem; }
+.hero-trust li::before{ content: "\2192"; color: var(--line-strong); flex: none; }
 /* hand-set headline breaks — four short calm lines at every width; no line may end on “a” */
 
 /* Hero entrance choreography — gated on .js so the page is fully visible without JavaScript. */
@@ -535,6 +564,11 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
 .demo .ptabs .ptab{ cursor: pointer; -webkit-appearance: none; appearance: none; }
 .demo .ptabs .ptab:hover{ color: var(--app-ink); }
 .demo .praw{ display: none; }
+/* refined splash — DASHBOARD shows KPIs + a full-width chart only (receivables live on
+   their own tab; the AI summary lives in the full /demo). Keeps it clean, less clunky. */
+.demo[data-view="dashboard"] .pside{ display: none; }
+.demo[data-view="dashboard"] .pgrid{ grid-template-columns: 1fr; }
+.demo .pai-wide{ display: none !important; }
 .demo[data-view="revenue"] .pside{ display: none; }
 .demo[data-view="revenue"] .pgrid{ grid-template-columns: 1fr; }
 .demo[data-view="receivables"] .pkpis{ display: none; }
@@ -1119,6 +1153,8 @@ section{ scroll-margin-top: 84px; }
    equal-width mono uppercase chips, color-underline, taller bold active. */
 /* interactivity affordance — signals the demo is clickable (owner ask) */
 .demo-live{ color: #1E7A47; font-weight: 700; }
+.demo-open{ color: #1E7A47; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+.demo-open:hover{ text-decoration-thickness: 2px; }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .demo-live{ color: #5FCE8C; } }
 .hero.ledger .demo .ptab{ animation: tab-hint 3.2s ease-in-out 1.2s 2 both; }
 @keyframes tab-hint{ 0%,100%{ transform: translateY(0); } 45%{ transform: translateY(2px); } }
@@ -1709,10 +1745,21 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 <header class="site-header" id="top">
   <div class="wrap header-in">
     <a class="brand" href="#top" aria-label="Automated Workflow LLC — home">
-      <span class="brand-lockup">
-        <span class="header-badge" aria-hidden="true">{a_w}</span>
-        <span class="brand-word">automated_workflow</span>
-      </span>
+      <svg class="brand-logo" viewBox="-2 -2 319.6 51" role="img" aria-label="automated_workflow" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="awl-g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fb6f6a"/><stop offset="0.2" stop-color="#ffab3f"/><stop offset="0.4" stop-color="#ffd93d"/><stop offset="0.6" stop-color="#54cf8e"/><stop offset="0.8" stop-color="#3aa5ff"/><stop offset="1" stop-color="#8f7cf6"/></linearGradient>
+          <clipPath id="awl-clip"><path d="M 11 0 H 304.6 A 11 11 0 0 1 315.6 11 V 43 A 4 4 0 0 1 311.6 47 H 4 A 4 4 0 0 1 0 43 V 11 A 11 11 0 0 1 11 0 Z"/></clipPath>
+        </defs>
+        <g clip-path="url(#awl-clip)">
+          <rect x="0" y="0" width="83" height="43" fill="#16181d"/>
+          <rect x="83" y="0" width="232.6" height="43" fill="#ffffff"/>
+          <rect x="0" y="43" width="315.6" height="4" fill="url(#awl-g)"/>
+        </g>
+        <path d="M 0 43 V 11 A 11 11 0 0 1 11 0 H 304.6 A 11 11 0 0 1 315.6 11 V 43" fill="none" stroke="#000000" stroke-opacity="0.1" stroke-width="1"/>
+        <text x="16" y="21.5" dominant-baseline="central" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-weight="600" font-size="17" fill="#ffffff"><tspan fill-opacity="0.42">{</tspan>a_w<tspan fill-opacity="0.42">}</tspan></text>
+        <text x="101" y="21.5" dominant-baseline="central" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-weight="500" font-size="17" fill="#16181d">automated_workflow</text>
+        <rect class="cur" x="272" y="13" width="8" height="17" rx="1" fill="#16181d"/>
+      </svg>
     </a>
     <nav class="nav" aria-label="Main">
       <a class="nav-link" href="#services">Services &amp; prices</a>
@@ -1742,13 +1789,21 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
         <div class="hero-copy">
           <h1 id="hero-h">Your Monday<br class="hb hb2">report, <span class="serif-i">written before<br class="hb hb2">your&nbsp;coffee.</span></h1>
           <p class="hero-answer">Written by&nbsp;an <span class="wm">automated_workflow<span class="wm-bar" aria-hidden="true"></span></span> &mdash; not by&nbsp;you.</p>
-          <p class="hero-lede">Automated Workflow LLC is a spreadsheet cleanup and Google Sheets automation service &mdash; flat-price cleanups ($300), self-updating KPI dashboards ($650), and AI-written weekly reports. Based in Gainesville, FL; works with small businesses everywhere.</p>
+          <p class="hero-lede">Spreadsheet cleanup, self-updating KPI dashboards, and AI-written weekly reports &mdash; for small businesses that live in Google Sheets.</p>
+          <p class="hero-pricing"><span>Cleanup&nbsp;<b>$300</b></span><span class="sep" aria-hidden="true">/</span><span>KPI dashboard&nbsp;<b>$650</b></span><span class="sep" aria-hidden="true">/</span><span>Weekly report&nbsp;<b>incl.</b></span></p>
           <div class="hero-ctas">
             <a class="btn btn-primary btn-rect" href="#contact">Send a messy file <span class="arr" aria-hidden="true">&rarr;</span></a>
-            <a class="ledger-textlink" href="#samples">See live samples <span aria-hidden="true">&nearr;</span></a>
-            <span class="stamp-chip" aria-hidden="true">Free &mdash; keep it either way</span>
+            <a class="btn btn-ghost btn-rect" href="#samples">See live samples <span class="arr" aria-hidden="true">&nearr;</span></a>
           </div>
-          <p class="hero-note"><strong>You&rsquo;re sending this to Colin McCarthy in Gainesville</strong> &mdash; a real person, not a form. One messy file back within a day as a working fix, yours to keep either way. Your data stays private, is never reused, and is deleted after the demo &mdash; NDA on request.</p>
+          <p class="hero-stamp"><span class="stamp-check" aria-hidden="true">&#10003;</span> Free &mdash; you keep the fixed file either way. No card, no form.</p>
+          <div class="hero-note">
+            <p class="hero-note-lead"><strong>You&rsquo;re sending this to Colin McCarthy</strong> &mdash; a real person in Gainesville, not a form.</p>
+            <ul class="hero-trust">
+              <li>One messy file back within a day &mdash; a working fix.</li>
+              <li>Your data stays private, is never reused, and is deleted after the demo.</li>
+              <li>NDA on request.</li>
+            </ul>
+          </div>
         </div>
 
         <div class="hero-demo">
