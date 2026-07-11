@@ -1084,6 +1084,10 @@ section{ scroll-margin-top: 84px; }
 .pbars{ display: flex; align-items: flex-end; gap: .45rem; flex: 1; min-height: 96px; }
 .pb{ flex: 1; background: var(--pbar); border-radius: 4px 4px 2px 2px; min-height: 6px; }
 .pb.hi{ background: var(--pbar-hi); }
+/* fixed chart height so the bars scale WITHIN a constant box — the panel no
+   longer resizes between dashboard/revenue views (was sliding the layout) */
+.demo .pgrid{ align-items: start; }
+.demo .chart-panel .pbars{ flex: none; height: 200px; min-height: 0; }
 .paxis{ display: flex; gap: .45rem; margin-top: .4rem; }
 .paxis span{ flex: 1; text-align: center; font-family: var(--mono); font-size: .56rem; color: var(--app-soft); font-variant-numeric: tabular-nums; }
 .pside{ display: flex; flex-direction: column; gap: .6rem; min-width: 0; }
@@ -1242,8 +1246,11 @@ section{ scroll-margin-top: 84px; }
 .header-badge{
   font-family: var(--mono); font-weight: 600; font-size: .74rem;
   letter-spacing: -0.02em; color: var(--ink); line-height: 1;
-  border: 1px solid var(--line-strong); border-radius: 6px;
-  padding: .2rem .4rem; flex: none;
+  border: 3px solid transparent; border-radius: 7px;
+  background:
+    linear-gradient(var(--bg), var(--bg)) padding-box,
+    linear-gradient(92deg, #E1483E, #F08A24, #EFC939, #4FAE4A, #3E7FD9, #9B4FB8) border-box;
+  padding: .22rem .44rem; flex: none;
 }
 @media (max-width: 560px){ .header-badge{ font-size: .62rem; padding: .16rem .32rem; } }
 
@@ -1557,7 +1564,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 </style>
 <script>
 /* Pre-paint theme restore: keeps the saved theme from flashing on load */
-(function(){try{var t=localStorage.getItem("awllc-theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();
+/* dark mode removed — the site is light-only */document.documentElement.setAttribute("data-theme","light");
 </script>
 <script type="application/ld+json">
 {
@@ -1701,7 +1708,6 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
         <span class="brand-word">automated_workflow</span>
       </span>
     </a>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme" title="Light / dark"><span class="toggle-ring" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 256 256" aria-hidden="true"><g stroke-width="30" fill="none"><path d="M128 52 A76 76 0 0 1 194 90" stroke="#4FAE4A"/><path d="M194 90 A76 76 0 0 1 204 128" stroke="#EFC939"/><path d="M204 128 A76 76 0 0 1 178 186" stroke="#F08A24"/><path d="M178 186 A76 76 0 0 1 128 204" stroke="#E1483E"/><path d="M128 204 A76 76 0 0 1 68 172" stroke="#9B4FB8"/><path d="M68 172 A76 76 0 0 1 52 128" stroke="#3E7FD9"/><path d="M52 128 A76 76 0 0 1 128 52" stroke="#2FA6A0"/></g></svg></span><svg class="icon-moon" width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 019.5 3.5a8.5 8.5 0 1011 11z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg><svg class="icon-sun" width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="2.4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
     <nav class="nav" aria-label="Main">
       <a class="nav-link" href="#services">Services &amp; prices</a>
       <a class="nav-link" href="#samples">Live samples</a>
