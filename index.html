@@ -1248,9 +1248,15 @@ section{ scroll-margin-top: 84px; }
 /* header green mini-demo pill (1b header spec) — reads on both themes */
 a.btn-green, a.btn-green:link, a.btn-green:visited,
 a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
-  background: #1E7A47; border-color: #1E7A47; color: #FBFAF3;
+  background: var(--btn-bg); border-color: var(--btn-bg); color: var(--btn-fg);
 }
-.btn-green:hover{ background: #166B42; border-color: #166B42; transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.btn-green:hover{ background: var(--btn-bg-hover); border-color: var(--btn-bg-hover); transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+:root[data-theme="dark"] .btn-green{ background: #1E7A47; border-color: #1E7A47; color: #FBFAF3; }
+:root[data-theme="dark"] .btn-green:hover{ background: #26925A; border-color: #26925A; }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .btn-green{ background: #1E7A47; border-color: #1E7A47; color: #FBFAF3; }
+  :root:not([data-theme="light"]) .btn-green:hover{ background: #26925A; border-color: #26925A; }
+}
 
 /* --- the hero becomes a light paper ledger, theme-proof --- */
 .hero.ledger{
