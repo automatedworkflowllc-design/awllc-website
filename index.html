@@ -939,6 +939,15 @@ section{ scroll-margin-top: 84px; }
 .copy-email:hover{ color:var(--ink); border-color:var(--ink); }
 .contact-line small{ display:block; font-family: var(--mono); font-size: .66rem; font-weight: 400; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
 .contact-card .btn{ width: 100%; margin-top: 1.3rem; }
+/* ---- contact form (Formspree) ---- */
+.cform{ margin-top: 1.3rem; display: flex; flex-direction: column; gap: .75rem; }
+.cform label{ font-family: var(--mono); font-size: .62rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); display: block; margin-bottom: .3rem; }
+.cform input, .cform textarea{ width: 100%; background: var(--bg); border: 1px solid var(--line-strong); border-radius: 8px; padding: .65rem .8rem; font-family: inherit; font-size: .92rem; color: var(--ink); }
+.cform input:focus, .cform textarea:focus{ outline: 2px solid var(--focus); outline-offset: 1px; border-color: var(--ink); }
+.cform textarea{ min-height: 96px; resize: vertical; }
+.cform .btn{ margin-top: .2rem; }
+.cform-sent{ display: none; font-family: var(--mono); font-size: .8rem; color: var(--ink); background: var(--well, var(--bg-soft)); border: 1px solid var(--line-strong); border-radius: 8px; padding: .9rem 1rem; margin-top: 1.3rem; }
+
 
 .site-footer{ border-top: 1px solid var(--line); padding: 2.1rem 0 2.6rem; background: var(--bg-soft); }
 .footer-in{
@@ -1454,7 +1463,15 @@ section{ scroll-margin-top: 84px; }
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s-7-4.6-7-10a7 7 0 0114 0c0 5.4-7 10-7 10z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="11" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
         <div><small>Based in</small><span class="val">Gainesville, Florida</span></div>
       </div>
-      <a class="btn btn-ghost" href="mailto:colin@automatedworkflowllc.com?subject=Free%20mini-demo%20request&body=Hi%20Colin%2C%0A%0AHere%27s%20what%20I%27m%20wrestling%20with%3A%20">Send a file for the free demo</a>
+      <form class="cform" action="https://formspree.io/f/mgojgjwv" method="POST">
+        <div><label for="cf-name">Name</label><input id="cf-name" type="text" name="name" autocomplete="name" required></div>
+        <div><label for="cf-email">Email</label><input id="cf-email" type="email" name="email" autocomplete="email" required></div>
+        <div><label for="cf-msg">The spreadsheet chore eating your week</label><textarea id="cf-msg" name="message" required placeholder="e.g. every Friday I rebuild the same job report by hand&hellip;"></textarea></div>
+        <input type="hidden" name="_subject" value="Free mini-demo request — website form">
+        <input type="hidden" name="_next" value="https://automatedworkflowllc.com/?sent=1#contact">
+        <button class="btn btn-primary" type="submit">Request the free mini-demo <span class="arr" aria-hidden="true">&rarr;</span></button>
+      </form>
+      <p class="cform-sent" id="cform-sent">Sent &mdash; you&rsquo;ll hear from Colin within the day. Talk soon.</p>
     </div>
     </div>
   </div>
@@ -1628,6 +1645,10 @@ section{ scroll-margin-top: 84px; }
     // one autoplay, then replay-on-demand only
     if (document.readyState === "complete") { runDemo(); }
     else { window.addEventListener("load", runDemo); }
+  }
+  if (/[?&]sent=1/.test(location.search)) {
+    var f = document.querySelector(".cform"), ok = document.getElementById("cform-sent");
+    if (f && ok) { f.style.display = "none"; ok.style.display = "block"; }
   }
   var copyBtn = document.querySelector(".copy-email");
   if (copyBtn) {
