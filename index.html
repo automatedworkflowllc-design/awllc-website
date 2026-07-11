@@ -1157,6 +1157,19 @@ section{ scroll-margin-top: 84px; }
 }
 .deliv-caption strong{ color: var(--ink); font-weight: 560; font-style: normal; }
 
+/* --- hero lede — the literal answer-first sentence, styled quiet --- */
+.hero-lede{ margin-top: .9rem; max-width: 56ch; font-size: .95rem; line-height: 1.55; color: var(--ink-soft); }
+
+/* --- FAQ — ruled accordion (Broadsheet treatment, native details) --- */
+.faq-list{ border-top: 2px solid var(--line-strong); }
+.faq-list details{ border-bottom: 1px solid var(--line, #E4DFD1); }
+.faq-list summary{ cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: 1.05rem .15rem; font-weight: 650; color: var(--ink); }
+.faq-list summary::-webkit-details-marker{ display: none; }
+.faq-list summary::after{ content: "+"; font-weight: 500; color: var(--ink-soft); flex: 0 0 auto; }
+.faq-list details[open] summary::after{ content: "\2212"; }
+.faq-a{ padding: 0 .15rem 1.15rem; max-width: 68ch; color: var(--ink-soft); line-height: 1.6; }
+.faq-a strong{ color: var(--ink); }
+
 /* --- PRICING — one ruled, one-glance rate card (Broadsheet treatment) --- */
 .rate-grid{
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
@@ -1251,6 +1264,95 @@ section{ scroll-margin-top: 84px; }
   }
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": "https://automatedworkflowllc.com/#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How much does spreadsheet cleanup cost?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "From $40 for a small file; most real-world jobs land $150–300 flat, priced up front before any work starts. No hourly meters."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How fast will I get my file back?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Most cleanups come back within 24–48 hours. Bigger automation builds are scoped with a date before we start."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the free 1-day mini-demo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Send one messy spreadsheet and you get a working fix back within about a day — a cleaned tab or a small live dashboard on your real data. You keep it either way, whether or not we ever work together."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you only work with businesses in Gainesville?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Automated Workflow LLC is based in Gainesville, FL, but everything runs remotely over email and Google Sheets — we work with small businesses everywhere in the US."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you work with Excel or Google Sheets?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Both. Cleanups work in either. Live self-updating dashboards and automations run best in Google Sheets, and Excel-to-Sheets moves are handled as part of the job."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does the $650 automated dashboard include?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A live, self-updating KPI dashboard inside your own Google Sheets — revenue, jobs, overdue invoices, whatever you check weekly — plus a short AI-written weekly summary. Flat $650, one price."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can you automate reports from QuickBooks data?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes — QuickBooks exports land in Google Sheets, get cleaned and formatted automatically, and feed a live dashboard or a written report. That pipeline is one of the most common builds."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is Report Autopilot?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Recurring reports that write themselves — data pulled, formatted, summarized in plain English, delivered on schedule and on demand. $1,000 one-time setup, then $250–500/mo monitoring so it never silently breaks. Cancel anytime."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to buy new software?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Everything lives in the spreadsheets you already use — no subscriptions to learn, no per-seat licenses, nothing new to log into."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my business data safe?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Files stay private — never shared, never used for anything else, and deleted after the demo if we don't continue. NDA available on request."
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <script>document.documentElement.className += " js";</script>
@@ -1292,6 +1394,7 @@ section{ scroll-margin-top: 84px; }
         <div class="hero-copy">
           <h1 id="hero-h">Your spreadsheet<br class="hb hb2">shouldn&rsquo;t need<br class="hb">a&nbsp;full-time<br class="hb hb2"><span class="serif-i">babysitter.</span></h1>
           <p class="hero-answer">It needs&nbsp;an <span class="wm">automated_workflow<span class="wm-bar" aria-hidden="true"></span></span>.</p>
+          <p class="hero-lede">Automated Workflow LLC is a spreadsheet cleanup and Google Sheets automation service &mdash; flat-price cleanups from $40, self-updating KPI dashboards, and AI-written weekly reports. Based in Gainesville, FL; works with small businesses everywhere.</p>
           <div class="hero-ctas">
             <a class="btn btn-primary" href="#contact">Get the free mini-demo <span class="arr" aria-hidden="true">&rarr;</span></a>
             <a class="btn btn-ghost" href="#samples">See live samples</a>
@@ -1848,6 +1951,56 @@ section{ scroll-margin-top: 84px; }
       </form>
       <p class="cform-sent" id="cform-sent">Sent &mdash; you&rsquo;ll hear from Colin within the day. Talk soon.</p>
     </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ — questions answered straight (post-pitch, pre-footer) ============ -->
+<section class="faq" id="faq" aria-labelledby="faq-h">
+  <div class="wrap">
+    <div class="chap rv"><p class="eyebrow">Questions, answered straight</p></div>
+    <h2 id="faq-h" class="rv">Frequently asked <span class="serif-i">questions.</span></h2>
+    <div class="faq-list rv">
+      <details>
+        <summary>How much does spreadsheet cleanup cost?</summary>
+        <p class="faq-a">From <strong>$40</strong> for a small file; most real-world jobs land <strong>$150&ndash;300 flat</strong>, priced up front before I touch anything. No hourly meters.</p>
+      </details>
+      <details>
+        <summary>How fast will I get my file back?</summary>
+        <p class="faq-a">Most cleanups come back within <strong>24&ndash;48 hours</strong>. Bigger automation builds are scoped with a date before we start.</p>
+      </details>
+      <details>
+        <summary>What is the free 1-day mini-demo?</summary>
+        <p class="faq-a">Send one messy spreadsheet and you get a working fix back within about a day &mdash; a cleaned tab or a small live dashboard on your real data. <strong>You keep it either way</strong>, whether or not we ever work together.</p>
+      </details>
+      <details>
+        <summary>Do you only work with businesses in Gainesville?</summary>
+        <p class="faq-a">I&rsquo;m based in <strong>Gainesville, FL</strong> and love local clients, but everything runs remotely over email and Google Sheets &mdash; I work with small businesses everywhere in the US.</p>
+      </details>
+      <details>
+        <summary>Excel or Google Sheets?</summary>
+        <p class="faq-a">Both. Cleanups work in either. Live self-updating dashboards and automations run best in <strong>Google Sheets</strong>, and I handle Excel-to-Sheets moves as part of the job.</p>
+      </details>
+      <details>
+        <summary>What does the $650 automated dashboard include?</summary>
+        <p class="faq-a">A live, self-updating KPI dashboard inside your own Google Sheets &mdash; revenue, jobs, overdue invoices, whatever you check weekly &mdash; plus a short <strong>AI-written weekly summary</strong>. Flat $650, one price.</p>
+      </details>
+      <details>
+        <summary>Can you automate reports from QuickBooks data?</summary>
+        <p class="faq-a">Yes &mdash; QuickBooks exports land in Google Sheets, get cleaned and formatted automatically, and feed a live dashboard or a written report. That pipeline is one of the most common builds.</p>
+      </details>
+      <details>
+        <summary>What is Report Autopilot?</summary>
+        <p class="faq-a">The flagship: your recurring reports write themselves &mdash; data pulled, formatted, summarized in plain English, delivered on schedule <strong>and on demand</strong> whenever you need fresh numbers. <strong>$1,000 one-time setup, then $250&ndash;500/mo</strong> monitoring so it never silently breaks. Cancel anytime.</p>
+      </details>
+      <details>
+        <summary>Do I need to buy new software?</summary>
+        <p class="faq-a">No. Everything lives in the spreadsheets you already use &mdash; no subscriptions to learn, no per-seat licenses, nothing new to log into.</p>
+      </details>
+      <details>
+        <summary>Is my business data safe with you?</summary>
+        <p class="faq-a">Your file stays private &mdash; never shared, never used for anything else, and deleted after the demo if we don&rsquo;t continue. <strong>NDA available on request.</strong></p>
+      </details>
     </div>
   </div>
 </section>
