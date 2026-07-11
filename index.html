@@ -569,8 +569,23 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
 .demo[data-view="dashboard"] .pside{ display: none; }
 .demo[data-view="dashboard"] .pgrid{ grid-template-columns: 1fr; }
 .demo .pai-wide{ display: none !important; }
-.demo[data-view="revenue"] .pside{ display: none; }
-.demo[data-view="revenue"] .pgrid{ grid-template-columns: 1fr; }
+.demo .prevenue{ display: none; }
+.demo[data-view="revenue"] .pkpis,
+.demo[data-view="revenue"] .pgrid{ display: none; }
+.demo[data-view="revenue"] .prevenue{ display: block; }
+/* revenue view panel */
+.prev-stats{ display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; margin-bottom: .75rem; }
+.prev-stat{ display: flex; flex-direction: column; min-width: 0; }
+.prev-stat b{ font-size: 1.02rem; font-weight: 800; letter-spacing: -.02em; color: var(--app-ink); font-variant-numeric: tabular-nums; }
+.prev-stat.pos b{ color: var(--pos); }
+.prev-stat small{ font-family: var(--mono); font-size: .5rem; letter-spacing: .05em; text-transform: uppercase; color: var(--app-soft); margin-top: .15rem; white-space: nowrap; }
+.prev-chart{ background: var(--tile); border: 1px solid var(--app-line); border-radius: 10px; padding: .75rem .85rem .55rem; }
+.prev-chart svg{ width: 100%; height: 132px; display: block; margin-top: .35rem; }
+.prev-chart .rev-line{ vector-effect: non-scaling-stroke; }
+.prev-axis{ display: flex; justify-content: space-between; margin-top: .3rem; font-family: var(--mono); font-size: .5rem; letter-spacing: .05em; text-transform: uppercase; color: var(--app-soft); }
+.prev-insight{ margin: .7rem 0 0; font-size: .74rem; line-height: 1.5; color: var(--app-soft); }
+.prev-insight b{ color: var(--app-ink); font-weight: 700; }
+@media (max-width: 460px){ .prev-stats{ grid-template-columns: 1fr 1fr; gap: .6rem .5rem; } }
 .demo[data-view="receivables"] .pkpis{ display: none; }
 .demo[data-view="receivables"] .chart-panel{ display: none; }
 .demo[data-view="receivables"] .pgrid{ grid-template-columns: 1fr; }
@@ -1153,8 +1168,25 @@ section{ scroll-margin-top: 84px; }
    equal-width mono uppercase chips, color-underline, taller bold active. */
 /* interactivity affordance — signals the demo is clickable (owner ask) */
 .demo-live{ color: #1E7A47; font-weight: 700; }
-.demo-open{ color: #1E7A47; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
-.demo-open:hover{ text-decoration-thickness: 2px; }
+/* hero demo: "open the full live dashboard" — isolated right-docked textlink, cannot wrap */
+.demo-open-row{ display: flex; justify-content: flex-end; max-width: 470px; margin: .55rem auto .1rem; padding: 0 .15rem; }
+.demo-open{
+  display: inline-flex; align-items: center; gap: .3em;
+  font-family: var(--mono); font-size: .62rem; font-weight: 600;
+  letter-spacing: .13em; text-transform: uppercase; white-space: nowrap;
+  color: #1E7A47; text-decoration: none; padding: .32rem .1rem;
+  border-bottom: 1px solid rgba(30,122,71,.35);
+  transition: color .18s ease, border-color .18s ease;
+}
+.demo-open .oarr{ display: inline-block; font-size: .95em; transition: transform .18s ease; }
+.demo-open:hover, .demo-open:focus-visible{ color: #155E37; border-bottom-color: #155E37; }
+.demo-open:hover .oarr, .demo-open:focus-visible .oarr{ transform: translate(2px,-2px); }
+.demo-open:focus-visible{ outline: 2px solid #1E7A47; outline-offset: 3px; border-radius: 2px; }
+@media (max-width: 430px){
+  .demo-open-row{ justify-content: center; margin-top: .5rem; }
+  .demo-open{ font-size: .6rem; letter-spacing: .11em; padding: .5rem .2rem; }
+}
+@media (prefers-reduced-motion: reduce){ .demo-open .oarr{ transition: none; } .demo-open:hover .oarr, .demo-open:focus-visible .oarr{ transform: none; } }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .demo-live{ color: #5FCE8C; } }
 .hero.ledger .demo .ptab{ animation: tab-hint 3.2s ease-in-out 1.2s 2 both; }
 @keyframes tab-hint{ 0%,100%{ transform: translateY(0); } 45%{ transform: translateY(2px); } }
@@ -1872,6 +1904,26 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
                 </div>
               </div>
 
+              <!-- revenue view — a distinct 13-week revenue trend + stats + insight -->
+              <div class="prevenue" aria-hidden="true">
+                <div class="prev-stats">
+                  <span class="prev-stat"><b>$12,400</b><small>Best week &middot; W6</small></span>
+                  <span class="prev-stat"><b>$8,712</b><small>13-wk avg</small></span>
+                  <span class="prev-stat pos"><b>+$4,860</b><small>vs prior 13</small></span>
+                  <span class="prev-stat"><b>6 of 8</b><small>wks climbing</small></span>
+                </div>
+                <div class="prev-chart">
+                  <p class="ph">Revenue trend &mdash; last 13 weeks</p>
+                  <svg viewBox="0 0 320 120" preserveAspectRatio="none" aria-hidden="true">
+                    <defs><linearGradient id="revfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1E7A47" stop-opacity="0.18"/><stop offset="1" stop-color="#1E7A47" stop-opacity="0"/></linearGradient></defs>
+                    <path class="rev-area" d="M0,92 L26,84 L53,88 L80,68 L106,74 L133,58 L160,64 L186,44 L213,50 L240,30 L266,38 L293,18 L320,8 L320,120 L0,120 Z" fill="url(#revfill)"/>
+                    <path class="rev-line" d="M0,92 L26,84 L53,88 L80,68 L106,74 L133,58 L160,64 L186,44 L213,50 L240,30 L266,38 L293,18 L320,8" fill="none" stroke="#1E7A47" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+                  </svg>
+                  <div class="prev-axis"><span>13 wks ago</span><span>this week</span></div>
+                </div>
+                <p class="prev-insight">Revenue climbed <b>6 of the last 8 weeks</b> &mdash; the jump lines up with a repeat-client contract. Strip that out and the trend still holds near <b>$8.4k/wk</b>.</p>
+              </div>
+
               <div class="ppanel pai pai-wide cell" style="--tx:0px;--ty:30px;--tr:0deg;--d:.5s">
                 <span class="pai-tag">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 6.5L21 10l-6.8 1.5L12 18l-2.2-6.5L3 10l6.8-1.5L12 2z"/></svg>
@@ -1908,6 +1960,8 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
               <button type="button" tabindex="-1" class="ptab pt-raw" data-view="raw">Raw&nbsp;data</button>
             </div>
           </div>
+
+          <p class="demo-open-row"><a class="demo-open" href="/demo/" aria-label="Open the full live dashboard, full screen">Open&nbsp;full-screen<span class="oarr" aria-hidden="true">&#8599;</span></a></p>
 
           <div class="demo-status">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="currentColor"/></svg>
