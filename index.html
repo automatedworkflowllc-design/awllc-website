@@ -1038,9 +1038,10 @@ section{ scroll-margin-top: 84px; }
 
 /* --- demo caption (the sheet-tab chips now live INSIDE the demo window as .ptabs) --- */
 .demo-caption{
-  display: flex; justify-content: center; text-align: center;
+  display: block; text-align: center;
   margin: 0 auto .8rem; max-width: 470px; font-size: .64rem;
 }
+.demo-caption::before{ margin-right: .4em; }
 
 /* --- THE DELIVERABLE — dark + light product windows --- */
 .deliverable{ padding: clamp(3.4rem, 6.4vw, 5.2rem) 0 0; }
@@ -1231,7 +1232,7 @@ section{ scroll-margin-top: 84px; }
   .eyebrow{ overflow-wrap: anywhere; }
   /* #4 legible demo tab labels + KPI labels where the copy says "tap" */
   .ptab{ font-size: .6rem; letter-spacing: .04em; }
-  .pkpi .kl{ font-size: .6rem; }
+  .pkpi .kl{ font-size: .6rem; white-space: normal; overflow: visible; }
   /* #5 hero body/answer copy to a readable floor (was 14–15px) */
   .hero-note{ font-size: 1rem; line-height: 1.55; }
   .hero-lede{ font-size: 1rem; }
@@ -1245,7 +1246,7 @@ section{ scroll-margin-top: 84px; }
 /* #9 KPI tiles reflow 2-up so $-figures + 3rd label stop clipping on narrow phones */
 @media (max-width: 460px){
   .pkpis{ grid-template-columns: 1fr 1fr; gap: .5rem; }
-  .pkpis > :nth-child(3){ grid-column: 1 / -1; }
+  .pkpis:not(.pkpis-4) > :nth-child(3){ grid-column: 1 / -1; }
 }
 /* === end mobile quick wins === */
 
