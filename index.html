@@ -509,7 +509,7 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
 .demo .demo-body{ position: relative; min-height: 33.75rem; } /* locked to dashboard-view height: view switches must never resize the splash (owner: top was jumping) */
 @media (max-width: 860px){ .demo .demo-body{ min-height: 0; } }
 /* reserve the summary card's height so the typed reveal doesn't jump the layout */
-.demo .pai p{ min-height: 4.6em; }
+.demo .pai p{ min-height: 9.5em; } /* full typed-text height: typing must never grow the column (chart was re-scaling) */
 
 /* every animatable piece — clean state is the default; JS adds .is-messy then removes it */
 .cell{
