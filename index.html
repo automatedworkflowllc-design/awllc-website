@@ -152,7 +152,7 @@
   --panel-soft:  #B3AC97;
 }
 
-html { scroll-behavior: smooth; overflow-x: clip; }
+html { scroll-behavior: smooth; overflow-x: clip; -webkit-tap-highlight-color: rgba(30,122,71,.10); }
 @media (prefers-reduced-motion: reduce){ html { scroll-behavior: auto; } }
 
 body{
@@ -337,7 +337,7 @@ h2 .serif-i{ font-weight: 470; font-size: 1.02em; }
   .brand-bar{ margin-top: 5px; height: 2.5px; }
   .nav{ gap: .5rem; }
   .theme-toggle{ width: 38px; height: 38px; }
-  .header-in .btn-sm{ padding: .55rem .8rem; font-size: .6rem; letter-spacing: .05em; min-height: 40px; display: inline-flex; align-items: center; }
+  .header-in .btn-sm{ padding: .55rem .8rem; font-size: .6rem; letter-spacing: .05em; min-height: 44px; display: inline-flex; align-items: center; }
   .brand{ min-width: 0; }
   .brand-lockup{ min-width: 0; }
   .brand-word{ min-width: 0; overflow: hidden; text-overflow: ellipsis; }
@@ -679,6 +679,7 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
 /* ============ SECTIONS — magazine air ============ */
 section{ scroll-margin-top: 84px; }
 .section{ padding: clamp(4.2rem, 8vw, 7rem) 0; }
+@media (max-width: 560px){ .section{ padding: 3.2rem 0; } }
 
 /* chapter rule — mono eyebrow left, index right, on a full-width hairline;
    the page reads as a paced table of contents, 01 through 05 */
@@ -967,14 +968,14 @@ section{ scroll-margin-top: 84px; }
   overflow-wrap: anywhere;
 }
 .contact-line a:hover{ text-decoration: underline; }
-.copy-email{ margin-left:auto; flex:none; cursor:pointer; font-family:var(--mono); font-size:.64rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); background:transparent; border:1px solid var(--line-strong); border-radius:999px; padding:.28rem .7rem; transition:color .2s ease,border-color .2s ease; }
+.copy-email{ margin-left:auto; flex:none; cursor:pointer; font-family:var(--mono); font-size:.64rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); background:transparent; border:1px solid var(--line-strong); border-radius:999px; padding:.42rem .85rem; min-height:36px; align-self:flex-start; transition:color .2s ease,border-color .2s ease; }
 .copy-email:hover{ color:var(--ink); border-color:var(--ink); }
 .contact-line small{ display:block; font-family: var(--mono); font-size: .66rem; font-weight: 400; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
 .contact-card .btn{ width: 100%; margin-top: 1.3rem; }
 /* ---- contact form (Formspree) ---- */
 .cform{ margin-top: 1.3rem; display: flex; flex-direction: column; gap: .75rem; }
 .cform label{ font-family: var(--mono); font-size: .62rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); display: block; margin-bottom: .3rem; }
-.cform input, .cform textarea{ width: 100%; background: var(--bg); border: 1px solid var(--line-strong); border-radius: 8px; padding: .65rem .8rem; font-family: inherit; font-size: .92rem; color: var(--ink); }
+.cform input, .cform textarea{ width: 100%; background: var(--bg); border: 1px solid var(--line-strong); border-radius: 8px; padding: .65rem .8rem; font-family: inherit; font-size: 16px; color: var(--ink); }
 .cform input:focus, .cform textarea:focus{ outline: 2px solid var(--focus); outline-offset: 1px; border-color: var(--ink); }
 .cform textarea{ min-height: 96px; resize: vertical; }
 .cform .btn{ margin-top: .2rem; }
@@ -1039,7 +1040,7 @@ section{ scroll-margin-top: 84px; }
 /* --- demo caption (the sheet-tab chips now live INSIDE the demo window as .ptabs) --- */
 .demo-caption{
   display: block; text-align: center;
-  margin: 0 auto .8rem; max-width: 470px; font-size: .64rem;
+  margin: 0 auto .8rem; max-width: 470px; font-size: .72rem;
 }
 .demo-caption::before{ margin-right: .4em; }
 
