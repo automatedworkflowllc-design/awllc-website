@@ -1052,28 +1052,6 @@ section{ scroll-margin-top: 84px; }
 }
 .pkpi .kd{ font-size: .66rem; font-weight: 700; color: var(--pos); }
 .pkpi .kd.warn{ color: var(--pwarn); }
-
-/* --- wa-pro "new model" enrichments for the hero demo (scoped to .demo) --- */
-.demo .pkpis-4{ grid-template-columns: repeat(2, 1fr); gap: .5rem; }
-.demo .pkpi{ position: relative; }
-.demo .pkpi .kl{ padding-right: .85rem; }
-.demo .pkpi .kcaret{ position: absolute; top: .5rem; right: .5rem; opacity: .3; font-size: .66rem; }
-.demo .prange{ display: flex; align-items: center; gap: .38rem; flex-wrap: wrap; margin-bottom: .6rem; font-family: var(--mono); }
-.demo .prange-l{ font-size: .54rem; letter-spacing: .12em; text-transform: uppercase; color: var(--app-soft); }
-.demo .rchip{ font-size: .55rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; padding: .24rem .52rem; border-radius: 999px; border: 1px solid var(--app-line); background: var(--tile); color: var(--app-soft); }
-.demo .rchip.on{ background: var(--app-ink); color: var(--app-bg); border-color: var(--app-ink); }
-.demo .prange-note{ margin-left: auto; display: inline-flex; align-items: center; gap: .32rem; font-size: .53rem; letter-spacing: .03em; text-transform: uppercase; color: var(--app-soft); }
-.demo .chg-dot{ width: 7px; height: 7px; border-radius: 2px; background: #EFC939; flex: none; }
-.demo .pbar-actions{ margin-left: auto; display: inline-flex; align-items: center; gap: .35rem; flex: none; }
-.demo .pbar-actions + .ppill{ margin-left: .4rem; }
-.demo .pmini{ font-family: var(--mono); font-size: .53rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: .2rem .48rem; border-radius: 999px; border: 1px solid var(--app-line); background: var(--tile); color: var(--app-ink); white-space: nowrap; }
-.demo .pmini.dark{ background: var(--app-ink); color: var(--app-bg); border-color: var(--app-ink); }
-@media (max-width: 560px){
-  .demo .pkpis-4{ grid-template-columns: 1fr 1fr; }
-  .demo .pbar-actions{ display: none; }
-  .demo .prange-note{ display: none; }
-}
-
 .pgrid{ display: grid; grid-template-columns: 1.35fr 1fr; gap: .6rem; margin-top: .6rem; }
 @media (max-width: 560px){ .pgrid{ grid-template-columns: 1fr; } }
 .ppanel{
@@ -1744,41 +1722,25 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
           <div class="demo" id="demo" data-view="dashboard" role="img" aria-label="Animated illustration: a messy spreadsheet full of errors and duplicate rows reorganizes itself into a clean, self-updating dashboard — revenue, jobs-closed and overdue-invoice tiles, a six-week revenue chart, a receivables list and a weekly summary written automatically by AI. The sheet tabs switch between the dashboard, revenue, receivables and raw-data views.">
             <div class="pframe-bar">
               <span class="pdots" aria-hidden="true"><span></span><span></span><span></span></span>
-              <span class="pfile">weekly-kpi-dashboard &middot; sample</span>
-              <span class="pbar-actions" aria-hidden="true">
-                <span class="pmini">&#10515; Export PDF</span>
-                <span class="pmini dark">&#128279; Share link</span>
-              </span>
+              <span class="pfile">weekly-kpi-dashboard &middot; sample data</span>
               <span class="ppill"><span class="live-dot" aria-hidden="true"></span>Self-updating</span>
             </div>
             <div class="pframe-body demo-body">
-              <div class="prange" aria-hidden="true">
-                <span class="prange-l">Range</span>
-                <span class="rchip on">This month</span>
-                <span class="rchip">Last 30</span>
-                <span class="rchip">Quarter</span>
-                <span class="prange-note"><span class="chg-dot" aria-hidden="true"></span>changed since your last visit &middot; Tue</span>
-              </div>
-              <div class="pkpis pkpis-4">
+              <div class="pkpis">
                 <div class="pkpi cell" style="--tx:-38px;--ty:44px;--tr:-7deg;--d:.05s">
-                  <span class="kl">Monthly revenue <span class="kcaret" aria-hidden="true">&#9662;</span></span>
+                  <span class="kl">Revenue</span>
                   <span class="kv" data-count="48270" data-prefix="$">$48,270</span>
-                  <span class="kd">&#9650; 12% vs last mo</span>
+                  <span class="kd">&#9650; 12.4% wk</span>
                 </div>
-                <div class="pkpi cell" style="--tx:24px;--ty:-26px;--tr:5deg;--d:.12s">
-                  <span class="kl">Outstanding AR <span class="kcaret" aria-hidden="true">&#9662;</span></span>
-                  <span class="kv" data-count="9340" data-prefix="$">$9,340</span>
-                  <span class="kd warn">+$1,150 this wk</span>
-                </div>
-                <div class="pkpi cell" style="--tx:-28px;--ty:-22px;--tr:-4deg;--d:.18s">
-                  <span class="kl">Net cash flow <span class="kcaret" aria-hidden="true">&#9662;</span></span>
-                  <span class="kv" data-count="11820" data-prefix="$">$11,820</span>
-                  <span class="kd">&#9650; 8% vs last mo</span>
+                <div class="pkpi cell" style="--tx:24px;--ty:-26px;--tr:5deg;--d:.15s">
+                  <span class="kl">Jobs closed</span>
+                  <span class="kv" data-count="31">31</span>
+                  <span class="kd">&#9650; 4 wk</span>
                 </div>
                 <div class="pkpi cell" style="--tx:44px;--ty:38px;--tr:9deg;--d:.1s">
-                  <span class="kl">Active customers <span class="kcaret" aria-hidden="true">&#9662;</span></span>
-                  <span class="kv" data-count="62">62</span>
-                  <span class="kd">&#9650; 3 this month</span>
+                  <span class="kl">Overdue inv.</span>
+                  <span class="kv" data-count="2">2</span>
+                  <span class="kd warn">flagged</span>
                 </div>
               </div>
 
@@ -1797,17 +1759,16 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
                 </div>
                 <div class="pside">
                   <div class="ppanel cell" style="--tx:34px;--ty:18px;--tr:2.5deg;--d:.32s">
-                    <p class="ph">Receivables &mdash; call first</p>
-                    <div class="prec"><b>Hartley Property Mgmt</b><span class="amt">$4,200</span><span class="ptag due">31d &middot; new since Tue</span></div>
-                    <div class="prec"><b>K. Alvarez Builders</b><span class="amt">$2,890</span><span class="ptag due">17d overdue</span></div>
-                    <div class="prec"><b>Suwannee Vet Clinic</b><span class="amt">$2,250</span><span class="ptag paid">paid Thu &middot; clears Mon</span></div>
+                    <p class="ph">Receivables</p>
+                    <div class="prec"><b>Hartley Property Mgmt</b><span class="amt">$1,850</span><span class="ptag due">31d overdue</span></div>
+                    <div class="prec"><b>Suwannee Vet Clinic</b><span class="amt">$2,300</span><span class="ptag paid">paid</span></div>
                   </div>
                   <div class="ppanel pai cell" style="--tx:0px;--ty:36px;--tr:1.5deg;--d:.5s">
                     <span class="pai-tag">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.2 6.5L21 10l-6.8 1.5L12 18l-2.2-6.5L3 10l6.8-1.5L12 2z"/></svg>
                       Written by the dashboard, not by you
                     </span>
-                    <p id="ai-text">Strong month &mdash; revenue up 12% and net cash up 8%. Two receivables moved since Tuesday: Hartley crossed 30 days at $4,200. Call Hartley first &mdash; everything else is on track.</p>
+                    <p id="ai-text">Revenue is up 12.4% this week, mostly repeat clients. Two invoices are past 30 days &mdash; both flagged on the Receivables tab. Nothing else needs your attention.</p>
                   </div>
                 </div>
               </div>
