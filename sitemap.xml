@@ -7,9 +7,33 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://automatedworkflowllc.com/demo/</loc>
+    <loc>https://automatedworkflowllc.com/spreadsheet-cleanup-service/</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://automatedworkflowllc.com/google-sheets-consultant/</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://automatedworkflowllc.com/google-sheets-dashboard/</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://automatedworkflowllc.com/automated-reports/</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://automatedworkflowllc.com/demo/</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>
