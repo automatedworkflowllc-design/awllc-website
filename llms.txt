@@ -1,12 +1,12 @@
 # Automated Workflow LLC
 
-> Spreadsheet cleanup, Google Sheets automation, and AI-written recurring business reports for small businesses. Based in Gainesville, FL; works remotely with clients across the US. Flat prices, 24–48h cleanup turnaround, and a free 1-day mini-demo on your real data — you keep the demo either way.
+> Spreadsheet cleanup, Google Sheets automation, and AI-written recurring business reports for small businesses. Based in Gainesville, FL; works remotely with clients across the US. Flat published prices ($300 cleanup, $650 dashboard), 24–48h cleanup turnaround, and a free 1-day mini-demo on your real data — you keep the demo either way.
 
 Contact: colin@automatedworkflowllc.com · +1-703-939-1174 · https://automatedworkflowllc.com
 
 ## Services and pricing
 
-- Spreadsheet Cleanup: from $40 (small files); most jobs $150–300 flat. Duplicates removed, formats fixed, formulas repaired. 24–48 hour turnaround. Excel and Google Sheets.
+- Spreadsheet Cleanup: $300 flat, priced up front. Duplicates removed, formats fixed, formulas repaired. 24–48 hour turnaround. Excel and Google Sheets. The free 1-day mini-demo is the entry point.
 - Automated Dashboard: $650 flat. Live, self-updating KPI dashboard in Google Sheets with an AI-written weekly summary note.
 - Report Autopilot (flagship): $1,000 one-time setup, then $250–500/mo monitoring. Recurring reports write themselves — pulled, formatted, summarized in plain English, delivered on schedule and on demand.
 - Full Workflow Automation: from $2,000. Intake, tracking, reporting, and follow-ups built end to end.
