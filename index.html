@@ -1271,6 +1271,44 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 .hero.ledger .hero-grid ::selection{ background: #F1EDDE; color: #1F1C15; }
 .hero.ledger .hero-grid .stamp-chip{ color: #5FCE8C; }
 
+/* LIGHT-MODE splash card — when the site is in light mode the card flips to warm
+   paper; the white demo window inside pops against it (dark card stays for dark). */
+:root[data-theme="light"] .hero.ledger .hero-grid{
+  background: #F4F1E8; color: #211D14;
+  border-color: rgba(33,29,20,.10);
+  box-shadow: 0 30px 70px -34px rgba(120,110,86,.40);
+  --bg: #F4F1E8; --bg-soft: #EDE9DC; --card: #FFFFFF; --well: #EDE9DC;
+  --ink: #211D14; --ink-soft: #5C5645;
+  --line: #E4DFD1; --line-soft: #EFEADD; --line-strong: #CBC5B1;
+  --btn-bg: #211D14; --btn-bg-hover: #000000; --btn-fg: #FBFAF3;
+  --shadow-card: 0 1px 2px rgba(33,29,20,.06), 0 12px 32px -16px rgba(33,29,20,.12);
+  --shadow-lift: 0 2px 4px rgba(33,29,20,.06), 0 22px 52px -20px rgba(33,29,20,.16);
+}
+:root[data-theme="light"] .hero.ledger .hero-grid ::selection{ background: #211D14; color: #FBFAF3; }
+:root[data-theme="light"] .hero.ledger .hero-grid .stamp-chip{ color: #1E7A47; }
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]) .hero.ledger .hero-grid{
+    background: #F4F1E8; color: #211D14;
+    border-color: rgba(33,29,20,.10);
+    box-shadow: 0 30px 70px -34px rgba(120,110,86,.40);
+    --bg: #F4F1E8; --bg-soft: #EDE9DC; --card: #FFFFFF; --well: #EDE9DC;
+    --ink: #211D14; --ink-soft: #5C5645;
+    --line: #E4DFD1; --line-soft: #EFEADD; --line-strong: #CBC5B1;
+    --btn-bg: #211D14; --btn-bg-hover: #000000; --btn-fg: #FBFAF3;
+    --shadow-card: 0 1px 2px rgba(33,29,20,.06), 0 12px 32px -16px rgba(33,29,20,.12);
+    --shadow-lift: 0 2px 4px rgba(33,29,20,.06), 0 22px 52px -20px rgba(33,29,20,.16);
+  }
+  :root:not([data-theme="dark"]) .hero.ledger .hero-grid ::selection{ background: #211D14; color: #FBFAF3; }
+  :root:not([data-theme="dark"]) .hero.ledger .hero-grid .stamp-chip{ color: #1E7A47; }
+}
+
+/* MOBILE demo-forward — the live dashboard leads (its caption self-explains it),
+   headline + copy follow, so the product is visible without scrolling. */
+@media (max-width: 900px){
+  .hero.ledger .hero-grid{ display: flex; flex-direction: column; gap: 1.4rem; }
+  .hero.ledger .hero-demo{ order: -1; }
+}
+
 /* dark-theme grid backdrop — the whole canvas flips, not just the shell */
 :root[data-theme="dark"] .ledger-chrome{ color: #6E6A5E; }
 :root[data-theme="dark"] .lc-cols{ border-bottom-color: rgba(255,255,255,.08); }
