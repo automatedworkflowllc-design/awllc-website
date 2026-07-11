@@ -1236,6 +1236,12 @@ section{ scroll-margin-top: 84px; }
 }
 @media (max-width: 560px){ .header-badge{ font-size: .62rem; padding: .16rem .32rem; } }
 
+/* {a_w} nightlight — the badge glows terminal green in dark mode (Colin-ratified) */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .header-badge{ color: #4ADE80; border-color: color-mix(in srgb, #4ADE80 45%, transparent); }
+}
+:root[data-theme="dark"] .header-badge{ color: #4ADE80; border-color: color-mix(in srgb, #4ADE80 45%, transparent); }
+
 /* header green mini-demo pill (1b header spec) — reads on both themes */
 a.btn-green, a.btn-green:link, a.btn-green:visited,
 a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
@@ -1320,11 +1326,13 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 }
 .ledger-textlink:hover{ text-decoration-thickness: 2px; }
 .stamp-chip{
-  align-self: center; white-space: nowrap; transform: rotate(-3deg);
-  font-family: var(--mono); font-size: .62rem; font-weight: 600;
+  align-self: center; white-space: nowrap; display: inline-flex; align-items: center; gap: .45rem;
+  font-family: var(--mono); font-size: .66rem; font-weight: 560;
   letter-spacing: .09em; text-transform: uppercase; color: #1E7A47;
-  border: 1.5px dashed #1E7A47; border-radius: 8px; padding: .42rem .7rem;
+  border: 1px solid color-mix(in srgb, #1E7A47 38%, transparent);
+  border-radius: 999px; padding: .45rem .85rem; background: color-mix(in srgb, #1E7A47 6%, transparent);
 }
+.stamp-chip::before{ content: "¹3"; font-weight: 700; font-size: .7rem; }
 
 /* bottom spec strip */
 .ledger-spec{
