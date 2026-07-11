@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Dashboard Demo — Automated Workflow LLC</title>
+<meta name="description" content="A real, self-updating KPI dashboard running on sample data — click the tabs, hover the chart, try it. This is what Automated Workflow LLC builds for small businesses.">
+<link rel="canonical" href="https://automatedworkflowllc.com/demo/">
+<meta property="og:title" content="Live Dashboard Demo — Automated Workflow LLC">
+<meta property="og:description" content="Drive a real, self-updating KPI dashboard on sample data. This is the thing you get.">
+<meta property="og:url" content="https://automatedworkflowllc.com/demo/">
+<style>
+  :root{
+    --paper:#FBFAF3; --well:#F4F1E8; --ink:#211D14; --ink-soft:#5C5645;
+    --line:#E4DFD1; --green:#1E7A47;
+    --mono: ui-monospace, "SFMono-Regular", "Geist Mono", Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; background:var(--paper); color:var(--ink); font-family:var(--sans); }
+  body{ display:flex; flex-direction:column; }
+
+  .demobar{
+    display:flex; align-items:center; gap:.9rem; flex:none;
+    padding:.6rem 1.1rem; border-bottom:1px solid var(--line); background:var(--paper);
+  }
+  .brand{ display:inline-flex; align-items:center; gap:.55rem; text-decoration:none; color:var(--ink); min-width:0; }
+  .badge{
+    font-family:var(--mono); font-weight:600; font-size:.72rem; letter-spacing:-.02em; line-height:1;
+    border:3px solid transparent; border-radius:7px; padding:.22rem .44rem; flex:none;
+    background:
+      linear-gradient(var(--paper),var(--paper)) padding-box,
+      linear-gradient(92deg,#E1483E,#F08A24,#EFC939,#4FAE4A,#3E7FD9,#9B4FB8) border-box;
+  }
+  .wm{ font-family:var(--mono); font-weight:600; font-size:.95rem; letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tag{
+    font-family:var(--mono); font-size:.58rem; font-weight:600; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--green); display:inline-flex; align-items:center; gap:.4rem;
+  }
+  .dot{ width:6px; height:6px; border-radius:50%; background:var(--green); flex:none; animation:pulse 2.2s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.5; } }
+  .cta{
+    margin-left:auto; flex:none; font-family:var(--mono); font-size:.64rem; font-weight:700;
+    letter-spacing:.06em; text-transform:uppercase; text-decoration:none; color:var(--paper);
+    background:var(--ink); border-radius:999px; padding:.5rem .95rem; white-space:nowrap;
+    transition:background .2s ease;
+  }
+  .cta:hover{ background:#000; }
+
+  .note{
+    flex:none; font-family:var(--mono); font-size:.6rem; letter-spacing:.02em; color:var(--ink-soft);
+    text-align:center; padding:.5rem 1rem; border-bottom:1px solid var(--line); background:var(--well);
+  }
+  .note b{ color:var(--ink); font-weight:600; }
+
+  .frame-wrap{ flex:1; min-height:0; position:relative; background:var(--well); }
+  .loading{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);
+  }
+  iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; z-index:1; }
+
+  @media (max-width:560px){
+    .tag{ display:none; }
+    .wm{ font-size:.82rem; }
+    .cta{ font-size:.58rem; padding:.45rem .7rem; }
+    .note{ font-size:.55rem; }
+  }
+</style>
+</head>
+<body>
+  <header class="demobar">
+    <a class="brand" href="/" aria-label="Automated Workflow LLC — home">
+      <span class="badge">{a_w}</span>
+      <span class="wm">automated_workflow</span>
+    </a>
+    <span class="tag"><span class="dot" aria-hidden="true"></span>Live sample dashboard</span>
+    <a class="cta" href="/#contact">Get yours free &rarr;</a>
+  </header>
+
+  <p class="note">A real, self-updating KPI dashboard on <b>sample data</b> &mdash; click the tabs, hover the chart, try it. Yours would run on your numbers, updating itself every week.</p>
+
+  <div class="frame-wrap">
+    <div class="loading" aria-hidden="true">Loading the live dashboard&hellip;</div>
+    <iframe
+      title="Live sample KPI dashboard — Automated Workflow LLC"
+      loading="eager"
+      src="https://script.google.com/macros/s/AKfycbyC_dfDwTZzdoVNHiQNBPDIrjShnzKCSC08-3yHEAbMgMTD_RTflPrlfkJKhuOcyh7bBg/exec?k=036ac99a546d409b9ad4f9af934de767902a6c8683da4f5382cfb252d6b6ca3f"></iframe>
+  </div>
+</body>
+</html>

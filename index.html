@@ -651,6 +651,8 @@ section{ scroll-margin-top: 84px; }
 }
 .section-head h2{ margin: 0; }
 .section-head .lede{ margin: 0; padding-bottom: .3rem; justify-self: end; }
+.samples-demo-cta{ grid-column: 1 / -1; display: flex; align-items: center; gap: 1rem 1.2rem; flex-wrap: wrap; margin: .4rem 0 0; }
+.samples-demo-note{ font-family: var(--mono); font-size: .72rem; letter-spacing: .01em; color: var(--ink-soft); }
 @media (max-width: 860px){
   .section-head{ grid-template-columns: 1fr; gap: .9rem; }
   .section-head .lede{ justify-self: start; }
@@ -2188,6 +2190,10 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
     <div class="section-head rv">
       <h2 id="samples-h">Poke around the <span class="serif-i">real</span> thing.</h2>
       <p class="lede">These are live, working Google Sheets I built &mdash; not screenshots. Open them, click the tabs, check the formulas, and see exactly the quality of work you&rsquo;d get back.</p>
+      <p class="samples-demo-cta rv">
+        <a class="btn btn-primary btn-rect" href="/demo/">Open the live dashboard demo <span class="arr" aria-hidden="true">&rarr;</span></a>
+        <span class="samples-demo-note">A real, self-updating dashboard you can drive &mdash; click the tabs, hover the chart.</span>
+      </p>
     </div>
 
     <div class="samples-grid">
