@@ -1084,6 +1084,13 @@ section{ scroll-margin-top: 84px; }
 /* the sheet-tab strip — product truth (real builds ship color-coded tabs),
    set in the SAME chip language as the hero mock's docked .dtab strip:
    equal-width mono uppercase chips, color-underline, taller bold active. */
+/* interactivity affordance — signals the demo is clickable (owner ask) */
+.demo-live{ color: #1E7A47; font-weight: 700; }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .demo-live{ color: #5FCE8C; } }
+.hero.ledger .demo .ptab{ animation: tab-hint 3.2s ease-in-out 1.2s 2 both; }
+@keyframes tab-hint{ 0%,100%{ transform: translateY(0); } 45%{ transform: translateY(2px); } }
+@media (prefers-reduced-motion: reduce){ .hero.ledger .demo .ptab{ animation: none; } }
+
 .ptabs{
   display: flex; gap: 5px; align-items: flex-start;
   padding: 0 .8rem .6rem;
@@ -1639,7 +1646,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
         </div>
 
         <div class="hero-demo">
-          <p class="eyebrow demo-caption">This is the thing you get &mdash; look first, read after</p>
+          <p class="eyebrow demo-caption">This is the thing you get &mdash; <span class="demo-live">it&rsquo;s live &mdash; tap the tabs</span></p>
           <div class="demo" id="demo" data-view="dashboard" role="img" aria-label="Animated illustration: a messy spreadsheet full of errors and duplicate rows reorganizes itself into a clean, self-updating dashboard — revenue, jobs-closed and overdue-invoice tiles, a six-week revenue chart, a receivables list and a weekly summary written automatically by AI. The sheet tabs switch between the dashboard, revenue, receivables and raw-data views.">
             <div class="pframe-bar">
               <span class="pdots" aria-hidden="true"><span></span><span></span><span></span></span>
