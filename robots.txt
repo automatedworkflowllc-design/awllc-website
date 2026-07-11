@@ -1,4 +1,65 @@
+# Automated Workflow LLC - automatedworkflowllc.com
+# Default: everyone is welcome to crawl everything.
 User-agent: *
+Allow: /
+
+# --- Explicit welcome for AI answer engines & training crawlers (2026 tokens) ---
+# We WANT to be read, cited, and answered by AI assistants. Naming them removes any ambiguity.
+
+# OpenAI (ChatGPT / SearchGPT)
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic (Claude)
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-User
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: anthropic-ai
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+
+# Google AI (Gemini / AI Overviews training toggle)
+User-agent: Google-Extended
+Allow: /
+
+# Apple Intelligence
+User-agent: Applebot-Extended
+Allow: /
+
+# Microsoft / Bing
+User-agent: bingbot
+Allow: /
+
+# Common Crawl (feeds many downstream LLMs)
+User-agent: CCBot
+Allow: /
+
+# Amazon
+User-agent: Amazonbot
+Allow: /
+
+# Meta AI
+User-agent: Meta-ExternalAgent
+Allow: /
+
+# ByteDance / DuckDuckGo AI / You.com
+User-agent: Bytespider
+Allow: /
+User-agent: DuckAssistBot
+Allow: /
+User-agent: YouBot
 Allow: /
 
 Sitemap: https://automatedworkflowllc.com/sitemap.xml

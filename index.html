@@ -1644,9 +1644,61 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": "https://automatedworkflowllc.com/#organization",
+  "name": "Automated Workflow LLC",
+  "url": "https://automatedworkflowllc.com",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://automatedworkflowllc.com/og-image.png",
+    "width": 1200,
+    "height": 630
+  },
+  "image": "https://automatedworkflowllc.com/og-image.png",
+  "description": "Done-for-you spreadsheet cleanup, Google Sheets automation, and AI-written recurring business reports for small businesses. Flat published prices and a free 1-day mini-demo on your real data.",
+  "email": "colin@automatedworkflowllc.com",
+  "telephone": "+1-703-939-1174",
+  "founder": { "@type": "Person", "name": "Colin McCarthy" },
+  "address": { "@type": "PostalAddress", "addressLocality": "Gainesville", "addressRegion": "FL", "addressCountry": "US" },
+  "areaServed": [
+    { "@type": "Country", "name": "United States" },
+    { "@type": "State", "name": "Florida" },
+    { "@type": "City", "name": "Gainesville" }
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "email": "colin@automatedworkflowllc.com",
+    "telephone": "+1-703-939-1174",
+    "areaServed": "US",
+    "availableLanguage": "English"
+  },
+  "sameAs": [
+    "https://www.upwork.com/freelancers/~016ef90f21b03e98fd",
+    "https://github.com/automatedworkflowllc-design"
+  ]
+}
+</script>
+<!-- sameAs slot: add the Google Business Profile short URL + Fiverr profile URL to BOTH #organization and #business once Colin supplies them (do not invent). -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://automatedworkflowllc.com/#website",
+  "url": "https://automatedworkflowllc.com",
+  "name": "Automated Workflow LLC",
+  "description": "Spreadsheet cleanup, Google Sheets automation, and AI-written recurring reports. Flat published prices and a free 1-day mini-demo.",
+  "publisher": { "@id": "https://automatedworkflowllc.com/#organization" },
+  "inLanguage": "en-US"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
   "@type": ["ProfessionalService", "LocalBusiness"],
   "@id": "https://automatedworkflowllc.com/#business",
   "name": "Automated Workflow LLC",
+  "parentOrganization": { "@id": "https://automatedworkflowllc.com/#organization" },
   "sameAs": [
     "https://www.upwork.com/freelancers/~016ef90f21b03e98fd",
     "https://github.com/automatedworkflowllc-design"
