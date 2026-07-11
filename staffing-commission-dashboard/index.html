@@ -190,7 +190,7 @@
         <rect class="cur" x="273" y="13" width="8" height="17" rx="1" fill="#16181d"/>
       </svg>
     </a>
-    <a class="header-cta" href="mailto:colin@automatedworkflowllc.com?subject=Staffing%20commission%20dashboard%20%E2%80%94%20free%20mini-demo&amp;body=Hi%20Colin%2C%0A%0AHere%27s%20how%20our%20desk%20pays%20%28and%20a%20recent%20commission%20sheet%29%3A%20">Send your sheet &rarr;</a>
+    <a class="header-cta" href="mailto:colin@automatedworkflowllc.com?subject=Staffing%20commission%20dashboard%20%E2%80%94%20free%20mini-demo&amp;body=Hi%20Colin%2C%0A%0AHere%27s%20how%20our%20desk%20pays%3A%20">Start my free demo &rarr;</a>
   </div>
 </header>
 
@@ -202,10 +202,135 @@
       <h1>A commission tracker for your staffing agency <span class="thin">&mdash; one your recruiters actually trust.</span></h1>
       <p class="subhead">Splits, draws, and clawbacks settled by rule in a live Google Sheets dashboard, so nobody argues the math and month-end stops eating your Friday. <b>$650 flat</b> &mdash; and the first build is <b>free</b> to see.</p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="mailto:colin@automatedworkflowllc.com?subject=Staffing%20commission%20dashboard%20%E2%80%94%20free%20mini-demo&amp;body=Hi%20Colin%2C%0A%0AHere%27s%20how%20our%20desk%20pays%20%28and%20a%20recent%20commission%20sheet%29%3A%20">Send Colin your commission sheet &rarr;</a>
-        <a class="btn btn-ghost" href="/demo/">See a live sample &rarr;</a>
+        <a class="btn btn-primary" href="mailto:colin@automatedworkflowllc.com?subject=Staffing%20commission%20dashboard%20%E2%80%94%20free%20mini-demo&amp;body=Hi%20Colin%2C%0A%0AHere%27s%20how%20our%20desk%20pays%3A%20">Tell me how your desk pays &rarr;</a>
+        <a class="btn btn-ghost" href="/#contact">Use the quick form instead &rarr;</a>
       </div>
+      <p class="hero-meta" style="margin-top:.8rem;">Prefer email? <a href="mailto:colin@automatedworkflowllc.com?subject=Staffing%20commission%20dashboard%20%E2%80%94%20free%20mini-demo" style="color:var(--green);">colin@automatedworkflowllc.com</a> &middot; or see a <a href="/demo/" style="color:var(--green);">live sample dashboard &rarr;</a></p>
       <p class="hero-meta">A real person in <b>Gainesville, FL</b> &middot; building for staffing desks everywhere</p>
+    </section>
+
+    <!-- ===== Commission dashboard preview mock (illustrative sample) ===== -->
+    <section class="block cd-wrap" aria-label="Sample commission dashboard preview">
+      <p class="eyebrow green">A look at the actual thing</p>
+      <h2 style="font-size:clamp(1.5rem,4.5vw,1.95rem);margin:0 0 1.1rem;">One live tab, and the argument is over</h2>
+      <style>
+        .cd-wrap .cd-card{
+          background:var(--card); border:1px solid var(--line-strong);
+          border-radius:14px; box-shadow:var(--shadow); overflow:hidden; margin:.4rem 0 .9rem;
+        }
+        .cd-head{
+          display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;
+          padding:.75rem 1rem; border-bottom:1px solid var(--line); background:var(--well);
+        }
+        .cd-head .cd-title{
+          font-family:var(--mono); font-size:.72rem; font-weight:700; letter-spacing:.08em;
+          text-transform:uppercase; color:var(--ink); display:inline-flex; align-items:center; gap:.5rem;
+        }
+        .cd-dot{ width:8px; height:8px; border-radius:50%; background:var(--green);
+          box-shadow:0 0 0 3px rgba(30,122,71,.16); flex:none; }
+        .cd-stamp{ margin-left:auto; font-family:var(--mono); font-size:.64rem; letter-spacing:.04em;
+          color:var(--ink-faint); white-space:nowrap; }
+        .cd-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+        .cd-table{ width:100%; min-width:460px; border-collapse:collapse; }
+        .cd-table th, .cd-table td{ padding:.62rem .8rem; text-align:right; vertical-align:top; }
+        .cd-table th:first-child, .cd-table td:first-child{ text-align:left; }
+        .cd-table thead th{
+          font-family:var(--mono); font-size:.6rem; font-weight:700; letter-spacing:.1em;
+          text-transform:uppercase; color:var(--ink-faint); border-bottom:1px solid var(--line);
+          padding-top:.7rem; padding-bottom:.55rem;
+        }
+        .cd-table tbody tr{ border-bottom:1px solid var(--line); }
+        .cd-table tbody tr:last-child{ border-bottom:none; }
+        .cd-name{ font-weight:600; color:var(--ink); font-size:.92rem; line-height:1.2; }
+        .cd-num{ font-family:var(--mono); font-size:.86rem; color:var(--ink); white-space:nowrap; }
+        .cd-num.soft{ color:var(--ink-faint); }
+        .cd-num.pend{ color:#A85E12; }
+        .cd-tags{ margin-top:.34rem; display:flex; flex-wrap:wrap; gap:.3rem; }
+        .cd-pill{
+          font-family:var(--mono); font-size:.58rem; font-weight:700; letter-spacing:.06em;
+          text-transform:uppercase; padding:.16rem .42rem; border-radius:999px; border:1px solid;
+          line-height:1.35; white-space:nowrap;
+        }
+        .cd-pill.split{ background:#EAF1FB; color:#2E5FA8; border-color:#D3E0F5; }
+        .cd-pill.draw{  background:#FBF1E3; color:#A85E12; border-color:#F0DFC4; }
+        .cd-pill.risk{  background:#FBE9E6; color:#B23122; border-color:#F3D2CC; }
+        .cd-foot{
+          display:flex; align-items:center; flex-wrap:wrap; gap:.35rem 1.1rem;
+          padding:.75rem 1rem; border-top:1px solid var(--line); background:var(--well);
+          font-family:var(--mono); font-size:.66rem; letter-spacing:.03em; color:var(--ink-soft);
+        }
+        .cd-foot b{ color:var(--ink); font-weight:700; }
+        .cd-foot .cd-flag{ color:#B23122; }
+        .cd-cap{ font-size:.78rem; color:var(--ink-faint); margin:.1rem 0 0; }
+        .cd-cap b{ color:var(--ink-soft); font-weight:600; }
+      </style>
+
+      <div class="cd-card">
+        <div class="cd-head">
+          <span class="cd-title"><span class="cd-dot"></span>Commission Dashboard &middot; July</span>
+          <span class="cd-stamp">Auto-updated 6:00 AM &middot; live</span>
+        </div>
+
+        <div class="cd-scroll">
+          <table class="cd-table">
+            <thead>
+              <tr>
+                <th scope="col">Recruiter</th>
+                <th scope="col">Earned</th>
+                <th scope="col">Pending</th>
+                <th scope="col">Net owed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="cd-name">Dana Whitfield</div>
+                  <div class="cd-tags"><span class="cd-pill split">Split 50%</span></div>
+                </td>
+                <td class="cd-num">$18,400</td>
+                <td class="cd-num pend">$6,200</td>
+                <td class="cd-num">$12,200</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="cd-name">Marcus Reyes</div>
+                  <div class="cd-tags"><span class="cd-pill draw">Draw &minus;$1,500</span></div>
+                </td>
+                <td class="cd-num">$11,750</td>
+                <td class="cd-num pend">$3,900</td>
+                <td class="cd-num">$10,250</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="cd-name">Priya Nair</div>
+                  <div class="cd-tags"><span class="cd-pill risk">Clawback risk &middot; 42d left</span></div>
+                </td>
+                <td class="cd-num">$9,300</td>
+                <td class="cd-num pend">$2,100</td>
+                <td class="cd-num soft">$7,200</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="cd-name">Tovah Klein</div>
+                  <div class="cd-tags"><span class="cd-pill split">Split 40%</span></div>
+                </td>
+                <td class="cd-num">$7,600</td>
+                <td class="cd-num pend">$0</td>
+                <td class="cd-num">$7,600</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cd-foot">
+          <span>Desk earned <b>$47,050</b></span>
+          <span>Payout-ready <b>$37,250</b></span>
+          <span class="cd-flag">1 clawback flag &middot; $9,300 at risk</span>
+          <span style="margin-left:auto;">AI weekly note sent Mon 8:00 AM</span>
+        </div>
+      </div>
+
+      <p class="cd-cap"><b>Illustrative sample &mdash; not a real client.</b> Your build runs on your desk&rsquo;s own rules and numbers. Splits, draws, and clawback windows are settled the way <em>you</em> pay.</p>
     </section>
 
     <section class="block">
@@ -266,7 +391,7 @@
         <li><strong>A real person in Gainesville, FL</strong> &mdash; building for staffing desks and small businesses everywhere in the US, all over email and Google Sheets.</li>
         <li><strong>Your data stays private.</strong> Recruiter names, pay rates, and margins are never shared, never used for anything else, and <strong>deleted after the demo</strong>. <strong>NDA available on request</strong> &mdash; just ask before you send.</li>
         <li><strong>I answer my own phone.</strong> Want to talk through how your desk pays before you send a file? Call or text and you get me, not a menu.</li>
-        <li><strong>Trained craft, not a buzzword.</strong> Anthropic Academy certified &mdash; six credentials in AI-assisted automation &mdash; and verified on Upwork, where the same work is reviewed on a public platform.</li>
+        <li><strong>No stack of reviews to point to yet &mdash; which is exactly why the first build is free.</strong> You see it run on your own commission numbers before a dollar changes hands, and you keep it either way. That&rsquo;s the proof, and it&rsquo;s on me, not you.</li>
       </ul>
     </section>
 
@@ -274,7 +399,8 @@
       <p class="eyebrow green">Ready when you are</p>
       <h2>Stop dreading the commission spreadsheet</h2>
       <p>Send me how your desk pays today. Most mini-demos go out within one business day, built on your real numbers, and you keep the fix either way &mdash; whether or not we ever work together.</p>
-      <a class="btn btn-primary" href="mailto:colin@automatedworkflowllc.com?subject=Staffing%20commission%20dashboard%20%E2%80%94%20free%20mini-demo&amp;body=Hi%20Colin%2C%0A%0AHere%27s%20how%20our%20desk%20pays%20%28and%20a%20recent%20commission%20sheet%29%3A%20">Send Colin your commission sheet &rarr;</a>
+      <p class="cta-sub" style="margin-bottom:1.2rem;">Recruiter names, pay rates, and margins stay private &mdash; never shared, <strong style="color:var(--ink-soft);">deleted after the demo</strong>, NDA on request before you send a thing.</p>
+      <a class="btn btn-primary" href="mailto:colin@automatedworkflowllc.com?subject=Staffing%20commission%20dashboard%20%E2%80%94%20free%20mini-demo&amp;body=Hi%20Colin%2C%0A%0AHere%27s%20how%20our%20desk%20pays%3A%20">Tell me how your desk pays &rarr;</a>
       <p class="cta-sub">Or use the <a href="/#contact">free-demo form</a> &mdash; same thing, no email app required. Based in Gainesville, working with staffing agencies everywhere.</p>
     </section>
 
@@ -285,6 +411,10 @@
         <details class="qa">
           <summary>How do staffing agencies track commissions?</summary>
           <div class="a">Most start in a spreadsheet &mdash; perm placements calculated as a percentage of first-year salary, contract placements as a percentage of the bill-pay spread, with splits, draws, and guarantee windows tracked by hand. That works until it doesn&rsquo;t: month-end reconciliation eats a Friday and recruiters stop trusting their number. The reliable version is a live commission dashboard where those rules are written down once and the numbers update themselves. That&rsquo;s what I build &mdash; $650 flat, and the first slice is free through the 1-day mini-demo.</div>
+        </details>
+        <details class="qa">
+          <summary>My commission plan is unusually complicated &mdash; tiers, house accounts, retroactive rate changes. Can it handle that?</summary>
+          <div class="a">Almost certainly &mdash; and that&rsquo;s the whole reason the first build is free. Tiered thresholds, house accounts, monthly vs. per-placement draws, retroactive rate bumps, PEO pass-through: I&rsquo;d rather build the demo on <strong>your</strong> actual rules than promise it in the abstract. You watch it handle your weird case on your own numbers first, and if it genuinely can&rsquo;t, you&rsquo;ve lost nothing. The messier your plan, the more this is worth doing.</div>
         </details>
         <details class="qa">
           <summary>How do I stop commission disputes on a recruiting desk?</summary>
@@ -336,6 +466,8 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
+    { "@type": "Question", "name": "My commission plan is unusually complicated — tiers, house accounts, retroactive rate changes. Can it handle that?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Almost certainly — and that's the whole reason the first build is free. Tiered thresholds, house accounts, monthly vs. per-placement draws, retroactive rate bumps, PEO pass-through: I'd rather build the demo on your actual rules than promise it in the abstract. You watch it handle your weird case on your own numbers first, and if it genuinely can't, you've lost nothing. The messier your plan, the more this is worth doing." } },
     { "@type": "Question", "name": "How do staffing agencies track commissions?",
       "acceptedAnswer": { "@type": "Answer", "text": "Most start in a spreadsheet — perm placements calculated as a percentage of first-year salary, contract placements as a percentage of the bill-pay spread, with splits, draws, and guarantee windows tracked by hand. That works until it doesn't: month-end reconciliation eats a Friday and recruiters stop trusting their number. The reliable version is a live commission dashboard where those rules are written down once and the numbers update themselves. That's what I build — $650 flat, and the first slice is free through the 1-day mini-demo." } },
     { "@type": "Question", "name": "How do I stop commission disputes on a recruiting desk?",
