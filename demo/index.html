@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+<link rel="dns-prefetch" href="https://script.google.com">
 <title>Live Dashboard Demo — Automated Workflow LLC</title>
 <meta name="description" content="A real, self-updating KPI dashboard running on sample data — click the tabs, hover the chart, try it. This is what Automated Workflow LLC builds for small businesses.">
 <link rel="canonical" href="https://automatedworkflowllc.com/demo/">
@@ -63,12 +66,48 @@
   }
   .note b{ color:var(--ink); font-weight:600; }
 
-  .frame-wrap{ flex:1; min-height:0; position:relative; background:var(--well); }
+  .frame-wrap{ flex:1; min-height:0; position:relative; background:#16181d; }
   .loading{
-    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    font-family:var(--mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.85rem;
+    font-family:var(--mono); font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.66);
+  }
+  .loading .spin{ width:26px; height:26px; border:2px solid rgba(255,255,255,.18); border-top-color:#54cf8e; border-radius:50%; animation:spin .9s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){ .loading .spin{ animation:none; } }
+  .sample-pill{
+    position:absolute; top:.6rem; right:.6rem; z-index:2; pointer-events:none;
+    font-family:var(--mono); font-size:.54rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--paper); background:rgba(33,29,20,.72); border:1px solid rgba(255,255,255,.18);
+    border-radius:999px; padding:.28rem .6rem;
   }
   iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; z-index:1; }
+
+  /* ---- conversion band: capture peak-intent HERE instead of bouncing to /#contact ---- */
+  .demo-conv{
+    flex:none; position:relative; background:var(--ink); color:var(--paper);
+    padding:.8rem 1.1rem; display:flex; align-items:center; justify-content:center; gap:.55rem 1.3rem; flex-wrap:wrap;
+  }
+  .demo-conv::before{ content:""; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg,#E1483E,#F08A24,#EFC939,#4FAE4A,#3E7FD9,#9B4FB8); }
+  .conv-lead{ margin:0; font-size:.92rem; font-family:var(--sans); }
+  .conv-lead b{ font-weight:700; }
+  .conv-form{ display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+  .conv-form input{
+    font-family:var(--sans); font-size:16px; color:var(--ink); background:var(--paper);
+    border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:.5rem .9rem; min-width:210px;
+  }
+  .conv-form button{
+    font-family:var(--mono); font-size:.66rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--ink); background:var(--paper); border:0; border-radius:999px; padding:.58rem 1rem; cursor:pointer; white-space:nowrap;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .conv-form button:hover{ background:#fff; transform:translateY(-1px); }
+  .conv-sub{ width:100%; text-align:center; margin:.1rem 0 0; font-family:var(--mono); font-size:.6rem; letter-spacing:.02em; color:rgba(255,255,255,.58); }
+  @media (max-width:560px){
+    .conv-lead{ font-size:.84rem; text-align:center; width:100%; }
+    .conv-form{ width:100%; justify-content:center; }
+    .conv-form input{ flex:1; min-width:0; }
+  }
   .brand-logo{ height:27px; width:auto; display:block; }
   .brand-logo .cur{ animation:brand-cur 1.1s step-end infinite; }
   @keyframes brand-cur{ 50%{ opacity:0; } }
@@ -128,15 +167,33 @@
     <a class="cta" href="/#contact">Get yours free &rarr;</a>
   </header>
 
-  <p class="note">A real, self-updating KPI dashboard on <b>sample data</b> &mdash; click the tabs, hover the chart, try it. Yours would run on your numbers, updating itself every week.</p>
+  <p class="note">A real, self-updating KPI dashboard on <b>sample data</b> &mdash; tap the tabs, open Receivables, poke around. Yours runs on <b>your</b> numbers, refreshing itself every week.</p>
 
   <div class="frame-wrap">
-    <div class="loading" aria-hidden="true">Loading the live dashboard&hellip;</div>
+    <div class="loading" aria-hidden="true"><span class="spin"></span>Loading the live dashboard&hellip;</div>
+    <span class="sample-pill">Sample data</span>
     <iframe
       title="Live sample KPI dashboard — Automated Workflow LLC"
       loading="eager"
-      onload="this.previousElementSibling.style.display='none'"
+      onload="var l=this.parentElement.querySelector('.loading'); if(l) l.style.display='none';"
       src="https://script.google.com/macros/s/AKfycbyC_dfDwTZzdoVNHiQNBPDIrjShnzKCSC08-3yHEAbMgMTD_RTflPrlfkJKhuOcyh7bBg/exec?k=036ac99a546d409b9ad4f9af934de767902a6c8683da4f5382cfb252d6b6ca3f"></iframe>
   </div>
+
+  <div class="demo-conv">
+    <p class="conv-lead">Like what you see? <b>This runs on your numbers.</b></p>
+    <form class="conv-form" action="https://formspree.io/f/mgojgjwv" method="POST">
+      <input type="hidden" name="_subject" value="Free dashboard request (demo page)">
+      <input type="hidden" name="lead_source" value="demo-page-conv-band">
+      <input type="email" name="email" required placeholder="you@yourbusiness.com" aria-label="Your email">
+      <button type="submit">Get mine free &rarr;</button>
+    </form>
+    <p class="conv-sub">Send one messy file &mdash; get a working dashboard back in a day, keep it either way. No card.</p>
+  </div>
+
+  <script>
+    // loading-state safety net: hide it after 9s even if the iframe onload is missed
+    // (Apps Script cold-starts vary), so a spinner never sticks on screen.
+    setTimeout(function(){ var l=document.querySelector('.loading'); if(l) l.style.display='none'; }, 9000);
+  </script>
 </body>
 </html>
