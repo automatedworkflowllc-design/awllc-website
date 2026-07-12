@@ -892,7 +892,7 @@ section{ scroll-margin-top: 84px; }
 .email-foot svg{ color: var(--paper-soft); }
 
 /* ============ SAMPLES ============ */
-.samples-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 1.4rem; }
+.samples-grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap: 1.4rem; }
 @media (max-width: 900px){ .samples-grid{ grid-template-columns: 1fr; } }
 .sample-card{
   display: flex; flex-direction: column; text-decoration: none; color: var(--ink);
@@ -2419,7 +2419,36 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
     </div>
 
     <div class="samples-grid">
-      <a class="sample-card rv" href="https://docs.google.com/spreadsheets/d/1n8Kwm4NPhoaeJABUCZd6TCl30EZsZIw24oActryRBLY/edit?usp=sharing" target="_blank" rel="noopener noreferrer">
+      <a class="sample-card rv" href="/demo/">
+        <div class="sample-thumb" aria-hidden="true">
+          <svg viewBox="0 0 300 130" fill="none">
+            <rect x="0" y="0" width="300" height="130" rx="10" fill="var(--card)" stroke="var(--line)"/>
+            <rect x="14" y="14" width="130" height="34" rx="6" fill="var(--well)" stroke="var(--line)"/>
+            <rect x="152" y="14" width="134" height="34" rx="6" fill="var(--well)"/>
+            <rect x="22" y="22" width="46" height="6" rx="3" fill="var(--ink)"/>
+            <rect x="22" y="34" width="30" height="5" rx="2.5" fill="var(--line-strong)"/>
+            <rect x="160" y="22" width="46" height="6" rx="3" fill="var(--line-strong)"/>
+            <rect x="160" y="34" width="30" height="5" rx="2.5" fill="var(--line-strong)"/>
+            <rect x="14" y="58" width="272" height="1.5" fill="var(--line)"/>
+            <rect x="22" y="72" width="26" height="42" rx="3" fill="var(--line)"/>
+            <rect x="58" y="60" width="26" height="54" rx="3" fill="var(--line-strong)"/>
+            <rect x="94" y="80" width="26" height="34" rx="3" fill="var(--line)"/>
+            <rect x="130" y="50" width="26" height="64" rx="3" fill="var(--ink)"/>
+            <rect x="166" y="66" width="26" height="48" rx="3" fill="var(--line-strong)"/>
+            <rect x="202" y="40" width="26" height="74" rx="3" fill="var(--ink)"/>
+          </svg>
+        </div>
+        <div class="sample-body">
+          <span class="card-no" aria-hidden="true">No. 01</span>
+          <h3>Live Dashboard Demo <span class="ext" aria-hidden="true">&#8599;</span></h3>
+          <p>The real, self-updating build in action &mdash; click the tabs, drive the range chips, watch the AI note write itself.</p>
+          <div class="spec">
+            <div class="spec-row"><span class="k">Format</span><span class="dots" aria-hidden="true"></span><span class="v">Live App</span></div>
+          </div>
+        </div>
+      </a>
+
+      <a class="sample-card rv rv-d1" href="https://docs.google.com/spreadsheets/d/1n8Kwm4NPhoaeJABUCZd6TCl30EZsZIw24oActryRBLY/edit?usp=sharing" target="_blank" rel="noopener noreferrer">
         <div class="sample-thumb" aria-hidden="true">
           <svg viewBox="0 0 300 130" fill="none">
             <rect x="0" y="0" width="300" height="130" rx="10" fill="var(--card)" stroke="var(--line)"/>
@@ -2435,7 +2464,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
           </svg>
         </div>
         <div class="sample-body">
-          <span class="card-no" aria-hidden="true">No. 01</span>
+          <span class="card-no" aria-hidden="true">No. 02</span>
           <h3>Executive KPI Dashboard <span class="ext" aria-hidden="true">&#8599;</span></h3>
           <p>Live KPIs, trend charts, and the AI-written weekly summary &mdash; the full flagship build.</p>
           <div class="spec">
@@ -2444,7 +2473,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
         </div>
       </a>
 
-      <a class="sample-card rv rv-d1" href="https://docs.google.com/spreadsheets/d/19BoCkruMKMuGBeyQq0gKstCZC3AkaXKi1jCxKiFitVY/edit?usp=sharing" target="_blank" rel="noopener noreferrer">
+      <a class="sample-card rv rv-d2" href="https://docs.google.com/spreadsheets/d/19BoCkruMKMuGBeyQq0gKstCZC3AkaXKi1jCxKiFitVY/edit?usp=sharing" target="_blank" rel="noopener noreferrer">
         <div class="sample-thumb" aria-hidden="true">
           <svg viewBox="0 0 300 130" fill="none">
             <rect x="0" y="0" width="300" height="130" rx="10" fill="var(--card)" stroke="var(--line)"/>
@@ -2468,7 +2497,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
           </svg>
         </div>
         <div class="sample-body">
-          <span class="card-no" aria-hidden="true">No. 02</span>
+          <span class="card-no" aria-hidden="true">No. 03</span>
           <h3>Retail Sales Cleanup <span class="ext" aria-hidden="true">&#8599;</span></h3>
           <p>A genuinely messy sales export, before and after &mdash; see what &ldquo;clean&rdquo; actually means.</p>
           <div class="spec">
@@ -2477,7 +2506,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
         </div>
       </a>
 
-      <a class="sample-card rv rv-d2" href="https://docs.google.com/spreadsheets/d/1gj26hE_eWUVNXcJ4QYpSLjyqfOINU2elok3T8Q8w55Y/edit?usp=sharing" target="_blank" rel="noopener noreferrer">
+      <a class="sample-card rv rv-d3" href="https://docs.google.com/spreadsheets/d/1gj26hE_eWUVNXcJ4QYpSLjyqfOINU2elok3T8Q8w55Y/edit?usp=sharing" target="_blank" rel="noopener noreferrer">
         <div class="sample-thumb" aria-hidden="true">
           <svg viewBox="0 0 300 130" fill="none">
             <rect x="0" y="0" width="300" height="130" rx="10" fill="var(--card)" stroke="var(--line)"/>
@@ -2493,7 +2522,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
           </svg>
         </div>
         <div class="sample-body">
-          <span class="card-no" aria-hidden="true">No. 03</span>
+          <span class="card-no" aria-hidden="true">No. 04</span>
           <h3>Expense Tracker <span class="ext" aria-hidden="true">&#8599;</span></h3>
           <p>Categorized, totaled, and charted automatically &mdash; type an expense, everything else updates.</p>
           <div class="spec">
