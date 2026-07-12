@@ -1,4 +1,4 @@
-# Automated Workflow LLC - automatedworkflowllc.com
+# Automated Workflow - automatedworkflowllc.com
 # Default: everyone is welcome to crawl everything.
 User-agent: *
 Allow: /
