@@ -292,6 +292,19 @@ h2 .serif-i{ font-weight: 470; font-size: 1.02em; }
   transition: border-color .3s ease, background .3s ease;
 }
 .site-header.scrolled{ border-bottom-color: var(--line); background: var(--header-bg-solid); }
+/* Sticky leaderboard: the header morphs into the c1 leaderboard once the hero headline scrolls away
+   (logo · serif tagline · CTA). Hidden until then so it never duplicates the hero H1. */
+.header-tagline{
+  flex: 1 1 auto; min-width: 0; text-align: center;
+  font-family: var(--serif); font-size: 1.02rem; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  opacity: 0; transform: translateY(-5px); pointer-events: none;
+  transition: opacity .4s ease, transform .4s ease;
+}
+.header-tagline em{ font-style: italic; }
+.site-header.past-hero .header-tagline{ opacity: 1; transform: none; }
+@media (max-width: 1023px){ .header-tagline{ display: none; } }
+@media (prefers-reduced-motion: reduce){ .header-tagline{ transition: opacity .4s ease; transform: none; } }
 .header-in{
   display: flex; align-items: center; justify-content: space-between;
   padding: .8rem 0; gap: 1rem;
@@ -1862,6 +1875,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
         <rect class="cur" x="273" y="13" width="8" height="17" rx="1" fill="#16181d"/>
       </svg>
     </a>
+    <span class="header-tagline" aria-hidden="true">Your Monday report, <em>automated.</em></span>
     <nav class="nav" aria-label="Main">
       <a class="nav-link" href="#services">Services &amp; prices</a>
       <a class="nav-link" href="#samples">Live samples</a>
@@ -2699,6 +2713,15 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
   };
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
+
+  // Leaderboard header: reveal the condensed serif tagline once the hero headline scrolls out of view.
+  var heroH = document.getElementById("hero-h");
+  if (heroH && "IntersectionObserver" in window) {
+    var heroHIO = new IntersectionObserver(function(entries){
+      header.classList.toggle("past-hero", !entries[0].isIntersecting);
+    }, { rootMargin: "-64px 0px 0px 0px", threshold: 0 });
+    heroHIO.observe(heroH);
+  }
 
   // Scroll reveal — with a hard failsafe: nothing content-critical may stay hidden.
   var revealEls = document.querySelectorAll(".rv");
