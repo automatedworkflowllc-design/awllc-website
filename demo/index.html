@@ -66,16 +66,28 @@
   }
   .note b{ color:var(--ink); font-weight:600; }
 
-  .frame-wrap{ flex:1; min-height:0; position:relative; background:#16181d; }
-  .loading{
-    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.85rem;
-    font-family:var(--mono); font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.66);
-  }
-  .loading .spin{ width:26px; height:26px; border:2px solid rgba(255,255,255,.18); border-top-color:#54cf8e; border-radius:50%; animation:spin .9s linear infinite; }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce){ .loading .spin{ animation:none; } }
+  .frame-wrap{ flex:1; min-height:0; position:relative; background:var(--paper); }
+  /* SKELETON loading state: the dashboard chrome + tiles paint instantly and shimmer while the live
+     Apps Script app cold-starts behind them, so a prospect never stares at a bare spinner (2b). */
+  .loading{ position:absolute; inset:0; z-index:2; display:flex; flex-direction:column; background:var(--paper); overflow:hidden; }
+  .sk-bar{ display:flex; align-items:center; gap:.55rem; padding:.68rem .9rem; border-bottom:1px solid var(--line); background:var(--well); }
+  .sk-dots{ display:flex; gap:.34rem; flex:none; } .sk-dots span{ width:9px; height:9px; border-radius:50%; background:var(--line); }
+  .sk-file{ font-family:var(--mono); font-size:.6rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sk-connect{ margin-left:.5rem; flex:none; display:inline-flex; align-items:center; gap:.4em; font-family:var(--mono); font-size:.56rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); border:1px solid var(--line); border-radius:999px; padding:.22rem .55rem; }
+  .sk-connect .dot{ width:7px; height:7px; border-radius:50%; background:#54cf8e; animation:skpulse 1.1s ease-in-out infinite; }
+  @keyframes skpulse{ 0%,100%{ opacity:.3; } 50%{ opacity:1; } }
+  .sk-body{ flex:1; min-height:0; padding:.9rem; display:flex; flex-direction:column; gap:.7rem; }
+  .sk-kpis{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .sk-tile{ min-height:70px; border:1px solid var(--line); border-radius:10px; background:var(--well); padding:.6rem .75rem; display:flex; flex-direction:column; gap:.5rem; justify-content:center; }
+  .sk-lbl{ font-family:var(--mono); font-size:.52rem; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-soft); }
+  .sk-val{ height:16px; width:58%; border-radius:5px; background:var(--line); position:relative; overflow:hidden; }
+  .sk-chart{ flex:1; min-height:80px; border:1px solid var(--line); border-radius:10px; background:var(--well); position:relative; overflow:hidden; }
+  .sk-val::after, .sk-chart::after{ content:""; position:absolute; inset:0; transform:translateX(-100%);
+    background:linear-gradient(100deg, transparent 25%, rgba(255,255,255,.7) 50%, transparent 75%); animation:skshimmer 1.6s ease-in-out infinite; }
+  @keyframes skshimmer{ to{ transform:translateX(100%); } }
+  @media (prefers-reduced-motion: reduce){ .sk-connect .dot{ animation:none; } .sk-val::after, .sk-chart::after{ display:none; } }
   .sample-pill{
-    position:absolute; top:.6rem; right:.6rem; z-index:2; pointer-events:none;
+    position:absolute; top:.6rem; right:.6rem; z-index:3; pointer-events:none;
     font-family:var(--mono); font-size:.54rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
     color:var(--paper); background:rgba(33,29,20,.72); border:1px solid rgba(255,255,255,.18);
     border-radius:999px; padding:.28rem .6rem;
@@ -170,7 +182,22 @@
   <p class="note">This is the <b>live version</b> of the dashboard from the homepage &mdash; running on <b>sample data</b>. Tap the tabs, open Receivables, poke around. Yours runs on <b>your</b> numbers, refreshing itself every week.</p>
 
   <div class="frame-wrap">
-    <div class="loading" aria-hidden="true"><span class="spin"></span>Loading the live dashboard&hellip;</div>
+    <div class="loading" aria-hidden="true">
+      <div class="sk-bar">
+        <span class="sk-dots"><span></span><span></span><span></span></span>
+        <span class="sk-file">weekly-kpi-dashboard &middot; sample</span>
+        <span class="sk-connect"><span class="dot"></span>Connecting&hellip;</span>
+      </div>
+      <div class="sk-body">
+        <div class="sk-kpis">
+          <div class="sk-tile"><span class="sk-lbl">Monthly revenue</span><span class="sk-val"></span></div>
+          <div class="sk-tile"><span class="sk-lbl">Outstanding AR</span><span class="sk-val"></span></div>
+          <div class="sk-tile"><span class="sk-lbl">Net cash flow</span><span class="sk-val"></span></div>
+          <div class="sk-tile"><span class="sk-lbl">Active customers</span><span class="sk-val"></span></div>
+        </div>
+        <div class="sk-chart"></div>
+      </div>
+    </div>
     <span class="sample-pill">Sample data</span>
     <iframe
       title="Live sample KPI dashboard — Automated Workflow LLC"
