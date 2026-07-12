@@ -1138,16 +1138,30 @@ section{ scroll-margin-top: 84px; }
 .demo .pbar-actions + .ppill{ margin-left: .4rem; }
 .demo .pmini{ font-family: var(--mono); font-size: .53rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: .2rem .48rem; border-radius: 999px; border: 1px solid var(--app-line); background: var(--tile); color: var(--app-ink); white-space: nowrap; }
 .demo .pmini.dark{ background: var(--app-ink); color: var(--app-bg); border-color: var(--app-ink); }
-/* the ONE real affordance in the demo chrome: opens the live /demo app (replaced the old FAKE Export/Share chips). Product green, NOT the primary-CTA fill, so it never out-shouts "Send a messy file". Top-bar placement = always above the fold. */
-.demo .pmini-launch{ margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: .3em; font-family: var(--mono); font-size: .56rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; padding: .26rem .62rem; border-radius: 999px; color: #fff; background: #1E7A47; border: 1px solid #1E7A47; text-decoration: none; transition: background .18s ease, transform .18s ease; }
-.demo .pmini-launch:hover, .demo .pmini-launch:focus-visible{ background: #155E37; transform: translateY(-1px); color: #fff; }
-.demo .pmini-launch .oarr{ display: inline-block; transition: transform .18s ease; }
-.demo .pmini-launch:hover .oarr, .demo .pmini-launch:focus-visible .oarr{ transform: translate(2px,-2px); }
-.demo .pmini-launch + .ppill{ margin-left: .4rem; }
-.demo .pmini-launch:focus-visible{ outline: 2px solid #1E7A47; outline-offset: 2px; }
+/* "Open the live dashboard" — a rainbow-BORDER pill under the demo caption (Colin's iteration).
+   The brand rainbow (same var(--rainbow) as the logo underline) wraps a paper-fill pill via the
+   padding-box/border-box double-background trick — the only way to get a rounded gradient border,
+   since border-image ignores border-radius. Outline weight keeps it clearly below the filled black
+   "Send a messy file" primary; centered above the frame = guaranteed above the fold. */
+.demo-cta{
+  position: relative; display: flex; align-items: center; justify-content: center; gap: .5em;
+  width: fit-content; margin: .15rem auto 1rem;
+  font-family: var(--mono); font-size: clamp(.72rem, 2.6vw, .78rem); font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink); text-decoration: none; white-space: nowrap;
+  padding: .72rem 1.4rem; border: 2px solid transparent; border-radius: 999px;
+  background: linear-gradient(var(--bg), var(--bg)) padding-box, var(--rainbow) border-box;
+  box-shadow: 0 10px 24px -18px rgba(46,40,24,.45);
+  transition: transform .22s var(--ease), box-shadow .22s var(--ease);
+}
+.demo-cta .oarr{ display: inline-block; font-size: .95em; transition: transform .18s ease; }
+.demo-cta:hover, .demo-cta:focus-visible{ transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.demo-cta:hover .oarr, .demo-cta:focus-visible .oarr{ transform: translate(2px,-2px); }
+.demo-cta:focus-visible{ outline: 2px solid var(--focus); outline-offset: 3px; }
+.demo-cta:active{ transform: translateY(0); transition-duration: .06s; }
+@media (prefers-reduced-motion: reduce){ .demo-cta, .demo-cta .oarr{ transition: none; } .demo-cta:hover, .demo-cta:focus-visible{ transform: none; } }
 @media (max-width: 560px){
   .demo .pkpis-4{ grid-template-columns: 1fr 1fr; }
-  .demo .pfile{ display: none; } /* free room in the bar so the Launch chip stays; "sample" is still carried by the caption + status note */
   .demo .prange-note{ display: none; }
 }
 
@@ -1934,11 +1948,11 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 
         <div class="hero-demo">
           <p class="eyebrow demo-caption">Your dashboard, delivered &mdash; <span class="demo-live">tap the tabs to explore</span></p>
+          <a class="demo-cta" href="/demo/" aria-label="Open the live, interactive dashboard running on sample data">Open the live dashboard <span class="oarr" aria-hidden="true">&#8599;</span></a>
           <div class="demo" id="demo" data-view="dashboard">
             <div class="pframe-bar">
               <span class="pdots" aria-hidden="true"><span></span><span></span><span></span></span>
               <span class="pfile">weekly-kpi-dashboard &middot; sample</span>
-              <a class="pmini-launch" href="/demo/" aria-label="Launch the live, interactive dashboard on sample data">Launch live <span class="oarr" aria-hidden="true">&#8599;</span></a>
               <span class="ppill"><span class="live-dot" aria-hidden="true"></span>Self-updating</span>
             </div>
             <div class="pframe-body demo-body" role="img" aria-label="Animated illustration: a messy spreadsheet full of errors and duplicate rows reorganizes itself into a clean, self-updating dashboard — revenue, jobs-closed and overdue-invoice tiles, a six-week revenue chart, a receivables list and a weekly summary written automatically by AI. The sheet tabs switch between the dashboard, revenue, receivables and raw-data views.">
