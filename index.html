@@ -1171,7 +1171,9 @@ section{ scroll-margin-top: 84px; }
 /* interactivity affordance — signals the demo is clickable (owner ask) */
 .demo-live{ color: #1E7A47; font-weight: 700; }
 /* hero demo: "open the full live dashboard" — isolated right-docked textlink, cannot wrap */
-.demo-open-row{ display: flex; justify-content: flex-end; max-width: 470px; margin: .55rem auto .1rem; padding: 0 .15rem; }
+.demo-open-row{ display: flex; flex-direction: column; align-items: center; gap: .34rem; max-width: 470px; margin: .9rem auto .1rem; padding: 0 .15rem; }
+.demo-open-sub{ font-size: .68rem; color: var(--ink-soft); text-align: center; letter-spacing: .01em; }
+.demo-open-btn .oarr{ display: inline-block; }
 .demo-open{
   display: inline-flex; align-items: center; gap: .3em;
   font-family: var(--mono); font-size: .62rem; font-weight: 600;
@@ -1906,7 +1908,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
         </div>
 
         <div class="hero-demo">
-          <p class="eyebrow demo-caption">Your dashboard, delivered &mdash; <span class="demo-live">live &mdash; tap the tabs</span></p>
+          <p class="eyebrow demo-caption">Your dashboard, delivered &mdash; <span class="demo-live">tap the tabs to explore</span></p>
           <div class="demo" id="demo" data-view="dashboard" role="img" aria-label="Animated illustration: a messy spreadsheet full of errors and duplicate rows reorganizes itself into a clean, self-updating dashboard — revenue, jobs-closed and overdue-invoice tiles, a six-week revenue chart, a receivables list and a weekly summary written automatically by AI. The sheet tabs switch between the dashboard, revenue, receivables and raw-data views.">
             <div class="pframe-bar">
               <span class="pdots" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -2028,7 +2030,10 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
             </div>
           </div>
 
-          <p class="demo-open-row"><a class="demo-open" href="/demo/" aria-label="Open the full live dashboard, full screen">Open&nbsp;full-screen<span class="oarr" aria-hidden="true">&#8599;</span></a></p>
+          <div class="demo-open-row">
+            <a class="btn btn-primary btn-rect demo-open-btn" href="/demo/" aria-label="Launch the live, interactive dashboard on sample data">Launch the live dashboard <span class="oarr" aria-hidden="true">&#8599;</span></a>
+            <span class="demo-open-sub">The exact dashboard above &mdash; running live on sample data.</span>
+          </div>
 
           <div class="demo-status">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="currentColor"/></svg>
