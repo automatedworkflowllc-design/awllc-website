@@ -13,6 +13,7 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-K2B3YTCPJY');
+  gtag('config', 'AW-18312491430');
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spreadsheet Cleanup &amp; Google Sheets Automation — Gainesville, FL | Automated Workflow</title>
@@ -2871,7 +2872,10 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
   if (/[?&]sent=1/.test(location.search)) {
     var f = document.querySelector(".cform"), ok = document.getElementById("cform-sent");
     if (f && ok) { f.style.display = "none"; ok.style.display = "block"; }
-    if (typeof gtag === "function") gtag("event", "generate_lead", { method: "contact_form" });
+    if (typeof gtag === "function") {
+      gtag("event", "generate_lead", { method: "contact_form" });
+      gtag("event", "conversion", { send_to: "AW-18312491430/t9tRCKHq9M0cEKbjiZxE" });
+    }
   }
   var copyBtn = document.querySelector(".copy-email");
   if (copyBtn) {

@@ -10,6 +10,7 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-K2B3YTCPJY');
+  gtag('config', 'AW-18312491430');
 </script>
 <meta name="robots" content="noindex, nofollow">
 <!-- PUBLISHED as the Google Ads landing page (Colin approved 2026-07-11). Kept noindex ON PURPOSE — ad LPs stay OUT of organic search so they don't cannibalize the homepage. Do NOT add to sitemap / nav / inbound links. -->
@@ -379,7 +380,10 @@
   /* Conversion signal: fire the GA4 key event when a visitor clicks a mailto CTA (the lead action on this ad landing page). */
   document.querySelectorAll('a[href^="mailto:"]').forEach(function(a){
     a.addEventListener('click', function(){
-      if (typeof gtag === 'function') gtag('event', 'generate_lead', { method: 'free_demo_mailto' });
+      if (typeof gtag === 'function') {
+        gtag('event', 'generate_lead', { method: 'free_demo_mailto' });
+        gtag('event', 'conversion', { send_to: 'AW-18312491430/t9tRCKHq9M0cEKbjiZxE' });
+      }
     });
   });
 </script>
