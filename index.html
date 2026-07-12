@@ -1637,6 +1637,19 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
   font-size: .58rem; font-weight: 500; letter-spacing: .11em;
   color: var(--ink-soft); line-height: 1.4;
 }
+/* --- guarantee chip-row: the risk-reversal made one scannable object, docked at the point of action --- */
+.guarantee-row{
+  list-style: none; margin: 1.1rem 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: .5rem;
+}
+.guarantee-row li{
+  display: inline-flex; align-items: center; gap: .4rem;
+  font-size: .74rem; line-height: 1.25; font-weight: 500;
+  color: var(--ink-soft);
+  border: 1px solid var(--line-strong); border-radius: 999px;
+  padding: .34rem .72rem; background: var(--well);
+}
+.guarantee-row .g-check{ color: #1E7A47; font-weight: 700; }
 </style>
 <script>
 /* Pre-paint theme restore: keeps the saved theme from flashing on load */
@@ -1881,7 +1894,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
             <a class="btn btn-primary btn-rect" href="#contact">Send a messy file <span class="arr" aria-hidden="true">&rarr;</span></a>
             <a class="btn btn-ghost btn-rect" href="#samples">See live samples <span class="arr" aria-hidden="true">&nearr;</span></a>
           </div>
-          <p class="hero-stamp"><span class="stamp-check" aria-hidden="true">&#10003;</span> Free &mdash; you keep the fixed file either way. No card, no form.</p>
+          <p class="hero-stamp"><span class="stamp-check" aria-hidden="true">&#10003;</span> Send one messy file. Keep the fix &mdash; free. No card, no form.</p>
           <div class="hero-note">
             <p class="hero-note-lead"><strong>You&rsquo;re sending this to Colin McCarthy</strong> &mdash; a real person in Gainesville, not a form.</p>
             <ul class="hero-trust">
@@ -2207,7 +2220,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
           <span class="badge">Start here</span>
         </div>
         <div class="price"><b>$300</b><span class="per">flat &middot; free 1-day mini-demo first</span></div>
-        <p>Duplicates gone, formats fixed, formulas repaired, one clean tab you can actually trust. The half-day of manual find-and-fix &mdash; done for you, usually back within 24&ndash;48 hours.</p>
+        <p><strong>Your spreadsheet shouldn&rsquo;t need a full-time babysitter.</strong> Duplicates gone, formats fixed, formulas repaired &mdash; one clean tab you can actually trust. The half-day of manual find-and-fix, done for you, usually back within 24&ndash;48 hours.</p>
         <p class="why">The free 1-day mini-demo is the entry &mdash; send one messy file, see a working fix on your real data, keep it either way. If you want the full job after that, it&rsquo;s $300 flat, priced before I touch anything.</p>
         <div class="spec">
           <div class="spec-row"><span class="k">Turnaround</span><span class="dots" aria-hidden="true"></span><span class="v">24–48 hours</span></div>
@@ -2536,6 +2549,12 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
         <input type="hidden" name="_next" value="https://automatedworkflowllc.com/?sent=1#contact">
         <button class="btn btn-primary" type="submit">Request the free mini-demo <span class="arr" aria-hidden="true">&rarr;</span></button>
       </form>
+      <ul class="guarantee-row" aria-label="What you&rsquo;re promised">
+        <li><span class="g-check" aria-hidden="true">&#10003;</span> Keep the fix &mdash; free, either way</li>
+        <li><span class="g-check" aria-hidden="true">&#10003;</span> A working fix back within a day</li>
+        <li><span class="g-check" aria-hidden="true">&#10003;</span> Your file deleted after &middot; NDA on request</li>
+        <li><span class="g-check" aria-hidden="true">&#10003;</span> Colin replies himself &mdash; a real person</li>
+      </ul>
       <p class="cform-sent" id="cform-sent">Sent &mdash; you&rsquo;ll hear from Colin within the day. Talk soon.</p>
     </div>
     </div>
