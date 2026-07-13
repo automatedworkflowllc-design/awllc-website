@@ -93,6 +93,7 @@
   --product-sans: 'Manrope', system-ui, "Segoe UI", -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
   --rainbow: linear-gradient(90deg,#E1483E,#F08A24,#EFC939,#4FAE4A,#3E7FD9,#9B4FB8);
   --rainbow-v: linear-gradient(180deg,#E1483E,#F08A24,#EFC939,#4FAE4A,#3E7FD9,#9B4FB8);
+  --rainbow-conic: conic-gradient(from 180deg,#E1483E,#F08A24,#EFC939,#4FAE4A,#3E7FD9,#9B4FB8,#E1483E);
   --ease: cubic-bezier(.22,.75,.3,1);
   --grain-o: .055;   /* grain: black speckle on cream */
   --grain-flip: 0;
@@ -330,11 +331,11 @@ h2 .serif-i{ font-weight: 470; font-size: 1.02em; }
 }
 .brand-bar{ display: none; }
 /* header logo lockup (inlined SVG) — dark {a_w} segment + wordmark + rainbow base + blinking cursor */
-.brand-logo{ height: 30px; width: auto; display: block; }
+.brand-logo{ height: 38px; width: auto; display: block; }
 .brand-logo .cur{ animation: brand-cur 1.1s step-end infinite; transform-origin: center; }
 @keyframes brand-cur{ 50%{ opacity: 0; } }
 @media (prefers-reduced-motion: reduce){ .brand-logo .cur{ animation: none; } }
-@media (max-width: 560px){ .brand-logo{ height: 25px; } }
+@media (max-width: 560px){ .brand-logo{ height: 30px; } }
 .nav{ display: flex; align-items: center; gap: 1.4rem; }
 .nav .nav-link{
   color: var(--ink); text-decoration: none; font-weight: 500;
@@ -411,6 +412,83 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
 .btn-sm{ padding: .55rem 1.1rem; font-size: .72rem; }
 .btn .arr{ display: inline-block; transition: transform .25s var(--ease); }
 .btn:hover .arr, .btn:focus-visible .arr{ transform: translateX(4px); }
+/* leading glyph on the mockup pills (doc / dashboard-grid) — sits before the label */
+.btn .bico{ display: inline-flex; align-items: center; margin-right: .1em; }
+.btn .bico svg{ width: 1.05em; height: 1.05em; }
+
+/* ============ HALO PILLS — rainbow-glow buttons (Colin's 7/13 mockup port) ============
+   Two layers, zero extra markup: the pill's border is the brand rainbow via the
+   padding-box/border-box trick (same as the demo pill), and a ::before sibling-glow
+   sits behind it — blurred conic rainbow, pointer-events off. Dark variant = primary
+   fill inside; white variant = page bg inside (ghost). btn-rect is dropped where halo
+   applies: halo pills are always fully rounded, per the approved mockup. */
+/* --halo-a is a registered custom prop so its <angle> can be ANIMATED (plain CSS vars can't
+   tween). Rotating the conic's start angle spins the rainbow hues around the pill — the
+   "animated halo" — without moving the element itself. */
+@property --halo-a{ syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+@keyframes haloSpin{ to{ --halo-a: 360deg; } }
+@keyframes haloPulse{ 0%,100%{ opacity: .5; } 50%{ opacity: .82; } }
+/* three paint layers inside one isolated context (glow -2, fill ring -1, text auto) —
+   this is how the glow stays under the fill but above section backgrounds */
+.btn-halo{
+  position: relative; isolation: isolate; border-radius: 999px;
+  border: 1.5px solid transparent; background: transparent;
+}
+.btn-halo::before{
+  content: ""; position: absolute; inset: -4px; border-radius: 999px; z-index: -2;
+  background: conic-gradient(from var(--halo-a),#E1483E,#F08A24,#EFC939,#4FAE4A,#3E7FD9,#9B4FB8,#E1483E);
+  filter: blur(11px); opacity: .5; pointer-events: none;
+  transition: filter .25s var(--ease);
+}
+.btn-halo::after{
+  content: ""; position: absolute; inset: -1.5px; border-radius: 999px; z-index: -1;
+  border: 1.5px solid transparent; pointer-events: none;
+  background: linear-gradient(var(--btn-bg), var(--btn-bg)) padding-box, var(--rainbow-conic) border-box;
+  transition: background .18s ease;
+}
+.btn-halo:hover, .btn-halo:focus-visible{ transform: translateY(-2px); }
+.btn-halo:hover::before, .btn-halo:focus-visible::before{ filter: blur(14px); }
+.btn-halo.btn-primary{ background: transparent; border-color: transparent; }
+.btn-halo.btn-primary:hover{ background: transparent; border-color: transparent; box-shadow: none; }
+.btn-halo.btn-primary:hover::after{
+  background: linear-gradient(var(--btn-bg-hover), var(--btn-bg-hover)) padding-box, var(--rainbow-conic) border-box;
+}
+/* white variant — paper fill, ink text (the mockup's light pill) */
+.btn-halo.btn-ghost{ background: transparent; color: var(--ink); border-color: transparent; }
+.btn-halo.btn-ghost::after{
+  background: linear-gradient(var(--bg), var(--bg)) padding-box, var(--rainbow-conic) border-box;
+}
+.btn-halo.btn-ghost:hover{ background: transparent; border-color: transparent; color: var(--ink); box-shadow: none; }
+/* nav mini-demo pill: same fill logic as .btn-green (ink on light, green on dark), halo ring added */
+a.btn-green.btn-halo, a.btn-green.btn-halo:link, a.btn-green.btn-halo:visited, a.btn-green.btn-halo:hover, a.btn-green.btn-halo:focus, .btn-green.btn-halo{
+  background: transparent; border-color: transparent; box-shadow: none;
+}
+.btn-green.btn-halo:hover::after{
+  background: linear-gradient(var(--btn-bg-hover), var(--btn-bg-hover)) padding-box, var(--rainbow-conic) border-box;
+}
+:root[data-theme="dark"] .btn-green.btn-halo{ color: #FBFAF3; }
+:root[data-theme="dark"] .btn-green.btn-halo::after{
+  background: linear-gradient(#1E7A47, #1E7A47) padding-box, var(--rainbow-conic) border-box;
+}
+:root[data-theme="dark"] .btn-green.btn-halo:hover::after{
+  background: linear-gradient(#26925A, #26925A) padding-box, var(--rainbow-conic) border-box;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .btn-green.btn-halo{ color: #FBFAF3; background: transparent; border-color: transparent; }
+  :root:not([data-theme="light"]) .btn-green.btn-halo::after{
+    background: linear-gradient(#1E7A47, #1E7A47) padding-box, var(--rainbow-conic) border-box;
+  }
+  :root:not([data-theme="light"]) .btn-green.btn-halo:hover::after{
+    background: linear-gradient(#26925A, #26925A) padding-box, var(--rainbow-conic) border-box;
+  }
+}
+.btn-sm.btn-halo::before{ inset: -3px; filter: blur(8px); }
+@media (prefers-reduced-motion: no-preference){
+  .btn-halo::before{ animation: haloSpin 6s linear infinite, haloPulse 4s ease-in-out infinite; }
+}
+@media (prefers-reduced-motion: reduce){
+  .btn-halo::before{ animation: none; opacity: .55; }
+}
 
 /* ============ DARK PANEL — the inset-card drama, shared by hero + AI band ============
    Locally re-points the tokens, so every child component just works. */
@@ -1165,7 +1243,27 @@ section{ scroll-margin-top: 84px; }
 .demo-cta:hover .oarr, .demo-cta:focus-visible .oarr{ transform: translate(2px,-2px); }
 .demo-cta:focus-visible{ outline: 2px solid var(--focus); outline-offset: 3px; }
 .demo-cta:active{ transform: translateY(0); transition-duration: .06s; }
-@media (prefers-reduced-motion: reduce){ .demo-cta, .demo-cta .oarr{ transition: none; } .demo-cta:hover, .demo-cta:focus-visible{ transform: none; } }
+/* animated rainbow halo behind the flagship-demo pill (Colin's 7/13 mockup) — same 3-layer
+   trick as .btn-halo: glow ::before (z -2), pill fill+ring moved to ::after (z -1), text above.
+   The element's own bg goes transparent so the glow can sit between page and pill. */
+.demo-cta{ isolation: isolate; background: transparent; }
+.demo-cta::before{
+  content: ""; position: absolute; inset: -6px; border-radius: 999px; z-index: -2;
+  background: conic-gradient(from var(--halo-a),#E1483E,#F08A24,#EFC939,#4FAE4A,#3E7FD9,#9B4FB8,#E1483E);
+  filter: blur(13px); opacity: .6; pointer-events: none; transition: filter .25s var(--ease);
+}
+.demo-cta::after{
+  content: ""; position: absolute; inset: -2px; border-radius: 999px; z-index: -1;
+  border: 2px solid transparent; pointer-events: none;
+  background: linear-gradient(var(--bg), var(--bg)) padding-box, var(--rainbow) border-box;
+}
+.demo-cta:hover::before, .demo-cta:focus-visible::before{ filter: blur(16px); }
+.demo-cta .bico{ display: inline-flex; margin-right: .1em; }
+.demo-cta .bico svg{ width: 1em; height: 1em; }
+@media (prefers-reduced-motion: no-preference){
+  .demo-cta::before{ animation: haloSpin 6s linear infinite, haloPulse 4s ease-in-out infinite; }
+}
+@media (prefers-reduced-motion: reduce){ .demo-cta, .demo-cta .oarr{ transition: none; } .demo-cta:hover, .demo-cta:focus-visible{ transform: none; } .demo-cta::before{ animation: none; opacity: .6; } }
 @media (max-width: 560px){
   .demo .pkpis-4{ grid-template-columns: 1fr 1fr; }
   .demo .prange-note{ display: none; }
@@ -1938,8 +2036,8 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
           <p class="hero-lede">Spreadsheet cleanup, self-updating KPI dashboards, and AI-written weekly reports &mdash; for small businesses that live in Google Sheets.</p>
           <p class="hero-pricing"><span>Cleanup&nbsp;<b>$300</b></span><span class="sep" aria-hidden="true">/</span><span>KPI dashboard&nbsp;<b>$650</b></span><span class="sep" aria-hidden="true">/</span><span>Weekly report&nbsp;<b>incl.</b></span></p>
           <div class="hero-ctas">
-            <a class="btn btn-primary btn-rect" href="#contact">Send a messy file <span class="arr" aria-hidden="true">&rarr;</span></a>
-            <a class="btn btn-ghost btn-rect" href="#samples">See finished dashboards <span class="arr" aria-hidden="true">&nearr;</span></a>
+            <a class="btn btn-primary" href="#contact"><span class="bico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/></svg></span>Send a messy file</a>
+            <a class="btn btn-ghost" href="#samples">See finished dashboards</a>
           </div>
           <p class="hero-stamp"><span class="stamp-check" aria-hidden="true">&#10003;</span> Send one messy file. Keep the fix &mdash; free. No card, no form.</p>
           <div class="hero-note">
@@ -1954,7 +2052,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 
         <div class="hero-demo">
           <p class="eyebrow demo-caption">Your dashboard, delivered &mdash; <span class="demo-live">tap the tabs to explore</span></p>
-          <a class="demo-cta" href="/demo/" aria-label="Open the live, interactive dashboard running on sample data">Open the live dashboard <span class="oarr" aria-hidden="true">&#8599;</span></a>
+          <a class="demo-cta" href="/demo/" aria-label="Open the live, interactive dashboard running on sample data"><span class="bico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>Open the live dashboard</a>
           <div class="demo" id="demo" data-view="dashboard">
             <div class="pframe-bar">
               <span class="pdots" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -2417,7 +2515,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
       <h2 id="samples-h">Poke around the <span class="serif-i">real</span> thing.</h2>
       <p class="lede">These are live, working Google Sheets I built &mdash; not screenshots. Open them, click the tabs, check the formulas, and see exactly the quality of work you&rsquo;d get back.</p>
       <p class="samples-demo-cta rv">
-        <a class="btn btn-primary btn-rect" href="/demo/">Open the live dashboard demo <span class="arr" aria-hidden="true">&rarr;</span></a>
+        <a class="btn btn-primary btn-halo" href="/demo/"><span class="bico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></span>Open the live dashboard demo</a>
         <span class="samples-demo-note">A real, self-updating dashboard you can drive &mdash; click the tabs, hover the chart.</span>
       </p>
     </div>
