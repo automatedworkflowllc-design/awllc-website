@@ -583,11 +583,15 @@ a.btn-primary, a.btn-primary:link, a.btn-primary:visited, a.btn-primary:hover, a
 .demo .ptabs .ptab{ cursor: pointer; -webkit-appearance: none; appearance: none; }
 .demo .ptabs .ptab:hover{ color: var(--app-ink); }
 .demo .praw{ display: none; }
-/* refined splash — DASHBOARD shows KPIs + a full-width chart only (receivables live on
-   their own tab; the AI summary lives in the full /demo). Keeps it clean, less clunky. */
+/* refined splash — DASHBOARD shows KPIs + a full-width chart (receivables live on
+   their own tab). The AI-summary bar IS visible here (dashboard + receivables,
+   hidden on revenue/raw — see the .pai-wide rules further down): it is the demo
+   animation's narrated payoff ("writing this week's summary…" types into it)
+   and the visible proof for the AI-written-reports flagship. A previous
+   `display:none !important` on .pai-wide hid it in every view while the
+   animation still narrated + typed into it — do not reintroduce that. */
 .demo[data-view="dashboard"] .pside{ display: none; }
 .demo[data-view="dashboard"] .pgrid{ grid-template-columns: 1fr; }
-.demo .pai-wide{ display: none !important; }
 .demo .prevenue{ display: none; }
 .demo[data-view="revenue"] .pkpis,
 .demo[data-view="revenue"] .pgrid{ display: none; }
@@ -2901,10 +2905,24 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
   if (/[?&]sent=1/.test(location.search)) {
     var f = document.querySelector(".cform"), ok = document.getElementById("cform-sent");
     if (f && ok) { f.style.display = "none"; ok.style.display = "block"; }
-    if (typeof gtag === "function") {
+    // Fire the lead + Ads conversion ONCE per submission, not once per page
+    // load: a refresh/bookmark/history revisit of the ?sent=1 thank-you URL
+    // must not re-fire (phantom conversions skew Smart Bidding hard on a
+    // $1.50/day campaign). Guard = sessionStorage flag + strip the query so
+    // reloads and copied links land on a clean URL. try/catch: sessionStorage
+    // can throw in some privacy modes — worst case we fall back to old behavior.
+    var alreadyFired = false;
+    try { alreadyFired = sessionStorage.getItem("aw_lead_fired") === "1"; } catch (e) {}
+    if (!alreadyFired && typeof gtag === "function") {
       gtag("event", "generate_lead", { method: "contact_form" });
       gtag("event", "conversion", { send_to: "AW-18312491430/t9tRCKHq9M0cEKbjiZxE" });
+      try { sessionStorage.setItem("aw_lead_fired", "1"); } catch (e) {}
     }
+    try {
+      if (window.history && history.replaceState) {
+        history.replaceState(null, "", location.pathname + location.hash);
+      }
+    } catch (e) {}
   }
   var copyBtn = document.querySelector(".copy-email");
   if (copyBtn) {
