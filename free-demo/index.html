@@ -85,6 +85,28 @@
   .btn-primary:hover{ background:#000; color:var(--paper); transform:translateY(-2px); }
   .btn-ghost{ background:transparent; color:var(--ink); border-color:var(--line-strong); }
   .btn-ghost:hover{ border-color:var(--ink); transform:translateY(-2px); }
+  /* halo pills — rainbow-glow CTAs (7/13 mockup port, mirrors homepage .btn-halo).
+     Three layers in one isolated context: glow (-2), fill ring (-1), text (auto). */
+  :root{ --rainbow-conic: conic-gradient(from 180deg,#E1483E,#F08A24,#EFC939,#4FAE4A,#3E7FD9,#9B4FB8,#E1483E); }
+  .btn-halo{ position:relative; isolation:isolate; border:1.5px solid transparent; background:transparent; }
+  .btn-halo::before{ content:""; position:absolute; inset:-4px; border-radius:999px; z-index:-2;
+    background:var(--rainbow-conic);
+    filter:blur(11px); opacity:.5; pointer-events:none; transition:opacity .25s ease; }
+  .btn-halo::after{ content:""; position:absolute; inset:-1.5px; border-radius:999px; z-index:-1;
+    border:1.5px solid transparent; pointer-events:none;
+    background:linear-gradient(var(--ink),var(--ink)) padding-box, var(--rainbow-conic) border-box;
+    transition:background .18s ease; }
+  .btn-halo:hover::before{ opacity:.78; }
+  .btn-halo.btn-primary{ background:transparent; box-shadow:none; }
+  .btn-halo.btn-primary:hover{ background:transparent; }
+  .btn-halo.btn-primary:hover::after{ background:linear-gradient(#000,#000) padding-box, var(--rainbow-conic) border-box; }
+  .btn-halo.btn-ghost{ background:transparent; border-color:transparent; }
+  .btn-halo.btn-ghost::after{ background:linear-gradient(var(--paper),var(--paper)) padding-box, var(--rainbow-conic) border-box; }
+  @media (prefers-reduced-motion: no-preference){
+    .btn-halo::before{ animation:haloBreathe 5s ease-in-out infinite; }
+    @keyframes haloBreathe{ 0%,100%{ opacity:.45 } 50%{ opacity:.62 } }
+    .btn-halo:hover::before{ animation:none; }
+  }
   .hero-meta{ margin:1.5rem 0 0; font-family:var(--mono); font-size:.74rem; letter-spacing:.02em; color:var(--ink-faint); }
   .hero-meta b{ color:var(--ink); font-weight:600; }
 
@@ -194,7 +216,7 @@
           <rect x="0" y="43" width="315.6" height="4" fill="url(#awl-g)"/>
         </g>
         <path d="M 0 43 V 11 A 11 11 0 0 1 11 0 H 304.6 A 11 11 0 0 1 315.6 11 V 43" fill="none" stroke="#000000" stroke-opacity="0.1" stroke-width="1"/>
-        <text x="16" y="21.5" dominant-baseline="central" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-weight="600" font-size="17" fill="#ffffff"><tspan fill-opacity="0.42">{</tspan>a_w<tspan fill-opacity="0.42">}</tspan></text>
+        <text x="16" y="21.5" dominant-baseline="central" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-weight="600" font-size="17" fill="#ffffff"><tspan fill-opacity="0.42">{</tspan><tspan dx="0.8">a_w</tspan><tspan fill-opacity="0.42" dx="0.2">}</tspan></text>
         <text x="101" y="21.5" dominant-baseline="central" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-weight="500" font-size="17" fill="#16181d" textLength="169" lengthAdjust="spacing">automated_workflow</text>
         <rect class="cur" x="273" y="13" width="8" height="17" rx="1" fill="#16181d"/>
       </svg>
