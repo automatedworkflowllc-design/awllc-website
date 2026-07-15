@@ -78,6 +78,10 @@
   .btn-ghost:hover{ border-color:var(--ink); transform:translateY(-2px); }
   .hero-meta{ margin:1.5rem 0 0; font-family:var(--mono); font-size:.74rem; letter-spacing:.02em; color:var(--ink-faint); }
   .hero-meta b{ color:var(--ink); font-weight:600; }
+  /* pulse demo video — the 20s "report writes itself" loop */
+  .pulse-demo{ margin:2.6rem auto 0; max-width:860px; }
+  .pulse-demo video{ display:block; width:100%; height:auto; border-radius:14px; border:1px solid var(--line); box-shadow:0 16px 44px rgba(0,0,0,.18); }
+  .pulse-demo-cap{ font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-faint); margin:0 0 .8rem; }
 
   /* ---- Sections ---- */
   section.block{ padding:2.8rem 0; border-bottom:1px solid var(--line); }
@@ -206,6 +210,11 @@
         <a class="btn btn-ghost" href="/demo/">See a live dashboard &rarr;</a>
       </div>
       <p class="hero-meta">A real person in <b>Gainesville, FL</b> &middot; working with small businesses everywhere</p>
+      <figure class="pulse-demo">
+        <figcaption class="pulse-demo-cap"><span aria-hidden="true">//</span> Watch a report write itself &mdash; 20 seconds</figcaption>
+        <video src="/ai-business-pulse-demo.mp4" autoplay muted loop playsinline preload="metadata"
+               aria-label="Twenty-second demo: every Monday at 8am the workflow reads your numbers, writes a plain-English summary, and emails it to you — shown ending on a real AI-written email reporting $7,850 outstanding."></video>
+      </figure>
     </section>
 
     <section class="block">

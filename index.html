@@ -1097,9 +1097,26 @@ section{ scroll-margin-top: 84px; }
   color: var(--ink); letter-spacing: -0.01em; white-space: nowrap;
 }
 .fbrand-bar{ display:block; height: 3px; border-radius: 2px; background: var(--rainbow); }
-.footer-links{ display:flex; gap: 1.4rem; flex-wrap: wrap; }
+.footer-links{ display:flex; gap: 1.4rem; flex-wrap: wrap; align-items: baseline; }
 .footer-links a{ color: var(--ink-soft); text-decoration: none; font-weight: 500; transition: color .18s ease; }
 .footer-links a:hover{ color: var(--ink); }
+/* pulse demo video — full-width band under the AI term-grid, inside the dark panel */
+.pulse-demo{ margin: 3.4rem auto 0; max-width: 900px; }
+.pulse-demo video{
+  display:block; width:100%; height:auto; border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.09);
+  box-shadow: 0 18px 50px rgba(0,0,0,.45);
+}
+.pulse-demo-cap{
+  font-family: var(--mono); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--panel-soft); margin: 0 0 .9rem;
+}
+/* free-templates cluster — own full-width row beneath the main footer nav */
+.footer-free{ flex-basis: 100%; gap: 1.1rem; align-items: baseline; }
+.footer-free-label{
+  font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-soft); opacity: .72; white-space: nowrap;
+}
 
 /* ============ MERGE GRAFTS — 2026-07-10 candidate ============
    1. Hero opens cold: eyebrow, then the dark slab. No stanza, no ring, no
@@ -2505,6 +2522,12 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
           </div>
         </div>
       </div>
+
+      <figure class="pulse-demo rv">
+        <figcaption class="pulse-demo-cap"><span aria-hidden="true">//</span> Watch a report write itself &mdash; 20 seconds</figcaption>
+        <video src="/ai-business-pulse-demo.mp4" autoplay muted loop playsinline preload="metadata"
+               aria-label="Twenty-second demo: every Monday at 8am the workflow reads your numbers, writes a plain-English summary, and emails it to you — shown ending on a real AI-written email reporting $7,850 outstanding."></video>
+      </figure>
     </section>
   </div>
 </div>
@@ -2800,6 +2823,12 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
       <a href="#how">How it works</a>
       <a href="mailto:colin@automatedworkflowllc.com">colin@automatedworkflowllc.com</a>
       <a href="tel:+17039391174">(703) 939-1174</a>
+    </nav>
+    <nav class="footer-links footer-free" aria-label="Free templates">
+      <span class="footer-free-label">Free templates</span>
+      <a href="/free/executive-kpi-dashboard.html">KPI dashboard</a>
+      <a href="/free-expense-tracker-template/">Expense tracker</a>
+      <a href="/free-staffing-commission-tracker/">Staffing &amp; commission tracker</a>
     </nav>
     <span>&copy; <span id="yr">2026</span> Automated Workflow &middot; Gainesville, FL</span>
   </div>
