@@ -52,5 +52,55 @@
   "mode": "fast",
   "score": 0,
   "by_area": {}
+ },
+ {
+  "when": "2026-07-19 14:36",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-19 15:21",
+  "mode": "fast",
+  "score": 1,
+  "by_area": {
+   "page": 1
+  }
+ },
+ {
+  "when": "2026-07-19 15:21",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-19 15:26",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-19 15:27",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-19 15:29",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-19 15:55",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-19 15:57",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
  }
 ]
