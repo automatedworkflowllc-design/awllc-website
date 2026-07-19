@@ -1,0 +1,56 @@
+[
+ {
+  "when": "2026-07-19 14:32",
+  "score": 9,
+  "by_area": {
+   "stale": 5,
+   "workbook": 4
+  }
+ },
+ {
+  "when": "2026-07-19 14:33",
+  "score": 5,
+  "by_area": {
+   "stale": 5
+  }
+ },
+ {
+  "when": "2026-07-19 14:34",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-19 14:35",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-19 14:35",
+  "mode": "fast",
+  "score": 1,
+  "by_area": {
+   "page": 1
+  }
+ },
+ {
+  "when": "2026-07-19 14:35",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-19 14:35",
+  "mode": "fast",
+  "score": 2,
+  "by_area": {
+   "page": 2
+  }
+ },
+ {
+  "when": "2026-07-19 14:35",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ }
+]
