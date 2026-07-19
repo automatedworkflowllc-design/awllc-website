@@ -1,3 +1,14 @@
 index-pricing-preview*.html
 redesigns/
 _scratch/
+
+# Product demo build folders — these live inside the repo for convenience but must
+# NEVER publish: this repo IS the public GitHub Pages site, so a stray `git add -A`
+# would expose build scripts, sample client data, and internal pitch docs.
+reconciler-demo/
+team-sales-tracker-demo/
+job-costing-demo/
+owner-statement-demo/
+pulse-s2-config/
+nudge-escalator/
+tree-service-demo/
