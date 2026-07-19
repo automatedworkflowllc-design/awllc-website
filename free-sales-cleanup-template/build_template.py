@@ -8,22 +8,22 @@ from openpyxl.utils import get_column_letter
 wb = Workbook()
 
 # ---- brand tokens ----
-INK      = "1F2933"   # dark slate (headers/text)
-GREEN    = "0B6E4F"   # collected / recovered (positive)
+INK      = "211D14"   # dark slate (headers/text)
+GREEN    = "1E7A47"   # collected / recovered (positive)
 AMBER    = "B45309"   # recoverable-if-fixed (attention)
 RED      = "B23B3B"   # unpaid / overdue (collections)
-MUTE     = "6B7280"   # captions
-CREAM    = "F4F1EA"   # light panel
-CARD     = "FAF8F2"   # softer card
+MUTE     = "5C5645"   # captions
+CREAM    = "F4F1E8"   # light panel
+CARD     = "F4F1E8"   # softer card
 GREENBG  = "E6F2EC"   # money-found tint
-BANDBG   = "ECE8DE"   # section band
-WORDMARK = "9AA0A6"
+BANDBG   = "E4DFD1"   # section band
+WORDMARK = "6E6555"
 
 HEADER_FILL = PatternFill("solid", fgColor=INK)
 CARD_FILL   = PatternFill("solid", fgColor=CARD)
 GREEN_FILL  = PatternFill("solid", fgColor=GREENBG)
 BAND_FILL   = PatternFill("solid", fgColor=BANDBG)
-thin = Side(style="thin", color="D9D4C9")
+thin = Side(style="thin", color="E4DFD1")
 border = Border(bottom=thin)
 
 def band(ws, rng, text, size=14):
@@ -229,7 +229,7 @@ checks = [
 ]
 for i, (label, fcount, fdollar, dcolor) in enumerate(checks):
     r = 7 + i
-    zebra = PatternFill("solid", fgColor="F7F5EF") if i % 2 == 0 else None
+    zebra = PatternFill("solid", fgColor="F4F1E8") if i % 2 == 0 else None
     lc = dh.cell(row=r, column=1, value=label)
     cc = dh.cell(row=r, column=2, value=fcount)
     cc.alignment = Alignment(horizontal="center")

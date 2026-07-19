@@ -12,3 +12,7 @@ owner-statement-demo/
 pulse-s2-config/
 nudge-escalator/
 tree-service-demo/
+
+# python build artifacts
+__pycache__/
+*.pyc
