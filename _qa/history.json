@@ -102,5 +102,25 @@
   "mode": "fast",
   "score": 0,
   "by_area": {}
+ },
+ {
+  "when": "2026-07-19 16:04",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-19 16:05",
+  "mode": "fast",
+  "score": 1,
+  "by_area": {
+   "page": 1
+  }
+ },
+ {
+  "when": "2026-07-19 16:05",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
  }
 ]

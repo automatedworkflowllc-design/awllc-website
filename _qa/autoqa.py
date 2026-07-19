@@ -156,6 +156,16 @@ def check_pages():
                 json.loads(blk)
             except Exception:
                 defect('page', '%s has invalid ld+json' % rel)
+        # conflicting robots directives — a clone leftover. /build-log/ shipped
+        # with BOTH "index,follow" (inherited from the page it was cloned from)
+        # and the "noindex,follow" that was meant to stage it. Crawlers resolve
+        # a conflict to the most restrictive, so it happened to stay staged —
+        # but a staging guard that works by luck is not a staging guard.
+        robots = re.findall(r'<meta name="robots" content="([^"]*)"', s, re.I)
+        if len(robots) > 1:
+            defect('page', '%s has %d conflicting robots tags: %s'
+                   % (rel, len(robots), ' | '.join(robots)))
+
         # a published page must not still be noindex while sitemapped
         sm = os.path.join(ROOT, 'sitemap.xml')
         if os.path.exists(sm):
