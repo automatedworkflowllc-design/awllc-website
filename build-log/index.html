@@ -196,6 +196,18 @@
   .bl-fig figcaption{font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;
     color:var(--ink-faint,#6E6555);margin-top:10px;letter-spacing:.04em}
   .bl-note{font-size:.94rem;color:var(--ink-soft,#5C5645)}
+  /* The architecture SVG has an 860 viewBox. Letting it shrink to a 390px screen
+     renders its 10px labels at ~4px — present but unreadable. Below 720px it keeps
+     a legible minimum width and pans inside its own scroller instead, so the page
+     body still never scrolls sideways. */
+  @media (max-width:720px){
+    .bl-fig{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .bl-fig svg{min-width:660px}
+    .bl-fig figcaption{position:sticky;left:0}
+    .bl-fig::after{content:"90 swipe to see the whole pipeline";display:block;
+      font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;
+      color:var(--ink-faint,#6E6555);margin-top:6px;position:sticky;left:0}
+  }
 </style></head>
 <body>
 
@@ -272,9 +284,86 @@
     <section>
       <h2>The system</h2>
       <figure class="bl-fig">
-        <img src="/pulse-gallery-architecture.png" alt="Architecture diagram: a config sheet lists active clients; the workflow loops over each one, reads that client's own metrics sheet, generates a narrative, and sends a per-client digest." loading="lazy">
-        <figcaption>// One workflow, multi-tenant by design &mdash; the config sheet is the whole control surface</figcaption>
-      </figure>
+  <svg viewBox="0 0 860 452" role="img" aria-label="Architecture: a config sheet lists each client with an active or paused status. The workflow filters to active rows, then loops once per client. Each pass reads that client's own sheet, computes totals by formula, has the AI narrate the verified numbers, and sends the digest to that client's inbox.">
+    <rect x="0" y="0" width="860" height="452" rx="14" fill="#FFFFFF"/>
+    <path d="M0 14 A14 14 0 0 1 14 0 H846 A14 14 0 0 1 860 14 V56 H0 Z" fill="#211D14"/>
+    <text x="28" y="34" font-family="Geist Mono, ui-monospace, monospace" font-size="13" letter-spacing="1.6" fill="#FBFAF3">PIPELINE ARCHITECTURE</text>
+    <text x="722" y="34" font-family="Geist Mono, ui-monospace, monospace" font-size="12" letter-spacing="1.4" fill="#6E6555">MULTI-TENANT</text>
+
+    <!-- config sheet -->
+    <rect x="28" y="84" width="234" height="152" rx="10" fill="#F4F1E8" stroke="#D8D2C2"/>
+    <text x="44" y="108" font-family="Geist Mono, ui-monospace, monospace" font-size="11" letter-spacing="1.3" fill="#6E6555">CONFIG SHEET</text>
+    <line x1="44" y1="118" x2="246" y2="118" stroke="#D8D2C2"/>
+    <text x="44" y="140" font-family="Geist Mono, ui-monospace, monospace" font-size="12" fill="#211D14">Gator Shine</text>
+    <rect x="182" y="129" width="60" height="17" rx="8.5" fill="#E6F2EC"/>
+    <text x="192" y="141" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#1E7A47">ACTIVE</text>
+    <text x="44" y="168" font-family="Geist Mono, ui-monospace, monospace" font-size="12" fill="#211D14">Perkins &amp; Boone</text>
+    <rect x="182" y="157" width="60" height="17" rx="8.5" fill="#E6F2EC"/>
+    <text x="192" y="169" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#1E7A47">ACTIVE</text>
+    <text x="44" y="196" font-family="Geist Mono, ui-monospace, monospace" font-size="12" fill="#6E6555">Tioga Center</text>
+    <rect x="182" y="185" width="60" height="17" rx="8.5" fill="#FBEFE0"/>
+    <text x="191" y="197" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#B45309">PAUSED</text>
+    <text x="44" y="222" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#6E6555">one row per client &#183; add a client = add a row</text>
+
+    <!-- arrow -->
+    <path d="M270 160 H310" stroke="#211D14" stroke-width="1.5" marker-end="url(#bl-ar)"/>
+    <defs><marker id="bl-ar" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0 0 L7 3.5 L0 7 Z" fill="#211D14"/></marker></defs>
+
+    <!-- filter -->
+    <rect x="318" y="120" width="164" height="80" rx="10" fill="#FFFFFF" stroke="#D8D2C2"/>
+    <text x="334" y="146" font-family="Geist Mono, ui-monospace, monospace" font-size="11" letter-spacing="1.2" fill="#6E6555">FILTER</text>
+    <text x="334" y="170" font-family="Geist Mono, ui-monospace, monospace" font-size="13" fill="#211D14">Status = Active</text>
+    <text x="334" y="188" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#6E6555">paused rows never run</text>
+
+    <path d="M490 160 H530" stroke="#211D14" stroke-width="1.5" marker-end="url(#bl-ar)"/>
+
+    <!-- loop -->
+    <rect x="538" y="120" width="180" height="80" rx="10" fill="#211D14"/>
+    <text x="556" y="146" font-family="Geist Mono, ui-monospace, monospace" font-size="11" letter-spacing="1.2" fill="#CBC5B1">LOOP</text>
+    <text x="556" y="170" font-family="Geist Mono, ui-monospace, monospace" font-size="13" fill="#FBFAF3">one pass per client</text>
+    <text x="556" y="188" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#CBC5B1">isolated read each time</text>
+
+    <!-- bracket down to the per-client chain -->
+    <path d="M628 208 V250 H116 V264" stroke="#D8D2C2" stroke-width="1.5" fill="none" marker-end="url(#bl-ar)"/>
+    <text x="640" y="254" font-family="Geist Mono, ui-monospace, monospace" font-size="10" letter-spacing="1.1" fill="#6E6555">FOR EACH ACTIVE CLIENT</text>
+
+    <!-- per-client chain -->
+    <rect x="28" y="272" width="176" height="86" rx="10" fill="#FFFFFF" stroke="#D8D2C2"/>
+    <text x="44" y="294" font-family="Geist Mono, ui-monospace, monospace" font-size="10" letter-spacing="1.2" fill="#6E6555">01 &#183; READ</text>
+    <text x="44" y="316" font-family="Geist Mono, ui-monospace, monospace" font-size="12" fill="#211D14">their own sheet</text>
+    <text x="44" y="336" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#6E6555">never another</text>
+    <text x="44" y="349" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#6E6555">client&#8217;s data</text>
+    <path d="M212 315 H236" stroke="#211D14" stroke-width="1.5" marker-end="url(#bl-ar)"/>
+
+    <rect x="244" y="272" width="176" height="86" rx="10" fill="#FFFFFF" stroke="#D8D2C2"/>
+    <text x="260" y="294" font-family="Geist Mono, ui-monospace, monospace" font-size="10" letter-spacing="1.2" fill="#6E6555">02 &#183; COMPUTE</text>
+    <text x="260" y="316" font-family="Geist Mono, ui-monospace, monospace" font-size="12" fill="#211D14">totals by formula</text>
+    <text x="260" y="336" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#6E6555">deterministic,</text>
+    <text x="260" y="349" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#6E6555">before any AI</text>
+    <path d="M428 315 H452" stroke="#211D14" stroke-width="1.5" marker-end="url(#bl-ar)"/>
+
+    <rect x="460" y="272" width="176" height="86" rx="10" fill="#FFFFFF" stroke="#D8D2C2"/>
+    <text x="476" y="294" font-family="Geist Mono, ui-monospace, monospace" font-size="10" letter-spacing="1.2" fill="#6E6555">03 &#183; NARRATE</text>
+    <text x="476" y="316" font-family="Geist Mono, ui-monospace, monospace" font-size="12" fill="#211D14">AI writes prose</text>
+    <text x="476" y="336" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#6E6555">around numbers</text>
+    <text x="476" y="349" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#6E6555">it cannot change</text>
+    <path d="M644 315 H668" stroke="#211D14" stroke-width="1.5" marker-end="url(#bl-ar)"/>
+
+    <rect x="676" y="272" width="156" height="86" rx="10" fill="#F4F1E8" stroke="#D8D2C2"/>
+    <text x="692" y="294" font-family="Geist Mono, ui-monospace, monospace" font-size="10" letter-spacing="1.2" fill="#6E6555">04 &#183; SEND</text>
+    <text x="692" y="316" font-family="Geist Mono, ui-monospace, monospace" font-size="12" fill="#211D14">their inbox</text>
+    <text x="692" y="336" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#6E6555">chase emails wait</text>
+    <text x="692" y="349" font-family="Geist Mono, ui-monospace, monospace" font-size="10" fill="#6E6555">for a human OK</text>
+
+    <!-- trust strip -->
+    <rect x="28" y="382" width="804" height="46" rx="10" fill="#F4F1E8" stroke="#D8D2C2"/>
+    <rect x="28" y="382" width="4" height="46" rx="2" fill="#1E7A47"/>
+    <text x="48" y="402" font-family="Geist Mono, ui-monospace, monospace" font-size="10" letter-spacing="1.2" fill="#6E6555">THE TRUST RULE</text>
+    <text x="48" y="420" font-family="Geist Mono, ui-monospace, monospace" font-size="12" fill="#211D14">Formulas compute every number before the model writes a word.</text>
+  </svg>
+  <figcaption>// One workflow, multi-tenant by design &mdash; the config sheet is the whole control surface</figcaption>
+</figure>
 
       <div class="bl-step">
         <span class="n">01</span><h3>A config sheet is the control surface</h3>
