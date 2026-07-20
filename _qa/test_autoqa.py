@@ -59,5 +59,26 @@ expect('SILENT on margin computed as revenue minus cost',
 expect('SILENT on SUMIF, whose label describes the filter not the column',
        sheet(HEAD, [('LOST ON UNDER-QUOTED JOBS', 30, '=SUMIF(H12:H21,"OVER BUDGET",F12:F21)')]), False)
 
+# --- 4. traction drift — the class that escaped three times on 7/19
+from autoqa import TRACTION_DRIFT
+def drift(name, text, want):
+    got = bool(TRACTION_DRIFT.search(text))
+    ok = got == want
+    print(('  PASS  ' if ok else '  FAIL  ') + name)
+    if not ok:
+        fails.append(name)
+
+print('\nTraction-drift regression suite\n')
+drift('CATCHES "serves many businesses"',
+      'a pipeline where one workflow serves many businesses', True)
+drift('CATCHES "ten retainers is one maintained workflow"',
+      'ten retainers is one maintained workflow, not ten', True)
+drift('SILENT on the honest conditional "ten clients would be"',
+      'ten clients would be one maintained workflow, not ten', False)
+drift('SILENT on capacity phrasing "can serve many businesses"',
+      'a single workflow can serve many businesses', False)
+drift('SILENT on "multi-tenant by design"',
+      'one workflow, multi-tenant by design', False)
+
 print('\n%s' % ('ALL PASS' if not fails else 'FAILED: %s' % ', '.join(fails)))
 sys.exit(1 if fails else 0)

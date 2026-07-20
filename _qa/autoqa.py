@@ -34,6 +34,18 @@ BRAND = {'211D14','FBFAF3','F4F1E8','5C5645','6E6555','E4DFD1','D8D2C2','CBC5B1'
 FALSE_PROOF = re.compile(r'plenty of (?:clients|customers)|many (?:clients|customers)|'
                          r'our clients|trusted by|hundreds of|dozens of', re.I)
 
+# Traction drift: copy describing system CAPACITY in language that reads as a
+# CUSTOMER BASE. This class escaped three times on 2026-07-19 alone ("One
+# workflow, many clients" / "serves many businesses" / "ten retainers is one
+# maintained workflow") — the phrasing reaches for implied clients naturally,
+# nobody is lying, and it keeps having to be pulled back. Present-tense "serves
+# N businesses" and "N clients IS/ARE ..." claim traction; the honest forms
+# ("can serve", "would be") do not match. Deliberately narrow — a checker that
+# cries wolf gets ignored.
+TRACTION_DRIFT = re.compile(
+    r'\bserves (?:many|dozens of|hundreds of|\d+) (?:businesses|clients|customers)\b|'
+    r'\b(?:ten|twenty|\d+) (?:retainers|clients|customers) (?:is|are)\b', re.I)
+
 defects = []
 def defect(area, msg):
     defects.append({'area': area, 'msg': msg})
@@ -150,6 +162,8 @@ def check_pages():
         s = io.open(f, encoding='utf-8', errors='replace').read()
         for m in set(FALSE_PROOF.findall(s)):
             defect('page', '%s implies a client base: %r' % (rel, m))
+        for m in set(TRACTION_DRIFT.findall(s)):
+            defect('page', '%s traction drift (capacity phrased as customers): %r' % (rel, m))
         # every ld+json block must parse (template-clone trap)
         for blk in re.findall(r'<script type="application/ld\+json">(.*?)</script>', s, re.S):
             try:
