@@ -7,17 +7,11 @@ from openpyxl.utils import get_column_letter
 
 wb = Workbook()
 
-# ---- brand tokens ----
-INK      = "211D14"   # dark slate (headers/text)
-GREEN    = "1E7A47"   # collected / recovered (positive)
-AMBER    = "B45309"   # recoverable-if-fixed (attention)
-RED      = "B23B3B"   # unpaid / overdue (collections)
-MUTE     = "5C5645"   # captions
-CREAM    = "F4F1E8"   # light panel
-CARD     = "F4F1E8"   # softer card
-GREENBG  = "E6F2EC"   # money-found tint
-BANDBG   = "E4DFD1"   # section band
-WORDMARK = "6E6555"
+# ---- brand tokens (single source of truth) ----
+import sys as _sys, os as _os
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "_brand"))
+from awllc_brand import INK, GREEN, AMBER, RED, MUTE, CARD, BANDBG, WORDMARK, GREENBG, REDBG, AMBERBG  # single source of truth
+CREAM = CARD  # legacy alias (== WELL)
 
 HEADER_FILL = PatternFill("solid", fgColor=INK)
 CARD_FILL   = PatternFill("solid", fgColor=CARD)
