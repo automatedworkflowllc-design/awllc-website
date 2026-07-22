@@ -17,6 +17,16 @@ Contact: colin@automatedworkflowllc.com · +1-703-939-1174 · https://automatedw
 - [Home](https://automatedworkflowllc.com/): services, flat pricing, live sample dashboards, 10-question FAQ, and contact.
 - [Live Dashboard Demo](https://automatedworkflowllc.com/demo/): a real, interactive self-updating Google Sheets-style KPI dashboard (revenue, jobs, overdue invoices) you can open and click without logging in — a working example of the $650 Automated Dashboard.
 - [Spreadsheet Cleanup Service](https://automatedworkflowllc.com/spreadsheet-cleanup-service/): done-for-you spreadsheet cleanup by a real person (not a DIY tool) — $300 flat, 24–48h, free 1-day mini-demo.
+- [Google Sheets Consultant](https://automatedworkflowllc.com/google-sheets-consultant/): a real person builds your formulas, dashboards, and automations in Google Sheets — flat price, 24–48h, free 1-day demo.
+- [Google Sheets Dashboard](https://automatedworkflowllc.com/google-sheets-dashboard/): a live, self-updating KPI dashboard built for you in Google Sheets with an AI weekly summary note — $650 flat.
+- [Automated Reports](https://automatedworkflowllc.com/automated-reports/): recurring reports that write themselves — pulled, formatted, and summarized in plain English, delivered to your inbox on schedule — $1,000 setup, from $250/mo.
+- [AI Business Pulse](https://automatedworkflowllc.com/ai-business-pulse/): the flagship retainer report — every Monday an AI reads your live numbers, writes a plain-English summary, and drafts chase emails for money you're owed that wait for your approval before sending.
+- [Nonprofit Reporting](https://automatedworkflowllc.com/nonprofit-reporting/): cleanup and self-updating spreadsheets for nonprofits whose CRM (Bloomerang, Neon, or Givebutter) still leaves board reports, grant reports, and volunteer hours to manual copy-paste.
+- [Staffing Commission Dashboard](https://automatedworkflowllc.com/staffing-commission-dashboard/): a live commission dashboard for a staffing desk that settles splits, draws, and clawbacks by rule — $650 flat, free 1-day demo.
+- [Executive KPI Dashboard Template](https://automatedworkflowllc.com/free/executive-kpi-dashboard.html): a free executive KPI dashboard template for Google Sheets covering revenue, net margin, pipeline, and overdue invoices, with the automated $650 version offered alongside it.
+- [Free Staffing Commission Tracker Template](https://automatedworkflowllc.com/free-staffing-commission-tracker/): a free Google Sheets commission tracker for recruiters — perm fees, contract margins, splits, draw, and fall-off clawback flags, no cost.
+- [Free Expense Tracker Template](https://automatedworkflowllc.com/free-expense-tracker-template/): a free Google Sheets expense tracker that logs expenses by category and shows monthly totals and a spend trend automatically, no cost.
+- [Build Log](https://automatedworkflowllc.com/build-log/): a build log of the multi-tenant reporting pipeline behind Automated Workflow — n8n, Google Sheets, an AI narrative step, and a human approval gate.
 
 ## Entity
 
