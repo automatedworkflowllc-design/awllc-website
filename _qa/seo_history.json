@@ -1,0 +1,98 @@
+[
+ {
+  "when": "2026-07-21 23:36",
+  "score": 22,
+  "pages": 15,
+  "by_area": {
+   "jsonld-offer": 1,
+   "nap-consistency": 1,
+   "title": 6,
+   "meta-description": 9,
+   "llms-txt": 1,
+   "og-image": 1,
+   "nap": 1,
+   "noindex-undocumented": 1,
+   "h1": 1
+  }
+ },
+ {
+  "when": "2026-07-21 23:37",
+  "score": 22,
+  "pages": 15,
+  "by_area": {
+   "jsonld-offer": 1,
+   "noindex-undocumented": 1,
+   "nap": 1,
+   "title": 6,
+   "og-image": 1,
+   "nap-consistency": 1,
+   "meta-description": 9,
+   "h1": 1,
+   "llms-txt": 1
+  }
+ },
+ {
+  "when": "2026-07-21 23:37",
+  "score": 22,
+  "pages": 15,
+  "by_area": {
+   "title": 6,
+   "meta-description": 9,
+   "nap-consistency": 1,
+   "noindex-undocumented": 1,
+   "jsonld-offer": 1,
+   "llms-txt": 1,
+   "og-image": 1,
+   "h1": 1,
+   "nap": 1
+  }
+ },
+ {
+  "when": "2026-07-21 23:37",
+  "score": 22,
+  "pages": 15,
+  "by_area": {
+   "jsonld-offer": 1,
+   "nap-consistency": 1,
+   "noindex-undocumented": 1,
+   "og-image": 1,
+   "llms-txt": 1,
+   "title": 6,
+   "h1": 1,
+   "meta-description": 9,
+   "nap": 1
+  }
+ },
+ {
+  "when": "2026-07-21 23:38",
+  "score": 22,
+  "pages": 15,
+  "by_area": {
+   "title": 6,
+   "og-image": 1,
+   "jsonld-offer": 1,
+   "meta-description": 9,
+   "nap": 1,
+   "noindex-undocumented": 1,
+   "llms-txt": 1,
+   "nap-consistency": 1,
+   "h1": 1
+  }
+ },
+ {
+  "when": "2026-07-21 23:38",
+  "score": 22,
+  "pages": 15,
+  "by_area": {
+   "jsonld-offer": 1,
+   "noindex-undocumented": 1,
+   "nap-consistency": 1,
+   "title": 6,
+   "nap": 1,
+   "og-image": 1,
+   "h1": 1,
+   "llms-txt": 1,
+   "meta-description": 9
+  }
+ }
+]
