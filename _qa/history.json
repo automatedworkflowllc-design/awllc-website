@@ -146,5 +146,53 @@
   "mode": "fast",
   "score": 0,
   "by_area": {}
+ },
+ {
+  "when": "2026-07-20 10:00",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-20 20:41",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-20 21:56",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-20 21:59",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-20 22:53",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-20 23:01",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-21 22:49",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-07-21 22:52",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
  }
 ]

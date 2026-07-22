@@ -194,6 +194,39 @@
   .bl-fig figcaption{font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;
     color:var(--ink-faint,#6E6555);margin-top:10px;letter-spacing:.04em}
   .bl-note{font-size:.94rem;color:var(--ink-soft,#5C5645)}
+  /* --- thesis: the trust rule as a design statement (dark panel) --- */
+  .bl-thesis{background:var(--ink,#211D14);border-radius:14px;padding:34px 34px 30px;margin:30px 0}
+  .bl-thesis .eyebrow{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:#CBC5B1;margin:0 0 16px}
+  .bl-thesis .line{font-size:1.5rem;line-height:1.28;color:#FBFAF3;font-weight:600;margin:0 0 14px;letter-spacing:-.01em}
+  .bl-thesis .sub{font-size:.98rem;line-height:1.55;color:#CBC5B1;margin:0;max-width:52ch}
+  @media (max-width:600px){ .bl-thesis{padding:24px 22px} .bl-thesis .line{font-size:1.24rem} }
+
+  /* --- incident cards: the four bug stories, with real receipts --- */
+  .bl-incident{border:1px solid var(--line,#E4DFD1);border-radius:14px;padding:24px 24px 22px;margin:0 0 20px;
+    background:var(--paper-tint,#FBFAF3)}
+  .bl-incident .num{font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;letter-spacing:.14em;
+    color:var(--ink-faint,#6E6555)}
+  .bl-incident h3{margin:4px 0 14px;font-size:1.12rem;line-height:1.3}
+  .bl-incident p{margin:0 0 14px}
+  .bl-incident p:last-child{margin-bottom:0}
+  /* the 'receipt' — a monospace artifact of the actual symptom or control */
+  .bl-receipt{font-family:'Geist Mono',ui-monospace,SFMono-Regular,monospace;font-size:12.5px;line-height:1.7;
+    border-radius:10px;padding:13px 15px;margin:0 0 14px;position:relative;overflow-x:auto}
+  .bl-receipt .tag{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:7px;opacity:.8}
+  .bl-receipt.symptom{background:var(--red-bg,#F6E7E7);border:1px solid #EAC9C9;color:#7A2E2E}
+  .bl-receipt.symptom .tag{color:var(--red,#B23B3B)}
+  .bl-receipt.control{background:var(--green-bg,#E6F2EC);border:1px solid #BEDDCB;color:#1B4D34}
+  .bl-receipt.control .tag{color:var(--green,#1E7A47)}
+  .bl-receipt.tech{background:#16181D;border:1px solid #2A2E36;color:#D7DAE0}
+  .bl-receipt.tech .tag{color:#8A93A3}
+  .bl-receipt b{color:inherit;font-weight:700}
+  .bl-receipt .bad{color:var(--red,#B23B3B);font-weight:700}
+  .bl-receipt .ok{color:var(--green,#1E7A47);font-weight:700}
+
+  /* --- closing panel --- */
+  .bl-close{border-top:1px solid var(--line,#E4DFD1);margin-top:38px;padding-top:30px}
+
   /* The architecture SVG has an 860 viewBox. Letting it shrink to a 390px screen
      renders its 10px labels at ~4px — present but unreadable. Below 720px it keeps
      a legible minimum width and pans inside its own scroller instead, so the page
@@ -257,11 +290,12 @@
       Apps Script for live dashboards, Python for build pipelines, Clay for enrichment, and the Claude
       platform for the AI layer.</p>
 
-      <div class="bl-rule">
-        <p><b>One rule runs through all of it: formulas compute every number before the model writes a
-        word.</b> Language models are strong writers and unreliable arithmetic engines. So the sheet
-        calculates the totals and flags deterministically, and the AI only narrates figures that were
-        already verified. It never invents one.</p>
+      <div class="bl-thesis">
+        <p class="eyebrow">// the one rule everything obeys</p>
+        <p class="line">Formulas compute every number before the model writes a word.</p>
+        <p class="sub">Language models are strong writers and unreliable arithmetic engines. So the
+        sheet calculates the totals and flags deterministically, and the AI only narrates figures that
+        were already verified. It never invents one.</p>
       </div>
       <p class="bl-note">That rule wasn&rsquo;t theoretical. During an early build the model summed a
       column itself and got it wrong. The fix wasn&rsquo;t a better prompt &mdash; it was removing the
@@ -390,43 +424,74 @@
 
     <section>
       <h2>The engineering judgment</h2>
-      <p>The interesting work wasn&rsquo;t wiring the happy path. It was the four times I didn&rsquo;t
-      trust it yet.</p>
+      <p>The interesting work wasn&rsquo;t wiring the happy path &mdash; a model does that before lunch.
+      It was the four times I didn&rsquo;t trust it yet. Each one left a permanent check behind.</p>
 
-      <div class="bl-step">
-        <span class="n">01</span><h3>Proving isolation instead of assuming it</h3>
-        <p>The loop node had a setting (<code>executeOnce</code>) that I suspected would collapse a
-        multi-client run into a single send. Reading the docs wouldn&rsquo;t settle it. I ran a live
-        two-client test and read the execution record directly: two distinct sends, six seconds apart,
-        with different narratives. The assumption was wrong and the setting was fine &mdash; but now
-        it&rsquo;s a verified fact rather than a belief.</p>
+      <div class="bl-incident">
+        <span class="num">INCIDENT 01</span>
+        <h3>Proving isolation instead of assuming it</h3>
+        <p>A loop setting (<code>executeOnce</code>) looked like it might collapse a multi-client run
+        into a single send. The docs didn&rsquo;t settle it, so I stopped reading and ran it live.</p>
+        <div class="bl-receipt tech">
+          <span class="tag">execution record &mdash; 2-client test</span>
+          run #30 &nbsp; <b>2 sends</b>, 6s apart &nbsp;&middot;&nbsp; distinct narratives per client &nbsp;<span class="ok">&check; isolated</span>
+        </div>
+        <p>The assumption was wrong and the setting was fine &mdash; but now it&rsquo;s a fact read from
+        the execution record, not a belief taken from a doc.</p>
       </div>
-      <div class="bl-step">
-        <span class="n">02</span><h3>Driving the API when the UI fought back</h3>
-        <p>The visual canvas was unreliable for precise edits &mdash; drag operations landed wrong and a
-        stray paste could corrupt a workflow. I switched to the REST API from the page context, which
-        made changes exact and reviewable. Choosing the less obvious interface because it is the more
-        <i>verifiable</i> one is a tradeoff I&rsquo;d make again.</p>
+
+      <div class="bl-incident">
+        <span class="num">INCIDENT 02</span>
+        <h3>Driving the API when the UI fought back</h3>
+        <p>The visual canvas was unreliable for precise edits &mdash; drags landed wrong, a stray paste
+        could corrupt a whole workflow. So I stopped clicking and drove it from the page context.</p>
+        <div class="bl-receipt tech">
+          <span class="tag">the move</span>
+          fetch('/rest/workflows/{id}', { headers: { 'browser-id': &hellip; } })
+        </div>
+        <p>Exact, reviewable changes instead of hopeful ones. Choosing the less obvious interface
+        because it&rsquo;s the more <i>verifiable</i> one is a tradeoff I&rsquo;d make again.</p>
       </div>
-      <div class="bl-step">
-        <span class="n">03</span><h3>Deriving status colors instead of typing them</h3>
+
+      <div class="bl-incident">
+        <span class="num">INCIDENT 03</span>
+        <h3>Deriving status colors instead of typing them</h3>
         <p>Google Sheets drops conditional formatting on xlsx import, so the demo workbooks bake colors
-        in statically. Those colors drifted from the formulas that computed the visible status: a row
-        rendered green and &ldquo;STABLE&rdquo; while its own formula evaluated to negative. The fix was
-        structural &mdash; recompute the flag in Python from the same inputs the formula uses, color
-        from <i>that</i>, and print every <code>input &rarr; computed tier</code> to the build log so a
-        mismatch is visible.</p>
+        in statically &mdash; and static colors drift from the formula that computes the visible tier.</p>
+        <div class="bl-receipt symptom">
+          <span class="tag">shipped wrong</span>
+          row shows <span class="bad">&ldquo;STABLE&rdquo;</span> in green &nbsp;&middot;&nbsp; its own formula evaluates to <span class="bad">&minus;$317</span>
+        </div>
+        <div class="bl-receipt control">
+          <span class="tag">the control now</span>
+          recompute the flag in Python from the same inputs &rarr; color from <b>that</b>
+          <br>build log prints every <b>input &rarr; computed tier</b> so a mismatch is visible
+        </div>
       </div>
-      <div class="bl-step">
-        <span class="n">04</span><h3>Two sources of truth that never met</h3>
-        <p>A dashboard shipped reading <b>&ldquo;money lost on over-budget jobs &mdash; $0&rdquo;</b>
-        directly above two jobs flagged as losing money. Five summary formulas were off by one column,
-        so the &ldquo;total quoted&rdquo; cell was summing actual cost. It survived review because the
-        build log computed totals independently in Python and printed the <i>right</i> answer while the
-        spreadsheet showed the wrong one &mdash; and nothing ever compared the two. That bug is why I
-        now run an automated check that reads each summary formula and asks whether it aggregates the
-        column its own label names.</p>
+
+      <div class="bl-incident">
+        <span class="num">INCIDENT 04</span>
+        <h3>Two sources of truth that never met</h3>
+        <p>The one that still stings. A dashboard shipped with a headline that flatly contradicted the
+        rows beneath it:</p>
+        <div class="bl-receipt symptom">
+          <span class="tag">shipped wrong</span>
+          MONEY LOST ON OVER-BUDGET JOBS &nbsp; <span class="bad">$0</span>
+          <br>&nbsp;&nbsp;&#9656; 2 jobs flagged OVER BUDGET &nbsp; <span class="bad">&minus;$500</span> &nbsp; <span class="bad">&minus;$600</span>
+        </div>
+        <p>Five summary formulas were off by one column, so &ldquo;total quoted&rdquo; was summing actual
+        cost. It survived review because the build log computed totals independently in Python and
+        printed the <i>right</i> answer while the sheet showed the wrong one &mdash; two sources of truth
+        that never met.</p>
+        <div class="bl-receipt control">
+          <span class="tag">the control now</span>
+          for each summary cell: does it aggregate the column its own label names?
+          <br>label <b>&ldquo;Total quoted&rdquo;</b> &rarr; sums col E <b>(Actual cost)</b> &nbsp;<span class="bad">&#10007; flagged</span>
+        </div>
       </div>
+
+      <p class="bl-note">None of these were caught by being careful. They were caught by building the
+      thing that makes carelessness visible &mdash; and then the check outlives the bug.</p>
     </section>
 
     <section>
