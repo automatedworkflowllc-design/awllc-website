@@ -285,20 +285,47 @@
 <main>
   <div class="wrap">
 
-    <section class="hero"><div style="display:flex;gap:48px;align-items:center;flex-wrap:wrap"><div style="flex:1 1 380px;min-width:300px">
-      <p class="eyebrow green">Build log &middot; one system, start to finish</p>
+    <section class="hero">
+      <p class="eyebrow green">Build log &middot; one system, start to finish &middot; July 2026</p>
       <h1>How I built the AI Business Pulse <span class="thin">&mdash; and what it taught me.</span></h1>
       <p class="subhead">Small businesses want a weekly report. Almost none of them want to maintain
       the tool that produces it. So I built a pipeline where a single workflow can serve many businesses and
       the report writes its own summary &mdash; then spent most of the time making sure it could be
       trusted. This is the honest version: the decisions, and the bugs that caused them.</p>
+      <figure class="bl-hero-fig" style="margin:26px 0 4px;padding:20px 0;border-top:1px solid var(--line,#E6E1D3);
+        border-bottom:1px solid var(--line,#E6E1D3);display:flex;align-items:center;gap:26px;flex-wrap:wrap">
+        <img src="machine-clean.png" width="680" height="658" alt="A retro computer displaying {a_w} on its screen"
+             style="width:172px;height:auto;display:block;flex:0 0 auto">
+        <figcaption style="flex:1 1 280px;min-width:240px;margin:0">
+          <span style="font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.16em;
+            text-transform:uppercase;color:#8B8471;display:block;margin-bottom:8px">// the machine this log is about</span>
+          <span style="font-size:1.02rem;line-height:1.5;color:#5C5645;display:block">
+            One n8n workflow, a config sheet of businesses, and an AI step that writes each report
+            &mdash; with formulas doing every calculation before the model writes a word.</span>
+        </figcaption>
+      </figure>
+      
+      <div class="bl-proof" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin:26px 0 6px">
+        <div style="background:#fff;border:1px solid var(--line,#E6E1D3);border-radius:12px;padding:16px 18px">
+          <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:22px;color:#211D14;font-weight:700;line-height:1">4</div>
+          <div style="font-size:13px;color:#5C5645;margin-top:6px;line-height:1.45">bugs found and documented &mdash; each one left a permanent check behind</div>
+        </div>
+        <div style="background:#fff;border:1px solid var(--line,#E6E1D3);border-radius:12px;padding:16px 18px">
+          <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:22px;color:#211D14;font-weight:700;line-height:1">1</div>
+          <div style="font-size:13px;color:#5C5645;margin-top:6px;line-height:1.45">workflow <b>can</b> serve many businesses &mdash; multi-tenant by design, adding one is a single row</div>
+        </div>
+        <div style="background:#fff;border:1px solid var(--line,#E6E1D3);border-radius:12px;padding:16px 18px">
+          <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:22px;color:#211D14;font-weight:700;line-height:1">0</div>
+          <div style="font-size:13px;color:#5C5645;margin-top:6px;line-height:1.45">numbers written by the AI &mdash; formulas compute, the model only narrates</div>
+        </div>
+      </div>
       <div class="bl-badges" aria-label="Stack">
         <span>n8n</span><span>Google Apps Script</span><span>Google Sheets API</span>
         <span>Claude (API / Code / MCP)</span><span>Python</span><span>Clay</span>
         <span>Git</span><span>SEO / Schema</span>
       </div>
       <p class="hero-meta" style="margin-top:20px">Built and operated solo &middot; <b>Gainesville, FL</b></p>
-    </div><div style="flex:0 1 380px;max-width:420px;margin:0 auto"><img src="machine.png" width="820" height="618" alt="Automated Workflow — a retro computer showing {a_w} on its screen" style="width:100%;height:auto;display:block;border-radius:16px;box-shadow:0 18px 44px rgba(0,0,0,.28)"></div></div></section>
+    </section>
 
     <section>
       <h2>How I build</h2>
@@ -519,9 +546,19 @@
       <p class="bl-note"><b>Honest scope:</b> this is a month-one business. Every figure in the demos is
       sample data and is labeled as such on the artifact itself. I&rsquo;m describing what I built and
       operate &mdash; not a client roster.</p>
-      <div class="hero-actions" style="margin-top:26px">
-        <a class="btn btn-primary" href="/ai-business-pulse/">See the product it became &rarr;</a>
-        <a class="btn btn-ghost" href="/demo/">Open a live dashboard &rarr;</a>
+      <div class="bl-cta" style="background:#17130D;border-radius:16px;padding:34px 34px 30px;margin-top:34px">
+        <p style="font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.18em;
+          text-transform:uppercase;color:#74E1EC;margin:0 0 14px">// your turn</p>
+        <p style="font-size:1.45rem;line-height:1.28;color:#FBFAF3;font-weight:660;margin:0 0 12px;
+          letter-spacing:-.015em;text-wrap:balance">Send me your messiest spreadsheet.</p>
+        <p style="color:#C9C3B4;font-size:1rem;line-height:1.55;margin:0 0 22px;max-width:52ch">
+          I&rsquo;ll build you a working, self-updating version of it and send it back within a day &mdash;
+          free, and yours to keep whether we ever work together or not. Same checks described above run on it.</p>
+        <style>.bl-cta .btn-ghost{border-color:#443f34;color:#E4DFD1;background:transparent}.bl-cta .btn-ghost:hover{border-color:#74E1EC;color:#fff}.bl-cta .btn-primary{background:#74E1EC;color:#0c2a2d;border-color:#74E1EC}.bl-cta .hero-actions{display:flex;flex-wrap:wrap;gap:10px}</style><div class="hero-actions" style="margin:0">
+          <a class="btn btn-primary" href="mailto:colin@automatedworkflowllc.com?subject=Here%27s%20my%20messy%20spreadsheet">Email me the file &rarr;</a>
+          <a class="btn btn-ghost" href="/demo/">Open a live dashboard &rarr;</a>
+          <a class="btn btn-ghost" href="/ai-business-pulse/">See the product it became &rarr;</a>
+        </div>
       </div>
     </section>
 
