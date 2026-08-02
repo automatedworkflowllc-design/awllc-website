@@ -18,10 +18,10 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'spreadsheet-health-check'
 
-TITLE = 'Free Spreadsheet Health Check — Nothing Uploads'
-DESC = ('Drop any CSV export and get an instant, honest report: dead columns, '
-        'status fields that never vary, mixed date formats, duplicate rows. '
-        'Runs entirely in your browser — your data never leaves your machine.')
+TITLE = 'Free Spreadsheet Health Check — Runs In Your Browser'
+DESC = ('Drop any CSV and get an instant, honest report: dead columns, mixed date '
+        'formats, duplicate rows. Runs in your browser — your data never leaves '
+        'your machine.')
 CANON = 'https://automatedworkflowllc.com/spreadsheet-health-check/'
 
 PAGE_CSS = """

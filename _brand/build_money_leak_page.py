@@ -21,10 +21,10 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'money-leak-finder'
 
-TITLE = 'Money Leak Finder — Work Done vs. Work Billed, Nothing Uploads'
-DESC = ('Drop your work log and your invoice export side by side and see only the '
-        'mismatches: jobs finished but never invoiced, invoices sitting unpaid past 60 '
-        'days. Runs entirely in your browser — your books never leave your machine.')
+TITLE = 'Money Leak Finder — Jobs Done vs. Billed, In Your Browser'
+DESC = ('See only the mismatches between your work log and invoice export: jobs '
+        'never invoiced, invoices unpaid past 60 days. Runs in your browser — '
+        'nothing uploads.')
 CANON = 'https://automatedworkflowllc.com/money-leak-finder/'
 
 PAGE_CSS = """
