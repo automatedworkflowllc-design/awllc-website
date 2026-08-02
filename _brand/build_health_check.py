@@ -89,6 +89,9 @@ MAIN = """
       in 24&ndash;48h &mdash; or start with a <a href="/free-demo/">free 1-day demo on your real
       data</a>, keep it either way.</p>
       <a class="btn" href="/spreadsheet-cleanup-service/">See the cleanup service</a>
+      <p style="margin:.9rem 0 0;font-size:.85rem">Tracking work against invoices? The
+      <a href="/money-leak-finder/">Money Leak Finder</a> lines up both exports and shows only the
+      mismatches &mdash; same rule, nothing uploads.</p>
     </div>
   </section>
 </main>

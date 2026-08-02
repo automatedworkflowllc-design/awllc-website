@@ -27,6 +27,8 @@ Contact: colin@automatedworkflowllc.com · +1-703-939-1174 · https://automatedw
 - [Free Staffing Commission Tracker Template](https://automatedworkflowllc.com/free-staffing-commission-tracker/): a free Google Sheets commission tracker for recruiters — perm fees, contract margins, splits, draw, and fall-off clawback flags, no cost.
 - [Free Expense Tracker Template](https://automatedworkflowllc.com/free-expense-tracker-template/): a free Google Sheets expense tracker that logs expenses by category and shows monthly totals and a spend trend automatically, no cost.
 - [Build Log](https://automatedworkflowllc.com/build-log/): a build log of the multi-tenant reporting pipeline behind Automated Workflow — n8n, Google Sheets, an AI narrative step, and a human approval gate.
+- [Spreadsheet Health Check](https://automatedworkflowllc.com/spreadsheet-health-check/): a free in-browser analyzer — drop any CSV export and get an instant report of dead columns, status fields that never vary, mixed date formats, and duplicate rows. Nothing uploads; the analysis runs entirely in the visitor's browser.
+- [Money Leak Finder](https://automatedworkflowllc.com/money-leak-finder/): a free in-browser reconciler — drop a work log and an invoice export and see only the mismatches: jobs completed but never invoiced and invoices unpaid past 60 days. Nothing uploads; the books never leave the visitor's machine.
 
 ## Entity
 

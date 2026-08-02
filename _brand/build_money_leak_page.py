@@ -98,6 +98,9 @@ MAIN = """
       <a href="/spreadsheet-cleanup-service/">$300 cleanup</a> and the
       <a href="/free-demo/">free 1-day demo</a> deliver. Messy files are fine &mdash; that's the point.</p>
       <a class="btn" href="/free-demo/">Get it on your real data — free</a>
+      <p style="margin:.9rem 0 0;font-size:.85rem">Want the broader once-over first? The
+      <a href="/spreadsheet-health-check/">Spreadsheet Health Check</a> reads any single export for
+      dead columns, mixed dates and duplicates &mdash; same rule, nothing uploads.</p>
     </div>
   </section>
 </main>
