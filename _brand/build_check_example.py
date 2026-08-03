@@ -149,7 +149,7 @@ def main() -> None:
     arithmetic on the files as supplied &mdash; nothing predicted, nothing estimated. The
     <strong>MONEY</strong> is the total on completed jobs that have no matching invoice, counted
     once each even where a row was duplicated. The things a script cannot decide &mdash; which
-    duplicate is the real record, what a blank means &mdash; are deliberately left for a human.</p>
+    duplicate is the real record, what a blank means &mdash; are deliberately left for a human.</div>
 
   <div class="ex-cta">
     <h2 style="margin-top:0">Now run it on yours</h2>
