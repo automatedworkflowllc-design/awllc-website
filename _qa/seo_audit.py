@@ -91,9 +91,23 @@ def attr(tagtext, attr_name):
     return html.unescape(m.group(1)) if m else None
 
 # ---------------------------------------------------------------- per-page
+def dom_only(src):
+    """Strip <script> bodies before counting document-structure tags.
+
+    Tools that build HTML in the browser carry markup inside script strings --
+    /check/ generates a downloadable report containing its own <h1> and
+    viewport meta. Counting those as page defects reported two problems on a
+    page that has neither, and a checker that cries wolf is one people stop
+    reading. Only structural counts use this; title, description and canonical
+    are matched in the real head and are unaffected.
+    """
+    return re.sub(r'<script\b.*?</script>', '', src, flags=re.S | re.I)
+
+
 def check_pages(pages, src_by_page):
     for rel in pages:
         src = src_by_page[rel]
+        dom = dom_only(src)
 
         # 1. title length
         m = re.search(r'<title>(.*?)</title>', src, re.S)
@@ -117,11 +131,11 @@ def check_pages(pages, src_by_page):
             defect('canonical', '%s -- expected exactly one canonical link' % rel)
 
         # 4. viewport
-        if len(re.findall(r'<meta\b[^>]*\bname="viewport"', src, re.I)) != 1:
+        if len(re.findall(r'<meta\b[^>]*\bname="viewport"', dom, re.I)) != 1:
             defect('viewport', '%s -- expected exactly one viewport meta tag' % rel)
 
         # 5. h1 count
-        h1s = len(re.findall(r'<h1\b', src, re.I))
+        h1s = len(re.findall(r'<h1\b', dom, re.I))
         if h1s != 1:
             defect('h1', '%s -- has %d <h1> tags (want exactly 1)' % (rel, h1s))
 

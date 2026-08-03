@@ -32,9 +32,8 @@ TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'check'
 
 TITLE = 'Free Business File Check — Drop Anything, Nothing Uploads'
-DESC = ('Drop any business export — invoices, roster, customer list, job log — and '
-        'it works out what the file is and runs every check that applies. Download '
-        'the report. Runs in your browser; nothing uploads.')
+DESC = ('Drop any business export — invoices, roster, job log. It works out what the file is, '
+        'runs every check that applies, and puts a dollar figure on the problems.')
 CANON = 'https://automatedworkflowllc.com/check/'
 
 PAGE_CSS = """
