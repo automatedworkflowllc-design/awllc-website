@@ -49,6 +49,13 @@ background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
 """
 
 TOOLS = [
+    ("Business File Check  ·  start here", "/check/",
+     "One drop zone for any business export. It works out what the file is from its columns "
+     "&mdash; invoices, roster, customer list, job log &mdash; runs every check that applies, and "
+     "reconciles two files against each other if you drop a pair.",
+     "On its sample pair it returns 8 findings with zero configuration, including 3 completed jobs "
+     "that were never invoiced. Ends with a downloadable report you can forward.",
+     ["Live", "Nothing uploads", "Free"]),
     ("Spreadsheet Health Check", "/spreadsheet-health-check/",
      "Drop any CSV and get an honest report: columns that carry no information, status fields that "
      "never vary, mixed date formats, duplicate rows. Then download the file with the "
