@@ -57,6 +57,29 @@ color:var(--ink-soft);border-bottom:1px solid var(--line-strong);padding:.35rem 
 .ml-note{font-size:.85rem;color:var(--ink-soft)}
 .ml-cta{margin-top:1.6rem;padding:1.3rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
 .ml-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
+/* --- section C: the drafts --- */
+.ml-drafts{display:flex;flex-direction:column;gap:.9rem;margin:.6rem 0 1.4rem}
+.ml-draft{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:.85rem .95rem}
+.ml-draft-head{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;margin-bottom:.6rem}
+.ml-draft-ref{font-family:var(--mono);font-size:.76rem;color:var(--ink-soft);overflow-wrap:anywhere}
+.ml-tier{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;
+border:1px solid currentColor;border-radius:.3rem;padding:.1rem .4rem;white-space:nowrap}
+.ml-tier.t-neutral{color:#3F6B57}
+.ml-tier.t-firm{color:#8A6A16}
+.ml-tier.t-serious{color:#B4452C}
+.ml-tier.t-unbilled{color:#2E5AAC}
+.ml-tier.t-unknown{color:var(--ink-soft)}
+.ml-copy{margin-left:auto;font:inherit;font-size:.78rem;padding:.28rem .8rem;cursor:pointer;
+border:1px solid var(--line-strong);border-radius:.4rem;background:var(--bg-soft);color:var(--ink)}
+.ml-copy:hover{border-color:var(--accent)}
+.ml-copy:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.ml-draft-sub{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;
+color:var(--ink-soft);margin-bottom:.5rem}
+.ml-draft-sub input{display:block;width:100%;margin-top:.2rem;font:inherit;font-size:.88rem;
+color:var(--ink);background:var(--bg-soft);border:1px solid var(--line);border-radius:.4rem;padding:.4rem .5rem}
+.ml-draft textarea{width:100%;font:inherit;font-size:.88rem;line-height:1.5;color:var(--ink);
+background:var(--bg-soft);border:1px solid var(--line);border-radius:.4rem;padding:.5rem;resize:vertical}
+.ml-draft input:focus-visible,.ml-draft textarea:focus-visible{outline:3px solid var(--focus);outline-offset:1px}
 """
 
 MAIN = """
@@ -203,6 +226,69 @@ function detectPaid(t){
   for(var i=0;i<t.header.length;i++) if(/paid/i.test(t.header[i]) && !/unpaid/i.test(t.header[i])) return i;
   return -1;
 }
+function detectClient(t){
+  for(var i=0;i<t.header.length;i++) if(/client|customer|account|company|payer/i.test(t.header[i])) return i;
+  return -1;
+}
+function detectDesc(t){
+  for(var i=0;i<t.header.length;i++) if(/desc|work|service|detail|notes?/i.test(t.header[i])) return i;
+  return -1;
+}
+/* Tone is DERIVED from how late the invoice is -- never chosen, never escalated
+   by mood. Same rule the approve-gate uses: the data picks the register. */
+function tierFor(days){
+  if(days === null) return { id:'unknown', label:'Needs a look' };
+  if(days > 120) return { id:'serious', label:'Serious' };
+  if(days > 90)  return { id:'firm',    label:'Firm' };
+  return { id:'neutral', label:'Neutral' };
+}
+
+/* Build a draft from ONLY what the two files actually contain: who, which
+   reference, how much, how late. No invented urgency, no legal threats, no
+   promises about what happens next -- those are the sender's to add, if ever. */
+function draftFor(rec, kind){
+  var who = rec.client ? rec.client : 'there';
+  var greet = 'Hi ' + who + ',';
+  var amt = (rec.amt === null || rec.amt === undefined) ? null : fmt(rec.amt);
+  var job = rec.desc ? rec.desc : '';
+
+  if(kind === 'never'){
+    return {
+      subject: 'Invoice for ' + (job || ('job ' + rec.key)),
+      tier: { id:'unbilled', label:'Never billed' },
+      body: greet + '\n\n' +
+        'Going back through our records for ' + (job ? ('"' + job + '"') : ('job ' + rec.key)) +
+        ' — it looks like we completed this one but never sent you an invoice for it. That is on us.\n\n' +
+        'Reference: ' + rec.key + (amt ? ('\nAmount: ' + amt) : '') + '\n\n' +
+        'I can send the invoice over today unless you would rather I hold it. Let me know if anything about the job looks wrong on your side and I will sort it before it goes out.\n\n' +
+        'Thanks,'
+    };
+  }
+
+  var t = tierFor(rec.days);
+  var late = rec.days === null ? null : rec.days;
+  var base = 'Reference: ' + rec.key + (amt ? ('\nAmount: ' + amt) : '') +
+             (late !== null ? ('\nOutstanding: ' + late + ' days') : '');
+
+  if(t.id === 'neutral'){
+    return { subject: 'Quick check on invoice ' + rec.key, tier: t, body:
+      greet + '\n\nJust circling back on this one — it is still showing as open on my end, and I would rather ask than assume it got lost.\n\n' +
+      base + '\n\nIf it has already gone out, ignore me entirely. If something is holding it up, tell me what and I will work with it.\n\nThanks,' };
+  }
+  if(t.id === 'firm'){
+    return { subject: 'Invoice ' + rec.key + ' — still open', tier: t, body:
+      greet + '\n\nThis one has been outstanding a while now and I want to get it closed out rather than let it drift further.\n\n' +
+      base + '\n\nCould you let me know where it sits in your process, and roughly when I should expect it? If there is a problem with the invoice itself, I would rather hear that than keep sending reminders.\n\nThanks,' };
+  }
+  if(t.id === 'serious'){
+    return { subject: 'Invoice ' + rec.key + ' — need to get this resolved', tier: t, body:
+      greet + '\n\nI have followed up on this a few times and it is now well past terms, so I want to deal with it directly rather than send another reminder.\n\n' +
+      base + '\n\nCan you tell me whether this is going to be paid, and when? If there is a dispute or a problem on your side I would genuinely rather know now so we can settle it properly.\n\nThanks,' };
+  }
+  return { subject: 'Invoice ' + rec.key, tier: t, body:
+    greet + '\n\nThis invoice is showing as open, but there is no invoice date in the file I have, so I cannot tell how long it has been outstanding.\n\n' +
+    base + '\n\nWorth checking the date on your copy before sending anything — a reminder with the wrong age in it does more harm than no reminder.\n\nThanks,' };
+}
 
 function fmt(n){ return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
@@ -213,13 +299,27 @@ function reconcile(work, inv, asOf){
   var wAmt = detectAmount(work), iAmt = detectAmount(inv);
   var invKeys = {}; colValues(inv, join.bi).forEach(function(v){ if(v) invKeys[v]=1; });
 
+  /* Map the shared job key -> client + description from the WORK log, so a chase
+     draft can name the customer and the job. Invoice files often carry neither. */
+  var wClient = detectClient(work), wDesc = detectDesc(work);
+  var meta = {};
+  work.body.forEach(function(r){
+    var k = (r[join.ai]||'').trim();
+    if(!k) return;
+    meta[k] = {
+      client: wClient >= 0 ? (r[wClient]||'').trim() : '',
+      desc:   wDesc   >= 0 ? (r[wDesc]||'').trim()   : ''
+    };
+  });
+
   var never = [], neverTotal = 0;
   work.body.forEach(function(r){
     var k = (r[join.ai]||'').trim();
     if(!k || invKeys[k]) return;
     var amt = wAmt >= 0 ? money(r[wAmt]) : null;
     if(amt !== null) neverTotal += amt;
-    never.push({ key:k, row:r, amt:amt });
+    var m = meta[k] || { client:'', desc:'' };
+    never.push({ key:k, row:r, amt:amt, client:m.client, desc:m.desc });
   });
 
   var paidCol = detectPaid(inv), dateCol = detectDate(inv, /invoice date|inv date|date/i);
@@ -238,7 +338,10 @@ function reconcile(work, inv, asOf){
       }
       /* Display the invoice's own reference (first cell), not the join key --
          the aged table says "Invoice", so it must show INV-2210, not J-104. */
-      var rec = { key:(r[0]||r[join.bi]||'').trim(), amt:amt, days:days };
+      var jk = (r[join.bi]||'').trim();
+      var m = meta[jk] || { client:'', desc:'' };
+      var rec = { key:(r[0]||r[join.bi]||'').trim(), amt:amt, days:days,
+                  client:m.client, desc:m.desc };
       unpaid.push(rec);
       if(days !== null && days > 60){ aged.push(rec); if(amt !== null) agedTotal += amt; }
     });
@@ -286,7 +389,52 @@ function render(names, r, asOfLabel){
     });
     out += '</table>';
   }
+  /* C -- the half every other tool leaves out: what to actually send.
+     Drafts are built here, in the page, and go nowhere on their own. */
+  var items = [];
+  r.never.forEach(function(x){ items.push({ rec:x, kind:'never' }); });
+  if(r.paidDetected) r.aged.forEach(function(x){ items.push({ rec:x, kind:'aged' }); });
+
+  if(items.length){
+    out += '<h3 class="ml-h3">C &middot; Drafts you can send</h3>';
+    out += '<p class="ml-note">One draft per row above, written from your file and nothing else. ' +
+           'The tone is <strong>derived from how late the invoice is</strong>, not chosen &mdash; that is ' +
+           'the whole idea. Edit anything, copy what you want, send it yourself. ' +
+           '<strong>Nothing here can send: this page has no server and no mail access.</strong></p>';
+    out += '<div class="ml-drafts">';
+    items.forEach(function(it, i){
+      var d = draftFor(it.rec, it.kind);
+      out += '<div class="ml-draft">' +
+        '<div class="ml-draft-head">' +
+          '<span class="ml-tier t-' + d.tier.id + '">' + esc(d.tier.label) + '</span>' +
+          '<span class="ml-draft-ref">' + esc(it.rec.key) +
+            (it.rec.client ? ' &middot; ' + esc(it.rec.client) : '') +
+            (it.rec.days !== null && it.rec.days !== undefined ? ' &middot; ' + it.rec.days + 'd' : '') +
+          '</span>' +
+          '<button type="button" class="ml-copy" data-i="' + i + '">Copy</button>' +
+        '</div>' +
+        '<label class="ml-draft-sub">Subject <input type="text" id="ml-sub-' + i + '" value="' + esc(d.subject) + '"></label>' +
+        '<textarea id="ml-body-' + i + '" rows="12" spellcheck="true">' + esc(d.body) + '</textarea>' +
+      '</div>';
+    });
+    out += '</div>';
+  }
+
   document.getElementById('ml-sections').innerHTML = out;
+
+  Array.prototype.forEach.call(document.querySelectorAll('.ml-copy'), function(btn){
+    btn.addEventListener('click', function(){
+      var i = btn.getAttribute('data-i');
+      var sub = document.getElementById('ml-sub-' + i);
+      var body = document.getElementById('ml-body-' + i);
+      var text = 'Subject: ' + sub.value + '\n\n' + body.value;
+      var done = function(){ btn.textContent = 'Copied'; setTimeout(function(){ btn.textContent = 'Copy'; }, 1600); };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done, function(){ body.select(); done(); });
+      } else { body.select(); try{ document.execCommand('copy'); }catch(e){} done(); }
+    });
+  });
+
   rep.style.display = 'block';
   rep.scrollIntoView({behavior:'smooth', block:'start'});
 }
