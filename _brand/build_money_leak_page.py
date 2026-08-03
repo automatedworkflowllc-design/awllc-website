@@ -17,7 +17,7 @@ from __future__ import annotations
 import pathlib
 import re
 
-from toolkit import with_core
+from toolkit import with_core, with_xlsx
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
@@ -98,19 +98,19 @@ MAIN = """
     <div class="ml-drop" id="ml-work" role="button" tabindex="0" aria-label="Choose the work log CSV">
       <strong>1 &middot; Work log</strong>
       <span id="ml-work-label">jobs / tickets / schedule export (.csv)</span>
-      <input type="file" accept=".csv,.tsv,.txt" style="display:none">
+      <input type="file" accept=".csv,.tsv,.txt,.xlsx,.xlsm" style="display:none">
     </div>
     <div class="ml-drop" id="ml-inv" role="button" tabindex="0" aria-label="Choose the invoices CSV">
       <strong>2 &middot; Invoices</strong>
       <span id="ml-inv-label">invoice / billing export (.csv)</span>
-      <input type="file" accept=".csv,.tsv,.txt" style="display:none">
+      <input type="file" accept=".csv,.tsv,.txt,.xlsx,.xlsm" style="display:none">
     </div>
   </div>
   <div class="ml-actions">
     <button class="btn" id="ml-sample" type="button">See it on the sample company</button>
   </div>
   <p class="ml-note" style="text-align:center;margin-top:.8rem">The sample is Cedar Field Services
-    &mdash; an invented company, every number made up. Excel users: <code>File &rarr; Save As &rarr;
+    &mdash; an invented company, every number made up. <strong>Excel .xlsx files work directly.</strong> Otherwise <code>File &rarr; Save As &rarr;
     CSV</code> first.</p>
 
   <section id="ml-report" aria-live="polite">
@@ -474,14 +474,12 @@ function wire(id, slot){
   var input = el.querySelector('input');
   function set(f){
     if(!f) return;
-    var reader = new FileReader();
-    reader.onload = function(){
-      files[slot] = { name: f.name, text: String(reader.result) };
+    readAny(f, function(text){
+      files[slot] = { name: f.name, text: text };
       el.classList.add('is-set');
       document.getElementById(id + '-label').textContent = f.name;
       maybeRun();
-    };
-    reader.readAsText(f);
+    });
   }
   el.addEventListener('click', function(){ input.click(); });
   el.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); input.click(); } });
@@ -537,7 +535,7 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
     head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
 
-    page = head + MAIN + footer + LD + with_core(SCRIPT) + '\n</body>\n</html>\n'
+    page = head + MAIN + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')

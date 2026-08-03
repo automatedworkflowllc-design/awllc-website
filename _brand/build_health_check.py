@@ -14,7 +14,7 @@ from __future__ import annotations
 import pathlib
 import re
 
-from toolkit import with_core
+from toolkit import with_core, with_xlsx
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
@@ -79,12 +79,12 @@ MAIN = """
        aria-label="Choose a CSV file to analyze locally">
     <strong>Drop a .csv file here</strong>
     <span>or click to choose one &middot; stays on your machine</span>
-    <input type="file" id="hc-file" accept=".csv,.tsv,.txt" style="display:none">
+    <input type="file" id="hc-file" accept=".csv,.tsv,.txt,.xlsx,.xlsm" style="display:none">
   </div>
   <div class="hc-actions">
     <button class="btn" id="hc-sample" type="button">Try the sample file</button>
   </div>
-  <p class="hc-note">Using Excel? <code>File &rarr; Save As &rarr; CSV</code> first &mdash; this
+  <p class="hc-note"><strong>Excel files work directly</strong> &mdash; drop the .xlsx as-is (first sheet); this
     tool deliberately reads only plain text it can analyze in front of you.</p>
 
   <section id="hc-report" aria-live="polite">
@@ -438,9 +438,7 @@ function handleText(name, text){
 }
 function handleFile(f){
   if(!f) return;
-  var reader = new FileReader();
-  reader.onload = function(){ handleText(f.name, String(reader.result)); };
-  reader.readAsText(f);
+  readAny(f, function(text){ handleText(f.name, text); });
 }
 
 var drop = document.getElementById('hc-drop');
@@ -499,7 +497,7 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
     head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
 
-    page = head + MAIN + footer + LD + with_core(SCRIPT) + '\n</body>\n</html>\n'
+    page = head + MAIN + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')

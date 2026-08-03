@@ -18,7 +18,7 @@ from __future__ import annotations
 import pathlib
 import re
 
-from toolkit import with_core
+from toolkit import with_core, with_xlsx
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
@@ -86,13 +86,13 @@ MAIN = """
        aria-label="Choose a schedule CSV to analyze locally">
     <strong>Drop your schedule .csv here</strong>
     <span>date, employee, role, start, end &middot; stays on your machine</span>
-    <input type="file" id="sc-file" accept=".csv,.tsv,.txt" style="display:none">
+    <input type="file" id="sc-file" accept=".csv,.tsv,.txt,.xlsx,.xlsm" style="display:none">
   </div>
   <div class="sc-actions">
     <button class="btn" id="sc-sample" type="button">Try the sample roster</button>
   </div>
   <p class="sc-note">Works with most exports &mdash; it finds the date, name, role and time
-    columns itself. Excel users: <code>File &rarr; Save As &rarr; CSV</code> first.</p>
+    columns itself. <strong>Excel .xlsx files work directly</strong> (first sheet).</p>
 
   <section id="sc-report" aria-live="polite">
     <h2 id="sc-title" style="margin-bottom:.9rem"></h2>
@@ -469,12 +469,10 @@ var drop = document.getElementById('sc-drop');
 var input = document.getElementById('sc-file');
 function handleFile(f){
   if(!f) return;
-  var reader = new FileReader();
-  reader.onload = function(){
-    try { load(f.name, String(reader.result)); }
-    catch(e){ alert('Could not read that file. If it is an Excel workbook, save it as CSV first.'); }
-  };
-  reader.readAsText(f);
+  readAny(f, function(text){
+    try { load(f.name, text); }
+    catch(e){ alert('Could not read that file. Try saving it as CSV.'); }
+  });
 }
 drop.addEventListener('click', function(){ input.click(); });
 drop.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); input.click(); } });
@@ -516,7 +514,7 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
     head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
 
-    page = head + MAIN + footer + LD + with_core(SCRIPT) + '\n</body>\n</html>\n'
+    page = head + MAIN + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')

@@ -92,7 +92,7 @@ MAIN = """
        aria-label="Choose one or two CSV files to analyze locally">
     <strong>Drop a .csv here &mdash; or two</strong>
     <span>invoices &middot; roster &middot; customers &middot; jobs &middot; anything with columns</span>
-    <input type="file" id="ck-file" accept=".csv,.tsv,.txt" multiple style="display:none">
+    <input type="file" id="ck-file" accept=".csv,.tsv,.txt,.xlsx,.xlsm" multiple style="display:none">
   </div>
   <div class="ck-actions">
     <button class="btn" id="ck-sample" type="button">Try it on sample files</button>

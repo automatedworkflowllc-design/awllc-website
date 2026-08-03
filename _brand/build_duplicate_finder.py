@@ -18,7 +18,7 @@ from __future__ import annotations
 import pathlib
 import re
 
-from toolkit import with_core
+from toolkit import with_core, with_xlsx
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
@@ -79,7 +79,7 @@ MAIN = """
        aria-label="Choose a CSV file of customers to check locally">
     <strong>Drop a .csv here</strong>
     <span>customer list, invoice export, contact export &middot; stays on your machine</span>
-    <input type="file" id="dc-file" accept=".csv,.tsv,.txt" style="display:none">
+    <input type="file" id="dc-file" accept=".csv,.tsv,.txt,.xlsx,.xlsm" style="display:none">
   </div>
   <div class="dc-actions">
     <button class="btn" id="dc-sample" type="button">Try the sample list</button>
@@ -87,7 +87,7 @@ MAIN = """
     <select id="dc-col" aria-label="Which column holds the customer name"></select>
   </div>
   <p class="dc-note">It picks the most name-like column automatically &mdash; switch it above if it
-    guessed wrong. Excel users: <code>File &rarr; Save As &rarr; CSV</code> first.</p>
+    guessed wrong. <strong>Excel .xlsx files work directly</strong> (first sheet).</p>
 
   <section id="dc-report" aria-live="polite">
     <h2 id="dc-title" style="margin-bottom:.9rem"></h2>
@@ -308,12 +308,10 @@ var drop = document.getElementById('dc-drop');
 var input = document.getElementById('dc-file');
 function handleFile(f){
   if(!f) return;
-  var reader = new FileReader();
-  reader.onload = function(){
-    try { load(f.name, String(reader.result)); }
-    catch(e){ alert('Could not read that file. If it is an Excel workbook, save it as CSV first.'); }
-  };
-  reader.readAsText(f);
+  readAny(f, function(text){
+    try { load(f.name, text); }
+    catch(e){ alert('Could not read that file. Try saving it as CSV.'); }
+  });
 }
 drop.addEventListener('click', function(){ input.click(); });
 drop.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); input.click(); } });
@@ -356,7 +354,7 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
     head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
 
-    page = head + MAIN + footer + LD + with_core(SCRIPT) + '\n</body>\n</html>\n'
+    page = head + MAIN + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')

@@ -250,7 +250,7 @@ padding:1rem 1.2rem;color:var(--ink-soft)}
        aria-label="Choose one or two CSV files to analyze locally">
     <strong>Drop a .csv here &mdash; or two</strong>
     <span>invoices &middot; roster &middot; customers &middot; jobs &middot; anything with columns</span>
-    <input type="file" id="ck-file" accept=".csv,.tsv,.txt" multiple style="display:none">
+    <input type="file" id="ck-file" accept=".csv,.tsv,.txt,.xlsx,.xlsm" multiple style="display:none">
   </div>
   <div class="ck-actions">
     <button class="btn" id="ck-sample" type="button">Try it on sample files</button>
@@ -508,6 +508,25 @@ function rowsToCSV(rows){
       return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
     }).join(',');
   }).join('\n');
+}
+function readAny(f, done){
+  /* One intake for every tool: .xlsx parsed locally, everything else read as
+     text. Parse failures alert per-file and never call done() -- a silently
+     empty table is the lie these tools exist to end. */
+  var reader = new FileReader();
+  if(/\.(xlsx|xlsm)$/i.test(f.name)){
+    reader.onload = function(){
+      xlsxToRows(reader.result).then(function(rows){ done(rowsToCSV(rows)); })
+        .catch(function(err){
+          alert('Could not read ' + f.name + ' as an Excel workbook (' + err.message +
+                '). Save it as CSV and try again.');
+        });
+    };
+    reader.readAsArrayBuffer(f);
+  } else {
+    reader.onload = function(){ done(String(reader.result)); };
+    reader.readAsText(f);
+  }
 }
 
 function parseTime(v){

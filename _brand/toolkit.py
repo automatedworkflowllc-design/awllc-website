@@ -243,7 +243,40 @@ function rowsToCSV(rows){
     }).join(',');
   }).join('\n');
 }
+function readAny(f, done){
+  /* One intake for every tool: .xlsx parsed locally, everything else read as
+     text. Parse failures alert per-file and never call done() -- a silently
+     empty table is the lie these tools exist to end. */
+  var reader = new FileReader();
+  if(/\.(xlsx|xlsm)$/i.test(f.name)){
+    reader.onload = function(){
+      xlsxToRows(reader.result).then(function(rows){ done(rowsToCSV(rows)); })
+        .catch(function(err){
+          alert('Could not read ' + f.name + ' as an Excel workbook (' + err.message +
+                '). Save it as CSV and try again.');
+        });
+    };
+    reader.readAsArrayBuffer(f);
+  } else {
+    reader.onload = function(){ done(String(reader.result)); };
+    reader.readAsText(f);
+  }
+}
 """
+
+
+def with_xlsx(script_js):
+    """Inject the xlsx reader after the 'use strict' prologue. Raises if the
+    anchor is missing or the functions don't land -- a builder that silently
+    skipped the injection would ship a page whose intake calls readAny into a
+    void."""
+    if _ANCHOR not in script_js:
+        raise SystemExit("with_xlsx: no \"'use strict';\" anchor")
+    out = script_js.replace(_ANCHOR, _ANCHOR + XLSX_JS, 1)
+    for fn in ('function xlsxToRows', 'function rowsToCSV', 'function readAny'):
+        if out.count(fn) != 1:
+            raise SystemExit('with_xlsx: %s not injected exactly once' % fn)
+    return out
 
 # --- migration -----------------------------------------------------------
 # Deliberately narrow: only `esc` and `parseCSV` are swapped. `money`,
