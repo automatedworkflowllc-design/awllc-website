@@ -19,10 +19,9 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'builds'
 
-TITLE = 'Builds — Things That Are Actually Running'
-DESC = ('Every tool and system Automated Workflow has shipped: four free in-browser '
-        'analyzers, live dashboard demos, an open-source reliability tool, and a '
-        'national crisis-resource directory.')
+TITLE = 'Builds — The Free Tools and Systems Actually Running'
+DESC = ('Every tool Automated Workflow has shipped: five free in-browser analyzers, live '
+        'dashboard demos, an open-source reliability tool, and a crisis directory.')
 CANON = 'https://automatedworkflowllc.com/builds/'
 
 PAGE_CSS = """

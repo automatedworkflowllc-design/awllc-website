@@ -22,10 +22,9 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'shift-coverage-check'
 
-TITLE = 'Free Shift Coverage Check — Runs In Your Browser'
-DESC = ('Drop a schedule export and see the gaps: uncovered shifts, people heading '
-        'into overtime, roles only one person can fill, turnarounds too short to be '
-        'safe. Runs in your browser — nothing uploads.')
+TITLE = 'Free Shift Coverage Check — Find Gaps In Your Roster'
+DESC = ('Drop a schedule export and see the gaps: uncovered shifts, people heading into '
+        'overtime, roles only one person can fill. Nothing uploads.')
 CANON = 'https://automatedworkflowllc.com/shift-coverage-check/'
 
 PAGE_CSS = """
