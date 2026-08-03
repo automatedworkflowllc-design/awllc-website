@@ -199,6 +199,12 @@ border-radius:.6rem;padding:.9rem 1.1rem;margin:0 0 .6rem}
 padding:1rem 1.2rem;color:var(--ink-soft)}
 .hc-cta{margin-top:1.6rem;padding:1.3rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
 .hc-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
+.hc-fix{margin-top:1.8rem;padding:1.3rem;border:1px solid var(--line-strong);border-radius:12px;background:var(--card)}
+.hc-fix h3{margin:0 0 .3rem;font-size:1.05rem}
+.hc-fix > p{margin:0 0 .9rem;color:var(--ink-soft);font-size:.92rem}
+.hc-changes{margin:0 0 1rem;padding-left:1.15rem;color:var(--ink-soft);font-size:.9rem}
+.hc-changes li{margin:.15rem 0}
+.hc-limits{margin:1rem 0 0;font-size:.85rem;color:var(--ink-soft);border-top:1px solid var(--line-soft);padding-top:.8rem}
 </style>
 </head>
 <body>
@@ -253,6 +259,16 @@ padding:1rem 1.2rem;color:var(--ink-soft)}
     <h2 id="hc-title" style="margin-bottom:.8rem"></h2>
     <div class="hc-tally" id="hc-tally"></div>
     <div id="hc-findings"></div>
+
+    <div class="hc-fix" id="hc-fix" style="display:none">
+      <h3>Want it fixed?</h3>
+      <p>Some of what's above a script can fix deterministically &mdash; no judgment calls, no
+      guessing. Here's what it would change, and you can download the result:</p>
+      <ul class="hc-changes" id="hc-change-list"></ul>
+      <button class="btn" id="hc-download" type="button">Download cleaned .csv</button>
+      <p class="hc-limits" id="hc-limits"></p>
+    </div>
+
     <div class="hc-cta">
       <strong>Want these fixed by a real person?</strong>
       <p>The <a href="/spreadsheet-cleanup-service/">$300 flat cleanup</a> fixes everything above
@@ -410,6 +426,141 @@ function analyze(rows){
   return { header: header, n: n, findings: findings };
 }
 
+/* ---- the fix half ----------------------------------------------------------
+   Deterministic transforms ONLY. Every change here is one a script can make
+   without deciding anything a human would have to weigh in on. Where judgment
+   is required (which duplicate is the real customer, which formula broke, what
+   a blank means) it does NOTHING and says so -- that boundary is the honest
+   line between this button and the paid cleanup. */
+
+function pad2(n){ return (n < 10 ? '0' : '') + n; }
+var MONTHS = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+
+function toISO(v, fallbackYear){
+  var m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(m) return m[1] + '-' + pad2(+m[2]) + '-' + pad2(+m[3]);
+  m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if(m){ var y = m[3].length === 2 ? 2000 + (+m[3]) : +m[3]; return y + '-' + pad2(+m[1]) + '-' + pad2(+m[2]); }
+  m = v.match(/^(\d{1,2})-([A-Za-z]{3})$/);
+  // A bare "3-Jul" has no year in the file. Borrow the year the rest of the
+  // column agrees on rather than inventing one; skip if the column has none.
+  if(m && fallbackYear && MONTHS[m[2].toLowerCase()]) return fallbackYear + '-' + pad2(MONTHS[m[2].toLowerCase()]) + '-' + pad2(+m[1]);
+  m = v.match(/^([A-Za-z]{3,9}) (\d{1,2}),? (\d{4})$/);
+  if(m && MONTHS[m[1].slice(0,3).toLowerCase()]) return m[3] + '-' + pad2(MONTHS[m[1].slice(0,3).toLowerCase()]) + '-' + pad2(+m[2]);
+  return null;
+}
+
+function normalize(rows){
+  var header = rows[0].slice();
+  var body = rows.slice(1).map(function(r){ return r.slice(); });
+  var changes = [], limits = [];
+  var n = body.length;
+
+  // 1. trim surrounding whitespace (safe everywhere)
+  var trimmed = 0;
+  body.forEach(function(r){
+    for(var i=0;i<r.length;i++){
+      var before = r[i] === undefined ? '' : String(r[i]);
+      var after = before.trim().replace(/\s+/g, ' ');
+      if(after !== before){ r[i] = after; trimmed++; }
+    }
+  });
+  if(trimmed) changes.push('Trimmed stray spaces in ' + trimmed + ' cell' + (trimmed===1?'':'s'));
+
+  // 2. drop exact duplicate rows (keep first occurrence)
+  var seen = Object.create(null), kept = [], dropped = 0;
+  body.forEach(function(r){
+    var k = r.join('');
+    if(seen[k]){ dropped++; return; }
+    seen[k] = 1; kept.push(r);
+  });
+  body = kept;
+  if(dropped) changes.push('Removed ' + dropped + ' exact duplicate row' + (dropped===1?'':'s') + ' (kept the first of each)');
+
+  header.forEach(function(name, ci){
+    var vals = body.map(function(r){ return (r[ci]===undefined?'':String(r[ci])); });
+    var present = vals.filter(Boolean);
+    if(!present.length) return;
+
+    // 3. case/spacing variants -> the most common spelling in that column
+    var groups = Object.create(null);
+    present.forEach(function(v){
+      var k = v.toLowerCase();
+      (groups[k] = groups[k] || Object.create(null));
+      groups[k][v] = (groups[k][v] || 0) + 1;
+    });
+    var canon = Object.create(null), variantFixes = 0;
+    Object.keys(groups).forEach(function(k){
+      var forms = Object.keys(groups[k]);
+      if(forms.length < 2) return;
+      forms.sort(function(a,b){ return groups[k][b] - groups[k][a]; });
+      canon[k] = forms[0];
+    });
+    if(Object.keys(canon).length){
+      body.forEach(function(r){
+        var v = r[ci] === undefined ? '' : String(r[ci]);
+        var k = v.toLowerCase();
+        if(canon[k] && canon[k] !== v){ r[ci] = canon[k]; variantFixes++; }
+      });
+      if(variantFixes) changes.push('Unified ' + variantFixes + ' value' + (variantFixes===1?'':'s') +
+        ' in "' + name + '" to the spelling already used most often');
+    }
+
+    // 4. mixed date formats -> ISO (only when the column IS mostly dates AND mixed)
+    var shapes = Object.create(null), dateCount = 0, years = Object.create(null);
+    present.forEach(function(v){
+      var s = dateShape(v); if(!s) return;
+      shapes[s] = (shapes[s]||0)+1; dateCount++;
+      var ym = v.match(/(\d{4})/); if(ym) years[ym[1]] = (years[ym[1]]||0)+1;
+    });
+    if(Object.keys(shapes).length > 1 && dateCount > present.length*0.7){
+      var yearKeys = Object.keys(years).sort(function(a,b){ return years[b]-years[a]; });
+      var fallbackYear = yearKeys.length ? yearKeys[0] : null;
+      var dateFixes = 0, dateSkips = 0;
+      body.forEach(function(r){
+        var v = r[ci] === undefined ? '' : String(r[ci]);
+        if(!v || !dateShape(v)) return;
+        var iso = toISO(v, fallbackYear);
+        if(iso === null){ dateSkips++; return; }
+        if(iso !== v){ r[ci] = iso; dateFixes++; }
+      });
+      if(dateFixes) changes.push('Converted ' + dateFixes + ' date' + (dateFixes===1?'':'s') +
+        ' in "' + name + '" to one format (YYYY-MM-DD)' +
+        (fallbackYear ? ', using ' + fallbackYear + ' where the file gave no year' : ''));
+      if(dateSkips) limits.push(dateSkips + ' value' + (dateSkips===1?'':'s') + ' in "' + name +
+        '" were left alone -- the date was too ambiguous to convert safely');
+    }
+
+    // 5. mixed number formats -> plain numbers (parens = negative, per accounting convention)
+    var nshapes = Object.create(null), numCount = 0;
+    present.forEach(function(v){ var s = numberShape(v); if(s){ nshapes[s]=(nshapes[s]||0)+1; numCount++; } });
+    if(Object.keys(nshapes).length > 1 && numCount > present.length*0.6){
+      var numFixes = 0;
+      body.forEach(function(r){
+        var v = r[ci] === undefined ? '' : String(r[ci]);
+        if(!v || !numberShape(v)) return;
+        var neg = /^\(.*\)$/.test(v);
+        var plain = v.replace(/[$,\s()]/g, '');
+        if(neg) plain = '-' + plain;
+        if(plain !== v){ r[ci] = plain; numFixes++; }
+      });
+      if(numFixes) changes.push('Made ' + numFixes + ' value' + (numFixes===1?'':'s') + ' in "' + name +
+        '" plain numbers so SUM() stops skipping them (kept parentheses as negatives)');
+    }
+  });
+
+  return { rows: [header].concat(body), changes: changes, limits: limits, removed: dropped };
+}
+
+function toCSV(rows){
+  return rows.map(function(r){
+    return r.map(function(cell){
+      var v = cell === undefined || cell === null ? '' : String(cell);
+      return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    }).join(',');
+  }).join('\r\n') + '\r\n';
+}
+
 var SAMPLE = 'Invoice No,Date,Customer,Amount,Status,Notes\n' +
 '1001,2026-07-01,Acme Roofing,"$1,250.00",Paid,\n' +
 '1002,07/02/2026,Baker Law,1980,Paid ,\n' +
@@ -450,11 +601,33 @@ function render(name, result){
   rep.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
+var pendingClean = null;
+
+function showFix(name, rows){
+  var panel = document.getElementById('hc-fix');
+  var result;
+  try { result = normalize(rows); } catch(e){ panel.style.display = 'none'; return; }
+  if(!result.changes.length){
+    panel.style.display = 'none';   // nothing a script can safely fix -- don't offer
+    pendingClean = null;
+    return;
+  }
+  pendingClean = { name: name.replace(/\.(csv|tsv|txt)$/i, '') + '-cleaned.csv', rows: result.rows };
+  document.getElementById('hc-change-list').innerHTML =
+    result.changes.map(function(c){ return '<li>' + esc(c) + '</li>'; }).join('');
+  var limits = result.limits.slice();
+  limits.push('It will NOT guess: blanks stay blank, near-duplicate rows that are not identical ' +
+    'stay put, and no formula is touched. Those need a person to decide -- that is what the $300 cleanup is.');
+  document.getElementById('hc-limits').innerHTML = limits.map(esc).join(' ');
+  panel.style.display = 'block';
+}
+
 function handleText(name, text){
   try {
     var rows = parseCSV(text);
     if(!rows.length){ alert('That file appears to be empty.'); return; }
     render(name, analyze(rows));
+    showFix(name, rows);
   } catch(e){
     alert('Could not analyze that file. If it is an Excel workbook, save it as CSV first.');
   }
@@ -475,6 +648,17 @@ input.addEventListener('change', function(){ handleFile(input.files[0]); });
 ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('is-over'); }); });
 drop.addEventListener('drop', function(e){ handleFile(e.dataTransfer.files[0]); });
 document.getElementById('hc-sample').addEventListener('click', function(){ handleText('sample-invoices.csv', SAMPLE); });
+document.getElementById('hc-download').addEventListener('click', function(){
+  if(!pendingClean) return;
+  // Blob + object URL: the file is assembled in the page and handed to the
+  // browser's own download. Still nothing leaves the machine.
+  var blob = new Blob([toCSV(pendingClean.rows)], {type:'text/csv;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = pendingClean.name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+});
 })();
 </script>
 
