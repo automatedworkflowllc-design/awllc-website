@@ -114,6 +114,13 @@ DEMOS = [
 ]
 
 ENGINEERING = [
+    ("Automation Monitoring", "/automation-monitoring/",
+     "The recurring service: we watch your automations weekly and send an evidence report. "
+     "Checks the two things nobody else does &mdash; whether the data <em>inside</em> a fresh file "
+     "is actually current, and whether a report has quietly stopped changing.",
+     "Sold on a true story: our own trading digest served Friday's data under Monday's timestamp "
+     "the day the service page was built. The embedded report is that catch, verbatim.",
+     ["Service", "$99/mo"]),
     ("flatline", "/flatline/",
      "An open-source reliability tool that finds signals carrying no information and jobs producing "
      "nothing: a check that fires on 100% of rows, a scheduled task that reports success while "

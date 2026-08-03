@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Builds — The Free Tools and Systems Actually Running</title>
-<meta name="description" content="Every tool Automated Workflow has shipped: five free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a crisis directory.">
-<link rel="canonical" href="https://automatedworkflowllc.com/builds/">
+<title>Automation Monitoring — We Catch What Only Looks Fine</title>
+<meta name="description" content="Your automations can fail while reporting success. We watch them weekly and send an evidence report — freshness, real content, actual change.">
+<link rel="canonical" href="https://automatedworkflowllc.com/automation-monitoring/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Builds — The Free Tools and Systems Actually Running">
-<meta property="og:description" content="Every tool Automated Workflow has shipped: five free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a crisis directory.">
-<meta property="og:url" content="https://automatedworkflowllc.com/builds/">
+<meta property="og:title" content="Automation Monitoring — We Catch What Only Looks Fine">
+<meta property="og:description" content="Your automations can fail while reporting success. We watch them weekly and send an evidence report — freshness, real content, actual change.">
+<meta property="og:url" content="https://automatedworkflowllc.com/automation-monitoring/">
 <meta property="og:image" content="https://automatedworkflowllc.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 
@@ -172,26 +172,36 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
 <link rel="manifest" href="/site.webmanifest?v=1">
 <style>
-/* ---- builds index ---- */
-.bd-lede{max-width:42rem;color:var(--ink-soft)}
-.bd-sec{margin:2.4rem 0 .9rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;
-color:var(--ink-soft);border-bottom:1px solid var(--line);padding-bottom:.4rem}
-.bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
-@media(max-width:720px){.bd-grid{grid-template-columns:1fr}}
-.bd-card{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:1.1rem 1.2rem;
-display:flex;flex-direction:column}
-.bd-card h3{margin:0 0 .2rem;font-size:1.02rem}
-.bd-card h3 a{text-decoration:none}
-.bd-card h3 a:hover{text-decoration:underline}
-.bd-what{margin:0 0 .6rem;font-size:.9rem;color:var(--ink-soft);flex:1}
-.bd-proof{margin:0 0 .7rem;font-size:.82rem;color:var(--ink-soft);border-left:2px solid var(--line-strong);
-padding-left:.6rem}
-.bd-tags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:auto}
-.bd-tag{font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);
-border-radius:.3rem;padding:.12rem .42rem;color:var(--ink-soft)}
-.bd-tag.live{border-color:var(--accent);color:var(--accent)}
-.bd-note{margin:2.2rem 0 0;padding:1.1rem 1.2rem;border:1px solid var(--line);border-radius:12px;
-background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
+/* ---- monitoring service ---- */
+.am-lede{max-width:41rem;font-size:1.05rem}
+.am-story{border-left:4px solid #B4452C;background:var(--card);border-radius:.6rem;
+padding:1.1rem 1.3rem;margin:1.6rem 0;max-width:44rem}
+.am-story .when{font-family:var(--mono);font-size:.75rem;color:var(--ink-soft)}
+.am-checks{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));margin:1.2rem 0 0}
+.am-check{border:1px solid var(--line);border-radius:.7rem;padding:.9rem 1.1rem;background:var(--bg-soft)}
+.am-check b{font-family:var(--mono);font-size:.85rem;display:block;margin-bottom:.25rem}
+.am-check.hot{border-color:var(--line-strong);background:var(--card)}
+.am-check span{font-size:.88rem;color:var(--ink-soft)}
+.am-frame{border:1px solid var(--line-strong);border-radius:12px;background:var(--card);
+padding:1.3rem 1.5rem;margin:1.3rem 0}
+.am-frame .cap{font-size:.8rem;color:var(--ink-soft);margin:0 0 .8rem;font-family:var(--mono)}
+.am-frame .verdict{border:1px solid var(--line-strong);border-left:6px solid #B4452C;border-radius:.5rem;
+background:var(--bg-soft);padding:.8rem 1rem;font-weight:700;margin:0 0 .8rem}
+.am-frame .w{background:var(--bg-soft);border:1px solid var(--line);border-radius:.5rem;
+padding:.7rem .95rem;margin:0 0 .5rem}
+.am-frame .hd{display:flex;gap:.55rem;align-items:baseline;flex-wrap:wrap}
+.am-frame .nm{font-weight:600}
+.am-frame code{font-family:var(--mono);font-size:.75rem;color:var(--ink-soft)}
+.am-frame p{margin:.3rem 0 0;font-size:.86rem;color:var(--ink-soft)}
+.am-frame .mt{margin-top:.25rem;font-size:.74rem;color:var(--ink-soft);font-family:var(--mono)}
+.am-price{display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));margin:1.2rem 0 0}
+.am-tier{border:1px solid var(--line);border-radius:.8rem;background:var(--card);padding:1.1rem 1.25rem}
+.am-tier b{font-size:1.25rem;font-family:var(--mono)}
+.am-tier .per{font-size:.8rem;color:var(--ink-soft)}
+.am-tier ul{margin:.5rem 0 0;padding-left:1.1rem;font-size:.88rem;color:var(--ink-soft)}
+.am-tier li{margin:.2rem 0}
+.am-cta{margin-top:1.8rem;padding:1.4rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
+.am-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
 </style>
 </head>
 <body>
@@ -218,30 +228,80 @@ background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
     <a class="header-cta" href="mailto:colin@automatedworkflowllc.com?subject=Spreadsheet%20cleanup%20%E2%80%94%20free%20mini-demo&amp;body=Hi%20Colin%2C%0A%0AHere%27s%20the%20messy%20spreadsheet%20that%27s%20driving%20me%20crazy%3A%20">Send your file &rarr;</a>
   </div>
 </header>
-<main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3.5rem;max-width:54rem">
-  <h1 style="margin-bottom:.4rem">Builds</h1>
-  <p class="bd-lede">Everything below is running right now &mdash; a tool you can press, a demo you
-  can click, or a repository you can read. No mockups, no "coming soon". If a number appears on this
-  page, it is one that was measured, and the card says how.</p>
+<main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
+  <h1 style="margin-bottom:.4rem">Your automations can fail<br>while reporting success.</h1>
+  <p class="am-lede" style="color:var(--ink-soft)">
+    The expensive failures don't throw errors. The backup writes a file &mdash; empty. The report
+    arrives on time &mdash; with last week's numbers. The sync says "done" &mdash; having synced
+    nothing. Normal monitoring can't see any of this, because normal monitoring checks whether the
+    job <em>ran</em>, not whether it <em>produced</em>.
+  </p>
 
-  <div class="bd-sec">Free tools &mdash; press them, nothing uploads</div>
-  <p class="bd-lede" style="margin-bottom:.9rem;font-size:.9rem">Each one runs entirely in your
-  browser. There is no server to send your file to &mdash; open the network tab and watch: after the
-  page loads, zero requests. That is architecture, not a privacy policy.</p>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/starter/">Job &amp; Invoice Tracker  ·  no file needed</a></h3><p class="bd-what">Every other tool here asks you to upload something first. This one asks for nothing &mdash; press a button and it builds you a working Excel tracker where unbilled jobs and invoices past 60 days flag themselves.</p><p class="bd-proof">A real .xlsx assembled in your browser with no library and no upload &mdash; verified to open with formulas intact and amounts stored as numbers, not text.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/check/">Business File Check  ·  start here</a></h3><p class="bd-what">One drop zone for any business export. It works out what the file is from its columns &mdash; invoices, roster, customer list, job log &mdash; runs every check that applies, and reconciles two files against each other if you drop a pair.</p><p class="bd-proof">On its sample pair it returns 8 findings with zero configuration and puts a number on the damage: <strong>$1,240 of finished work that was never invoiced</strong>. <a href="/check/example/">See a real report</a> before uploading anything.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/spreadsheet-health-check/">Spreadsheet Health Check</a></h3><p class="bd-what">Drop any CSV and get an honest report: columns that carry no information, status fields that never vary, mixed date formats, duplicate rows. Then download the file with the judgment-free problems already fixed.</p><p class="bd-proof">On its sample: 6 findings down to 2 after the automatic fix &mdash; and the two that remain are exactly the ones a script must not touch.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/money-leak-finder/">Money Leak Finder</a></h3><p class="bd-what">Two exports every business already has &mdash; the work log and the invoices &mdash; lined up so only the mismatches show: finished jobs nobody billed, invoices sitting unpaid past 60 days.</p><p class="bd-proof">Matches on exact ID only, and says so on the report. Nothing fuzzy, nothing guessed.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/duplicate-customer-finder/">Duplicate Customer Finder</a></h3><p class="bd-what">Acme Roofing. Acme Roofing LLC. acme roofing inc. Three rows, one customer &mdash; inflating your count, splitting revenue history, and sending the mail merge three times.</p><p class="bd-proof">Every group states why it grouped: identical after ignoring case, punctuation and legal suffixes, or a near-miss typo worth a human glance.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/shift-coverage-check/">Shift Coverage Check</a></h3><p class="bd-what">For anyone who runs on a roster &mdash; senior living, clinics, restaurants, facilities. Finds days a role is uncovered, staff crossing 40 hours, roles only one person can fill, and turnarounds too short to be safe.</p><p class="bd-proof">Reads the columns itself and shows which ones it used. Deliberately never proposes who should work when &mdash; that is the manager's call, not a CSV's.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article></div>
+  <div class="am-story">
+    <p class="when">2026-08-03 · 16:52 · our own machine</p>
+    <p style="margin:.3rem 0 0"><strong>This happened to us the day we built this page.</strong>
+    Our own trading digest fired on schedule, wrote its output file, and passed every freshness
+    check we had &mdash; while serving <em>Friday's</em> data under <em>Monday's</em> timestamp.
+    An AI summary layer then narrated three-day-old prices in the present tense, confidently.
+    Every monitor said healthy, because every monitor judged the file, not the content.
+    The report below is the catch, from the tool we built the same afternoon.</p>
+  </div>
 
-  <div class="bd-sec">Client work &mdash; live demos</div>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/demo/">Live KPI Dashboard</a></h3><p class="bd-what">A real, self-updating Google Sheets dashboard on sample data &mdash; revenue, jobs, overdue invoices. Click the tabs, tap the chart. No login, no signup.</p><p class="bd-proof">This is the $650 Automated Dashboard, running &mdash; not a screenshot of one.</p><div class="bd-tags"><span class="bd-tag live">Live demo</span><span class="bd-tag">Interactive</span></div></article><article class="bd-card"><h3><a href="/ai-business-pulse/">AI Business Pulse</a></h3><p class="bd-what">The flagship retainer: every Monday an AI reads your live numbers, writes a plain-English summary, and drafts chase emails for money you're owed.</p><p class="bd-proof">Every draft waits for a human approval before anything sends. That gate is the product.</p><div class="bd-tags"><span class="bd-tag">Retainer</span><span class="bd-tag">Human-gated</span></div></article><article class="bd-card"><h3><a href="/staffing-commission-dashboard/">Staffing Commission Dashboard</a></h3><p class="bd-what">A live commission dashboard for a staffing desk that settles splits, draws and fall-off clawbacks by rule instead of by argument.</p><p class="bd-proof">Built for a vertical where the math is the whole disagreement.</p><div class="bd-tags"><span class="bd-tag live">Live demo</span><span class="bd-tag">Vertical</span></div></article><article class="bd-card"><h3><a href="/free/executive-kpi-dashboard.html">Free templates</a></h3><p class="bd-what">Executive KPI dashboard, expense tracker, and a staffing commission tracker &mdash; working Google Sheets templates, no cost, no email required.</p><p class="bd-proof">Take them and never speak to us. That is the point.</p><div class="bd-tags"><span class="bd-tag">Free</span><span class="bd-tag">No signup</span></div></article></div>
+  <h2>What we check that others don't</h2>
+  <div class="am-checks">
+    <div class="am-check"><b>MISSING / EMPTY</b><span>The output exists and isn't a 0-byte file
+      &mdash; the classic backup that has "succeeded" nightly for months.</span></div>
+    <div class="am-check"><b>STALE-FILE</b><span>Written recently enough. This is the one check
+      everyone does &mdash; necessary, nowhere near sufficient.</span></div>
+    <div class="am-check hot"><b>STALE-CONTENT</b><span>The newest date <em>inside</em> the file
+      matches when it was written. A fresh timestamp over old data passes every normal monitor.
+      This is the check that caught our own incident.</span></div>
+    <div class="am-check hot"><b>FROZEN</b><span>The content actually changes between runs. A
+      report rewritten byte-identical for a week is a report nobody is feeding.</span></div>
+  </div>
 
-  <div class="bd-sec">Engineering</div>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/automation-monitoring/">Automation Monitoring</a></h3><p class="bd-what">The recurring service: we watch your automations weekly and send an evidence report. Checks the two things nobody else does &mdash; whether the data <em>inside</em> a fresh file is actually current, and whether a report has quietly stopped changing.</p><p class="bd-proof">Sold on a true story: our own trading digest served Friday's data under Monday's timestamp the day the service page was built. The embedded report is that catch, verbatim.</p><div class="bd-tags"><span class="bd-tag">Service</span><span class="bd-tag">$99/mo</span></div></article><article class="bd-card"><h3><a href="/flatline/">flatline</a></h3><p class="bd-what">An open-source reliability tool that finds signals carrying no information and jobs producing nothing: a check that fires on 100% of rows, a scheduled task that reports success while writing nothing, a branch that can never run.</p><p class="bd-proof">Built after a real scheduled job discarded four days of data while reporting success every run. 108 tests, MIT, public &mdash; the page shows five ways to use it on your own stack.</p><div class="bd-tags"><span class="bd-tag live">Open source</span><span class="bd-tag">MIT</span></div></article><article class="bd-card"><h3><a href="https://automatedworkflowllc-design.github.io/hearth/" target="_blank" rel="noopener">Hearth</a></h3><p class="bd-what">A national crisis-resource directory &mdash; food, shelter, health, legal, support &mdash; built on federal data (HRSA, SAMHSA, USDA, EPA/Hunger Free America) and refreshed automatically.</p><p class="bd-proof">60,000+ live records. Its public health endpoint reports freshness per source, so a stale feed cannot hide behind a fresh one.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Public good</span><span class="bd-tag">Open data</span></div></article><article class="bd-card"><h3><a href="/build-log/">Build log</a></h3><p class="bd-what">How the multi-tenant reporting pipeline behind Automated Workflow is actually assembled &mdash; n8n, Google Sheets, an AI narrative step, and a human approval gate.</p><p class="bd-proof">Written for someone deciding whether this is real engineering or a wrapper.</p><div class="bd-tags"><span class="bd-tag">Write-up</span></div></article></div>
+  <h2 style="margin-top:2.2rem">The weekly evidence report</h2>
+  <p style="max-width:41rem;color:var(--ink-soft)">This is a real one &mdash; the actual catch from
+  our own stack, generated by the same engine that would watch yours. Paths generalized; findings
+  verbatim.</p>
 
-  <div class="bd-note"><strong>Why the tools stop where they stop.</strong> Every free tool above
-  ends at the point where a script would have to guess &mdash; which duplicate is the real customer,
-  what a blank cell means, who should cover Thursday. Those decisions need a person who can ask you
-  a question, which is what the <a href="/spreadsheet-cleanup-service/">$300 cleanup</a> and the
-  <a href="/free-demo/">free 1-day demo</a> are. A tool that guessed there would be faster and
-  worse.</div>
+  <div class="am-frame">
+    <p class="cap">watchpost v0.1.0 · generated 2026-08-03 17:04 · client: our own trading stack</p>
+<div class="verdict">1 PROBLEM(S) FOUND &mdash; 3 watched, 2 OK, 0 warning, 1 failing</div><div class="w"><div class="hd"><b style="color:#B4452C">FAIL</b><span class="nm">Daily pricing digest</span><code>reports/scan_digest.txt</code></div><p>STALE-CONTENT: file written 2026-08-03 but newest date inside it is 2026-07-31 (1 business day(s) behind). Fresh timestamp, old data -- the failure mtime checks cannot see.</p><div class="mt">written 2026-08-03T16:52 &middot; newest data inside: 2026-07-31</div></div><div class="w"><div class="hd"><b style="color:#1F6E66">OK</b><span class="nm">Regime log</span><code>reports/regime_log.csv</code></div><p>fresh file, current content</p><div class="mt">written 2026-07-31T16:48 &middot; newest data inside: 2026-07-31</div></div><div class="w"><div class="hd"><b style="color:#1F6E66">OK</b><span class="nm">Shadow ledger</span><code>reports/shadow_log.csv</code></div><p>fresh file, current content</p><div class="mt">written 2026-08-03T16:52 &middot; newest data inside: 2026-08-03</div></div>
+  </div>
+
+  <h2 style="margin-top:2.2rem">Plans</h2>
+  <div class="am-price">
+    <div class="am-tier">
+      <b>$99</b><span class="per">/month &mdash; Watch</span>
+      <ul>
+        <li>Up to 10 watched outputs (reports, backups, exports, syncs)</li>
+        <li>Weekly evidence report to your inbox</li>
+        <li>Same-day email when something goes quiet</li>
+      </ul>
+    </div>
+    <div class="am-tier">
+      <b>$225</b><span class="per">/month &mdash; Watch + fix</span>
+      <ul>
+        <li>Everything in Watch</li>
+        <li>We fix what we catch &mdash; up to 2 hours of repair a month included</li>
+        <li>Quarterly deep audit of the whole automation stack</li>
+      </ul>
+    </div>
+  </div>
+  <p style="max-width:41rem;color:var(--ink-soft);font-size:.9rem;margin-top:.8rem">
+    Honest scope: this watches <em>outputs on your systems</em> &mdash; files, exports, reports.
+    If your stack is entirely inside SaaS tools with no exportable output, this isn't the right
+    fit yet, and we'll say so on the first call rather than after the first invoice.</p>
+
+  <div class="am-cta">
+    <h2 style="margin-top:0">Start with the free version of the question</h2>
+    <p>Not ready for a retainer? Fair. The one-shot version of this check is free and open source
+      &mdash; <a href="/flatline/">flatline</a> finds what's already quietly dead. Or send one
+      suspicious export through the <a href="/check/">free file check</a> right now.</p>
+    <p style="margin-bottom:0"><a class="btn" href="/free-demo/">Ask about monitoring</a>
+      &nbsp; <a href="/builds/">See everything we've built &rarr;</a></p>
+  </div>
 </main>
 <footer class="site-footer">
   <div class="wrap footer-in">
@@ -265,10 +325,15 @@ background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  "name": "Builds — Automated Workflow",
-  "url": "https://automatedworkflowllc.com/builds/",
-  "description": "Every tool and system Automated Workflow has shipped: four free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a national crisis-resource directory."
+  "@type": "Service",
+  "name": "Automation Monitoring",
+  "url": "https://automatedworkflowllc.com/automation-monitoring/",
+  "provider": { "@type": "Organization", "name": "Automated Workflow" },
+  "description": "Weekly monitoring of business automations with an evidence report: outputs exist, are fresh, contain current data, and actually change between runs.",
+  "offers": [
+    { "@type": "Offer", "price": "99", "priceCurrency": "USD", "description": "Watch: up to 10 outputs, weekly evidence report" },
+    { "@type": "Offer", "price": "225", "priceCurrency": "USD", "description": "Watch + fix: repairs included, quarterly deep audit" }
+  ]
 }
 </script>
 
