@@ -25,6 +25,8 @@ from __future__ import annotations
 import pathlib
 import re
 
+from toolkit import PARSE_DATE_JS
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'check'
@@ -58,6 +60,8 @@ font-size:.85rem}
 .ck-pill.k-bad b{color:#B4452C}
 .ck-pill span{font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
 .ck-sec{margin:1.5rem 0 .5rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.ck-summary{border:1px solid var(--line-strong);border-radius:.7rem;background:var(--bg-soft);
+padding:.95rem 1.15rem;margin:0 0 .4rem;font-size:1rem;line-height:1.55}
 .ck-find{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line-strong);
 border-radius:.6rem;padding:.85rem 1.05rem;margin:0 0 .55rem}
 .ck-find.sev-high{border-left-color:#B4452C}
@@ -309,6 +313,7 @@ function rosterChecks(t, src, findings){
   });
   if(d<0 || p<0) return;
   var hoursBy = Object.create(null), byRole = Object.create(null);
+  var unparsedDates = 0, timedRows = 0;
   t.body.forEach(function(row){
     var person = String(row[p]||'').trim(); if(!person) return;
     if(r>=0){ var role=String(row[r]||'').trim();
@@ -317,10 +322,26 @@ function rosterChecks(t, src, findings){
       var a=parseTime(row[s]), b=parseTime(row[e]);
       if(a===null||b===null) return;
       var span=b-a; if(span<=0) span+=1440;
-      var month = String(row[d]||'').trim().slice(0,7);
+      timedRows++;
+      /* Month key must come from a PARSED date. Slicing the raw string worked
+         for 2026-07-14 and silently broke for 07/14/2026, where slice(0,7)
+         yields "07/14/2" -- a per-DAY bucket. Hours never accumulated into a
+         month, so this check could never fire on a US-formatted file. It
+         reported nothing, which reads exactly like a clean result. */
+      var dt = parseDate(row[d]);
+      if(!dt){ unparsedDates++; return; }
+      var month = dt.getFullYear() + '-' + ('0' + (dt.getMonth()+1)).slice(-2);
       hoursBy[person + SEP + month] = (hoursBy[person + SEP + month]||0) + span/60;
     }
   });
+  /* Never fail silently: if we had hours but could not date them, say so
+     rather than returning an empty result that reads as "no overtime". */
+  if(unparsedDates && unparsedDates > timedRows * 0.5){
+    findings.push({sev:'med', src:src,
+      title:'Could not read the date on ' + unparsedDates + ' shift row(s)',
+      detail:'Hours were found but could not be totalled per month, so the overtime check was ' +
+        'skipped for those rows. Recognised formats are 2026-07-14 and 07/14/2026.'});
+  }
   Object.keys(byRole).forEach(function(role){
     var who = Object.keys(byRole[role]);
     if(who.length === 1) findings.push({sev:'high', src:src,
@@ -352,16 +373,67 @@ function reconcile(a, b, findings){
     });
   });
   if(!best || best.score < 0.2) return false;
-  var inB = Object.create(null); best.cb.vals.forEach(function(v){ inB[v]=1; });
-  var seenA = Object.create(null), missing = [];
-  best.ca.vals.forEach(function(v){ if(!inB[v] && !seenA[v]){ seenA[v]=1; missing.push(v); } });
-  if(missing.length){
-    findings.push({sev:'high', src:'both files',
-      title: missing.length + ' "' + best.ca.name + '" value(s) in file 1 with no match in file 2',
-      detail:'Matched on ' + best.ca.name + ' ↔ ' + best.cb.name + ' by exact ID, nothing fuzzy. Missing: ' +
-        missing.slice(0,12).join(', ') + (missing.length>12 ? ' …' : '') +
-        '. If file 1 is work done and file 2 is work billed, that is unbilled money.'});
+
+  /* Which column carries the money, if any. A finding that says "3 job numbers
+     are missing" is a curiosity; one that says "$1,280 of finished work was
+     never invoiced" is the reason someone calls. Same arithmetic, and the
+     dollar figure is the honest unit for it. */
+  function amountCol(t){
+    var bestC = -1, bestFrac = 0;
+    t.header.forEach(function(h, i){
+      if(!MONEYISH.test(h)) return;
+      var vals = t.col(i).filter(Boolean);
+      if(!vals.length) return;
+      var frac = vals.filter(function(v){ return money(v) !== null; }).length / vals.length;
+      if(frac > 0.6 && frac > bestFrac){ bestFrac = frac; bestC = i; }
+    });
+    return bestC;
   }
+  /* First amount seen per key. Keys repeat when a file has duplicate rows, and
+     counting a duplicate twice would inflate the very number we are asking a
+     business to trust. */
+  function sumFor(t, keyIdx, amtIdx, keys){
+    if(amtIdx < 0) return null;
+    var want = Object.create(null); keys.forEach(function(k){ want[k] = 1; });
+    var taken = Object.create(null), total = 0, counted = 0;
+    t.body.forEach(function(r){
+      var k = String(r[keyIdx]||'').trim();
+      if(!k || !want[k] || taken[k]) return;
+      var v = money(r[amtIdx]);
+      if(v === null) return;
+      taken[k] = 1; total += v; counted++;
+    });
+    return counted ? {total: total, counted: counted} : null;
+  }
+  function fmt(n){ return '$' + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+
+  var aAmt = amountCol(a), bAmt = amountCol(b);
+
+  function side(from, to, fromCol, toCol, fromAmt, label, meaning, sev){
+    var inTo = Object.create(null); toCol.vals.forEach(function(v){ inTo[v]=1; });
+    var seen = Object.create(null), missing = [];
+    fromCol.vals.forEach(function(v){ if(!inTo[v] && !seen[v]){ seen[v]=1; missing.push(v); } });
+    if(!missing.length) return 0;
+    var sum = sumFor(from, fromCol.i, fromAmt, missing);
+    var f = {sev: sev, src:'both files',
+      title: missing.length + ' "' + fromCol.name + '" value(s) ' + label +
+             (sum ? ' — ' + fmt(sum.total) : ''),
+      detail:'Matched on ' + fromCol.name + ' ↔ ' + toCol.name + ' by exact ID, nothing fuzzy. ' +
+        (sum ? meaning + ' Total across ' + sum.counted + ' row(s): ' + fmt(sum.total) + '. ' : meaning + ' ') +
+        'Unmatched: ' + missing.slice(0,12).join(', ') + (missing.length>12 ? ' …' : '') + '.'};
+    if(sum) f.money = sum.total;
+    findings.push(f);
+    return sum ? sum.total : 0;
+  }
+
+  /* Both directions, because they are different business problems. Work with
+     no invoice is revenue you never billed. An invoice with no work order is
+     either a billing error or work nobody logged -- the first is a refund
+     waiting to happen, and it is the one that reaches a customer. */
+  side(a, b, best.ca, best.cb, aAmt,
+       'in file 1 with no match in file 2', 'If file 1 is work done and file 2 is work billed, that is finished work nobody invoiced.', 'high');
+  side(b, a, best.cb, best.ca, bAmt,
+       'in file 2 with no match in file 1', 'Billed with no matching record in file 1 — either a billing error or work that was never logged.', 'med');
   return true;
 }
 
@@ -379,10 +451,20 @@ function runAll(files){
     if(x.c.kind !== 'roster') nameCollisions(x.t, x.name, findings);
     if(x.c.kind === 'roster') rosterChecks(x.t, x.name, findings);
   });
-  if(tables.length === 2) reconcile(tables[0].t, tables[1].t, findings);
+  var reconciled = false;
+  if(tables.length === 2) reconciled = reconcile(tables[0].t, tables[1].t, findings);
   var order = {high:0, med:1, info:2};
-  findings.sort(function(a,b){ return order[a.sev]-order[b.sev]; });
-  return { findings: findings, meta: meta };
+  /* Within a severity band, lead with the largest dollar figure. Someone
+     skimming reads the first line, and it should be the expensive one. */
+  findings.sort(function(a,b){
+    return (order[a.sev]-order[b.sev]) || ((b.money||0) - (a.money||0));
+  });
+  /* Only money that is genuinely at risk -- unbilled work and billing with no
+     backing record. Deliberately NOT a sum of every dollar in the files, which
+     would be a big meaningless number. */
+  var atRisk = findings.reduce(function(s, f){ return s + (f.money || 0); }, 0);
+  return { findings: findings, meta: meta, atRisk: atRisk, reconciled: reconciled,
+           filesGiven: tables.length };
 }
 
 var last = null;
@@ -396,10 +478,34 @@ function render(res){
     return '<div class="ck-file"><b>'+esc(m.name)+'</b><span>read as: '+esc(m.label)+
       ' &middot; '+m.rows+' rows &times; '+m.cols+' cols</span></div>';
   }).join('');
+  function fmtUSD(n){ return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
   document.getElementById('ck-tally').innerHTML =
+    (res.atRisk > 0 ? '<div class="ck-pill k-bad"><b>'+fmtUSD(res.atRisk)+'</b><span>money at risk</span></div>' : '') +
     '<div class="ck-pill'+(counts.high?' k-bad':'')+'"><b>'+counts.high+'</b><span>needs attention</span></div>' +
     '<div class="ck-pill"><b>'+counts.med+'</b><span>worth checking</span></div>';
   var out='', lastSev=null;
+
+  /* Plain-language summary before the list. Someone who reads one sentence
+     should still leave knowing whether this cost them anything, and the
+     summary must never imply we checked something we did not. */
+  var summary;
+  if(res.atRisk > 0){
+    summary = 'Across ' + res.meta.length + ' file' + (res.meta.length===1?'':'s') + ', ' +
+      fmtUSD(res.atRisk) + ' is sitting in records that do not agree with each other, plus ' +
+      counts.high + ' other item' + (counts.high===1?'':'s') + ' worth attention.';
+  } else if(res.findings.length){
+    summary = 'No money was found stranded between these files, but ' + counts.high +
+      ' item' + (counts.high===1?' needs':'s need') + ' attention and ' + counts.med + ' more ' +
+      (counts.med===1?'is':'are') + ' worth a look.';
+  } else { summary = ''; }
+  if(res.filesGiven === 1){
+    summary += ' Only one file was given, so nothing could be cross-checked — ' +
+      'add the matching file (jobs and invoices, hours and payroll) to find money stranded between them.';
+  } else if(res.filesGiven === 2 && !res.reconciled){
+    summary += ' The two files share no column with matching values, so they could not be ' +
+      'cross-checked against each other. Each was still checked on its own.';
+  }
+  if(summary) out += '<div class="ck-summary">'+esc(summary.trim())+'</div>';
   if(!res.findings.length){
     out = '<div class="ck-clean"><strong>Nothing found.</strong> Every column varies, dates and ' +
       'numbers are consistent, no duplicate rows, no name collisions. That is the result you ' +
@@ -435,10 +541,15 @@ function reportHTML(res){
     '.f h3{margin:0 0 .2rem;font-size:1rem}.f p{margin:.2rem 0 0;color:#4A4538;font-size:.9rem}' +
     '.s{font-family:ui-monospace,monospace;font-size:.78rem;color:#4A4538}' +
     '.clean{border-left:4px solid #1F6E66;padding:.8rem 1rem;background:#E9E4D4;border-radius:.5rem}' +
+    '.risk{border:1px solid #B0A78D;border-left:4px solid #B4452C;background:#E9E4D4;border-radius:.5rem;' +
+    'padding:.8rem 1rem;margin:0 0 1rem}.risk strong{font-size:1.3rem;font-family:ui-monospace,monospace}' +
     'footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #D8D1BD;font-size:.82rem;color:#4A4538}' +
     '</style></head><body>' +
     '<h1>Business file check</h1><p class="sub">Generated ' + esc(when) +
     ' &middot; analysis ran entirely in the browser; no file was uploaded.</p>' +
+    (res.atRisk > 0 ? '<div class="risk"><strong>' +
+      '$' + Math.round(res.atRisk).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') +
+      '</strong> is sitting in records that do not agree with each other. Detail below.</div>' : '') +
     res.meta.map(function(m){ return '<div class="file"><strong>'+esc(m.name)+'</strong> — read as ' +
       esc(m.label) + ', ' + m.rows + ' rows &times; ' + m.cols + ' cols</div>'; }).join('') +
     '<h2 style="font-size:1rem;margin:1.4rem 0 .6rem">Findings</h2>' + rows +
@@ -542,7 +653,13 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
     head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
 
-    page = head + MAIN + footer + LD + SCRIPT + '\n</body>\n</html>\n'
+    # The roster overtime check needs a real parsed date, not a sliced string.
+    # Taken from the shared toolkit rather than hand-copied, so it cannot drift
+    # from the identical parser the other tool pages use.
+    script = SCRIPT.replace('function parseTime(', PARSE_DATE_JS.strip() + '\n\nfunction parseTime(', 1)
+    if 'function parseDate' not in script:
+        raise SystemExit('parseDate was not injected -- the parseTime anchor moved; fix before shipping')
+    page = head + MAIN + footer + LD + script + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')
