@@ -1,0 +1,37 @@
+#!/bin/sh
+# Canonical pre-push gate. THIS file is the versioned source of truth.
+#
+# Install it in a checkout with:
+#     cp _qa/hooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+#
+# Why it lives here: .git/hooks is not versioned, so on 2026-08-03 this gate
+# existed in the Documents checkout and was simply absent from the dev one.
+# Every push from dev ran with the gates advisory rather than enforced, which
+# means the folder you happened to be sitting in decided whether a secret could
+# reach the public site. A gate that depends on your working directory is not a
+# gate. Git cannot version .git/hooks itself, so the honest fix is: keep the
+# real script in the repo where a diff can see it, and install it per checkout.
+#
+# Bypass in a real emergency with: git push --no-verify
+#
+# Note that seo_audit and autoqa are REGRESSION gates -- they fail when the
+# defect count rises above the recorded baseline, not when it is merely
+# non-zero. Both baselines are currently 0, so any new defect blocks.
+echo "Security sweep: scanning public surface for secrets..."
+python _qa/security_sweep.py || {
+  echo ""
+  echo "PUSH BLOCKED — a secret or internal ID would go public. Redact/rotate first."
+  exit 1
+}
+echo "AutoQA: checking artifacts before push..."
+python _qa/autoqa.py --fast || {
+  echo ""
+  echo "PUSH BLOCKED — defect count regressed. Fix, or push with --no-verify."
+  exit 1
+}
+echo "SEO audit: checking metadata/schema/sitemap/NAP before push..."
+python _qa/seo_audit.py || {
+  echo ""
+  echo "PUSH BLOCKED — SEO defect count regressed. Fix, or push with --no-verify."
+  exit 1
+}
