@@ -343,7 +343,12 @@ def sec_engineering(k=C.ENG):
     return Block(html=html, needs=('/build-log/',))
 
 
-CHIP_CLASS = {'LIVE': 'wl-live', 'BUILDING': 'wl-building', 'DESIGNED': 'wl-designed'}
+# RUNNING means: built, published, and firing on a schedule -- but on Colin's OWN business.
+# It is deliberately NOT 'LIVE', which is reserved for "running for a paying customer" and is
+# therefore unusable until one exists. The copy next to every RUNNING chip has to say whose
+# data it runs on; G-RUNNING asserts that below.
+CHIP_CLASS = {'LIVE': 'wl-live', 'RUNNING': 'wl-live',
+              'BUILDING': 'wl-building', 'DESIGNED': 'wl-designed'}
 
 
 def sec_workflows(k=C.WORKFLOWS):
@@ -733,7 +738,18 @@ def main():
 
     # --- status chips can only be one of three values, and they live in one list
     chips = [w['status'] for w in C.WORKFLOWS['rows']]
-    gate('G-CHIPS', all(c in ('LIVE', 'BUILDING', 'DESIGNED') for c in chips), ' '.join(chips))
+    gate('G-CHIPS', all(c in ('LIVE', 'RUNNING', 'BUILDING', 'DESIGNED') for c in chips),
+         ' '.join(chips))
+
+    # --- a RUNNING chip is only honest while the page says whose data it runs on, and while
+    #     nothing anywhere claims a customer. LIVE stays banned until one exists.
+    running_ok = True
+    if 'RUNNING' in chips:
+        running_ok = ('on my own business' in page and 'not a customer' in page
+                      and 'LIVE' not in chips)
+    gate('G-RUNNING', running_ok,
+         '%d RUNNING chip(s); whose-data qualifier + no-customer disclaimer present'
+         % chips.count('RUNNING'))
 
     # --- motion: every keyframe is neutralised under prefers-reduced-motion, or exempt
     MOTION_EXEMPT = {'gcRun': '.gc-dot animation:none !important in the reduce block',
@@ -764,7 +780,14 @@ def main():
     bad_ext = [u for u in ext if not u.startswith(OUTBOUND_OK)]
     net = [b for b in ('fetch(', 'XMLHttpRequest', 'sendBeacon', 'importScripts',
                        "addEventListener('scroll'") if b in js]
-    perf_ok = content <= 92_000 and len(js) <= 12_000 and not bad_ext and not net
+    # 2026-08-03: re-baselined 92_000 -> 93_500, deliberately and once. W1 and W2 started
+    # actually running, so the workflow rail gained the two RUNNING rows, the whose-data
+    # qualifiers G-RUNNING now enforces, and the "they run for me, not a customer" paragraph.
+    # That is ~1.2KB of disclosure, and shaving honest copy to hold a round number is the
+    # wrong trade. The number stays a HARD gate so drift still blocks the build. If this page
+    # ever genuinely needs to lose weight, the lever is the 272KB font payload -- subsetting
+    # it beats every word of copy on the page combined, by a factor of roughly 200.
+    perf_ok = content <= 93_500 and len(js) <= 12_000 and not bad_ext and not net
     gate('G-PERF', perf_ok, '%d content + %d font = %d raw / %d gzip - js %d - %d external refs%s'
          % (content, font_bytes, len(page), len(gzip.compress(page.encode('utf-8'), 9)),
             len(js), len(bad_ext), '' if not net else ' NETWORK CALL: %s' % net))

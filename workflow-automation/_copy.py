@@ -346,37 +346,42 @@ ENG = {
              'lunch. It&rsquo;s the four times I didn&rsquo;t trust it yet.'),
 }
 
-# status must be one of LIVE / BUILDING / DESIGNED (asserted at build time).
-# Conservative per the build brief: nothing is LIVE for anyone; W1 is being built now.
+# status must be one of LIVE / RUNNING / BUILDING / DESIGNED (asserted at build time).
+# LIVE is reserved for "running for a paying customer" and is therefore unused -- there isn't
+# one. RUNNING means built, published and firing on a schedule against Colin's OWN data.
 WORKFLOWS = {
     'eyebrow': 'What I&rsquo;d build you',
     'h2': 'Five systems. Same five layers underneath.',
-    'intro': ('Each of these is the same architecture wearing a different job. One is being built right '
-              'now; the other four are designs I&rsquo;ll build the first time somebody needs one. None '
-              'of them is running for a customer yet, and I&rsquo;ll always tell you which is which.'),
-    'honesty': ('Four of these are designs, not builds. They get built for the first person who wants '
-                'one &mdash; I&rsquo;d rather label them honestly than let a status chip imply '
-                'otherwise.'),
+    'intro': ('Each is the same architecture wearing a different job. Two run every week on my own '
+              'business right now &mdash; my invoices, my contact form &mdash; which is how I know '
+              'the wiring holds before I point it at yours. The other three are designs.'),
+    'honesty': ('To be exact: the two that run, run for <em>me</em> &mdash; not a customer. That is '
+                'the difference between a system that works and a system with a track record, and '
+                'I&rsquo;d rather draw that line than let a green chip draw it for you. The other '
+                'three get built for the first person who wants one.'),
     'closing': ('All of it runs on tools you already have &mdash; Google Sheets, Gmail, your existing '
                 'forms. There&rsquo;s no new software for your people to learn, which is the reason the '
                 'spreadsheet won in the first place.'),
     'cta': ('Which one sounds like your week? &rarr;', MAILTO_PLAIN),
     'rows': [
-        dict(id='W1', name='Money Leak Autopilot', status='BUILDING', price='$1,000 + $250&ndash;500/mo',
+        dict(id='W1', name='Money Leak Autopilot', status='RUNNING', price='$1,000 + $250&ndash;500/mo',
              what='Every week the system reads your work log and your invoice export, the sheet&rsquo;s '
                   'own formulas flag the jobs that finished and never got billed plus everything aging '
                   'past 30 and 60 days, an AI writes you a short digest, and the chase emails draft '
                   'themselves in a tone that matches each invoice&rsquo;s age. Then everything stops and '
                   'waits for you.',
-             note='You&rsquo;ve already used the miniature version &mdash; the approve panel above is '
-                  'this system&rsquo;s follow-up half, running on invented data.'),
-        dict(id='W2', name='Lead Concierge', status='DESIGNED', price='$650 install',
+             note='Fires every Monday at 7am on my own books. The digest quotes the sheet&rsquo;s '
+                  'figures rather than adding them up itself &mdash; a model doing arithmetic is a '
+                  'model you can&rsquo;t check.'),
+        dict(id='W2', name='Lead Concierge', status='RUNNING', price='$650 install',
              what='An inquiry arrives, by form or by inbox. Within minutes it&rsquo;s a tracked row, a '
                   'notification, and a drafted personal reply waiting for your approval &mdash; and if '
                   'it&rsquo;s still unanswered in 24 hours, the system tells on itself. Most lost leads '
                   'aren&rsquo;t lost to competitors. They&rsquo;re lost to Tuesday.',
-             note='I&rsquo;m wiring this to my own contact form first, because a demo I can&rsquo;t run '
-                  'on myself isn&rsquo;t a demo.'),
+             note='Wired to the contact form on this site, so you can test it rather than take my '
+                  'word: send something through and a drafted reply waits in my inbox within about '
+                  'fifteen minutes. When a submission came in empty, the draft said so instead of '
+                  'inventing a reason to talk to me &mdash; that refusal is the part I care about.'),
         dict(id='W3', name='Invoice Chase Queue, live edition', status='DESIGNED',
              price='$500&ndash;750 install',
              what='The chase spreadsheet with a live layer on top: the sheet that chases for you. '
