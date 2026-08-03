@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Builds — Things That Are Actually Running</title>
-<meta name="description" content="Every tool and system Automated Workflow has shipped: four free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a national crisis-resource directory.">
-<link rel="canonical" href="https://automatedworkflowllc.com/builds/">
+<title>Flatline — Find Automations That Quietly Stopped Working</title>
+<meta name="description" content="Free open-source tool that finds scheduled jobs and reports that succeed while doing nothing: dead signals, silent no-ops, swallowed errors. MIT licensed.">
+<link rel="canonical" href="https://automatedworkflowllc.com/flatline/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Builds — Things That Are Actually Running">
-<meta property="og:description" content="Every tool and system Automated Workflow has shipped: four free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a national crisis-resource directory.">
-<meta property="og:url" content="https://automatedworkflowllc.com/builds/">
+<meta property="og:title" content="Flatline — Find Automations That Quietly Stopped Working">
+<meta property="og:description" content="Free open-source tool that finds scheduled jobs and reports that succeed while doing nothing: dead signals, silent no-ops, swallowed errors. MIT licensed.">
+<meta property="og:url" content="https://automatedworkflowllc.com/flatline/">
 <meta property="og:image" content="https://automatedworkflowllc.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 
@@ -172,26 +172,28 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
 <link rel="manifest" href="/site.webmanifest?v=1">
 <style>
-/* ---- builds index ---- */
-.bd-lede{max-width:42rem;color:var(--ink-soft)}
-.bd-sec{margin:2.4rem 0 .9rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;
-color:var(--ink-soft);border-bottom:1px solid var(--line);padding-bottom:.4rem}
-.bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
-@media(max-width:720px){.bd-grid{grid-template-columns:1fr}}
-.bd-card{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:1.1rem 1.2rem;
-display:flex;flex-direction:column}
-.bd-card h3{margin:0 0 .2rem;font-size:1.02rem}
-.bd-card h3 a{text-decoration:none}
-.bd-card h3 a:hover{text-decoration:underline}
-.bd-what{margin:0 0 .6rem;font-size:.9rem;color:var(--ink-soft);flex:1}
-.bd-proof{margin:0 0 .7rem;font-size:.82rem;color:var(--ink-soft);border-left:2px solid var(--line-strong);
-padding-left:.6rem}
-.bd-tags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:auto}
-.bd-tag{font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);
-border-radius:.3rem;padding:.12rem .42rem;color:var(--ink-soft)}
-.bd-tag.live{border-color:var(--accent);color:var(--accent)}
-.bd-note{margin:2.2rem 0 0;padding:1.1rem 1.2rem;border:1px solid var(--line);border-radius:12px;
-background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
+/* ---- flatline explainer ---- */
+.fl-lede{font-size:1.08rem;max-width:40rem}
+.fl-bad{border-left:4px solid #B4452C;background:var(--card);border-radius:.6rem;
+padding:1rem 1.2rem;margin:1.6rem 0;max-width:42rem}
+.fl-bad code{font-family:var(--mono);font-size:.85rem}
+.fl-uses{display:grid;gap:.8rem;margin:1.2rem 0 0}
+.fl-use{border:1px solid var(--line);border-radius:.7rem;background:var(--card);padding:1rem 1.2rem}
+.fl-use h3{margin:0 0 .3rem;font-size:1rem}
+.fl-use .sym{color:var(--ink-soft);font-size:.92rem;margin:0 0 .5rem}
+.fl-use .fix{margin:0;font-size:.9rem;padding-left:.7rem;border-left:2px solid var(--line-strong)}
+.fl-use .fix b{font-family:var(--mono);font-size:.82rem}
+.fl-checks{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));margin:1.2rem 0 0}
+.fl-check{border:1px solid var(--line);border-radius:.6rem;padding:.8rem 1rem;background:var(--bg-soft)}
+.fl-check b{font-family:var(--mono);font-size:.9rem;display:block;margin-bottom:.2rem}
+.fl-check span{font-size:.88rem;color:var(--ink-soft)}
+.fl-caught{margin:1.2rem 0 0;padding-left:1.15rem;max-width:42rem}
+.fl-caught li{margin:.45rem 0}
+.fl-run{border:1px solid var(--line);border-radius:12px;background:var(--bg-soft);padding:1.3rem;margin:1.6rem 0 0}
+.fl-run pre{font-family:var(--mono);font-size:.85rem;background:var(--card);border:1px solid var(--line);
+border-radius:.5rem;padding:.8rem 1rem;overflow-x:auto;margin:.6rem 0}
+.fl-cta{margin-top:2rem;padding:1.4rem;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.fl-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
 </style>
 </head>
 <body>
@@ -218,30 +220,110 @@ background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
     <a class="header-cta" href="mailto:colin@automatedworkflowllc.com?subject=Spreadsheet%20cleanup%20%E2%80%94%20free%20mini-demo&amp;body=Hi%20Colin%2C%0A%0AHere%27s%20the%20messy%20spreadsheet%20that%27s%20driving%20me%20crazy%3A%20">Send your file &rarr;</a>
   </div>
 </header>
-<main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3.5rem;max-width:54rem">
-  <h1 style="margin-bottom:.4rem">Builds</h1>
-  <p class="bd-lede">Everything below is running right now &mdash; a tool you can press, a demo you
-  can click, or a repository you can read. No mockups, no "coming soon". If a number appears on this
-  page, it is one that was measured, and the card says how.</p>
+<main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
+  <h1 style="margin-bottom:.4rem">Your automations report success.<br>That is not the same as working.</h1>
+  <p class="fl-lede" style="color:var(--ink-soft)">
+    Monitoring watches for errors. The expensive failures do not throw one &mdash; the job runs,
+    the log gets written, the exit code is zero, and nothing actually happened. Flatline is a free
+    open-source tool that looks for that specific shape of failure.
+  </p>
 
-  <div class="bd-sec">Free tools &mdash; press them, nothing uploads</div>
-  <p class="bd-lede" style="margin-bottom:.9rem;font-size:.9rem">Each one runs entirely in your
-  browser. There is no server to send your file to &mdash; open the network tab and watch: after the
-  page loads, zero requests. That is architecture, not a privacy policy.</p>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/check/">Business File Check  ·  start here</a></h3><p class="bd-what">One drop zone for any business export. It works out what the file is from its columns &mdash; invoices, roster, customer list, job log &mdash; runs every check that applies, and reconciles two files against each other if you drop a pair.</p><p class="bd-proof">On its sample pair it returns 8 findings with zero configuration, including 3 completed jobs that were never invoiced. Ends with a downloadable report you can forward.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/spreadsheet-health-check/">Spreadsheet Health Check</a></h3><p class="bd-what">Drop any CSV and get an honest report: columns that carry no information, status fields that never vary, mixed date formats, duplicate rows. Then download the file with the judgment-free problems already fixed.</p><p class="bd-proof">On its sample: 6 findings down to 2 after the automatic fix &mdash; and the two that remain are exactly the ones a script must not touch.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/money-leak-finder/">Money Leak Finder</a></h3><p class="bd-what">Two exports every business already has &mdash; the work log and the invoices &mdash; lined up so only the mismatches show: finished jobs nobody billed, invoices sitting unpaid past 60 days.</p><p class="bd-proof">Matches on exact ID only, and says so on the report. Nothing fuzzy, nothing guessed.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/duplicate-customer-finder/">Duplicate Customer Finder</a></h3><p class="bd-what">Acme Roofing. Acme Roofing LLC. acme roofing inc. Three rows, one customer &mdash; inflating your count, splitting revenue history, and sending the mail merge three times.</p><p class="bd-proof">Every group states why it grouped: identical after ignoring case, punctuation and legal suffixes, or a near-miss typo worth a human glance.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/shift-coverage-check/">Shift Coverage Check</a></h3><p class="bd-what">For anyone who runs on a roster &mdash; senior living, clinics, restaurants, facilities. Finds days a role is uncovered, staff crossing 40 hours, roles only one person can fill, and turnarounds too short to be safe.</p><p class="bd-proof">Reads the columns itself and shows which ones it used. Deliberately never proposes who should work when &mdash; that is the manager's call, not a CSV's.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article></div>
+  <div class="fl-bad">
+    <strong>The one that started it.</strong> A scheduled job on our own machine ran every weekday
+    for four days, wrote a full log each time, and reported success. It had been starting in the
+    wrong directory the whole time, so every file it wrote went nowhere. Four days of data, gone,
+    with four green checkmarks on top of it.
+  </div>
 
-  <div class="bd-sec">Client work &mdash; live demos</div>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/demo/">Live KPI Dashboard</a></h3><p class="bd-what">A real, self-updating Google Sheets dashboard on sample data &mdash; revenue, jobs, overdue invoices. Click the tabs, tap the chart. No login, no signup.</p><p class="bd-proof">This is the $650 Automated Dashboard, running &mdash; not a screenshot of one.</p><div class="bd-tags"><span class="bd-tag live">Live demo</span><span class="bd-tag">Interactive</span></div></article><article class="bd-card"><h3><a href="/ai-business-pulse/">AI Business Pulse</a></h3><p class="bd-what">The flagship retainer: every Monday an AI reads your live numbers, writes a plain-English summary, and drafts chase emails for money you're owed.</p><p class="bd-proof">Every draft waits for a human approval before anything sends. That gate is the product.</p><div class="bd-tags"><span class="bd-tag">Retainer</span><span class="bd-tag">Human-gated</span></div></article><article class="bd-card"><h3><a href="/staffing-commission-dashboard/">Staffing Commission Dashboard</a></h3><p class="bd-what">A live commission dashboard for a staffing desk that settles splits, draws and fall-off clawbacks by rule instead of by argument.</p><p class="bd-proof">Built for a vertical where the math is the whole disagreement.</p><div class="bd-tags"><span class="bd-tag live">Live demo</span><span class="bd-tag">Vertical</span></div></article><article class="bd-card"><h3><a href="/free/executive-kpi-dashboard.html">Free templates</a></h3><p class="bd-what">Executive KPI dashboard, expense tracker, and a staffing commission tracker &mdash; working Google Sheets templates, no cost, no email required.</p><p class="bd-proof">Take them and never speak to us. That is the point.</p><div class="bd-tags"><span class="bd-tag">Free</span><span class="bd-tag">No signup</span></div></article></div>
+  <h2>How you would use this</h2>
+  <p style="color:var(--ink-soft);max-width:40rem">Five shapes of the same problem. If any of these
+  sounds familiar, it is worth twenty minutes.</p>
 
-  <div class="bd-sec">Engineering</div>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/flatline/">flatline</a></h3><p class="bd-what">An open-source reliability tool that finds signals carrying no information and jobs producing nothing: a check that fires on 100% of rows, a scheduled task that reports success while writing nothing, a branch that can never run.</p><p class="bd-proof">Built after a real scheduled job discarded four days of data while reporting success every run. 108 tests, MIT, public &mdash; the page shows five ways to use it on your own stack.</p><div class="bd-tags"><span class="bd-tag live">Open source</span><span class="bd-tag">MIT</span></div></article><article class="bd-card"><h3><a href="https://automatedworkflowllc-design.github.io/hearth/" target="_blank" rel="noopener">Hearth</a></h3><p class="bd-what">A national crisis-resource directory &mdash; food, shelter, health, legal, support &mdash; built on federal data (HRSA, SAMHSA, USDA, EPA/Hunger Free America) and refreshed automatically.</p><p class="bd-proof">60,000+ live records. Its public health endpoint reports freshness per source, so a stale feed cannot hide behind a fresh one.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Public good</span><span class="bd-tag">Open data</span></div></article><article class="bd-card"><h3><a href="/build-log/">Build log</a></h3><p class="bd-what">How the multi-tenant reporting pipeline behind Automated Workflow is actually assembled &mdash; n8n, Google Sheets, an AI narrative step, and a human approval gate.</p><p class="bd-proof">Written for someone deciding whether this is real engineering or a wrapper.</p><div class="bd-tags"><span class="bd-tag">Write-up</span></div></article></div>
+  <div class="fl-uses">
+    <div class="fl-use">
+      <h3>The backup that backs up nothing</h3>
+      <p class="sym">It has succeeded every night for eight months. Nobody has opened the file.</p>
+      <p class="fix"><b>jobs</b> &mdash; checks whether the output a job is supposed to write
+      actually changed, instead of trusting the job's own exit code. A 0-byte file that keeps its
+      timestamp fresh is the classic.</p>
+    </div>
 
-  <div class="bd-note"><strong>Why the tools stop where they stop.</strong> Every free tool above
-  ends at the point where a script would have to guess &mdash; which duplicate is the real customer,
-  what a blank cell means, who should cover Thursday. Those decisions need a person who can ask you
-  a question, which is what the <a href="/spreadsheet-cleanup-service/">$300 cleanup</a> and the
-  <a href="/free-demo/">free 1-day demo</a> are. A tool that guessed there would be faster and
-  worse.</div>
+    <div class="fl-use">
+      <h3>The client automation that stopped firing</h3>
+      <p class="sym">A Zap, Make scenario or n8n flow whose trigger has returned zero rows since a
+      field got renamed upstream. No error was raised, because finding nothing is not an error.</p>
+      <p class="fix"><b>jobs</b> + <b>scan</b> &mdash; a run history where the "records processed"
+      column is 0 forever reads as a flat signal, not as activity.</p>
+    </div>
+
+    <div class="fl-use">
+      <h3>The dashboard column that froze</h3>
+      <p class="sym">One field has shown the same value since a schema change three months ago.
+      The chart still draws, so nobody noticed.</p>
+      <p class="fix"><b>scan</b> &mdash; measures how much a column actually varies. A value that
+      never changes carries no information; it is a constant wearing a signal's name.</p>
+    </div>
+
+    <div class="fl-use">
+      <h3>The alert that has never once fired</h3>
+      <p class="sym">You have a threshold alert. It has been quiet for a year. You believe that
+      means everything is fine.</p>
+      <p class="fix"><b>code</b> &mdash; finds unreachable branches and errors caught and thrown
+      away. On our own stack it found a desktop notification that could never fire, because the
+      line above it ended the script.</p>
+    </div>
+
+    <div class="fl-use">
+      <h3>The report that is quietly stale</h3>
+      <p class="sym">A weekly summary still arrives on time. The numbers in it stopped moving a
+      while ago.</p>
+      <p class="fix"><b>verify</b> &mdash; takes a claim ("this refreshed today", "these files are
+      tracked") and checks it against the system instead of against another report.</p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:2.4rem">What it checks</h2>
+  <div class="fl-checks">
+    <div class="fl-check"><b>scan</b><span>Signals that never vary. Measures information content,
+    so a column of identical values is flagged even when it looks populated.</span></div>
+    <div class="fl-check"><b>jobs</b><span>Scheduled tasks that ran but produced nothing. Compares
+    intent against the output that actually changed on disk.</span></div>
+    <div class="fl-check"><b>verify</b><span>Stated claims against the underlying system, because a
+    status field is a claim, not evidence.</span></div>
+    <div class="fl-check"><b>code</b><span>Unreachable branches and swallowed exceptions &mdash;
+    the guard wrapped in a catch that discards the thing it was guarding against.</span></div>
+  </div>
+
+  <h2 style="margin-top:2.4rem">What it has actually caught</h2>
+  <ul class="fl-caught">
+    <li>A job's first-ever scheduled run, <strong>before it ran</strong> &mdash; three file writes
+      that would have landed somewhere unrecoverable and reported success.</li>
+    <li>A diagnostic flag that fired on <strong>100% of rows for a week</strong>. A warning that is
+      always on is not a warning.</li>
+    <li>A desktop notification that had <strong>never fired once</strong> in the life of the script,
+      because everything after one line was unreachable.</li>
+    <li><strong>Three false positives in itself.</strong> Each was fixed by measuring real code
+      rather than arguing about it &mdash; which is the standard we would hold your stack to.</li>
+  </ul>
+
+  <div class="fl-run">
+    <h2 style="margin-top:0">Run it yourself</h2>
+    <p style="color:var(--ink-soft);margin-top:.3rem">Free, MIT licensed, 108 tests. It reads; it
+    does not change anything it looks at.</p>
+    <pre>pip install flatline
+flatline scan your-export.csv
+flatline jobs</pre>
+    <p style="margin:.6rem 0 0"><a href="https://github.com/automatedworkflowllc-design/flatline">Source and documentation on GitHub &rarr;</a></p>
+  </div>
+
+  <div class="fl-cta">
+    <h2 style="margin-top:0">Or have us point it at your stack</h2>
+    <p>The tool finds the dead signals. Deciding which ones cost you money, and fixing them, is the
+    part that takes judgment. We do that as a fixed-scope audit &mdash; you get the findings and the
+    evidence for each one, including the ones that turn out to be fine.</p>
+    <p style="margin-bottom:0"><a class="btn" href="/free-demo/">Ask about an automation audit</a>
+    &nbsp; <a href="/builds/">See everything we have built &rarr;</a></p>
+  </div>
 </main>
 <footer class="site-footer">
   <div class="wrap footer-in">
@@ -265,10 +347,15 @@ background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  "name": "Builds — Automated Workflow",
-  "url": "https://automatedworkflowllc.com/builds/",
-  "description": "Every tool and system Automated Workflow has shipped: four free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a national crisis-resource directory."
+  "@type": "SoftwareApplication",
+  "name": "Flatline",
+  "url": "https://automatedworkflowllc.com/flatline/",
+  "codeRepository": "https://github.com/automatedworkflowllc-design/flatline",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any",
+  "license": "https://opensource.org/licenses/MIT",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Open-source detector for scheduled jobs and reports that succeed while doing nothing: dead signals, silent no-ops, unreachable code and swallowed errors."
 }
 </script>
 

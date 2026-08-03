@@ -107,12 +107,12 @@ DEMOS = [
 ]
 
 ENGINEERING = [
-    ("flatline", "https://github.com/automatedworkflowllc-design/flatline",
+    ("flatline", "/flatline/",
      "An open-source reliability tool that finds signals carrying no information and jobs producing "
      "nothing: a check that fires on 100% of rows, a scheduled task that reports success while "
      "writing nothing, a branch that can never run.",
      "Built after a real scheduled job discarded four days of data while reporting success every "
-     "run. 108 tests, MIT, public.",
+     "run. 108 tests, MIT, public &mdash; the page shows five ways to use it on your own stack.",
      ["Open source", "MIT"]),
     ("Hearth", "https://automatedworkflowllc-design.github.io/hearth/",
      "A national crisis-resource directory &mdash; food, shelter, health, legal, support &mdash; "
