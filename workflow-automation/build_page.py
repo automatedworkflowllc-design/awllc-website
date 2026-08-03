@@ -479,10 +479,9 @@ def rewrite_head(head):
                         '<html lang="en" data-theme="light" class="no-js">')
     head = re.sub(r'<title>.*?</title>', '<title>' + h['title'] + '</title>', head, count=1, flags=re.S)
     head = re.sub(r'<meta name="robots" content="[^"]*">',
-                  '<meta name="robots" content="noindex,nofollow">\n'
-                  '<!-- STAGED on purpose: awaiting Colin\'s copy review before publish (standing rule '
-                  'for new pages). When he approves: flip to index,follow + add to sitemap.xml + '
-                  'llms.txt + link from the homepage, as its own commit. -->', head, count=1)
+                  '<meta name="robots" content="index,follow">\n'
+                  '<!-- PUBLISHED 2026-08-03 on Colin\'s approval. Listed in sitemap.xml and '
+                  'llms.txt and linked from the homepage. -->', head, count=1)
     head = re.sub(r'<meta name="description" content="[^"]*"',
                   '<meta name="description" content="' + h['description'] + '"', head, count=1)
     head = re.sub(r'<meta property="og:title" content="[^"]*"',
@@ -776,9 +775,22 @@ def main():
     seo_ok = (50 <= len(title) <= 60 and 120 <= len(desc) <= 158
               and page.count('<h1') == 1 and len(re.findall(r'rel="canonical"', page)) == 1
               and len(re.findall(r'name="viewport"', page)) == 1
-              and 'noindex' in page and 'STAGED on purpose' in page)
-    gate('G-SEO', seo_ok, 'title %d, desc %d, 1 h1, 1 canonical, noindex + explanatory comment'
+              and 'index,follow' in page and 'noindex' not in page
+              and 'PUBLISHED 2026-08-03' in page)
+    gate('G-SEO', seo_ok, 'title %d, desc %d, 1 h1, 1 canonical, index,follow + publish note'
          % (len(title), len(desc)))
+
+    # --- published means discoverable: assert the three surfaces actually list it, so a
+    #     later edit cannot quietly orphan the page while still claiming it is public
+    def _has(path, needle):
+        try:
+            return needle in io.open(str(ROOT / path), encoding='utf-8').read()
+        except IOError:
+            return False
+    listed_ok = (_has('sitemap.xml', 'automatedworkflowllc.com/workflow-automation/')
+                 and _has('llms.txt', 'automatedworkflowllc.com/workflow-automation/')
+                 and _has('index.html', '/workflow-automation/'))
+    gate('G-LISTED', listed_ok, 'sitemap.xml + llms.txt + homepage all reference the page')
 
     # --- footer NAP survived the swap (a shell change upstream would otherwise strip it
     #     and only trip seo_audit at push time)
@@ -796,7 +808,7 @@ def main():
                                   for i in C.INVOICES))
     print('sections ', '%d composed - %d ids - %d needs' % (len(blocks), len(ids), len(needs)))
     io.open(OUT, 'w', encoding='utf-8', newline='\n').write(page)
-    print('written  ', OUT, len(page), 'bytes - STAGED (noindex), out of sitemap.xml and llms.txt - v3.0')
+    print('written  ', OUT, len(page), 'bytes - PUBLISHED (index,follow), in sitemap.xml + llms.txt - v3.0')
 
 
 def check_sources():
