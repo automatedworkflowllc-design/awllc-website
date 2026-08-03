@@ -30,6 +30,8 @@ Contact: colin@automatedworkflowllc.com · +1-703-939-1174 · https://automatedw
 - [Spreadsheet Health Check](https://automatedworkflowllc.com/spreadsheet-health-check/): a free in-browser analyzer — drop any CSV export and get an instant report of dead columns, status fields that never vary, mixed date formats, and duplicate rows. Nothing uploads; the analysis runs entirely in the visitor's browser.
 - [Money Leak Finder](https://automatedworkflowllc.com/money-leak-finder/): a free in-browser reconciler — drop a work log and an invoice export and see only the mismatches: jobs completed but never invoiced and invoices unpaid past 60 days. Nothing uploads; the books never leave the visitor's machine.
 - [Duplicate Customer Finder](https://automatedworkflowllc.com/duplicate-customer-finder/): a free in-browser duplicate detector — finds the same customer entered several ways (Acme Roofing / Acme Roofing LLC / acme roofing inc.) across case, punctuation, legal suffixes and typos, and reports the real customer count. Nothing uploads; the list never leaves the visitor's machine.
+- [Shift Coverage Check](https://automatedworkflowllc.com/shift-coverage-check/): a free in-browser roster analyzer for businesses that run on shifts (senior living, clinics, restaurants, facilities) — finds days a role is uncovered, staff crossing 40 hours, roles only one person can fill, and turnarounds under 10 hours. Nothing uploads; personnel data never leaves the visitor's machine.
+- [Builds](https://automatedworkflowllc.com/builds/): every tool and system Automated Workflow has shipped — the four free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a national crisis-resource directory serving 60,000+ records.
 
 ## Entity
 
