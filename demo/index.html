@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="dns-prefetch" href="https://script.google.com">
-<title>Live Dashboard Demo — Automated Workflow</title>
+<title>Live KPI Dashboard Demo — Tap Around The Real Thing</title>
 <meta name="description" content="A real, self-updating KPI dashboard on sample data — click the tabs, tap the chart. This is what Automated Workflow builds for small businesses.">
 <link rel="canonical" href="https://automatedworkflowllc.com/demo/">
 <meta property="og:title" content="Live Dashboard Demo — Automated Workflow">
@@ -68,7 +68,7 @@
   }
   .note b{ color:var(--ink); font-weight:600; }
 
-  .frame-wrap{ flex:1; min-height:0; position:relative; background:var(--paper); }
+  .frame-wrap{ flex:0 0 auto; min-height:0; position:relative; background:var(--paper); padding:0 16px; }
   /* SKELETON loading state: the dashboard chrome + tiles paint instantly and shimmer while the live
      Apps Script app cold-starts behind them, so a prospect never stares at a bare spinner (2b). */
   .loading{ position:absolute; inset:0; z-index:2; display:flex; flex-direction:column; background:var(--paper); overflow:hidden; }
@@ -94,7 +94,7 @@
     color:var(--paper); background:rgba(33,29,20,.72); border:1px solid rgba(255,255,255,.18);
     border-radius:999px; padding:.28rem .6rem;
   }
-  iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; z-index:1; }
+  
 
   /* ---- conversion band: capture peak-intent HERE instead of bouncing to /#contact ---- */
   .demo-conv{
@@ -196,39 +196,15 @@
   <p class="note">This is the <b>live version</b> of the dashboard from the homepage &mdash; running on <b>sample data</b>. Tap the tabs, open Receivables, poke around. Yours runs on <b>your</b> numbers, refreshing itself every week.</p>
 
   <div class="frame-wrap">
-    <div class="loading" aria-hidden="true">
-      <div class="sk-bar">
-        <span class="sk-dots"><span></span><span></span><span></span></span>
-        <span class="sk-file">weekly-kpi-dashboard &middot; sample</span>
-        <span class="sk-connect"><span class="dot"></span>Connecting&hellip;</span>
-      </div>
-      <div class="sk-body">
-        <div class="sk-kpis">
-          <div class="sk-tile"><span class="sk-lbl">Monthly revenue</span><span class="sk-val"></span></div>
-          <div class="sk-tile"><span class="sk-lbl">Outstanding AR</span><span class="sk-val"></span></div>
-          <div class="sk-tile"><span class="sk-lbl">Net cash flow</span><span class="sk-val"></span></div>
-          <div class="sk-tile"><span class="sk-lbl">Active customers</span><span class="sk-val"></span></div>
-        </div>
-        <div class="sk-chart"></div>
-      </div>
-    </div>
-    <div class="demo-open-primary" style="text-align:center;margin:0 0 16px">
-      <a href="https://script.google.com/macros/s/AKfycbyC_dfDwTZzdoVNHiQNBPDIrjShnzKCSC08-3yHEAbMgMTD_RTflPrlfkJKhuOcyh7bBg/exec?k=036ac99a546d409b9ad4f9af934de767902a6c8683da4f5382cfb252d6b6ca3f" target="_blank" rel="noopener"
-         style="display:inline-block;background:#16181d;color:#fff;font-weight:700;font-size:15px;
-                padding:13px 26px;border-radius:999px;text-decoration:none">
-        Open the live dashboard &#8599;</a>
-      <p style="font-size:12.5px;color:#5C5645;margin:9px 0 0">
-        Opens in a new tab &mdash; always works, even if the preview below doesn&rsquo;t load.</p>
-    </div>
     <span class="sample-pill">Sample data</span>
-    <iframe
-      title="Live sample KPI dashboard — Automated Workflow"
-      loading="eager"
-      onload="var l=this.parentElement.querySelector('.loading'); if(l) l.style.display='none';"
-      src="https://script.google.com/macros/s/AKfycbyC_dfDwTZzdoVNHiQNBPDIrjShnzKCSC08-3yHEAbMgMTD_RTflPrlfkJKhuOcyh7bBg/exec?k=036ac99a546d409b9ad4f9af934de767902a6c8683da4f5382cfb252d6b6ca3f"></iframe>
+    <a class="dash-preview" href="https://script.google.com/macros/s/AKfycbyC_dfDwTZzdoVNHiQNBPDIrjShnzKCSC08-3yHEAbMgMTD_RTflPrlfkJKhuOcyh7bBg/exec?k=036ac99a546d409b9ad4f9af934de767902a6c8683da4f5382cfb252d6b6ca3f" target="_blank" rel="noopener" aria-label="Open the live sample dashboard in a new tab">
+      <img src="/demo/dashboard-preview.png" width="1160" height="644" loading="eager" decoding="async"
+           alt="The live sample dashboard: an AI-written weekly summary, KPI tiles for monthly revenue, outstanding AR, net cash flow and active customers, a six-week revenue chart, and a call-first receivables list.">
+      <span class="dash-preview-cta">Open the live, tappable version &#8599;</span>
+    </a>
   </div>
 
-  <p class="demo-fallback" style="text-align:center;margin:14px auto 0;max-width:760px;font-size:13.5px;color:#5C5645;line-height:1.5">Dashboard not loading? That usually means you&rsquo;re signed in to more than one Google account. <a href="https://script.google.com/macros/s/AKfycbyC_dfDwTZzdoVNHiQNBPDIrjShnzKCSC08-3yHEAbMgMTD_RTflPrlfkJKhuOcyh7bBg/exec?k=036ac99a546d409b9ad4f9af934de767902a6c8683da4f5382cfb252d6b6ca3f" target="_blank" rel="noopener" style="color:#1E5AA8;font-weight:600;white-space:nowrap">Open it in a new tab &rarr;</a></p>
+  <p class="demo-fallback" style="text-align:center;margin:14px auto 0;max-width:760px;font-size:13px;color:#5C5645">That’s a real screenshot of the live dashboard. Tap it to open the actual thing — it opens in a new tab and always works.</p>
 
   <div class="demo-conv">
     <p class="conv-lead">Like what you see? <b>This runs on your numbers.</b></p>
@@ -241,11 +217,24 @@
     <p class="conv-sub">Send one messy file &mdash; get a working dashboard back in a day, keep it either way. No card.</p>
   </div>
 
-  <script>
-    // loading-state safety net: hide it after 9s even if the iframe onload is missed
-    // (Apps Script cold-starts vary), so a spinner never sticks on screen.
-    setTimeout(function(){ var l=document.querySelector('.loading'); if(l) l.style.display='none'; }, 9000);
-  </script>
+  <section class="try-band" aria-label="Free tools you can try without sending anything">
+    <p class="try-eyebrow">Not ready to send a file? Fair.</p>
+    <h2 class="try-h">Try the tools first &mdash; nothing uploads.</h2>
+    <p class="try-lead">Both run entirely in your browser. No account, no email, no upload &mdash; open devtools and watch: the page makes no network requests after it loads.</p>
+    <div class="try-grid">
+      <a class="try-card" href="/money-leak-finder/">
+        <span class="try-name">Money Leak Finder &rarr;</span>
+        <span class="try-desc">Drop a work log and an invoice export. See only the mismatches: jobs finished but never invoiced, invoices unpaid past 60 days.</span>
+      </a>
+      <a class="try-card" href="/spreadsheet-health-check/">
+        <span class="try-name">Spreadsheet Health Check &rarr;</span>
+        <span class="try-desc">Drop any CSV. Get an instant report: dead columns, mixed date formats, numbers SUM() silently skips, duplicate rows.</span>
+      </a>
+    </div>
+    <p class="try-foot">Each has a sample file loaded in one click, if you&rsquo;d rather poke at it than dig up an export.</p>
+  </section>
+
+  
 
   <footer class="site-footer">
     <div class="wrap footer-in">
@@ -270,5 +259,41 @@
   <script>
     document.getElementById('yr').textContent=(new Date().getFullYear());
   </script>
+
+<style>
+.try-band{max-width:900px;margin:38px auto 0;padding:26px 22px;border:1px solid var(--line,#E4DFD1);border-radius:14px;background:var(--paper,#FBFAF3)}
+.try-eyebrow{margin:0 0 4px;font-family:var(--mono,ui-monospace,monospace);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft,#5C5645)}
+.try-h{margin:0 0 8px;font-size:1.45rem;line-height:1.25}
+.try-lead{margin:0 0 18px;font-size:.95rem;color:var(--ink-soft,#5C5645);max-width:64ch}
+.try-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.try-card{display:flex;flex-direction:column;gap:6px;padding:16px 16px 15px;border:1px solid var(--line,#E4DFD1);border-radius:11px;background:#fff;text-decoration:none;color:inherit;transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease}
+.try-card:hover,.try-card:focus-visible{border-color:var(--ink,#211D14);transform:translateY(-2px);box-shadow:0 6px 18px rgba(33,29,20,.07)}
+.try-name{font-weight:800;font-size:1.02rem}
+.try-desc{font-size:.88rem;color:var(--ink-soft,#5C5645);line-height:1.45}
+.try-foot{margin:14px 0 0;font-size:.85rem;color:var(--ink-soft,#5C5645);font-style:italic}
+@media (max-width:640px){.try-grid{grid-template-columns:1fr}.try-band{margin-top:28px;padding:20px 16px}}
+@media (prefers-reduced-motion: reduce){.try-card{transition:none}.try-card:hover{transform:none}}
+</style>
+
+<style>
+.dash-preview{display:block;position:relative;max-width:1160px;margin:0 auto;border:1px solid var(--line,#E4DFD1);border-radius:14px;overflow:hidden;background:#fff;text-decoration:none;box-shadow:0 10px 30px rgba(33,29,20,.10);transition:transform .25s ease,box-shadow .25s ease}
+.dash-preview:hover,.dash-preview:focus-visible{transform:translateY(-3px);box-shadow:0 16px 40px rgba(33,29,20,.16)}
+.dash-preview img{display:block;width:100%;height:auto}
+.dash-preview-cta{position:absolute;right:14px;bottom:14px;background:#16181d;color:#fff;font-family:var(--mono,ui-monospace,monospace);font-size:12px;font-weight:700;letter-spacing:.04em;padding:9px 15px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+@media (max-width:640px){.dash-preview-cta{right:10px;bottom:10px;font-size:11px;padding:8px 12px}}
+@media (prefers-reduced-motion: reduce){.dash-preview{transition:none}.dash-preview:hover{transform:none}}
+</style>
+
+<style>
+/* defensive narrow-screen rules (no overflow measured at 500px, the headless floor;
+   these are belt-and-braces for true 390px hardware, which headless cannot emulate) */
+@media (max-width:640px){
+  header{flex-wrap:wrap;row-gap:8px}
+  header svg{max-width:100%;height:auto}
+  .conv-form{flex-wrap:wrap;justify-content:center}
+  .conv-form input{min-width:0;flex:1 1 190px}
+  .note,.demo-fallback,.conv-sub{padding-left:12px;padding-right:12px}
+}
+</style>
 </body>
 </html>
