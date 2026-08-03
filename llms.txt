@@ -29,6 +29,7 @@ Contact: colin@automatedworkflowllc.com · +1-703-939-1174 · https://automatedw
 - [Build Log](https://automatedworkflowllc.com/build-log/): a build log of the multi-tenant reporting pipeline behind Automated Workflow — n8n, Google Sheets, an AI narrative step, and a human approval gate.
 - [Spreadsheet Health Check](https://automatedworkflowllc.com/spreadsheet-health-check/): a free in-browser analyzer — drop any CSV export and get an instant report of dead columns, status fields that never vary, mixed date formats, and duplicate rows. Nothing uploads; the analysis runs entirely in the visitor's browser.
 - [Money Leak Finder](https://automatedworkflowllc.com/money-leak-finder/): a free in-browser reconciler — drop a work log and an invoice export and see only the mismatches: jobs completed but never invoiced and invoices unpaid past 60 days. Nothing uploads; the books never leave the visitor's machine.
+- [Duplicate Customer Finder](https://automatedworkflowllc.com/duplicate-customer-finder/): a free in-browser duplicate detector — finds the same customer entered several ways (Acme Roofing / Acme Roofing LLC / acme roofing inc.) across case, punctuation, legal suffixes and typos, and reports the real customer count. Nothing uploads; the list never leaves the visitor's machine.
 
 ## Entity
 

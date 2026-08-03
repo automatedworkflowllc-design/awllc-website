@@ -107,7 +107,8 @@ MAIN = """
       <a class="btn" href="/spreadsheet-cleanup-service/">See the cleanup service</a>
       <p style="margin:.9rem 0 0;font-size:.85rem">Tracking work against invoices? The
       <a href="/money-leak-finder/">Money Leak Finder</a> lines up both exports and shows only the
-      mismatches &mdash; same rule, nothing uploads.</p>
+      mismatches &mdash; same rule, nothing uploads. Same customer entered three ways? The
+      <a href="/duplicate-customer-finder/">Duplicate Customer Finder</a> shows your real count.</p>
     </div>
   </section>
 </main>

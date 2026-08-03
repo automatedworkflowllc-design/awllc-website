@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Free Spreadsheet Health Check — Runs In Your Browser</title>
-<meta name="description" content="Drop any CSV and get an instant, honest report: dead columns, mixed date formats, duplicate rows. Runs in your browser — your data never leaves your machine.">
-<link rel="canonical" href="https://automatedworkflowllc.com/spreadsheet-health-check/">
+<title>Free Duplicate Customer Finder — Runs In Your Browser</title>
+<meta name="description" content="Find the same customer entered three ways: Acme Roofing vs Acme Roofing LLC vs acme roofing inc. See your real customer count. Runs in your browser — nothing uploads.">
+<link rel="canonical" href="https://automatedworkflowllc.com/duplicate-customer-finder/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Free Spreadsheet Health Check — Runs In Your Browser">
-<meta property="og:description" content="Drop any CSV and get an instant, honest report: dead columns, mixed date formats, duplicate rows. Runs in your browser — your data never leaves your machine.">
-<meta property="og:url" content="https://automatedworkflowllc.com/spreadsheet-health-check/">
+<meta property="og:title" content="Free Duplicate Customer Finder — Runs In Your Browser">
+<meta property="og:description" content="Find the same customer entered three ways: Acme Roofing vs Acme Roofing LLC vs acme roofing inc. See your real customer count. Runs in your browser — nothing uploads.">
+<meta property="og:url" content="https://automatedworkflowllc.com/duplicate-customer-finder/">
 <meta property="og:image" content="https://automatedworkflowllc.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 
@@ -172,39 +172,37 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
 <link rel="manifest" href="/site.webmanifest?v=1">
 <style>
-/* ---- health check page ---- */
-.hc-drop{border:2px dashed var(--line-strong);border-radius:16px;background:var(--card);
-padding:2.6rem 1.4rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
-.hc-drop.is-over{border-color:var(--accent);background:var(--well)}
-.hc-drop:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-.hc-drop strong{display:block;font-size:1.05rem;margin-bottom:.35rem}
-.hc-drop span{color:var(--ink-soft);font-size:.92rem}
-.hc-actions{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-top:1rem}
-.hc-note{margin-top:1rem;font-size:.85rem;color:var(--ink-soft);text-align:center}
-.hc-note code{font-family:var(--mono);font-size:.8rem}
-#hc-report{margin-top:2rem;display:none}
-.hc-tally{display:flex;gap:.7rem;flex-wrap:wrap;margin:0 0 1.2rem}
-.hc-pill{border:1px solid var(--line);border-radius:.6rem;padding:.55rem .95rem;background:var(--card)}
-.hc-pill b{display:block;font-size:1.45rem;line-height:1.1;font-family:var(--mono)}
-.hc-pill span{font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.07em}
-.hc-find{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line-strong);
-border-radius:.6rem;padding:.9rem 1.1rem;margin:0 0 .6rem}
-.hc-find.sev-high{border-left-color:#B4452C}
-.hc-find.sev-med{border-left-color:#A8842B}
-.hc-find.sev-info{border-left-color:var(--line-strong)}
-.hc-find h4{margin:0 0 .25rem;font-size:.98rem}
-.hc-find p{margin:0;color:var(--ink-soft);font-size:.9rem}
-.hc-find .hc-where{font-family:var(--mono);font-size:.8rem;color:var(--ink-soft)}
-.hc-clean{border-left:4px solid var(--accent);background:var(--card);border-radius:.6rem;
+/* ---- duplicate finder ---- */
+.dc-drop{border:2px dashed var(--line-strong);border-radius:16px;background:var(--card);
+padding:2.6rem 1.4rem;text-align:center;cursor:pointer}
+.dc-drop.is-over{border-color:var(--accent);background:var(--well)}
+.dc-drop:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.dc-drop strong{display:block;font-size:1.05rem;margin-bottom:.35rem}
+.dc-drop span{color:var(--ink-soft);font-size:.92rem}
+.dc-actions{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin-top:1rem;align-items:center}
+.dc-actions label{font-size:.85rem;color:var(--ink-soft)}
+.dc-actions select{font:inherit;font-size:.85rem;padding:.35rem .5rem;border:1px solid var(--line-strong);
+border-radius:.4rem;background:var(--card);color:var(--ink)}
+.dc-note{margin-top:1rem;font-size:.85rem;color:var(--ink-soft);text-align:center}
+.dc-note code{font-family:var(--mono);font-size:.8rem}
+#dc-report{margin-top:2rem;display:none}
+.dc-head{display:flex;gap:.8rem;flex-wrap:wrap;margin:0 0 1.3rem;align-items:stretch}
+.dc-kpi{border:1px solid var(--line);border-radius:.7rem;padding:.85rem 1.1rem;background:var(--card)}
+.dc-kpi b{display:block;font-size:1.7rem;font-family:var(--mono);line-height:1.1}
+.dc-kpi.k-bad b{color:#B4452C}
+.dc-kpi span{font-size:.75rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+.dc-group{background:var(--card);border:1px solid var(--line);border-left:4px solid #B4452C;
+border-radius:.6rem;padding:.85rem 1.05rem;margin:0 0 .6rem}
+.dc-group.soft{border-left-color:#A8842B}
+.dc-group h4{margin:0 0 .35rem;font-size:.95rem}
+.dc-variants{margin:0;padding-left:1.15rem;font-size:.9rem;color:var(--ink-soft)}
+.dc-variants li{margin:.1rem 0}
+.dc-variants .cnt{font-family:var(--mono);font-size:.8rem}
+.dc-why{margin:.4rem 0 0;font-size:.8rem;color:var(--ink-soft);font-style:italic}
+.dc-cta{margin-top:1.6rem;padding:1.3rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
+.dc-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
+.dc-clean{border-left:4px solid var(--accent);background:var(--card);border-radius:.6rem;
 padding:1rem 1.2rem;color:var(--ink-soft)}
-.hc-cta{margin-top:1.6rem;padding:1.3rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
-.hc-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
-.hc-fix{margin-top:1.8rem;padding:1.3rem;border:1px solid var(--line-strong);border-radius:12px;background:var(--card)}
-.hc-fix h3{margin:0 0 .3rem;font-size:1.05rem}
-.hc-fix > p{margin:0 0 .9rem;color:var(--ink-soft);font-size:.92rem}
-.hc-changes{margin:0 0 1rem;padding-left:1.15rem;color:var(--ink-soft);font-size:.9rem}
-.hc-changes li{margin:.15rem 0}
-.hc-limits{margin:1rem 0 0;font-size:.85rem;color:var(--ink-soft);border-top:1px solid var(--line-soft);padding-top:.8rem}
 </style>
 </head>
 <body>
@@ -232,53 +230,45 @@ padding:1rem 1.2rem;color:var(--ink-soft)}
   </div>
 </header>
 <main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
-  <h1 style="margin-bottom:.4rem">Spreadsheet Health Check</h1>
+  <h1 style="margin-bottom:.4rem">Duplicate Customer Finder</h1>
   <p style="color:var(--ink-soft);max-width:40rem">
-    Drop any CSV export from Excel, Google Sheets, QuickBooks or your job software and get an
-    instant, honest report: columns that carry no information, status fields that never vary,
-    mixed date formats, duplicate rows.
+    <em>Acme Roofing</em>. <em>Acme Roofing LLC</em>. <em>acme roofing inc.</em> Three rows, one
+    customer &mdash; and now your customer count is wrong, their revenue history is split three
+    ways, and the mail merge sends them three copies.
   </p>
-  <p style="max-width:40rem"><strong>Nothing uploads. Ever.</strong>
-    <span style="color:var(--ink-soft)">The analysis runs entirely in your browser &mdash; this
-    page has no server to send your file to. Verify it yourself: open your browser's network tab;
-    after the page loads it makes zero requests.</span></p>
+  <p style="max-width:40rem"><strong>Nothing uploads.</strong>
+    <span style="color:var(--ink-soft)">The matching runs entirely in your browser &mdash; there is
+    no server to send your customer list to. Check the network tab: zero requests after load.</span></p>
 
-  <div class="hc-drop" id="hc-drop" role="button" tabindex="0"
-       aria-label="Choose a CSV file to analyze locally">
-    <strong>Drop a .csv file here</strong>
-    <span>or click to choose one &middot; stays on your machine</span>
-    <input type="file" id="hc-file" accept=".csv,.tsv,.txt" style="display:none">
+  <div class="dc-drop" id="dc-drop" role="button" tabindex="0"
+       aria-label="Choose a CSV file of customers to check locally">
+    <strong>Drop a .csv here</strong>
+    <span>customer list, invoice export, contact export &middot; stays on your machine</span>
+    <input type="file" id="dc-file" accept=".csv,.tsv,.txt" style="display:none">
   </div>
-  <div class="hc-actions">
-    <button class="btn" id="hc-sample" type="button">Try the sample file</button>
+  <div class="dc-actions">
+    <button class="btn" id="dc-sample" type="button">Try the sample list</button>
+    <label for="dc-col">Column:</label>
+    <select id="dc-col" aria-label="Which column holds the customer name"></select>
   </div>
-  <p class="hc-note">Using Excel? <code>File &rarr; Save As &rarr; CSV</code> first &mdash; this
-    tool deliberately reads only plain text it can analyze in front of you.</p>
+  <p class="dc-note">It picks the most name-like column automatically &mdash; switch it above if it
+    guessed wrong. Excel users: <code>File &rarr; Save As &rarr; CSV</code> first.</p>
 
-  <section id="hc-report" aria-live="polite">
-    <h2 id="hc-title" style="margin-bottom:.8rem"></h2>
-    <div class="hc-tally" id="hc-tally"></div>
-    <div id="hc-findings"></div>
-
-    <div class="hc-fix" id="hc-fix" style="display:none">
-      <h3>Want it fixed?</h3>
-      <p>Some of what's above a script can fix deterministically &mdash; no judgment calls, no
-      guessing. Here's what it would change, and you can download the result:</p>
-      <ul class="hc-changes" id="hc-change-list"></ul>
-      <button class="btn" id="hc-download" type="button">Download cleaned .csv</button>
-      <p class="hc-limits" id="hc-limits"></p>
-    </div>
-
-    <div class="hc-cta">
-      <strong>Want these fixed by a real person?</strong>
-      <p>The <a href="/spreadsheet-cleanup-service/">$300 flat cleanup</a> fixes everything above
-      in 24&ndash;48h &mdash; or start with a <a href="/free-demo/">free 1-day demo on your real
-      data</a>, keep it either way.</p>
-      <a class="btn" href="/spreadsheet-cleanup-service/">See the cleanup service</a>
-      <p style="margin:.9rem 0 0;font-size:.85rem">Tracking work against invoices? The
-      <a href="/money-leak-finder/">Money Leak Finder</a> lines up both exports and shows only the
-      mismatches &mdash; same rule, nothing uploads. Same customer entered three ways? The
-      <a href="/duplicate-customer-finder/">Duplicate Customer Finder</a> shows your real count.</p>
+  <section id="dc-report" aria-live="polite">
+    <h2 id="dc-title" style="margin-bottom:.9rem"></h2>
+    <div class="dc-head" id="dc-kpis"></div>
+    <div id="dc-groups"></div>
+    <div class="dc-cta">
+      <strong>Want them merged properly?</strong>
+      <p>Deciding which spelling is the real record &mdash; and re-pointing every invoice, job and
+      contact at it without losing history &mdash; is judgment work, not a script. That's what the
+      <a href="/spreadsheet-cleanup-service/">$300 flat cleanup</a> does, or start with a
+      <a href="/free-demo/">free 1-day demo on your real data</a>.</p>
+      <a class="btn" href="/free-demo/">Get it done on your real list — free</a>
+      <p style="margin:.9rem 0 0;font-size:.85rem">Also try the
+      <a href="/spreadsheet-health-check/">Spreadsheet Health Check</a> (dead columns, mixed dates,
+      exact duplicate rows) and the
+      <a href="/money-leak-finder/">Money Leak Finder</a> (work done vs. work billed).</p>
     </div>
   </section>
 </main>
@@ -305,39 +295,27 @@ padding:1rem 1.2rem;color:var(--ink-soft)}
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Spreadsheet Health Check",
-  "url": "https://automatedworkflowllc.com/spreadsheet-health-check/",
+  "name": "Duplicate Customer Finder",
+  "url": "https://automatedworkflowllc.com/duplicate-customer-finder/",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Any",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-  "description": "Free in-browser spreadsheet analyzer: dead columns, constant status fields, mixed date formats, duplicate rows. No upload -- runs locally."
+  "description": "Free in-browser duplicate customer detector: finds the same customer entered several ways across case, punctuation, legal suffixes and typos. No upload -- runs locally."
 }
 </script>
 
 <script>
 (function(){
 'use strict';
-/* All local. No fetch, no XHR, no beacon -- the privacy claim on this page is
-   architectural, not a policy. */
-
-var DECISION = /(^|_|\b)(status|flag|state|result|outcome|approved|paid|active|valid|check|verified|error)(\b|_|$)/i;
-var IDISH = /(^|_|\b)(id|invoice|number|no|ref|sku|key)(\b|_|$)/i;
-var DATE_SHAPES = [
-  [/^\d{4}-\d{1,2}-\d{1,2}/, 'YYYY-MM-DD'],
-  [/^\d{1,2}\/\d{1,2}\/\d{2,4}$/, 'M/D/Y'],
-  [/^\d{1,2}-[A-Za-z]{3}/, 'D-Mon'],
-  [/^[A-Za-z]{3,9} \d{1,2},? \d{4}$/, 'Month D, Y']
-];
+/* All local. No fetch, no XHR, no beacon. */
 
 function parseCSV(text){
   var rows=[], row=[], cell='', q=false, i=0, c;
   var delim = (text.split('\t').length > text.split(',').length) ? '\t' : ',';
   while(i < text.length){
     c = text[i];
-    if(q){
-      if(c === '"'){ if(text[i+1] === '"'){ cell+='"'; i++; } else q=false; }
-      else cell += c;
-    } else if(c === '"') q = true;
+    if(q){ if(c === '"'){ if(text[i+1] === '"'){ cell+='"'; i++; } else q=false; } else cell += c; }
+    else if(c === '"') q = true;
     else if(c === delim){ row.push(cell); cell=''; }
     else if(c === '\n' || c === '\r'){
       if(c === '\r' && text[i+1] === '\n') i++;
@@ -351,315 +329,194 @@ function parseCSV(text){
   return rows;
 }
 
-function dateShape(v){
-  for(var k=0;k<DATE_SHAPES.length;k++) if(DATE_SHAPES[k][0].test(v)) return DATE_SHAPES[k][1];
-  return null;
+/* Legal-form suffixes and punctuation are the usual difference between two
+   spellings of one company. Stripping them is the FIRST pass; anything caught
+   here is reported as an exact normalized match, not a fuzzy guess. */
+var SUFFIXES = /\b(inc|llc|ltd|co|corp|corporation|company|incorporated|pllc|pc|lp|llp|plc|group|grp|holdings|enterprises|services|svcs|sons)\b/g;
+var NOISE = /[.,'’"()\-_/\\]+/g;
+
+function normName(s){
+  var v = String(s).toLowerCase();
+  v = v.replace(/&/g, ' and ');
+  v = v.replace(NOISE, ' ');
+  v = v.replace(SUFFIXES, ' ');
+  v = v.replace(/\bthe\b/g, ' ');
+  v = v.replace(/\band\b/g, ' ');
+  return v.replace(/\s+/g, ' ').trim();
 }
-function numberShape(v){
-  if(/^-?\$?[\d,]+(\.\d+)?$/.test(v)) return v.indexOf('$')>=0 ? 'currency' : (v.indexOf(',')>=0 ? 'thousands' : 'plain');
-  if(/^\(\$?[\d,]+(\.\d+)?\)$/.test(v)) return 'parens-negative';
-  return null;
+
+/* Bounded Levenshtein: bails as soon as the row minimum exceeds `max`, so a long
+   list does not turn into an O(n*m) stall on a phone. */
+function withinEdits(a, b, max){
+  if(Math.abs(a.length - b.length) > max) return false;
+  if(a === b) return true;
+  var prev = [], cur = [], i, j;
+  for(j = 0; j <= b.length; j++) prev[j] = j;
+  for(i = 1; i <= a.length; i++){
+    cur[0] = i;
+    var best = cur[0];
+    for(j = 1; j <= b.length; j++){
+      var cost = a.charAt(i-1) === b.charAt(j-1) ? 0 : 1;
+      cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + cost);
+      if(cur[j] < best) best = cur[j];
+    }
+    if(best > max) return false;
+    for(j = 0; j <= b.length; j++) prev[j] = cur[j];
+  }
+  return prev[b.length] <= max;
 }
 
-function analyze(rows){
-  var header = rows[0].map(function(h,i){ return (h||'').trim() || ('column ' + (i+1)); });
-  var body = rows.slice(1);
-  var n = body.length, findings = [];
-  function add(sev, title, where, detail){ findings.push({sev:sev,title:title,where:where,detail:detail}); }
+function looksLikeName(header, values){
+  if(/name|customer|client|company|account|vendor|payee|contact|organi/i.test(header)) return 3;
+  var present = values.filter(Boolean);
+  if(!present.length) return -1;
+  var alpha = present.filter(function(v){ return /[A-Za-z]{3,}/.test(v) && !/^\d+$/.test(v); }).length;
+  var distinct = Object.keys(present.reduce(function(a,v){ a[v]=1; return a; }, {})).length;
+  // A name column is mostly words AND repeats (one customer, several rows).
+  return (alpha / present.length) > 0.7 && distinct < present.length ? 1 : 0;
+}
 
-  if(n < 3){ return { header:header, n:n, findings:[{sev:'info',title:'Not enough rows to judge',where:'', detail:'Fewer than 3 data rows -- nothing meaningful to analyze.'}] }; }
+function pickColumn(header, body){
+  var best = -1, bestScore = -1;
+  header.forEach(function(h, i){
+    var vals = body.map(function(r){ return (r[i]===undefined?'':String(r[i])).trim(); });
+    var s = looksLikeName(h, vals);
+    if(s > bestScore){ bestScore = s; best = i; }
+  });
+  return best < 0 ? 0 : best;
+}
 
-  var seen = Object.create(null), dupRows = 0;
-  body.forEach(function(r){ var k = r.join(''); if(seen[k]) dupRows++; else seen[k]=1; });
-  if(dupRows > 0) add(dupRows > n*0.02 ? 'high' : 'med', dupRows + ' exact duplicate row' + (dupRows>1?'s':''), 'whole sheet',
-    'Identical rows usually mean a paste happened twice. Totals built on this sheet are inflated.');
-
-  header.forEach(function(name, ci){
-    var vals = body.map(function(r){ return (r[ci] === undefined ? '' : String(r[ci])).trim(); });
-    var blanks = vals.filter(function(v){ return v === ''; }).length;
-    var present = vals.filter(function(v){ return v !== ''; });
-    var counts = Object.create(null);
-    present.forEach(function(v){ counts[v] = (counts[v]||0)+1; });
-    var distinct = Object.keys(counts);
-
-    if(blanks === n){ add('med', '"' + name + '" is completely empty', 'column ' + (ci+1),
-      'Every one of ' + n + ' rows is blank. A column nobody fills in is a column nobody can use.'); return; }
-    if(blanks > n*0.5) add('med', '"' + name + '" is ' + Math.round(100*blanks/n) + '% blank', 'column ' + (ci+1),
-      'Half-empty columns usually mean the process that fills them broke, or nobody agrees whose job it is.');
-
-    if(present.length >= 8 && distinct.length === 1){
-      var isDecision = DECISION.test(name);
-      add(isDecision ? 'high' : 'info',
-        '"' + name + '" is the same value on every row: "' + distinct[0].slice(0,30) + '"',
-        'column ' + (ci+1),
-        isDecision
-          ? 'A ' + name.toLowerCase() + ' column that never varies cannot tell you anything -- if it is supposed to catch problems, it has never caught one.'
-          : 'Constant on all ' + present.length + ' filled rows. Fine if intentional; dead weight if not.');
-    }
-
-    var canon = Object.create(null), variants = 0;
-    distinct.forEach(function(v){ var k = v.toLowerCase().replace(/\s+/g,' ').trim();
-      if(canon[k] !== undefined) variants++; else canon[k]=v; });
-    if(variants > 0 && distinct.length < 40) add('med',
-      '"' + name + '" has ' + variants + ' spelling/spacing variant' + (variants>1?'s':'') + ' of the same value',
-      'column ' + (ci+1),
-      'e.g. "Paid" vs "paid " -- filters and pivot tables count these as different things.');
-
-    var shapes = Object.create(null);
-    present.forEach(function(v){ var s = dateShape(v); if(s) shapes[s]=(shapes[s]||0)+1; });
-    var shapeKeys = Object.keys(shapes);
-    if(shapeKeys.length > 1) add('high', '"' + name + '" mixes ' + shapeKeys.length + ' date formats',
-      'column ' + (ci+1), shapeKeys.join(', ') + ' in one column -- sorting and date math silently give wrong answers.');
-
-    var nshapes = Object.create(null), numeric = 0;
-    present.forEach(function(v){ var s = numberShape(v); if(s){ nshapes[s]=(nshapes[s]||0)+1; numeric++; } });
-    if(numeric > present.length*0.6 && Object.keys(nshapes).length > 1) add('med',
-      '"' + name + '" mixes number formats', 'column ' + (ci+1),
-      Object.keys(nshapes).join(', ') + ' -- some of these are text to Excel, and SUM() skips text without telling you.');
-
-    if(IDISH.test(name) && present.length >= 8){
-      var dupIds = present.length - distinct.length;
-      if(dupIds > 0) add('high', '"' + name + '" has ' + dupIds + ' duplicate value' + (dupIds>1?'s':''),
-        'column ' + (ci+1), 'A column named like an identifier should be unique -- duplicates here usually mean double-entered records.');
-    }
+function findGroups(values){
+  // Pass 1: exact match on the normalized key (case/punctuation/suffix differences).
+  var byKey = Object.create(null);
+  values.forEach(function(v){
+    if(!v) return;
+    var k = normName(v);
+    if(!k) return;
+    (byKey[k] = byKey[k] || Object.create(null));
+    byKey[k][v] = (byKey[k][v] || 0) + 1;
   });
 
-  return { header: header, n: n, findings: findings };
-}
+  var keys = Object.keys(byKey);
+  var used = Object.create(null), groups = [];
 
-/* ---- the fix half ----------------------------------------------------------
-   Deterministic transforms ONLY. Every change here is one a script can make
-   without deciding anything a human would have to weigh in on. Where judgment
-   is required (which duplicate is the real customer, which formula broke, what
-   a blank means) it does NOTHING and says so -- that boundary is the honest
-   line between this button and the paid cleanup. */
-
-function pad2(n){ return (n < 10 ? '0' : '') + n; }
-var MONTHS = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
-
-function toISO(v, fallbackYear){
-  var m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if(m) return m[1] + '-' + pad2(+m[2]) + '-' + pad2(+m[3]);
-  m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
-  if(m){ var y = m[3].length === 2 ? 2000 + (+m[3]) : +m[3]; return y + '-' + pad2(+m[1]) + '-' + pad2(+m[2]); }
-  m = v.match(/^(\d{1,2})-([A-Za-z]{3})$/);
-  // A bare "3-Jul" has no year in the file. Borrow the year the rest of the
-  // column agrees on rather than inventing one; skip if the column has none.
-  if(m && fallbackYear && MONTHS[m[2].toLowerCase()]) return fallbackYear + '-' + pad2(MONTHS[m[2].toLowerCase()]) + '-' + pad2(+m[1]);
-  m = v.match(/^([A-Za-z]{3,9}) (\d{1,2}),? (\d{4})$/);
-  if(m && MONTHS[m[1].slice(0,3).toLowerCase()]) return m[3] + '-' + pad2(MONTHS[m[1].slice(0,3).toLowerCase()]) + '-' + pad2(+m[2]);
-  return null;
-}
-
-function normalize(rows){
-  var header = rows[0].slice();
-  var body = rows.slice(1).map(function(r){ return r.slice(); });
-  var changes = [], limits = [];
-  var n = body.length;
-
-  // 1. trim surrounding whitespace (safe everywhere)
-  var trimmed = 0;
-  body.forEach(function(r){
-    for(var i=0;i<r.length;i++){
-      var before = r[i] === undefined ? '' : String(r[i]);
-      var after = before.trim().replace(/\s+/g, ' ');
-      if(after !== before){ r[i] = after; trimmed++; }
-    }
-  });
-  if(trimmed) changes.push('Trimmed stray spaces in ' + trimmed + ' cell' + (trimmed===1?'':'s'));
-
-  // 2. drop exact duplicate rows (keep first occurrence)
-  var seen = Object.create(null), kept = [], dropped = 0;
-  body.forEach(function(r){
-    var k = r.join('');
-    if(seen[k]){ dropped++; return; }
-    seen[k] = 1; kept.push(r);
-  });
-  body = kept;
-  if(dropped) changes.push('Removed ' + dropped + ' exact duplicate row' + (dropped===1?'':'s') + ' (kept the first of each)');
-
-  header.forEach(function(name, ci){
-    var vals = body.map(function(r){ return (r[ci]===undefined?'':String(r[ci])); });
-    var present = vals.filter(Boolean);
-    if(!present.length) return;
-
-    // 3. case/spacing variants -> the most common spelling in that column
-    var groups = Object.create(null);
-    present.forEach(function(v){
-      var k = v.toLowerCase();
-      (groups[k] = groups[k] || Object.create(null));
-      groups[k][v] = (groups[k][v] || 0) + 1;
+  // Pass 2: near-miss keys (typos). Threshold scales with length so "Smith"/"Smyth"
+  // group while short unrelated names stay apart.
+  keys.forEach(function(k){
+    if(used[k]) return;
+    var members = [k];
+    used[k] = 1;
+    var max = k.length <= 6 ? 1 : (k.length <= 14 ? 2 : 3);
+    keys.forEach(function(other){
+      if(used[other] || other === k) return;
+      if(withinEdits(k, other, max)){ members.push(other); used[other] = 1; }
     });
-    var canon = Object.create(null), variantFixes = 0;
-    Object.keys(groups).forEach(function(k){
-      var forms = Object.keys(groups[k]);
-      if(forms.length < 2) return;
-      forms.sort(function(a,b){ return groups[k][b] - groups[k][a]; });
-      canon[k] = forms[0];
-    });
-    if(Object.keys(canon).length){
-      body.forEach(function(r){
-        var v = r[ci] === undefined ? '' : String(r[ci]);
-        var k = v.toLowerCase();
-        if(canon[k] && canon[k] !== v){ r[ci] = canon[k]; variantFixes++; }
-      });
-      if(variantFixes) changes.push('Unified ' + variantFixes + ' value' + (variantFixes===1?'':'s') +
-        ' in "' + name + '" to the spelling already used most often');
-    }
 
-    // 4. mixed date formats -> ISO (only when the column IS mostly dates AND mixed)
-    var shapes = Object.create(null), dateCount = 0, years = Object.create(null);
-    present.forEach(function(v){
-      var s = dateShape(v); if(!s) return;
-      shapes[s] = (shapes[s]||0)+1; dateCount++;
-      var ym = v.match(/(\d{4})/); if(ym) years[ym[1]] = (years[ym[1]]||0)+1;
+    var variants = Object.create(null), total = 0, fuzzy = members.length > 1;
+    members.forEach(function(m){
+      Object.keys(byKey[m]).forEach(function(form){
+        variants[form] = (variants[form] || 0) + byKey[m][form];
+        total += byKey[m][form];
+      });
     });
-    if(Object.keys(shapes).length > 1 && dateCount > present.length*0.7){
-      var yearKeys = Object.keys(years).sort(function(a,b){ return years[b]-years[a]; });
-      var fallbackYear = yearKeys.length ? yearKeys[0] : null;
-      var dateFixes = 0, dateSkips = 0;
-      body.forEach(function(r){
-        var v = r[ci] === undefined ? '' : String(r[ci]);
-        if(!v || !dateShape(v)) return;
-        var iso = toISO(v, fallbackYear);
-        if(iso === null){ dateSkips++; return; }
-        if(iso !== v){ r[ci] = iso; dateFixes++; }
-      });
-      if(dateFixes) changes.push('Converted ' + dateFixes + ' date' + (dateFixes===1?'':'s') +
-        ' in "' + name + '" to one format (YYYY-MM-DD)' +
-        (fallbackYear ? ', using ' + fallbackYear + ' where the file gave no year' : ''));
-      if(dateSkips) limits.push(dateSkips + ' value' + (dateSkips===1?'':'s') + ' in "' + name +
-        '" were left alone -- the date was too ambiguous to convert safely');
-    }
-
-    // 5. mixed number formats -> plain numbers (parens = negative, per accounting convention)
-    var nshapes = Object.create(null), numCount = 0;
-    present.forEach(function(v){ var s = numberShape(v); if(s){ nshapes[s]=(nshapes[s]||0)+1; numCount++; } });
-    if(Object.keys(nshapes).length > 1 && numCount > present.length*0.6){
-      var numFixes = 0;
-      body.forEach(function(r){
-        var v = r[ci] === undefined ? '' : String(r[ci]);
-        if(!v || !numberShape(v)) return;
-        var neg = /^\(.*\)$/.test(v);
-        var plain = v.replace(/[$,\s()]/g, '');
-        if(neg) plain = '-' + plain;
-        if(plain !== v){ r[ci] = plain; numFixes++; }
-      });
-      if(numFixes) changes.push('Made ' + numFixes + ' value' + (numFixes===1?'':'s') + ' in "' + name +
-        '" plain numbers so SUM() stops skipping them (kept parentheses as negatives)');
-    }
+    var forms = Object.keys(variants);
+    if(forms.length < 2) return;   // one spelling only -- not a duplicate
+    forms.sort(function(a,b){ return variants[b] - variants[a]; });
+    groups.push({ canonical: forms[0], forms: forms, counts: variants, rows: total, fuzzy: fuzzy });
   });
 
-  return { rows: [header].concat(body), changes: changes, limits: limits, removed: dropped };
+  groups.sort(function(a,b){ return b.rows - a.rows; });
+  return groups;
 }
-
-function toCSV(rows){
-  return rows.map(function(r){
-    return r.map(function(cell){
-      var v = cell === undefined || cell === null ? '' : String(cell);
-      return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
-    }).join(',');
-  }).join('\r\n') + '\r\n';
-}
-
-var SAMPLE = 'Invoice No,Date,Customer,Amount,Status,Notes\n' +
-'1001,2026-07-01,Acme Roofing,"$1,250.00",Paid,\n' +
-'1002,07/02/2026,Baker Law,1980,Paid ,\n' +
-'1003,2026-07-03,Acme Roofing,"$2,100.00",Paid,\n' +
-'1003,2026-07-03,Acme Roofing,"$2,100.00",Paid,\n' +
-'1004,3-Jul,Sunrise Vet,(450.00),paid,\n' +
-'1005,2026-07-08,Baker Law,760,Paid,\n' +
-'1006,07/09/2026,Palm Realty,"1,420",Paid,\n' +
-'1007,2026-07-10,Sunrise Vet,890,Paid,\n' +
-'1008,2026-07-11,Acme Roofing,,Paid,\n' +
-'1009,2026-07-14,Palm Realty,2350,Paid,\n';
 
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 
-function render(name, result){
-  var rep = document.getElementById('hc-report');
-  var SEV = {high:0, med:1, info:2};
-  var LABEL = {high:'Needs attention', med:'Worth checking', info:'For information'};
-  var fs = result.findings.slice().sort(function(a,b){ return SEV[a.sev]-SEV[b.sev]; });
-  var counts = {high:0, med:0, info:0};
-  fs.forEach(function(f){ counts[f.sev]++; });
-  document.getElementById('hc-title').textContent = 'Report: ' + name + ' — ' + result.n + ' rows, ' + result.header.length + ' columns';
-  document.getElementById('hc-tally').innerHTML =
-    '<div class="hc-pill"><b>' + counts.high + '</b><span>needs attention</span></div>' +
-    '<div class="hc-pill"><b>' + counts.med + '</b><span>worth checking</span></div>' +
-    '<div class="hc-pill"><b>' + counts.info + '</b><span>informational</span></div>';
-  var out = '', lastSev = null;
-  if(!fs.length){
-    out = '<div class="hc-clean"><strong>Nothing found.</strong> Every column varies, dates are consistent, no duplicate rows. That is the result you want -- and it is not the same as not having looked.</div>';
-  } else fs.forEach(function(f){
-    if(f.sev !== lastSev){ lastSev = f.sev; out += '<h3 style="font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin:1.2rem 0 .5rem">' + LABEL[f.sev] + '</h3>'; }
-    out += '<div class="hc-find sev-' + f.sev + '"><h4>' + esc(f.title) + '</h4>' +
-      (f.where ? '<div class="hc-where">' + esc(f.where) + '</div>' : '') +
-      '<p>' + esc(f.detail) + '</p></div>';
+var current = null;   // { name, header, body }
+
+function run(){
+  if(!current) return;
+  var ci = parseInt(document.getElementById('dc-col').value, 10) || 0;
+  var values = current.body.map(function(r){ return (r[ci]===undefined?'':String(r[ci])).trim(); });
+  var present = values.filter(Boolean);
+  var groups = findGroups(values);
+
+  var distinctRaw = Object.keys(present.reduce(function(a,v){ a[v]=1; return a; }, {})).length;
+  var collapsed = groups.reduce(function(n, g){ return n + (g.forms.length - 1); }, 0);
+  var realCount = distinctRaw - collapsed;
+
+  document.getElementById('dc-title').textContent =
+    'Report: ' + current.name + ' — "' + current.header[ci] + '" column, ' + present.length + ' filled rows';
+  document.getElementById('dc-kpis').innerHTML =
+    '<div class="dc-kpi"><b>' + distinctRaw + '</b><span>distinct spellings</span></div>' +
+    '<div class="dc-kpi' + (collapsed ? ' k-bad' : '') + '"><b>' + realCount + '</b><span>likely real customers</span></div>' +
+    '<div class="dc-kpi' + (groups.length ? ' k-bad' : '') + '"><b>' + groups.length + '</b><span>collision' + (groups.length===1?'':'s') + ' found</span></div>';
+
+  var out = '';
+  if(!groups.length){
+    out = '<div class="dc-clean"><strong>No duplicates found.</strong> Every spelling in that column ' +
+      'is distinct even after ignoring case, punctuation and legal suffixes. That is the result you ' +
+      'want &mdash; and it is not the same as not having looked.</div>';
+  } else groups.forEach(function(g){
+    out += '<div class="dc-group' + (g.fuzzy ? ' soft' : '') + '">' +
+      '<h4>' + esc(g.canonical) + ' &mdash; ' + g.forms.length + ' spellings, ' + g.rows + ' rows</h4><ul class="dc-variants">';
+    g.forms.forEach(function(f){
+      out += '<li>' + esc(f) + ' <span class="cnt">&times;' + g.counts[f] + '</span></li>';
+    });
+    out += '</ul><p class="dc-why">' + (g.fuzzy
+      ? 'Grouped by near-identical spelling (small typo distance) after ignoring case, punctuation and legal suffixes — worth a human glance.'
+      : 'Grouped because they are identical once case, punctuation and legal suffixes are ignored.') + '</p></div>';
   });
-  document.getElementById('hc-findings').innerHTML = out;
+  document.getElementById('dc-groups').innerHTML = out;
+  var rep = document.getElementById('dc-report');
   rep.style.display = 'block';
   rep.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
-var pendingClean = null;
-
-function showFix(name, rows){
-  var panel = document.getElementById('hc-fix');
-  var result;
-  try { result = normalize(rows); } catch(e){ panel.style.display = 'none'; return; }
-  if(!result.changes.length){
-    panel.style.display = 'none';   // nothing a script can safely fix -- don't offer
-    pendingClean = null;
-    return;
-  }
-  pendingClean = { name: name.replace(/\.(csv|tsv|txt)$/i, '') + '-cleaned.csv', rows: result.rows };
-  document.getElementById('hc-change-list').innerHTML =
-    result.changes.map(function(c){ return '<li>' + esc(c) + '</li>'; }).join('');
-  var limits = result.limits.slice();
-  limits.push('It will NOT guess: blanks stay blank, near-duplicate rows that are not identical ' +
-    'stay put, and no formula is touched. Those need a person to decide -- that is what the $300 cleanup is.');
-  document.getElementById('hc-limits').innerHTML = limits.map(esc).join(' ');
-  panel.style.display = 'block';
+function load(name, text){
+  var rows = parseCSV(text);
+  if(rows.length < 2){ alert('That file has no data rows to check.'); return; }
+  var header = rows[0].map(function(h,i){ return (h||'').trim() || ('column ' + (i+1)); });
+  var body = rows.slice(1).filter(function(r){ return r.join('').trim() !== ''; });
+  current = { name: name, header: header, body: body };
+  var sel = document.getElementById('dc-col');
+  sel.innerHTML = header.map(function(h,i){ return '<option value="' + i + '">' + esc(h) + '</option>'; }).join('');
+  sel.value = String(pickColumn(header, body));
+  run();
 }
 
-function handleText(name, text){
-  try {
-    var rows = parseCSV(text);
-    if(!rows.length){ alert('That file appears to be empty.'); return; }
-    render(name, analyze(rows));
-    showFix(name, rows);
-  } catch(e){
-    alert('Could not analyze that file. If it is an Excel workbook, save it as CSV first.');
-  }
-}
+var SAMPLE = 'Customer,City,Last Invoice,Amount\n' +
+'Acme Roofing,Gainesville,2026-07-02,1250\n' +
+'Acme Roofing LLC,Gainesville,2026-07-14,980\n' +
+'acme roofing inc.,Gainesville,2026-06-28,2100\n' +
+'Baker & Sons Law,Ocala,2026-07-05,760\n' +
+'Baker and Sons Law LLC,Ocala,2026-07-19,1180\n' +
+'Sunrise Veterinary,Alachua,2026-07-08,450\n' +
+'Sunrise Vetrinary,Alachua,2026-07-21,390\n' +
+'Palm Realty Group,Gainesville,2026-07-09,1420\n' +
+'Palm Realty Grp.,Gainesville,2026-07-23,2350\n' +
+'Northgate Church,Newberry,2026-07-14,860\n' +
+'Marlin Self-Serve,Ocala,2026-07-18,310\n' +
+'Rivertown Storage,Gainesville,2026-07-11,1150\n';
+
+var drop = document.getElementById('dc-drop');
+var input = document.getElementById('dc-file');
 function handleFile(f){
   if(!f) return;
   var reader = new FileReader();
-  reader.onload = function(){ handleText(f.name, String(reader.result)); };
+  reader.onload = function(){
+    try { load(f.name, String(reader.result)); }
+    catch(e){ alert('Could not read that file. If it is an Excel workbook, save it as CSV first.'); }
+  };
   reader.readAsText(f);
 }
-
-var drop = document.getElementById('hc-drop');
-var input = document.getElementById('hc-file');
 drop.addEventListener('click', function(){ input.click(); });
 drop.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); input.click(); } });
 input.addEventListener('change', function(){ handleFile(input.files[0]); });
 ['dragover','dragenter'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('is-over'); }); });
 ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('is-over'); }); });
 drop.addEventListener('drop', function(e){ handleFile(e.dataTransfer.files[0]); });
-document.getElementById('hc-sample').addEventListener('click', function(){ handleText('sample-invoices.csv', SAMPLE); });
-document.getElementById('hc-download').addEventListener('click', function(){
-  if(!pendingClean) return;
-  // Blob + object URL: the file is assembled in the page and handed to the
-  // browser's own download. Still nothing leaves the machine.
-  var blob = new Blob([toCSV(pendingClean.rows)], {type:'text/csv;charset=utf-8'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url; a.download = pendingClean.name;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
-});
+document.getElementById('dc-sample').addEventListener('click', function(){ load('sample-customers.csv', SAMPLE); });
+document.getElementById('dc-col').addEventListener('change', run);
 })();
 </script>
 

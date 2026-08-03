@@ -100,7 +100,8 @@ MAIN = """
       <a class="btn" href="/free-demo/">Get it on your real data — free</a>
       <p style="margin:.9rem 0 0;font-size:.85rem">Want the broader once-over first? The
       <a href="/spreadsheet-health-check/">Spreadsheet Health Check</a> reads any single export for
-      dead columns, mixed dates and duplicates &mdash; same rule, nothing uploads.</p>
+      dead columns, mixed dates and duplicates &mdash; same rule, nothing uploads. Same customer entered three ways? The
+      <a href="/duplicate-customer-finder/">Duplicate Customer Finder</a> shows your real count.</p>
     </div>
   </section>
 </main>
