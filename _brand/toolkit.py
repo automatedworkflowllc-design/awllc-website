@@ -20,6 +20,8 @@ finder; a rate table has no LLCs in it.
 """
 from __future__ import annotations
 
+import re
+
 # --- HTML escaping -----------------------------------------------------------
 # Every tool renders user cell values into its report. This is the only thing
 # standing between a spreadsheet containing "<script>" and a self-XSS demo.
@@ -92,4 +94,40 @@ function normText(s){
 
 CORE_JS = ESC_JS + PARSE_CSV_JS + MONEY_JS + PARSE_DATE_JS + NORM_TEXT_JS
 
-__all__ = ['CORE_JS', 'ESC_JS', 'PARSE_CSV_JS', 'MONEY_JS', 'PARSE_DATE_JS', 'NORM_TEXT_JS']
+# --- migration -----------------------------------------------------------
+# Deliberately narrow: only `esc` and `parseCSV` are swapped. `money`,
+# `parseDate` and `normText` are NOT, because several pages define their own
+# variants -- money-leak's `parseDate` understands its own column conventions --
+# and a blanket injection would silently override a page-specific version with
+# a generic one. That is the same class of bug this module exists to prevent,
+# so the migration stays as small as the duplication actually is.
+_ESC_DEF = re.compile(r'^function esc\(s\)\{.*?\}\n', re.M)
+_CSV_DEF = re.compile(r'^function parseCSV\(text\)\{.*?^\}\n', re.M | re.S)
+_ANCHOR = "'use strict';\n"
+
+
+def with_core(script_js):
+    """Replace a page's hand-copied esc/parseCSV with the shared ones.
+
+    Raises rather than returning something subtly wrong: a builder that
+    silently skipped the swap would keep shipping its own drifting copy while
+    appearing migrated, which is exactly the failure this is meant to end.
+    """
+    out, n_esc = _ESC_DEF.subn('', script_js)
+    out, n_csv = _CSV_DEF.subn('', out)
+    if n_esc != 1 or n_csv != 1:
+        raise SystemExit(
+            'with_core: expected exactly one esc and one parseCSV to replace, '
+            'found %d and %d -- the definitions moved; fix before shipping' % (n_esc, n_csv))
+    if _ANCHOR not in out:
+        raise SystemExit("with_core: no \"'use strict';\" anchor to insert after")
+    out = out.replace(_ANCHOR, _ANCHOR + ESC_JS + PARSE_CSV_JS, 1)
+    for name, count in (('function esc(', out.count('function esc(')),
+                        ('function parseCSV(', out.count('function parseCSV('))):
+        if count != 1:
+            raise SystemExit('with_core: %s appears %d times after merge, want 1' % (name, count))
+    return out
+
+
+__all__ = ['CORE_JS', 'ESC_JS', 'PARSE_CSV_JS', 'MONEY_JS', 'PARSE_DATE_JS',
+           'NORM_TEXT_JS', 'with_core']

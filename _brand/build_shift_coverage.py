@@ -18,6 +18,8 @@ from __future__ import annotations
 import pathlib
 import re
 
+from toolkit import with_core
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'shift-coverage-check'
@@ -514,7 +516,7 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
     head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
 
-    page = head + MAIN + footer + LD + SCRIPT + '\n</body>\n</html>\n'
+    page = head + MAIN + footer + LD + with_core(SCRIPT) + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')

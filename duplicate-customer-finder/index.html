@@ -307,7 +307,8 @@ padding:1rem 1.2rem;color:var(--ink-soft)}
 <script>
 (function(){
 'use strict';
-/* All local. No fetch, no XHR, no beacon. */
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 
 function parseCSV(text){
   var rows=[], row=[], cell='', q=false, i=0, c;
@@ -328,6 +329,8 @@ function parseCSV(text){
   if(cell !== '' || row.length){ row.push(cell); rows.push(row); }
   return rows;
 }
+/* All local. No fetch, no XHR, no beacon. */
+
 
 /* Legal-form suffixes and punctuation are the usual difference between two
    spellings of one company. Stripping them is the FIRST pass; anything caught
@@ -429,7 +432,6 @@ function findGroups(values){
   return groups;
 }
 
-function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 
 var current = null;   // { name, header, body }
 

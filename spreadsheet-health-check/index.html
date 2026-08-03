@@ -317,27 +317,16 @@ padding:1rem 1.2rem;color:var(--ink-soft)}
 <script>
 (function(){
 'use strict';
-/* All local. No fetch, no XHR, no beacon -- the privacy claim on this page is
-   architectural, not a policy. */
 
-var DECISION = /(^|_|\b)(status|flag|state|result|outcome|approved|paid|active|valid|check|verified|error)(\b|_|$)/i;
-var IDISH = /(^|_|\b)(id|invoice|number|no|ref|sku|key)(\b|_|$)/i;
-var DATE_SHAPES = [
-  [/^\d{4}-\d{1,2}-\d{1,2}/, 'YYYY-MM-DD'],
-  [/^\d{1,2}\/\d{1,2}\/\d{2,4}$/, 'M/D/Y'],
-  [/^\d{1,2}-[A-Za-z]{3}/, 'D-Mon'],
-  [/^[A-Za-z]{3,9} \d{1,2},? \d{4}$/, 'Month D, Y']
-];
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 
 function parseCSV(text){
   var rows=[], row=[], cell='', q=false, i=0, c;
   var delim = (text.split('\t').length > text.split(',').length) ? '\t' : ',';
   while(i < text.length){
     c = text[i];
-    if(q){
-      if(c === '"'){ if(text[i+1] === '"'){ cell+='"'; i++; } else q=false; }
-      else cell += c;
-    } else if(c === '"') q = true;
+    if(q){ if(c === '"'){ if(text[i+1] === '"'){ cell+='"'; i++; } else q=false; } else cell += c; }
+    else if(c === '"') q = true;
     else if(c === delim){ row.push(cell); cell=''; }
     else if(c === '\n' || c === '\r'){
       if(c === '\r' && text[i+1] === '\n') i++;
@@ -350,6 +339,18 @@ function parseCSV(text){
   if(cell !== '' || row.length){ row.push(cell); rows.push(row); }
   return rows;
 }
+/* All local. No fetch, no XHR, no beacon -- the privacy claim on this page is
+   architectural, not a policy. */
+
+var DECISION = /(^|_|\b)(status|flag|state|result|outcome|approved|paid|active|valid|check|verified|error)(\b|_|$)/i;
+var IDISH = /(^|_|\b)(id|invoice|number|no|ref|sku|key)(\b|_|$)/i;
+var DATE_SHAPES = [
+  [/^\d{4}-\d{1,2}-\d{1,2}/, 'YYYY-MM-DD'],
+  [/^\d{1,2}\/\d{1,2}\/\d{2,4}$/, 'M/D/Y'],
+  [/^\d{1,2}-[A-Za-z]{3}/, 'D-Mon'],
+  [/^[A-Za-z]{3,9} \d{1,2},? \d{4}$/, 'Month D, Y']
+];
+
 
 function dateShape(v){
   for(var k=0;k<DATE_SHAPES.length;k++) if(DATE_SHAPES[k][0].test(v)) return DATE_SHAPES[k][1];
@@ -574,7 +575,6 @@ var SAMPLE = 'Invoice No,Date,Customer,Amount,Status,Notes\n' +
 '1008,2026-07-11,Acme Roofing,,Paid,\n' +
 '1009,2026-07-14,Palm Realty,2350,Paid,\n';
 
-function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 
 function render(name, result){
   var rep = document.getElementById('hc-report');

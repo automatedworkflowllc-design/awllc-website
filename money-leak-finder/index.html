@@ -307,7 +307,8 @@ color:var(--ink-soft);border-bottom:1px solid var(--line-strong);padding:.35rem 
 <script>
 (function(){
 'use strict';
-/* All local. No fetch, no XHR, no beacon. */
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 
 function parseCSV(text){
   var rows=[], row=[], cell='', q=false, i=0, c;
@@ -328,6 +329,8 @@ function parseCSV(text){
   if(cell !== '' || row.length){ row.push(cell); rows.push(row); }
   return rows;
 }
+/* All local. No fetch, no XHR, no beacon. */
+
 
 function toTable(rows){
   var header = rows[0].map(function(h,i){ return (h||'').trim() || ('col'+(i+1)); });
@@ -399,7 +402,6 @@ function detectPaid(t){
 }
 
 function fmt(n){ return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
-function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 
 function reconcile(work, inv, asOf){
   var join = detectJoin(work, inv);

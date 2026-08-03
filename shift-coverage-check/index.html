@@ -312,11 +312,8 @@ border-bottom:1px solid var(--line-strong);white-space:nowrap}
 <script>
 (function(){
 'use strict';
-/* All local. No fetch, no XHR, no beacon. */
 
-var OT_HOURS = 40;          // weekly hours above which overtime starts
-var SHORT_TURNAROUND = 10;  // hours between shifts below which fatigue risk is real
-var MAX_STREAK = 6;         // consecutive days worked before a day off is due
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 
 function parseCSV(text){
   var rows=[], row=[], cell='', q=false, i=0, c;
@@ -337,6 +334,12 @@ function parseCSV(text){
   if(cell !== '' || row.length){ row.push(cell); rows.push(row); }
   return rows;
 }
+/* All local. No fetch, no XHR, no beacon. */
+
+var OT_HOURS = 40;          // weekly hours above which overtime starts
+var SHORT_TURNAROUND = 10;  // hours between shifts below which fatigue risk is real
+var MAX_STREAK = 6;         // consecutive days worked before a day off is due
+
 
 function parseDate(v){
   v = String(v).trim();
@@ -409,7 +412,6 @@ function detect(header, body){
   return picks;
 }
 
-function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 function iso(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 function weekKey(d){ var t = new Date(d.getTime()); t.setDate(t.getDate() - t.getDay()); return iso(t); }
 function fmtH(h){ return (Math.round(h*10)/10) + 'h'; }
