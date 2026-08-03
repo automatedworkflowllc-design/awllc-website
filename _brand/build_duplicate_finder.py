@@ -24,8 +24,7 @@ OUT_DIR = ROOT / 'duplicate-customer-finder'
 
 TITLE = 'Free Duplicate Customer Finder — Runs In Your Browser'
 DESC = ('Find the same customer entered three ways: Acme Roofing vs Acme Roofing LLC '
-        'vs acme roofing inc. See your real customer count. Runs in your browser — '
-        'nothing uploads.')
+        'vs acme roofing inc. See your real customer count. Runs in your browser.')
 CANON = 'https://automatedworkflowllc.com/duplicate-customer-finder/'
 
 PAGE_CSS = """
