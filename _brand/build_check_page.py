@@ -25,14 +25,14 @@ from __future__ import annotations
 import pathlib
 import re
 
-from toolkit import PARSE_DATE_JS
+from toolkit import PARSE_DATE_JS, XLSX_JS
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'check'
 
 TITLE = 'Free Business File Check — Drop Anything, Nothing Uploads'
-DESC = ('Drop any business export — invoices, roster, job log. It works out what the file is, '
+DESC = ('Drop any business export — Excel (.xlsx) or CSV. It works out what the file is, '
         'runs every check that applies, and puts a dollar figure on the problems.')
 CANON = 'https://automatedworkflowllc.com/check/'
 
@@ -97,7 +97,8 @@ MAIN = """
   <div class="ck-actions">
     <button class="btn" id="ck-sample" type="button">Try it on sample files</button>
   </div>
-  <p class="ck-note">Excel users: <code>File &rarr; Save As &rarr; CSV</code> first.</p>
+  <p class="ck-note"><strong>Excel files work directly</strong> &mdash; drop the .xlsx as-is.
+  It is read right here in your browser (first sheet), same as CSV: nothing uploads.</p>
 
   <section id="ck-report" aria-live="polite">
     <h2 id="ck-title" style="margin-bottom:.7rem"></h2>
@@ -588,17 +589,35 @@ var drop = document.getElementById('ck-drop');
 var input = document.getElementById('ck-file');
 function handleFiles(list){
   if(!list || !list.length) return;
-  var files = Array.prototype.slice.call(list, 0, 2), loaded = [];
+  var files = Array.prototype.slice.call(list, 0, 2), loaded = [], done = 0;
+  function finish(){
+    if(++done !== files.length) return;
+    try { render(runAll(loaded)); }
+    catch(err){ alert('Could not analyze that file. If it is very old (.xls) Excel, save it as .xlsx or CSV first.'); }
+  }
   files.forEach(function(f){
     var reader = new FileReader();
-    reader.onload = function(){
-      loaded.push({name:f.name, text:String(reader.result)});
-      if(loaded.length === files.length){
-        try { render(runAll(loaded)); }
-        catch(err){ alert('Could not analyze that. If it is an Excel workbook, save it as CSV first.'); }
-      }
-    };
-    reader.readAsText(f);
+    if(/\.(xlsx|xlsm)$/i.test(f.name)){
+      /* Native Excel intake -- parsed right here, no library, no upload.
+         The first sheet is read; dates convert only when Excel styled the
+         cell as a date, so a plain number can never be invented into one. */
+      reader.onload = function(){
+        xlsxToRows(reader.result).then(function(rows){
+          loaded.push({name:f.name, text:rowsToCSV(rows)});
+          finish();
+        }).catch(function(err){
+          alert('Could not read ' + f.name + ' as an Excel workbook (' + err.message +
+                '). Save it as CSV and try again.');
+        });
+      };
+      reader.readAsArrayBuffer(f);
+    } else {
+      reader.onload = function(){
+        loaded.push({name:f.name, text:String(reader.result)});
+        finish();
+      };
+      reader.readAsText(f);
+    }
   });
 }
 drop.addEventListener('click', function(){ input.click(); });
@@ -658,6 +677,10 @@ def main() -> None:
     script = SCRIPT.replace('function parseTime(', PARSE_DATE_JS.strip() + '\n\nfunction parseTime(', 1)
     if 'function parseDate' not in script:
         raise SystemExit('parseDate was not injected -- the parseTime anchor moved; fix before shipping')
+    # Native .xlsx intake from the shared toolkit -- injected, not hand-copied.
+    script = script.replace('function parseTime(', XLSX_JS.strip() + '\n\nfunction parseTime(', 1)
+    if 'function xlsxToRows' not in script or 'function rowsToCSV' not in script:
+        raise SystemExit('xlsx reader was not injected -- fix before shipping')
     page = head + MAIN + footer + LD + script + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')

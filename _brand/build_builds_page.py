@@ -56,9 +56,10 @@ TOOLS = [
      "with formulas intact and amounts stored as numbers, not text.",
      ["Live", "Nothing uploads", "Free"]),
     ("Business File Check  ·  start here", "/check/",
-     "One drop zone for any business export. It works out what the file is from its columns "
-     "&mdash; invoices, roster, customer list, job log &mdash; runs every check that applies, and "
-     "reconciles two files against each other if you drop a pair.",
+     "One drop zone for any business export &mdash; <strong>Excel (.xlsx) works directly</strong>, "
+     "no save-as-CSV step. It works out what the file is from its columns, runs every check that "
+     "applies, and reconciles two files against each other if you drop a pair. The Excel file is "
+     "parsed in your browser with no library and no upload &mdash; nobody else does that.",
      "On its sample pair it returns 8 findings with zero configuration and puts a number on the "
      "damage: <strong>$1,240 of finished work that was never invoiced</strong>. "
      "<a href=\"/check/example/\">See a real report</a> before uploading anything.",

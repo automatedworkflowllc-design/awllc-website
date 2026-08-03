@@ -94,6 +94,157 @@ function normText(s){
 
 CORE_JS = ESC_JS + PARSE_CSV_JS + MONEY_JS + PARSE_DATE_JS + NORM_TEXT_JS
 
+# --- XLSX intake, no library ---------------------------------------------
+# "Save it as CSV first" is where prospects quietly leave: small businesses
+# have .xlsx files. Every other tool solves this with SheetJS off a CDN, which
+# would break the one promise every tool page makes -- no request ever leaves
+# the page. So this is a hand-rolled reader, the mirror image of /starter/'s
+# ZIP writer: EOCD scan -> central directory -> DecompressionStream
+# ('deflate-raw', native in every modern browser) -> worksheet XML.
+#
+# Date discipline: Excel stores dates as serial numbers, distinguishable from
+# plain numbers ONLY by cell style. Serials convert to ISO dates strictly when
+# the style's number format is a date format (builtin ids 14-22/45-47 or a
+# custom code containing y/m/d/h outside brackets and quotes). Anything else
+# stays a number -- converting on a guess would INVENT dates, and every
+# downstream check trusts dates. Fails loud: a workbook this cannot parse
+# raises, and the caller shows "save as CSV" -- never a silently empty table.
+XLSX_JS = r"""
+function xlsxToRows(buf){
+  var u8 = new Uint8Array(buf), dv = new DataView(buf);
+  function findEOCD(){
+    for(var i = u8.length - 22; i >= Math.max(0, u8.length - 65558); i--)
+      if(dv.getUint32(i, true) === 0x06054b50) return i;
+    throw new Error('not a zip');
+  }
+  var eocd = findEOCD();
+  var count = dv.getUint16(eocd + 10, true), cdOff = dv.getUint32(eocd + 16, true);
+  var entries = {}, p = cdOff;
+  for(var e = 0; e < count; e++){
+    if(dv.getUint32(p, true) !== 0x02014b50) throw new Error('bad central dir');
+    var method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+    var nlen = dv.getUint16(p + 28, true), xlen = dv.getUint16(p + 30, true),
+        clen = dv.getUint16(p + 32, true), lho = dv.getUint32(p + 42, true);
+    var name = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nlen));
+    entries[name] = {method: method, csize: csize, lho: lho};
+    p += 46 + nlen + xlen + clen;
+  }
+  function inflate(ent){
+    var q = ent.lho;
+    if(dv.getUint32(q, true) !== 0x04034b50) throw new Error('bad local header');
+    var nl = dv.getUint16(q + 26, true), xl = dv.getUint16(q + 28, true);
+    var data = u8.subarray(q + 30 + nl + xl, q + 30 + nl + xl + ent.csize);
+    if(ent.method === 0) return Promise.resolve(new TextDecoder().decode(data));
+    if(ent.method !== 8) throw new Error('unsupported compression ' + ent.method);
+    var ds = new DecompressionStream('deflate-raw');
+    return new Response(new Blob([data]).stream().pipeThrough(ds)).text();
+  }
+  function unesc(s){
+    return s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"')
+            .replace(/&apos;/g,"'").replace(/&#x([0-9a-fA-F]+);/g,
+              function(_, h){ return String.fromCodePoint(parseInt(h, 16)); })
+            .replace(/&#(\d+);/g, function(_, d){ return String.fromCodePoint(+d); })
+            .replace(/&amp;/g,'&');
+  }
+  function texts(xml){   // concat all <t> runs inside one <si>/<is> (rich text)
+    var out = '', m, re = /<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g;
+    while((m = re.exec(xml))) out += unesc(m[1]);
+    return out;
+  }
+  var BUILTIN_DATE = {14:1,15:1,16:1,17:1,18:1,19:1,20:1,21:1,22:1,45:1,46:1,47:1};
+  function isDateCode(code){
+    var bare = code.replace(/\[[^\]]*\]/g, '').replace(/"[^"]*"/g, '');
+    return /[ymdhs]/i.test(bare) && !/General/i.test(bare);
+  }
+  function serialToISO(n){
+    // Excel 1900 epoch (day 1 = 1900-01-01, with the fictitious Feb 29 1900
+    // baked in, hence the -25569 against the Unix epoch working for n >= 61;
+    // sub-61 serials are Jan/Feb 1900 -- not business data, left numeric).
+    if(n < 61 || n > 2958465) return null;
+    var d = new Date(Math.round((n - 25569) * 86400000));
+    return d.toISOString().slice(0, 10);
+  }
+  var wanted = ['xl/workbook.xml', 'xl/_rels/workbook.xml.rels',
+                'xl/sharedStrings.xml', 'xl/styles.xml'];
+  return Promise.all(wanted.map(function(n){
+    return entries[n] ? inflate(entries[n]) : Promise.resolve('');
+  })).then(function(parts){
+    var wb = parts[0], rels = parts[1], sstXml = parts[2], styles = parts[3];
+    var first = /<sheet\s[^>]*r:id="(rId\d+)"/.exec(wb) || /<sheet\s[^>]*id="(rId\d+)"/.exec(wb);
+    var target = 'xl/worksheets/sheet1.xml';
+    if(first && rels){
+      var rel = new RegExp('Id="' + first[1] + '"[^>]*Target="([^"]+)"').exec(rels) ||
+                new RegExp('Target="([^"]+)"[^>]*Id="' + first[1] + '"').exec(rels);
+      if(rel) target = 'xl/' + rel[1].replace(/^\//, '').replace(/^xl\//, '');
+    }
+    if(!entries[target]) throw new Error('no worksheet found');
+
+    var sst = [], m, siRe = /<si>([\s\S]*?)<\/si>/g;
+    while((m = siRe.exec(sstXml))) sst.push(texts(m[1]));
+
+    var custom = {}, fmRe = /<numFmt\s[^>]*numFmtId="(\d+)"[^>]*formatCode="([^"]*)"/g;
+    while((m = fmRe.exec(styles))) custom[+m[1]] = unesc(m[2]);
+    var dateStyle = [];
+    var xfsBlock = /<cellXfs[^>]*>([\s\S]*?)<\/cellXfs>/.exec(styles);
+    if(xfsBlock){
+      var xfRe = /<xf\b[^>]*numFmtId="(\d+)"[^>]*/g, i = 0;
+      while((m = xfRe.exec(xfsBlock[1]))){
+        var id = +m[1];
+        dateStyle[i++] = !!(BUILTIN_DATE[id] || (custom[id] && isDateCode(custom[id])));
+      }
+    }
+    return inflate(entries[target]).then(function(ws){
+      var rows = [], rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/g, rm;
+      while((rm = rowRe.exec(ws))){
+        var cells = [], cRe = /<c\b([^>]*)(?:\/>|>([\s\S]*?)<\/c>)/g, cm;
+        while((cm = cRe.exec(rm[1]))){
+          var attrs = cm[1], body = cm[2] || '';
+          var ref = /r="([A-Z]+)\d+"/.exec(attrs);
+          var col = 0;
+          if(ref) for(var k = 0; k < ref[1].length; k++) col = col * 26 + (ref[1].charCodeAt(k) - 64);
+          else col = cells.length + 1;
+          var t = (/t="(\w+)"/.exec(attrs) || [])[1] || 'n';
+          var sIdx = (/s="(\d+)"/.exec(attrs) || [])[1];
+          var v = /<v>([\s\S]*?)<\/v>/.exec(body);
+          var val = '';
+          if(t === 'inlineStr') val = texts(body);
+          else if(!v) val = '';
+          else if(t === 's') val = sst[+v[1]] !== undefined ? sst[+v[1]] : '';
+          else if(t === 'str' || t === 'e') val = unesc(v[1]);
+          else if(t === 'b') val = v[1] === '1' ? 'TRUE' : 'FALSE';
+          else {
+            val = v[1];
+            if(sIdx !== undefined && dateStyle[+sIdx]){
+              var iso = serialToISO(parseFloat(v[1]));
+              if(iso) val = iso;
+            } else if(/^-?\d*\.\d{10,}$/.test(val)){
+              // Excel stores 99.9 as 99.90000000000001 in the XML; showing
+              // that dust in a money column reads as broken. 15 significant
+              // digits is what Excel itself displays.
+              var n = parseFloat(val);
+              if(isFinite(n)) val = String(parseFloat(n.toPrecision(15)));
+            }
+          }
+          while(cells.length < col - 1) cells.push('');
+          cells[col - 1] = val;
+        }
+        rows.push(cells);
+      }
+      if(!rows.length) throw new Error('empty worksheet');
+      return rows;
+    });
+  });
+}
+function rowsToCSV(rows){
+  return rows.map(function(r){
+    return r.map(function(v){
+      v = String(v === undefined || v === null ? '' : v);
+      return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    }).join(',');
+  }).join('\n');
+}
+"""
+
 # --- migration -----------------------------------------------------------
 # Deliberately narrow: only `esc` and `parseCSV` are swapped. `money`,
 # `parseDate` and `normText` are NOT, because several pages define their own

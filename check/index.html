@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Free Business File Check — Drop Anything, Nothing Uploads</title>
-<meta name="description" content="Drop any business export — invoices, roster, job log. It works out what the file is, runs every check that applies, and puts a dollar figure on the problems.">
+<meta name="description" content="Drop any business export — Excel (.xlsx) or CSV. It works out what the file is, runs every check that applies, and puts a dollar figure on the problems.">
 <link rel="canonical" href="https://automatedworkflowllc.com/check/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Free Business File Check — Drop Anything, Nothing Uploads">
-<meta property="og:description" content="Drop any business export — invoices, roster, job log. It works out what the file is, runs every check that applies, and puts a dollar figure on the problems.">
+<meta property="og:description" content="Drop any business export — Excel (.xlsx) or CSV. It works out what the file is, runs every check that applies, and puts a dollar figure on the problems.">
 <meta property="og:url" content="https://automatedworkflowllc.com/check/">
 <meta property="og:image" content="https://automatedworkflowllc.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -255,7 +255,8 @@ padding:1rem 1.2rem;color:var(--ink-soft)}
   <div class="ck-actions">
     <button class="btn" id="ck-sample" type="button">Try it on sample files</button>
   </div>
-  <p class="ck-note">Excel users: <code>File &rarr; Save As &rarr; CSV</code> first.</p>
+  <p class="ck-note"><strong>Excel files work directly</strong> &mdash; drop the .xlsx as-is.
+  It is read right here in your browser (first sheet), same as CSV: nothing uploads.</p>
 
   <section id="ck-report" aria-live="polite">
     <h2 id="ck-title" style="margin-bottom:.7rem"></h2>
@@ -373,6 +374,140 @@ function parseDate(v){
   m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
   if(m) return new Date(m[3].length===2 ? 2000+ +m[3] : +m[3], +m[1]-1, +m[2]);
   return null;
+}
+
+function xlsxToRows(buf){
+  var u8 = new Uint8Array(buf), dv = new DataView(buf);
+  function findEOCD(){
+    for(var i = u8.length - 22; i >= Math.max(0, u8.length - 65558); i--)
+      if(dv.getUint32(i, true) === 0x06054b50) return i;
+    throw new Error('not a zip');
+  }
+  var eocd = findEOCD();
+  var count = dv.getUint16(eocd + 10, true), cdOff = dv.getUint32(eocd + 16, true);
+  var entries = {}, p = cdOff;
+  for(var e = 0; e < count; e++){
+    if(dv.getUint32(p, true) !== 0x02014b50) throw new Error('bad central dir');
+    var method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+    var nlen = dv.getUint16(p + 28, true), xlen = dv.getUint16(p + 30, true),
+        clen = dv.getUint16(p + 32, true), lho = dv.getUint32(p + 42, true);
+    var name = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nlen));
+    entries[name] = {method: method, csize: csize, lho: lho};
+    p += 46 + nlen + xlen + clen;
+  }
+  function inflate(ent){
+    var q = ent.lho;
+    if(dv.getUint32(q, true) !== 0x04034b50) throw new Error('bad local header');
+    var nl = dv.getUint16(q + 26, true), xl = dv.getUint16(q + 28, true);
+    var data = u8.subarray(q + 30 + nl + xl, q + 30 + nl + xl + ent.csize);
+    if(ent.method === 0) return Promise.resolve(new TextDecoder().decode(data));
+    if(ent.method !== 8) throw new Error('unsupported compression ' + ent.method);
+    var ds = new DecompressionStream('deflate-raw');
+    return new Response(new Blob([data]).stream().pipeThrough(ds)).text();
+  }
+  function unesc(s){
+    return s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"')
+            .replace(/&apos;/g,"'").replace(/&#x([0-9a-fA-F]+);/g,
+              function(_, h){ return String.fromCodePoint(parseInt(h, 16)); })
+            .replace(/&#(\d+);/g, function(_, d){ return String.fromCodePoint(+d); })
+            .replace(/&amp;/g,'&');
+  }
+  function texts(xml){   // concat all <t> runs inside one <si>/<is> (rich text)
+    var out = '', m, re = /<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g;
+    while((m = re.exec(xml))) out += unesc(m[1]);
+    return out;
+  }
+  var BUILTIN_DATE = {14:1,15:1,16:1,17:1,18:1,19:1,20:1,21:1,22:1,45:1,46:1,47:1};
+  function isDateCode(code){
+    var bare = code.replace(/\[[^\]]*\]/g, '').replace(/"[^"]*"/g, '');
+    return /[ymdhs]/i.test(bare) && !/General/i.test(bare);
+  }
+  function serialToISO(n){
+    // Excel 1900 epoch (day 1 = 1900-01-01, with the fictitious Feb 29 1900
+    // baked in, hence the -25569 against the Unix epoch working for n >= 61;
+    // sub-61 serials are Jan/Feb 1900 -- not business data, left numeric).
+    if(n < 61 || n > 2958465) return null;
+    var d = new Date(Math.round((n - 25569) * 86400000));
+    return d.toISOString().slice(0, 10);
+  }
+  var wanted = ['xl/workbook.xml', 'xl/_rels/workbook.xml.rels',
+                'xl/sharedStrings.xml', 'xl/styles.xml'];
+  return Promise.all(wanted.map(function(n){
+    return entries[n] ? inflate(entries[n]) : Promise.resolve('');
+  })).then(function(parts){
+    var wb = parts[0], rels = parts[1], sstXml = parts[2], styles = parts[3];
+    var first = /<sheet\s[^>]*r:id="(rId\d+)"/.exec(wb) || /<sheet\s[^>]*id="(rId\d+)"/.exec(wb);
+    var target = 'xl/worksheets/sheet1.xml';
+    if(first && rels){
+      var rel = new RegExp('Id="' + first[1] + '"[^>]*Target="([^"]+)"').exec(rels) ||
+                new RegExp('Target="([^"]+)"[^>]*Id="' + first[1] + '"').exec(rels);
+      if(rel) target = 'xl/' + rel[1].replace(/^\//, '').replace(/^xl\//, '');
+    }
+    if(!entries[target]) throw new Error('no worksheet found');
+
+    var sst = [], m, siRe = /<si>([\s\S]*?)<\/si>/g;
+    while((m = siRe.exec(sstXml))) sst.push(texts(m[1]));
+
+    var custom = {}, fmRe = /<numFmt\s[^>]*numFmtId="(\d+)"[^>]*formatCode="([^"]*)"/g;
+    while((m = fmRe.exec(styles))) custom[+m[1]] = unesc(m[2]);
+    var dateStyle = [];
+    var xfsBlock = /<cellXfs[^>]*>([\s\S]*?)<\/cellXfs>/.exec(styles);
+    if(xfsBlock){
+      var xfRe = /<xf\b[^>]*numFmtId="(\d+)"[^>]*/g, i = 0;
+      while((m = xfRe.exec(xfsBlock[1]))){
+        var id = +m[1];
+        dateStyle[i++] = !!(BUILTIN_DATE[id] || (custom[id] && isDateCode(custom[id])));
+      }
+    }
+    return inflate(entries[target]).then(function(ws){
+      var rows = [], rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/g, rm;
+      while((rm = rowRe.exec(ws))){
+        var cells = [], cRe = /<c\b([^>]*)(?:\/>|>([\s\S]*?)<\/c>)/g, cm;
+        while((cm = cRe.exec(rm[1]))){
+          var attrs = cm[1], body = cm[2] || '';
+          var ref = /r="([A-Z]+)\d+"/.exec(attrs);
+          var col = 0;
+          if(ref) for(var k = 0; k < ref[1].length; k++) col = col * 26 + (ref[1].charCodeAt(k) - 64);
+          else col = cells.length + 1;
+          var t = (/t="(\w+)"/.exec(attrs) || [])[1] || 'n';
+          var sIdx = (/s="(\d+)"/.exec(attrs) || [])[1];
+          var v = /<v>([\s\S]*?)<\/v>/.exec(body);
+          var val = '';
+          if(t === 'inlineStr') val = texts(body);
+          else if(!v) val = '';
+          else if(t === 's') val = sst[+v[1]] !== undefined ? sst[+v[1]] : '';
+          else if(t === 'str' || t === 'e') val = unesc(v[1]);
+          else if(t === 'b') val = v[1] === '1' ? 'TRUE' : 'FALSE';
+          else {
+            val = v[1];
+            if(sIdx !== undefined && dateStyle[+sIdx]){
+              var iso = serialToISO(parseFloat(v[1]));
+              if(iso) val = iso;
+            } else if(/^-?\d*\.\d{10,}$/.test(val)){
+              // Excel stores 99.9 as 99.90000000000001 in the XML; showing
+              // that dust in a money column reads as broken. 15 significant
+              // digits is what Excel itself displays.
+              var n = parseFloat(val);
+              if(isFinite(n)) val = String(parseFloat(n.toPrecision(15)));
+            }
+          }
+          while(cells.length < col - 1) cells.push('');
+          cells[col - 1] = val;
+        }
+        rows.push(cells);
+      }
+      if(!rows.length) throw new Error('empty worksheet');
+      return rows;
+    });
+  });
+}
+function rowsToCSV(rows){
+  return rows.map(function(r){
+    return r.map(function(v){
+      v = String(v === undefined || v === null ? '' : v);
+      return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    }).join(',');
+  }).join('\n');
 }
 
 function parseTime(v){
@@ -784,17 +919,35 @@ var drop = document.getElementById('ck-drop');
 var input = document.getElementById('ck-file');
 function handleFiles(list){
   if(!list || !list.length) return;
-  var files = Array.prototype.slice.call(list, 0, 2), loaded = [];
+  var files = Array.prototype.slice.call(list, 0, 2), loaded = [], done = 0;
+  function finish(){
+    if(++done !== files.length) return;
+    try { render(runAll(loaded)); }
+    catch(err){ alert('Could not analyze that file. If it is very old (.xls) Excel, save it as .xlsx or CSV first.'); }
+  }
   files.forEach(function(f){
     var reader = new FileReader();
-    reader.onload = function(){
-      loaded.push({name:f.name, text:String(reader.result)});
-      if(loaded.length === files.length){
-        try { render(runAll(loaded)); }
-        catch(err){ alert('Could not analyze that. If it is an Excel workbook, save it as CSV first.'); }
-      }
-    };
-    reader.readAsText(f);
+    if(/\.(xlsx|xlsm)$/i.test(f.name)){
+      /* Native Excel intake -- parsed right here, no library, no upload.
+         The first sheet is read; dates convert only when Excel styled the
+         cell as a date, so a plain number can never be invented into one. */
+      reader.onload = function(){
+        xlsxToRows(reader.result).then(function(rows){
+          loaded.push({name:f.name, text:rowsToCSV(rows)});
+          finish();
+        }).catch(function(err){
+          alert('Could not read ' + f.name + ' as an Excel workbook (' + err.message +
+                '). Save it as CSV and try again.');
+        });
+      };
+      reader.readAsArrayBuffer(f);
+    } else {
+      reader.onload = function(){
+        loaded.push({name:f.name, text:String(reader.result)});
+        finish();
+      };
+      reader.readAsText(f);
+    }
   });
 }
 drop.addEventListener('click', function(){ input.click(); });
