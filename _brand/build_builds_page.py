@@ -48,13 +48,20 @@ background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
 """
 
 TOOLS = [
+    ("Job &amp; Invoice Tracker  ·  no file needed", "/starter/",
+     "Every other tool here asks you to upload something first. This one asks for nothing &mdash; "
+     "press a button and it builds you a working Excel tracker where unbilled jobs and invoices "
+     "past 60 days flag themselves.",
+     "A real .xlsx assembled in your browser with no library and no upload &mdash; verified to open "
+     "with formulas intact and amounts stored as numbers, not text.",
+     ["Live", "Nothing uploads", "Free"]),
     ("Business File Check  ·  start here", "/check/",
      "One drop zone for any business export. It works out what the file is from its columns "
      "&mdash; invoices, roster, customer list, job log &mdash; runs every check that applies, and "
      "reconciles two files against each other if you drop a pair.",
      "On its sample pair it returns 8 findings with zero configuration and puts a number on the "
-     "damage: <strong>$1,240 of finished work that was never invoiced</strong>. Ends with a "
-     "downloadable report you can forward.",
+     "damage: <strong>$1,240 of finished work that was never invoiced</strong>. "
+     "<a href=\"/check/example/\">See a real report</a> before uploading anything.",
      ["Live", "Nothing uploads", "Free"]),
     ("Spreadsheet Health Check", "/spreadsheet-health-check/",
      "Drop any CSV and get an honest report: columns that carry no information, status fields that "
