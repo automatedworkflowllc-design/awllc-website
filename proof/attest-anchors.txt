@@ -1,0 +1,12 @@
+# attest public anchors — automatedworkflowllc.com
+#
+# Each line is the chain head of our attest evidence ledger at the moment of
+# publication. Once a head is published here, history behind it cannot be
+# rewritten by anyone — including us: this file is served publicly and its
+# edit history lives in the site repository, CDN caches, and web archives,
+# which act as independent witnesses. To verify: obtain the ledger, hash its
+# last line at the anchored count (sha256 of the raw line), compare.
+#
+# Format: <local ISO datetime> receipts=<count> head=sha256:<hex>
+# Append-only. A removed or altered line is itself evidence.
+2026-08-04T00:24:36 receipts=1 head=sha256:9214e6d8ccacb414bfc20849f63e6453f37b902c8d4890a2e287524672402d5e
