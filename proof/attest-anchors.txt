@@ -10,3 +10,8 @@
 # Format: <local ISO datetime> receipts=<count> head=sha256:<hex>
 # Append-only. A removed or altered line is itself evidence.
 2026-08-04T00:24:36 receipts=1 head=sha256:9214e6d8ccacb414bfc20849f63e6453f37b902c8d4890a2e287524672402d5e
+# The two receipts added below the first anchor are SEALED COMMITMENTS —
+# pre-registered claims whose content stays private until revealed. This
+# anchor proves they existed no later than its publication date; when they
+# are revealed, hindsight editing is cryptographically off the table.
+2026-08-04T00:45:23 receipts=3 head=sha256:4b3b255fb8f6260e0cda02588fdbd7d43e2977adef1b28f7bb79fcd6240e6017
