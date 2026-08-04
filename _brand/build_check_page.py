@@ -620,7 +620,19 @@ function reportHTML(res){
     ' &middot; analysis ran entirely in the browser; no file was uploaded.</p>' +
     (res.atRisk > 0 ? '<div class="risk"><strong>' +
       '$' + Math.round(res.atRisk).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') +
-      '</strong> is sitting in records that do not agree with each other. Detail below.</div>' : '') +
+      '</strong> is sitting in records that do not agree with each other. Detail below.' +
+      /* Static leak bars for the forwarded file: inline widths, no script.
+         Same rule as on the page -- every width is arithmetic on the findings. */
+      res.findings.filter(function(f){ return f.money > 0; }).map(function(f){
+        var pct = Math.max(2, Math.round(100 * f.money / res.atRisk));
+        return '<div style="margin-top:.55rem"><div style="display:flex;justify-content:space-between;' +
+          'font-size:.82rem"><span>' + esc(f.title.replace(/ —.*$/, '')) + '</span>' +
+          '<b style="font-family:ui-monospace,monospace">$' +
+          Math.round(f.money).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '</b></div>' +
+          '<div style="height:.55rem;border-radius:.3rem;background:#F3F0E7;border:1px solid #D8D1BD">' +
+          '<div style="height:100%;width:' + pct + '%;border-radius:.3rem;background:' +
+          (f.sev === 'med' ? '#A8842B' : '#B4452C') + '"></div></div></div>';
+      }).join('') + '</div>' : '') +
     res.meta.map(function(m){ return '<div class="file"><strong>'+esc(m.name)+'</strong> — read as ' +
       esc(m.label) + ', ' + m.rows + ' rows &times; ' + m.cols + ' cols</div>'; }).join('') +
     '<h2 style="font-size:1rem;margin:1.4rem 0 .6rem">Findings</h2>' + rows +

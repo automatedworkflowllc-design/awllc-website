@@ -756,6 +756,28 @@ function render(names, r, asOfLabel){
   }
   document.getElementById('ml-kpis').innerHTML = k;
 
+  /* The dollars count up -- and always LAND on the exact computed figure.
+     Same rule as /check/'s visual: motion never touches the arithmetic.
+     Reduced-motion users get the final numbers immediately. */
+  (function(){
+    var els = document.getElementById('ml-kpis').querySelectorAll('.ml-kpi b');
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    for(var i = 0; i < els.length; i++)(function(el){
+      var m = /^\$([\d,]+(?:\.\d+)?)$/.exec(el.textContent.trim());
+      if(!m || reduce) return;
+      var target = parseFloat(m[1].replace(/,/g, '')), final = el.textContent;
+      var t0 = null;
+      var tick = function(ts){
+        if(t0 === null) t0 = ts;
+        var p = Math.min(1, (ts - t0) / 900);
+        el.textContent = '$' + Math.round(target * (1 - Math.pow(1 - p, 3)))
+          .toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        if(p < 1) requestAnimationFrame(tick); else el.textContent = final;
+      };
+      requestAnimationFrame(tick);
+    })(els[i]);
+  })();
+
   var out = '<p class="ml-note">Matched on <strong>' + esc(r.join.workCol) + '</strong> &harr; <strong>' + esc(r.join.invCol) + '</strong> by exact ID &mdash; nothing fuzzy, nothing guessed.</p>';
   if(r.never.length){
     out += '<h3 class="ml-h3">A &middot; Completed but never invoiced</h3><table class="ml-table"><tr><th>Ref</th><th>Details</th><th style="text-align:right">Amount</th></tr>';
