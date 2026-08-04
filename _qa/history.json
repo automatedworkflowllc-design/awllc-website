@@ -320,5 +320,23 @@
   "mode": "full",
   "score": 0,
   "by_area": {}
+ },
+ {
+  "when": "2026-08-04 00:17",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-04 00:25",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-04 00:27",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
  }
 ]

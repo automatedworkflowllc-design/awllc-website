@@ -185,6 +185,11 @@ border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointe
 .st-go:hover{filter:brightness(1.08)}
 .st-go:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .st-said{margin:.9rem 0 0;font-size:.9rem;color:var(--ink-soft);min-height:1.3em}
+.st-next,.st-fail{margin:.85rem 0 0;font-size:.92rem;line-height:1.5;padding:.85rem .95rem;border-radius:12px}
+.st-next{background:var(--well);border:1px solid var(--line);color:var(--ink)}
+.st-fail{background:var(--card);border:1px solid var(--line-strong);color:var(--ink)}
+.st-next a,.st-fail a{color:inherit;text-underline-offset:3px}
+.st-next[hidden],.st-fail[hidden]{display:none}
 .st-sheets{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));margin:1.2rem 0 0}
 .st-sheet{border:1px solid var(--line);border-radius:.7rem;padding:.9rem 1.1rem;background:var(--bg-soft)}
 .st-sheet h3{margin:0 0 .3rem;font-size:.95rem}
@@ -245,6 +250,18 @@ border-radius:.4rem;padding:.55rem .7rem;overflow-x:auto;margin:.35rem 0}
     <button class="st-go" id="st-build" type="button">Build my tracker &mdash; download .xlsx</button>
     <p class="st-said" id="st-said">No upload, no signup, no email. The file is assembled in your
       browser and saved straight to your downloads.</p>
+    <!-- Shown only after a successful build: the moment someone has just watched the
+         product work is the one moment worth offering the next rung. Hidden until then
+         so the page never pitches before it has delivered anything. -->
+    <p class="st-next" id="st-next" hidden>Want this running on your <em>real</em> jobs and invoices
+      instead of a blank start? <a href="/free-demo/">Send me one messy export and I&rsquo;ll set it
+      up on your numbers &mdash; free, usually within a business day.</a> You keep it either way.</p>
+    <!-- Shown only if the build threw. The old copy said "tell us and we will email you the
+         same workbook" without giving anyone a way to tell me, which is an instruction a
+         visitor cannot follow. -->
+    <p class="st-fail" id="st-fail" hidden>Email me at
+      <a href="mailto:colin@automatedworkflowllc.com?subject=Starter%20workbook%20wouldn%27t%20build">colin@automatedworkflowllc.com</a>
+      and I&rsquo;ll send you the same workbook myself.</p>
   </div>
 
   <h2>What you get</h2>
@@ -505,6 +522,8 @@ function download(bytes, name){
 
 document.getElementById('st-build').addEventListener('click', function(){
   var said = document.getElementById('st-said');
+  var next = document.getElementById('st-next');
+  var fail = document.getElementById('st-fail');
   try {
     var sheets = buildRows(document.getElementById('st-samples').checked);
     if(document.getElementById('st-guide').checked) sheets.push({name:'How this works', rows:GUIDE});
@@ -513,9 +532,15 @@ document.getElementById('st-build').addEventListener('click', function(){
     said.textContent = 'Done — job-and-invoice-tracker.xlsx is in your downloads (' +
       Math.round(bytes.length/1024) + ' KB, ' + sheets.length + ' sheets). Open it in Excel, ' +
       'Numbers or Google Sheets.';
+    if(next) next.hidden = false;
+    if(fail) fail.hidden = true;
   } catch(e){
-    said.textContent = 'Could not build the file in this browser (' + e.message +
-      '). Tell us and we will email you the same workbook.';
+    // e.message goes through textContent, never innerHTML — it is browser-supplied
+    // text and must not be able to inject markup. The actionable address lives in
+    // static markup instead, so the failure path always offers a real next step.
+    said.textContent = 'Could not build the file in this browser (' + e.message + ').';
+    if(fail) fail.hidden = false;
+    if(next) next.hidden = true;
   }
 });
 })();
