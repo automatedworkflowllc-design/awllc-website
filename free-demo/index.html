@@ -200,6 +200,26 @@
     .btn{ width:100%; justify-content:center; }
     .hero-actions{ gap:.6rem; }
   }
+
+/* ---- Free-demo form (2026-08-04) ------------------------------------------
+   This page is where every tool CTA, the homepage tools band and the Ads
+   landing all point, and it had no form at all -- only a mailto, which asks
+   the visitor to compose an email and silently does nothing on a phone with
+   no mail client configured. Form first, mailto kept as the alternate. ------ */
+.fd-form{ display:grid; gap:.75rem; max-width:30rem; margin:1.2rem 0 .9rem;
+  padding:1.25rem 1.25rem 1.35rem; background:var(--card); border:1px solid var(--line);
+  border-radius:14px; text-align:left; }
+.fd-form label{ font-size:.72rem; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--ink-soft); margin:0 0 -.4rem; }
+.fd-form input[type=email], .fd-form input[type=text]{ width:100%; padding:.7rem .8rem;
+  border:1px solid var(--line); border-radius:9px; background:var(--well); font:inherit;
+  font-size:.95rem; color:inherit; }
+.fd-form input:focus{ outline:none; border-color:var(--green); box-shadow:0 0 0 3px rgba(30,122,71,.14); }
+.fd-form .btn{ width:100%; justify-content:center; cursor:pointer; margin-top:.25rem; }
+.fd-form .fd-privacy{ margin:.1rem 0 0; font-size:.82rem; color:var(--ink-soft); }
+.fd-alt{ margin:.2rem 0 0; font-size:.9rem; color:var(--ink-soft); }
+#cform-sent{ max-width:30rem; margin:1.2rem 0 0; padding:1rem 1.1rem; border-radius:12px;
+  background:var(--well); border:1px solid var(--line); font-weight:600; text-align:left; }
 </style>
 <link rel="icon" href="/favicon.ico?v=1" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
@@ -300,8 +320,72 @@
       <p class="eyebrow green">Ready when you are</p>
       <h2>Got a spreadsheet you dread opening?</h2>
       <p>Send it over today. Most demos go out within one business day, and you keep the fix either way &mdash; whether or not we ever work together. <strong>No card required.</strong></p>
-      <a class="btn btn-primary" href="mailto:colin@automatedworkflowllc.com?subject=Free%201-day%20spreadsheet%20demo&amp;body=Hi%20Colin%2C%0A%0AI%27d%20like%20a%20free%201-day%20demo.%20Here%27s%20the%20messy%20file%20%28or%20the%20chore%20I%20want%20fixed%29%3A%20">Send Colin your messy file &rarr;</a>
-      <p class="cta-sub">No email app? Use the <a href="/#contact">free-demo form</a> &mdash; same thing, no email required. Based in Gainesville, working with small businesses everywhere.</p>
+      <form class="fd-form" action="https://formspree.io/f/mgojgjwv" method="POST">
+        <input type="hidden" name="_subject" value="Free 1-day demo request — /free-demo/">
+        <input type="hidden" name="lead_source" value="free-demo">
+        <input type="hidden" name="offer" value="Free 1-day mini-demo">
+        <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <label for="fd-email">Your email</label>
+        <input id="fd-email" type="email" name="email" autocomplete="email" placeholder="you@company.com" required>
+        <label for="fd-chore">The chore you want gone (optional)</label>
+        <input id="fd-chore" type="text" name="chore" autocomplete="off" placeholder="e.g. I rebuild the same job report every Friday">
+        <button class="btn btn-primary" type="submit">Ask for the free demo &rarr;</button>
+        <p class="fd-privacy">I reply personally &mdash; no spam, no sequence, no list. You keep the fix either way.</p>
+      </form>
+      <p class="fd-alt">Prefer to just email it, attachment and all?</p>
+      <a class="btn btn-ghost" href="mailto:colin@automatedworkflowllc.com?subject=Free%201-day%20spreadsheet%20demo&amp;body=Hi%20Colin%2C%0A%0AI%27d%20like%20a%20free%201-day%20demo.%20Here%27s%20the%20messy%20file%20%28or%20the%20chore%20I%20want%20fixed%29%3A%20">Send Colin your messy file &rarr;</a>
+      <p class="fd-alt">Based in Gainesville, working with small businesses everywhere.</p>
+
+<script>
+/* aw-inpage-form — identical behaviour to the tool pages. Formspree IGNORES
+   _next (verified 2026-08-03: its JSON reply is {"next":"/thanks","ok":true}),
+   so a plain POST would eject the visitor to a third-party page at the highest
+   intent moment and no conversion could fire. fetch + Accept: application/json
+   keeps them here. On ANY failure we fall back to the normal browser POST —
+   form.submit() does not re-fire submit, so no loop and no stranded lead. */
+(function () {
+  "use strict";
+  if (!window.fetch || !window.FormData) { return; }
+  var form = document.querySelector('form.fd-form');
+  if (!form) { return; }
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var btn = form.querySelector('[type="submit"]');
+    if (btn) { btn.disabled = true; btn.setAttribute("aria-busy", "true"); }
+    fetch(form.action, {
+      method: "POST",
+      body: new FormData(form),
+      headers: { "Accept": "application/json" }
+    }).then(function (r) {
+      if (!r.ok) { throw new Error("HTTP " + r.status); }
+      var ok = document.getElementById("cform-sent");
+      if (!ok) {
+        ok = document.createElement("p");
+        ok.id = "cform-sent";
+        ok.textContent = "Sent \u2014 that\u2019s with Colin now. He replies personally, usually within a business day.";
+        form.parentNode.insertBefore(ok, form);
+      }
+      ok.style.display = "block";
+      form.style.display = "none";
+      ok.setAttribute("role", "status");
+      ok.setAttribute("tabindex", "-1");
+      try { ok.focus(); } catch (e) {}
+      /* Once per submission. Shares the guard with the mailto handler so a
+         visitor who clicks mailto AND submits is counted once, not twice. */
+      var fired = false;
+      try { fired = sessionStorage.getItem("aw_lead_fired") === "1"; } catch (e) {}
+      if (!fired && typeof gtag === "function") {
+        gtag("event", "generate_lead", { method: "free_demo_form" });
+        gtag("event", "conversion", { send_to: "AW-18312491430/t9tRCKHq9M0cEKbjiZxE" });
+        try { sessionStorage.setItem("aw_lead_fired", "1"); } catch (e) {}
+      }
+    })["catch"](function () {
+      if (btn) { btn.disabled = false; btn.removeAttribute("aria-busy"); }
+      form.submit();
+    });
+  });
+})();
+</script>
     </section>
 
     <section class="block" style="border-bottom:none;">
