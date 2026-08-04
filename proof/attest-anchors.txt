@@ -15,3 +15,8 @@
 # anchor proves they existed no later than its publication date; when they
 # are revealed, hindsight editing is cryptographically off the table.
 2026-08-04T00:45:23 receipts=3 head=sha256:4b3b255fb8f6260e0cda02588fdbd7d43e2977adef1b28f7bb79fcd6240e6017
+# receipts 4-6: the flatline nightly audit joining the chain — including two
+# receipts recording runs where the audit produced NOTHING (a log-handle bug
+# in our own wrapper, caught by attest at the moment it happened, twice).
+# Failures stay in the ledger; that is what makes the clean receipts credible.
+2026-08-04T01:57:19 receipts=6 head=sha256:62059ca25bfef2f6fd4ce676809304323aef4827b358b0721d4882cf792215e6
