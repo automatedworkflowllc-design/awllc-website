@@ -1815,6 +1815,35 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
   padding: .34rem .72rem; background: var(--well);
 }
 .guarantee-row .g-check{ color: #1E7A47; font-weight: 700; }
+
+/* ---- Free tools band (2026-08-04) -------------------------------------------
+   The six in-browser tools were footer-only. They are the strongest thing on the
+   site -- no other spreadsheet freelancer ships tools that provably never upload
+   your file -- and the LinkedIn post drives traffic to this page, so they belong
+   above the pitch rather than beneath it.
+   Deliberately NOT .rv: .rv is hidden until JS adds .in, and this band must be
+   visible even if the reveal observer never fires. ------------------------------ */
+.tools-band{ background:var(--bg-soft); border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line); padding:3.2rem 0 3.4rem; }
+.tools-band h2{ font-size:clamp(1.5rem,3.4vw,2.05rem); margin:.1rem 0 0; letter-spacing:-.02em; }
+.tools-lede{ color:var(--ink-soft); margin:.5rem 0 1.5rem; max-width:46rem; }
+.tools-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(15.5rem,1fr)); gap:.75rem; }
+/* Six cards: auto-fit gives 4+2 at desktop width, which reads as a leftover row.
+   Pin to 3 so it lands 3+3, and 2 on tablet, before falling back to auto-fit. */
+@media(min-width:60rem){ .tools-grid{ grid-template-columns:repeat(3,1fr); } }
+@media(min-width:38rem) and (max-width:59.99rem){ .tools-grid{ grid-template-columns:repeat(2,1fr); } }
+.tool-card{ display:block; padding:1rem 1.1rem 1.05rem; background:var(--card);
+  border:1px solid var(--line); border-radius:14px; text-decoration:none; color:inherit;
+  transition:transform .18s var(--ease), box-shadow .18s var(--ease), border-color .18s var(--ease); }
+.tool-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow-card); border-color:var(--line-strong); }
+.tool-card:focus-visible{ outline:2px solid var(--focus); outline-offset:3px; }
+.tool-card b{ display:block; font-size:.98rem; margin:0 0 .25rem; }
+.tool-card span{ display:block; color:var(--ink-soft); font-size:.86rem; line-height:1.45; }
+.tool-card .tc-go{ display:block; font-family:var(--mono); font-size:.68rem; letter-spacing:.07em;
+  text-transform:uppercase; color:var(--accent); margin-top:.55rem; }
+.tools-note{ margin:1.3rem 0 0; font-size:.9rem; color:var(--ink-soft); }
+@media (prefers-reduced-motion: reduce){ .tool-card{ transition:none; } .tool-card:hover{ transform:none; } }
+@media(max-width:640px){ .tools-band{ padding:2.4rem 0 2.6rem; } }
 </style>
 <script>
 /* Pre-paint theme restore: keeps the saved theme from flashing on load */
@@ -2238,6 +2267,53 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
     </aside>
   </div>
 </div>
+
+<!-- ============ FREE TOOLS — promoted out of the footer 2026-08-04 ============
+     These six are the differentiator and were reachable only from the footer while
+     the LinkedIn post sends traffic to this page. No .rv on purpose (see CSS note). -->
+<section class="tools-band" id="tools" aria-labelledby="tools-h">
+  <div class="wrap">
+    <p class="eyebrow">Free, and nothing uploads</p>
+    <h2 id="tools-h">Six tools that run <span class="serif-i">inside your browser</span>.</h2>
+    <p class="tools-lede">No signup, no email, no upload. You drop a spreadsheet in and the file
+    never leaves your machine &mdash; there is no server waiting to receive it, because I did not
+    build one. Open your network tab before you drop the file in and watch nothing happen.</p>
+    <div class="tools-grid">
+      <a class="tool-card" href="/starter/">
+        <b>Starter workbook</b>
+        <span>Press one button and get a working job log, invoice register and dashboard. Nothing to upload &mdash; there is nothing to hand over at all.</span>
+        <span class="tc-go">Build one &rarr;</span>
+      </a>
+      <a class="tool-card" href="/check/">
+        <b>Business file check</b>
+        <span>Drop in a file and it tells you what is wrong with it, and what that is costing you.</span>
+        <span class="tc-go">Check a file &rarr;</span>
+      </a>
+      <a class="tool-card" href="/money-leak-finder/">
+        <b>Money leak finder</b>
+        <span>Work you finished but never invoiced, and invoices sitting past 60 days.</span>
+        <span class="tc-go">Find the leaks &rarr;</span>
+      </a>
+      <a class="tool-card" href="/spreadsheet-health-check/">
+        <b>Spreadsheet health check</b>
+        <span>Dead columns, mixed date formats, duplicate rows &mdash; then download it cleaned.</span>
+        <span class="tc-go">Run the check &rarr;</span>
+      </a>
+      <a class="tool-card" href="/duplicate-customer-finder/">
+        <b>Duplicate customer finder</b>
+        <span>Acme Roofing, Acme Roofing LLC, acme roofing inc. Your real customer count.</span>
+        <span class="tc-go">Count them &rarr;</span>
+      </a>
+      <a class="tool-card" href="/shift-coverage-check/">
+        <b>Shift coverage check</b>
+        <span>Uncovered days, staff crossing 40 hours, turnarounds under ten.</span>
+        <span class="tc-go">Check a roster &rarr;</span>
+      </a>
+    </div>
+    <p class="tools-note">Keep whatever they find, either way &mdash;
+    <a href="/builds/">see everything I have shipped</a>.</p>
+  </div>
+</section>
 
 <!-- ============ THE DELIVERABLE — the product shot, dark + light reskins ============ -->
 <section class="section deliverable" id="deliverable" aria-labelledby="deliv-eyebrow">
