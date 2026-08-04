@@ -542,9 +542,24 @@
       <h2>What it does now</h2>
       <p>The pipeline ran on a schedule against sample sheets, computed the totals, wrote its own
       summaries, and emailed a per-client digest &mdash; end to end, unattended. Adding a business is one row.
-      The hosted trial it ran on has since lapsed, so it is not executing today; the workflow is exported
-      and runs again on import. The checks that caught the bugs above still run automatically before
-      anything ships.</p>
+      The hosted trial it ran on has since lapsed, so <em>that</em> build is not executing today; the
+      workflow is exported and runs again on import. The checks that caught the bugs above still run
+      automatically before anything ships.</p>
+
+    <p><strong>Update, August 2026 &mdash; the pipeline did not stop being true, it changed hosts.</strong>
+      The same five layers now run on Zapier, and they run on a schedule rather than on demand. One
+      workflow reads an invoice sheet every Monday and drafts a chase email per overdue invoice, with
+      the tone <em>derived</em> from how late the invoice is rather than chosen. A second watches this
+      site&rsquo;s own contact form and drafts a personal reply within about a minute of a submission.
+      The house rule survived the move intact: <strong>the model never does arithmetic</strong> &mdash;
+      it quotes figures the sheet already computed, and writes <code>[not in sheet]</code> rather than
+      guessing. That is checkable rather than asserted: the digest reproduced the workbook&rsquo;s own
+      total and its exact tier split, which is the test that matters.</p>
+
+    <p><strong>And the limit, stated plainly:</strong> neither workflow can send. There is no send step
+      in either one &mdash; every message waits as a draft for a human to approve, which is a design
+      position and not a missing feature. Both run against <em>my own</em> business, not a
+      customer&rsquo;s. I have zero paying clients, so &ldquo;running&rdquo; here means running for me.</p>
       <p class="bl-note"><b>Honest scope:</b> this is a month-one business. Every figure in the demos is
       sample data and is labeled as such on the artifact itself. I&rsquo;m describing what I built and
       operate &mdash; not a client roster.</p>
