@@ -59,7 +59,7 @@ HERO = {
     'cta_primary': ('Tell me the workflow that eats your week &rarr;', MAILTO_HERO),
     'cta_ghost': ('Or send one messy file &mdash; free &rarr;', '/free-demo/'),
     'meta': ('A real person in <b>Gainesville, FL</b> &middot; working with small businesses anywhere '
-             '&middot; <b>four free tools on this site run entirely in your browser</b> &mdash; press '
+             '&middot; <b>six free tools on this site run entirely in your browser</b> &mdash; press '
              'one before you decide whether I&rsquo;m worth an email'),
     'teaser_cap': 'waiting on a human',
     'teaser_link': 'What happens if you say go? &darr;',

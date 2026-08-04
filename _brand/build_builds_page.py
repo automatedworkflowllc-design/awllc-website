@@ -189,17 +189,21 @@ def build_main() -> str:
 """
 
 
-LD = """
+# The JSON-LD description used to be a second, hand-typed copy of DESC. The two
+# drifted: the meta said "five free in-browser analyzers" while the structured
+# data search engines actually read still said "four". Derive it from DESC so a
+# count can never be right in one place and stale in the other again.
+LD = ("""
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   "name": "Builds — Automated Workflow",
   "url": "https://automatedworkflowllc.com/builds/",
-  "description": "Every tool and system Automated Workflow has shipped: four free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a national crisis-resource directory."
+  "description": "%s"
 }
 </script>
-"""
+""" % DESC.replace('"', '\\"'))
 
 
 def main() -> None:
