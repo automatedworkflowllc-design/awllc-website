@@ -411,7 +411,7 @@ function xlsxToRows(buf){
       }
     }
     function parseWS(ws){
-      var rows = [], rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/g, rm;
+      var rows = [], occupied = 0, rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/g, rm;
       while((rm = rowRe.exec(ws))){
         var cells = [], cRe = /<c\b([^>]*)(?:\/>|>([\s\S]*?)<\/c>)/g, cm;
         while((cm = cRe.exec(rm[1]))){
@@ -446,19 +446,21 @@ function xlsxToRows(buf){
           cells[col - 1] = val;
         }
         rows.push(cells);
+        /* A formula cell IS data even with no cached value -- Excel computes
+           it on open. Without this, a template like /starter/'s tracker (300
+           formula rows, 3 typed samples) scores below its own 13-row prose
+           guide sheet, and the "busiest" pick analyzes the instructions. */
+        var hasValue = false;
+        for(var ci = 0; ci < cells.length; ci++) if(cells[ci] !== ''){ hasValue = true; break; }
+        if(hasValue || /<f[ >]/.test(rm[1])) occupied++;
       }
+      rows.occupied = occupied;
       return rows;
     }
 
     return Promise.all(sheets.slice(0, 8).map(function(sh){
       return inflate(entries[sh.target]).then(parseWS).then(function(rows){
-        var dataRows = 0;
-        for(var r = 0; r < rows.length; r++){
-          for(var c = 0; c < rows[r].length; c++){
-            if(rows[r][c] !== ''){ dataRows++; break; }
-          }
-        }
-        return {name: sh.name, rows: rows, score: dataRows};
+        return {name: sh.name, rows: rows, score: rows.occupied};
       }, function(){ return {name: sh.name, rows: [], score: -1}; });
     })).then(function(parsed){
       var best = parsed[0];
