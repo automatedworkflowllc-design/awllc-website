@@ -87,7 +87,7 @@ MAIN = """
     <select id="dc-col" aria-label="Which column holds the customer name"></select>
   </div>
   <p class="dc-note">It picks the most name-like column automatically &mdash; switch it above if it
-    guessed wrong. <strong>Excel .xlsx files work directly</strong> (first sheet).</p>
+    guessed wrong. <strong>Excel .xlsx files work directly</strong> (the busiest sheet is analyzed).</p>
 
   <section id="dc-report" aria-live="polite">
     <h2 id="dc-title" style="margin-bottom:.9rem"></h2>

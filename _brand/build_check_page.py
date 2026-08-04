@@ -98,7 +98,7 @@ MAIN = """
     <button class="btn" id="ck-sample" type="button">Try it on sample files</button>
   </div>
   <p class="ck-note"><strong>Excel files work directly</strong> &mdash; drop the .xlsx as-is.
-  It is read right here in your browser (first sheet), same as CSV: nothing uploads.</p>
+  It is read right here in your browser &mdash; every sheet is scanned and the busiest one analyzed &mdash; same as CSV: nothing uploads.</p>
 
   <section id="ck-report" aria-live="polite">
     <h2 id="ck-title" style="margin-bottom:.7rem"></h2>

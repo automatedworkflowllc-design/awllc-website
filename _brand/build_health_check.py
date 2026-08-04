@@ -84,7 +84,7 @@ MAIN = """
   <div class="hc-actions">
     <button class="btn" id="hc-sample" type="button">Try the sample file</button>
   </div>
-  <p class="hc-note"><strong>Excel files work directly</strong> &mdash; drop the .xlsx as-is (first sheet); this
+  <p class="hc-note"><strong>Excel files work directly</strong> &mdash; drop the .xlsx as-is (every sheet is scanned, the busiest analyzed); this
     tool deliberately reads only plain text it can analyze in front of you.</p>
 
   <section id="hc-report" aria-live="polite">

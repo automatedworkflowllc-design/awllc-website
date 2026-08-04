@@ -170,14 +170,28 @@ function xlsxToRows(buf){
     return entries[n] ? inflate(entries[n]) : Promise.resolve('');
   })).then(function(parts){
     var wb = parts[0], rels = parts[1], sstXml = parts[2], styles = parts[3];
-    var first = /<sheet\s[^>]*r:id="(rId\d+)"/.exec(wb) || /<sheet\s[^>]*id="(rId\d+)"/.exec(wb);
-    var target = 'xl/worksheets/sheet1.xml';
-    if(first && rels){
-      var rel = new RegExp('Id="' + first[1] + '"[^>]*Target="([^"]+)"').exec(rels) ||
-                new RegExp('Target="([^"]+)"[^>]*Id="' + first[1] + '"').exec(rels);
-      if(rel) target = 'xl/' + rel[1].replace(/^\//, '').replace(/^xl\//, '');
+    /* Every sheet, not just the first: real workbooks often lead with a cover
+       or notes tab, and "first sheet" reads the wrong one while looking like
+       it worked. All sheets (capped at 8) are parsed and the busiest wins --
+       most rows containing data, ties to workbook order. The choice is
+       attached to the result so callers can SAY which sheet was read. */
+    var sheets = [], sm, shRe = /<sheet\b[^>]*>/g;
+    while((sm = shRe.exec(wb))){
+      var tag = sm[0];
+      var nm = /name="([^"]*)"/.exec(tag);
+      var rid = /r:id="(rId\d+)"/.exec(tag) || /\bid="(rId\d+)"/.exec(tag);
+      var tgt = null;
+      if(rid && rels){
+        var rel = new RegExp('Id="' + rid[1] + '"[^>]*Target="([^"]+)"').exec(rels) ||
+                  new RegExp('Target="([^"]+)"[^>]*Id="' + rid[1] + '"').exec(rels);
+        if(rel) tgt = 'xl/' + rel[1].replace(/^\//, '').replace(/^xl\//, '');
+      }
+      if(!tgt) tgt = 'xl/worksheets/sheet' + (sheets.length + 1) + '.xml';
+      if(entries[tgt]) sheets.push({name: nm ? unesc(nm[1]) : ('Sheet' + (sheets.length + 1)), target: tgt});
     }
-    if(!entries[target]) throw new Error('no worksheet found');
+    if(!sheets.length && entries['xl/worksheets/sheet1.xml'])
+      sheets.push({name: 'Sheet1', target: 'xl/worksheets/sheet1.xml'});
+    if(!sheets.length) throw new Error('no worksheet found');
 
     var sst = [], m, siRe = /<si>([\s\S]*?)<\/si>/g;
     while((m = siRe.exec(sstXml))) sst.push(texts(m[1]));
@@ -193,7 +207,7 @@ function xlsxToRows(buf){
         dateStyle[i++] = !!(BUILTIN_DATE[id] || (custom[id] && isDateCode(custom[id])));
       }
     }
-    return inflate(entries[target]).then(function(ws){
+    function parseWS(ws){
       var rows = [], rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/g, rm;
       while((rm = rowRe.exec(ws))){
         var cells = [], cRe = /<c\b([^>]*)(?:\/>|>([\s\S]*?)<\/c>)/g, cm;
@@ -230,7 +244,27 @@ function xlsxToRows(buf){
         }
         rows.push(cells);
       }
-      if(!rows.length) throw new Error('empty worksheet');
+      return rows;
+    }
+
+    return Promise.all(sheets.slice(0, 8).map(function(sh){
+      return inflate(entries[sh.target]).then(parseWS).then(function(rows){
+        var dataRows = 0;
+        for(var r = 0; r < rows.length; r++){
+          for(var c = 0; c < rows[r].length; c++){
+            if(rows[r][c] !== ''){ dataRows++; break; }
+          }
+        }
+        return {name: sh.name, rows: rows, score: dataRows};
+      }, function(){ return {name: sh.name, rows: [], score: -1}; });
+    })).then(function(parsed){
+      var best = parsed[0];
+      for(var i = 1; i < parsed.length; i++)
+        if(parsed[i].score > best.score) best = parsed[i];   // strict >: ties keep workbook order
+      if(!best || best.score < 1) throw new Error('no sheet with data');
+      var rows = best.rows;
+      rows.sheetName = best.name;
+      rows.sheetCount = sheets.length;
       return rows;
     });
   });

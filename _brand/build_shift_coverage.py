@@ -92,7 +92,7 @@ MAIN = """
     <button class="btn" id="sc-sample" type="button">Try the sample roster</button>
   </div>
   <p class="sc-note">Works with most exports &mdash; it finds the date, name, role and time
-    columns itself. <strong>Excel .xlsx files work directly</strong> (first sheet).</p>
+    columns itself. <strong>Excel .xlsx files work directly</strong> (the busiest sheet is analyzed).</p>
 
   <section id="sc-report" aria-live="polite">
     <h2 id="sc-title" style="margin-bottom:.9rem"></h2>
