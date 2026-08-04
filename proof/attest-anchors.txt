@@ -20,3 +20,9 @@
 # in our own wrapper, caught by attest at the moment it happened, twice).
 # Failures stay in the ledger; that is what makes the clean receipts credible.
 2026-08-04T01:57:19 receipts=6 head=sha256:62059ca25bfef2f6fd4ce676809304323aef4827b358b0721d4882cf792215e6
+# receipts 7-9: the fleet going autonomous. #7 = the flatline audit's first
+# unattended 03:17 run, CLEAN with no human involved. #8 = site-pulse joining
+# as a guard (its own exit 2 recorded faithfully). #9 = the first receipt from
+# a wrapped Claude agent (job-scout, via --out-dir: success = at least one
+# file created or changed under the declared directory).
+2026-08-04T09:57:05 receipts=9 head=sha256:db3b5c3cbb066075455ca36713f1dcad4f3bf03c6a3c82fa2849ed9e4b9683bf

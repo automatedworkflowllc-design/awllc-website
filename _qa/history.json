@@ -1,13 +1,5 @@
 [
  {
-  "when": "2026-07-19 14:32",
-  "score": 9,
-  "by_area": {
-   "stale": 5,
-   "workbook": 4
-  }
- },
- {
   "when": "2026-07-19 14:33",
   "score": 5,
   "by_area": {
@@ -354,6 +346,24 @@
  {
   "when": "2026-08-04 01:55",
   "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-04 01:56",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-04 01:57",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-04 01:58",
+  "mode": "fast",
   "score": 0,
   "by_area": {}
  }
