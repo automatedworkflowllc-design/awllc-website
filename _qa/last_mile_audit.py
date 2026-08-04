@@ -15,7 +15,12 @@ Checks every git-tracked page:
 form and a deleted one — identical. So a GET can catch a malformed/typo'd action
 domain or Formspree being down, but it CANNOT confirm the form still ROUTES to the
 inbox. The only real proof of routing is a POST that lands — do that periodically
-(a marked test submission, then confirm it arrives; last confirmed 2026-07-11).
+(a marked test submission, then confirm it arrives; last confirmed 2026-08-03).
+WARNING for whoever runs that test: Formspree ACCEPTS a spam-classified submission,
+returns its normal success page, and silently sends nothing -- the thank-you page is
+NOT proof of delivery, only inbox receipt is. Submit with a +alias and ordinary prose;
+"TEST" in caps or the account owner's own bare address will be dropped and read as a
+broken form. That false alarm cost real time on 2026-08-03.
 This check therefore never claims the form path is verified — only that its host
 is up. Overclaiming here would be the "all-clear when it isn't" failure.
 
@@ -91,7 +96,7 @@ def main():
               '-- confirm routing with a periodic test POST' % (url, code, n))
     if not findings:
         print('  CLEAN -- mailto/tel all canonical; form hosts reachable. '
-              '(Form ROUTING still needs a periodic test-submit; last confirmed 2026-07-11.)')
+              '(Form ROUTING still needs a periodic test-submit; last confirmed 2026-08-03.)')
         return 0
     for f, msg in findings:
         print('  [DEAD-END] %-28s %s' % (f, msg))

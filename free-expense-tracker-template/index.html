@@ -706,5 +706,66 @@ details.qa .a strong{ color:var(--ink); font-weight:600; }
   }
 })();
 </script>
+<script>
+/* aw-inpage-form - keep the visitor on the site when the form is submitted.
+   Formspree IGNORES the _next field (verified 2026-08-03: its JSON reply is
+   {"next":"/thanks","ok":true}), so a plain POST hands the visitor to a
+   third-party thank-you page at the highest-intent moment in the funnel, and
+   no conversion event can ever fire. Submitting with fetch + Accept:
+   application/json keeps them here. On ANY failure we fall back to the normal
+   browser POST - form.submit() does not re-fire the submit event, so there is
+   no loop and a lead is never stranded. With JS off the form posts natively,
+   exactly as before. */
+(function () {
+  "use strict";
+  if (!window.fetch || !window.FormData) { return; }
+  var forms = document.querySelectorAll('form.cform, form[action*="formspree.io"]');
+  Array.prototype.forEach.call(forms, function (form) {
+    if (form.getAttribute("data-aw-inpage") === "1") { return; }
+    form.setAttribute("data-aw-inpage", "1");
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var btn = form.querySelector('[type="submit"]');
+      if (btn) { btn.disabled = true; btn.setAttribute("aria-busy", "true"); }
+      fetch(form.action, {
+        method: "POST",
+        body: new FormData(form),
+        headers: { "Accept": "application/json" }
+      }).then(function (r) {
+        /* fetch only rejects on a network error, so a 4xx would otherwise be
+           reported to the visitor as success. Check the status explicitly. */
+        if (!r.ok) { throw new Error("HTTP " + r.status); }
+        var ok = document.getElementById("cform-sent");
+        if (!ok) {
+          ok = document.createElement("p");
+          ok.id = "cform-sent";
+          ok.className = "cform-sent";
+          ok.style.cssText = "margin:.6rem 0 0;padding:1rem 1.1rem;border-radius:.6rem;" +
+            "background:rgba(30,122,71,.10);border:1px solid rgba(30,122,71,.35);font-weight:600;";
+          ok.textContent = "Sent — that’s with Colin now. He replies personally, " +
+            "usually within a business day.";
+          form.parentNode.insertBefore(ok, form);
+        }
+        ok.style.display = "block";
+        form.style.display = "none";
+        ok.setAttribute("role", "status");
+        ok.setAttribute("tabindex", "-1");
+        try { ok.focus(); } catch (e) {}
+        /* Once per submission, not once per page load. */
+        var fired = false;
+        try { fired = sessionStorage.getItem("aw_lead_fired") === "1"; } catch (e) {}
+        if (!fired && typeof gtag === "function") {
+          gtag("event", "generate_lead", { method: "free_template" });
+          gtag("event", "conversion", { send_to: "AW-18312491430/t9tRCKHq9M0cEKbjiZxE" });
+          try { sessionStorage.setItem("aw_lead_fired", "1"); } catch (e) {}
+        }
+      })["catch"](function () {
+        if (btn) { btn.disabled = false; btn.removeAttribute("aria-busy"); }
+        form.submit();
+      });
+    });
+  });
+})();
+</script>
 </body>
 </html>

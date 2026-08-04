@@ -3083,15 +3083,14 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
     if (document.readyState === "complete") { runDemo(); }
     else { window.addEventListener("load", runDemo); }
   }
-  if (/[?&]sent=1/.test(location.search)) {
+  // Swap the form for the "Sent" note and fire the lead + Ads conversion ONCE
+  // per submission, not once per page load: a refresh/bookmark/history revisit
+  // must not re-fire (phantom conversions skew Smart Bidding hard on a
+  // $1.50/day campaign). Guard = sessionStorage flag. try/catch: sessionStorage
+  // can throw in some privacy modes — worst case we fall back to old behavior.
+  function awMarkSent() {
     var f = document.querySelector(".cform"), ok = document.getElementById("cform-sent");
     if (f && ok) { f.style.display = "none"; ok.style.display = "block"; }
-    // Fire the lead + Ads conversion ONCE per submission, not once per page
-    // load: a refresh/bookmark/history revisit of the ?sent=1 thank-you URL
-    // must not re-fire (phantom conversions skew Smart Bidding hard on a
-    // $1.50/day campaign). Guard = sessionStorage flag + strip the query so
-    // reloads and copied links land on a clean URL. try/catch: sessionStorage
-    // can throw in some privacy modes — worst case we fall back to old behavior.
     var alreadyFired = false;
     try { alreadyFired = sessionStorage.getItem("aw_lead_fired") === "1"; } catch (e) {}
     if (!alreadyFired && typeof gtag === "function") {
@@ -3099,6 +3098,49 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
       gtag("event", "conversion", { send_to: "AW-18312491430/t9tRCKHq9M0cEKbjiZxE" });
       try { sessionStorage.setItem("aw_lead_fired", "1"); } catch (e) {}
     }
+    return ok;
+  }
+
+  // Submit in-page instead of handing the browser to Formspree.
+  //
+  // Why this exists: the form's _next redirect is IGNORED by Formspree (verified
+  // 2026-08-03 — a real POST lands on formspree.io/thanks). So the ?sent=1 branch
+  // below was unreachable, which meant two things nobody could see: the visitor
+  // was ejected to a third-party page at the highest-intent moment in the funnel,
+  // and generate_lead/Ads conversion NEVER fired, so form leads were invisible in
+  // analytics regardless of volume.
+  //
+  // Fetch + Accept: application/json makes Formspree answer with JSON rather than
+  // a redirect, so the visitor never leaves. On ANY failure we fall back to the
+  // plain browser POST — form.submit() does not re-fire the submit event, so
+  // there is no loop, and a lead is never stranded by a network blip. With JS off
+  // the form still posts natively exactly as before; _next stays in the markup for
+  // that path.
+  var cform = document.querySelector(".cform");
+  if (cform && window.fetch && window.FormData) {
+    cform.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var btn = cform.querySelector('button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.setAttribute("aria-busy", "true"); }
+      fetch(cform.action, {
+        method: "POST",
+        body: new FormData(cform),
+        headers: { "Accept": "application/json" }
+      }).then(function (r) {
+        if (!r.ok) { throw new Error("HTTP " + r.status); }
+        var ok = awMarkSent();
+        // Move focus to the confirmation or a screen-reader user gets silence.
+        if (ok) { ok.setAttribute("tabindex", "-1"); try { ok.focus(); } catch (e) {} }
+      })["catch"](function () {
+        if (btn) { btn.disabled = false; btn.removeAttribute("aria-busy"); }
+        cform.submit();
+      });
+    });
+  }
+
+  // Kept for the no-JS/fallback path, and for any old ?sent=1 link still around.
+  if (/[?&]sent=1/.test(location.search)) {
+    awMarkSent();
     try {
       if (window.history && history.replaceState) {
         history.replaceState(null, "", location.pathname + location.hash);
