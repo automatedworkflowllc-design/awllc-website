@@ -196,6 +196,25 @@ font-size:.85rem}
 .ck-sec{margin:1.5rem 0 .5rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
 .ck-summary{border:1px solid var(--line-strong);border-radius:.7rem;background:var(--bg-soft);
 padding:.95rem 1.15rem;margin:0 0 .4rem;font-size:1rem;line-height:1.55}
+/* money-at-risk visual: every pixel below derives from computed findings */
+.ck-viz{border:1px solid var(--line-strong);border-radius:.8rem;background:var(--card);
+padding:1.1rem 1.25rem;margin:0 0 1.1rem}
+.ck-viz h3{margin:0 0 .15rem;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft)}
+.ck-viz .big{font-family:var(--mono);font-size:2.3rem;line-height:1.15;color:#B4452C;font-weight:700;
+font-variant-numeric:tabular-nums}
+.ck-viz .cap{margin:.1rem 0 .9rem;font-size:.82rem;color:var(--ink-soft)}
+.ck-leak{margin:.45rem 0 0}
+.ck-leak .lbl{display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.2rem}
+.ck-leak .lbl b{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.ck-leak .rail{height:.7rem;border-radius:.35rem;background:var(--bg-soft);border:1px solid var(--line);overflow:hidden}
+.ck-leak .fill{height:100%;width:0;border-radius:.35rem;background:#B4452C;
+transition:width .9s cubic-bezier(.2,.7,.2,1)}
+.ck-leak .fill.med{background:#A8842B}
+.ck-find{opacity:1}
+@media (prefers-reduced-motion: no-preference){
+  .ck-anim .ck-find{opacity:0;transform:translateY(6px);transition:opacity .45s ease,transform .45s ease}
+  .ck-anim .ck-find.in{opacity:1;transform:none}
+}
 .ck-find{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line-strong);
 border-radius:.6rem;padding:.85rem 1.05rem;margin:0 0 .55rem}
 .ck-find.sev-high{border-left-color:#B4452C}
@@ -891,6 +910,25 @@ function render(res){
       'cross-checked against each other. Each was still checked on its own.';
   }
   if(summary) out += '<div class="ck-summary">'+esc(summary.trim())+'</div>';
+
+  /* Money visual: a counter that counts to the EXACT computed figure and one
+     proportional bar per money finding. Widths are arithmetic on the same
+     findings shown below -- nothing decorative carries a number. */
+  if(res.atRisk > 0){
+    var mf = res.findings.filter(function(f){ return f.money > 0; });
+    var viz = '<div class="ck-viz"><h3>Money sitting in records that disagree</h3>' +
+      '<div class="big" id="ck-big" data-target="' + Math.round(res.atRisk) + '">$0</div>' +
+      '<p class="cap">Counted once per record, from your file' + (res.meta.length > 1 ? 's' : '') +
+      ' only — nothing estimated.</p>';
+    mf.forEach(function(f){
+      var pct = Math.max(2, Math.round(100 * f.money / res.atRisk));
+      viz += '<div class="ck-leak"><div class="lbl"><span>' + esc(f.title.replace(/ —.*$/, '')) +
+        '</span><b>' + fmtUSD(f.money) + '</b></div>' +
+        '<div class="rail"><div class="fill' + (f.sev === 'med' ? ' med' : '') +
+        '" data-w="' + pct + '"></div></div></div>';
+    });
+    out += viz + '</div>';
+  }
   if(!res.findings.length){
     out = '<div class="ck-clean"><strong>Nothing found.</strong> Every column varies, dates and ' +
       'numbers are consistent, no duplicate rows, no name collisions. That is the result you ' +
@@ -902,6 +940,39 @@ function render(res){
       '<div class="src">'+esc(f.src)+'</div><p>'+esc(f.detail)+'</p></div>';
   });
   document.getElementById('ck-findings').innerHTML = out;
+
+  /* Motion, honestly: the counter always LANDS on the exact figure, bars are
+     CSS transitions to computed widths, findings stagger in. Reduced-motion
+     users get the final state immediately -- same numbers, no theater. */
+  var findsBox = document.getElementById('ck-findings');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var big = document.getElementById('ck-big');
+  if(big){
+    var target = +big.getAttribute('data-target');
+    if(reduce){ big.textContent = fmtUSD(target); }
+    else {
+      var t0 = null;
+      var tick = function(ts){
+        if(t0 === null) t0 = ts;
+        var p = Math.min(1, (ts - t0) / 900);
+        big.textContent = fmtUSD(target * (1 - Math.pow(1 - p, 3)));
+        if(p < 1) requestAnimationFrame(tick);
+        else big.textContent = fmtUSD(target);
+      };
+      requestAnimationFrame(tick);
+    }
+  }
+  var fills = findsBox.querySelectorAll('.fill');
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){
+    for(var i = 0; i < fills.length; i++) fills[i].style.width = fills[i].getAttribute('data-w') + '%';
+  }); });
+  if(!reduce){
+    findsBox.classList.add('ck-anim');
+    var cards = findsBox.querySelectorAll('.ck-find');
+    for(var ci = 0; ci < cards.length; ci++)(function(el, d){
+      setTimeout(function(){ el.classList.add('in'); }, 80 + d * 70);
+    })(cards[ci], ci);
+  }
   last = res;
   var rep = document.getElementById('ck-report');
   rep.style.display = 'block';
