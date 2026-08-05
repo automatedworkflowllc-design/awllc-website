@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """One-shot: add the plain-English block to every tool builder.
 
-Colin's note: "some CEOs are dumb" -- more precisely, every one of these pages
-opened by explaining itself to someone who already knew the vocabulary. The
-owner who most needs the money-leak tool does not know what "reconciles two
-exports" means, and will not stay to find out.
+Every one of these pages opened by explaining itself to someone who already knew
+the vocabulary. The owner who most needs the money-leak tool does not know what
+"reconciles two exports" means, and will not stay to find out. Expertise in
+running a business is not expertise in spreadsheets, and writing for the second
+group quietly loses the first.
 
 Patches the six uniform tool builders in place: import the helpers, append
 PLAIN_CSS to the style block, and wrap MAIN in with_plain(). Exits on ANY
