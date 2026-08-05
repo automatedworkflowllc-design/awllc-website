@@ -1,0 +1,86 @@
+# Claims the public site makes, each tied to the thing that makes it true.
+#
+# Rule for adding an entry: name the SOURCE OF TRUTH, not a second copy of the
+# number. "108 tests" is checked by collecting the test suite, not by grepping
+# another page that also says 108 -- two pages agreeing with each other is not
+# evidence, it is a rumour with a citation.
+#
+# If a claim genuinely cannot be re-derived here, mark it derive = "external"
+# and say why. It will be reported as UNCHECKABLE every run, forever, which is
+# the honest outcome. Deleting it to make the report green is the one edit
+# nobody is allowed to make.
+
+# --- flatline ------------------------------------------------------------
+# The page sells the tool partly on its test count. If the suite shrinks, the
+# page is overclaiming within the hour.
+[[claim]]
+id = "flatline-test-count"
+page = "flatline/index.html"
+says = "{} tests"
+derive = "pytest_count"
+args = { path = "C:/Users/hisbo/claude/dev/flatline" }
+
+# --- /proof/ -------------------------------------------------------------
+# The page deliberately says SIX OF EIGHT rather than "every". The moment a
+# seventh job gets wrapped, that sentence becomes false by understatement --
+# and if one gets unwrapped, false by overstatement. Both fail here.
+[[claim]]
+id = "proof-wrapped-jobs"
+page = "proof/index.html"
+says = "{} scheduled jobs"
+derive = "wrapped_jobs"
+args = { scheduled_dir = "C:/Users/hisbo/claude/Scheduled", style = "words" }
+
+# The headline stat must equal the newest PUBLISHED anchor, never the private
+# ledger -- the page may not describe more history than it has published.
+[[claim]]
+id = "proof-receipt-count"
+page = "proof/index.html"
+says = "<b>{}</b><span>receipts on record"
+derive = "anchor_receipts"
+
+# The sample anchor line printed on the page must be the real newest one.
+[[claim]]
+id = "proof-anchor-head"
+page = "proof/index.html"
+says = "head=sha256:{}"
+derive = "anchor_head"
+args = { chars = 64 }
+
+# --- the money figures ---------------------------------------------------
+# $1,240 is the published example report's headline, and it is NOT stored
+# anywhere: it is 410 + 520 + 310 from three rows of sample data. So the check
+# redoes the arithmetic instead of grepping for a copy of the answer.
+#
+# There is deliberately no claim against /check/ itself. The first version of
+# this file had one, and the audit failed it -- correctly: that page computes
+# the figure from whatever the visitor drops and never states $1,240. The
+# LEDGER was wrong and the page was right, so the entry came out. A claim
+# ledger that gets "fixed" by editing the page to match it would be worse than
+# having none at all.
+[[claim]]
+id = "check-example-money"
+page = "check/example/index.html"
+says = "{}"
+derive = "sum_rows"
+args = { source = "_brand/build_check_page.py", ids = ["J-104", "J-111", "J-112"] }
+
+# --- the notary ----------------------------------------------------------
+# The page's whole claim is that signing happens with Ed25519 in the browser.
+# If that ever silently became a hash-only page, this fails.
+[[claim]]
+id = "notarize-ed25519"
+page = "proof/notarize/index.html"
+says = "{}"
+derive = "from_source"
+args = { source = "_brand/build_notarize_page.py", pattern = "(name:'Ed25519')" }
+
+# --- honestly unverifiable here -----------------------------------------
+# Hearth's record count lives in a different repo and a live data pipeline. We
+# cannot re-derive it from this checkout, and pretending otherwise would be the
+# exact failure this audit exists to catch.
+[[claim]]
+id = "hearth-record-count"
+page = "builds/index.html"
+derive = "external"
+note = "60,000+ records is produced by the Hearth pipeline in another repo; re-derive there, not here"

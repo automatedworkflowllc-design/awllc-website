@@ -1,0 +1,42 @@
+{
+ "claims": 7,
+ "failed": 0,
+ "uncheckable": 1,
+ "rows": [
+  {
+   "status": "SUPPORTED",
+   "id": "flatline-test-count",
+   "detail": "flatline/index.html still says \"108 tests\""
+  },
+  {
+   "status": "SUPPORTED",
+   "id": "proof-wrapped-jobs",
+   "detail": "proof/index.html still says \"six of our eight scheduled jobs\""
+  },
+  {
+   "status": "SUPPORTED",
+   "id": "proof-receipt-count",
+   "detail": "proof/index.html still says \"<b>9</b><span>receipts on record\""
+  },
+  {
+   "status": "SUPPORTED",
+   "id": "proof-anchor-head",
+   "detail": "proof/index.html still says \"head=sha256:db3b5c3cbb066075455ca36713f1dcad4f3bf03c6a3c82fa2849ed9e4b9683bf\""
+  },
+  {
+   "status": "SUPPORTED",
+   "id": "check-example-money",
+   "detail": "check/example/index.html still says \"$1,240\""
+  },
+  {
+   "status": "SUPPORTED",
+   "id": "notarize-ed25519",
+   "detail": "proof/notarize/index.html still says \"name:'Ed25519'\""
+  },
+  {
+   "status": "UNCHECKABLE",
+   "id": "hearth-record-count",
+   "detail": "60,000+ records is produced by the Hearth pipeline in another repo; re-derive there, not here"
+  }
+ ]
+}
