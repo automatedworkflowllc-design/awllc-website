@@ -129,6 +129,13 @@ ENGINEERING = [
      "Built after a real scheduled job discarded four days of data while reporting success every "
      "run. 108 tests, MIT, public &mdash; the page shows five ways to use it on your own stack.",
      ["Open source", "MIT"]),
+    ("Proof — our own ledger", "/proof/",
+     "Every night our scheduled jobs write a signed receipt recording what each run <em>claimed</em> "
+     "against what it actually <em>produced</em>. The receipts are hash-chained, and the chain head "
+     "is published publicly so the record binds us too.",
+     "It includes the receipts where our own nightly audit produced nothing &mdash; kept "
+     "deliberately, because a ledger holding only clean runs is one nobody should believe.",
+     ["Live", "Evidence"]),
     ("Hearth", "https://automatedworkflowllc-design.github.io/hearth/",
      "A national crisis-resource directory &mdash; food, shelter, health, legal, support &mdash; "
      "built on federal data (HRSA, SAMHSA, USDA, EPA/Hunger Free America) and refreshed "

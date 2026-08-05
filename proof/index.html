@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Builds — The Free Tools and Systems Actually Running</title>
-<meta name="description" content="Every tool Automated Workflow has shipped: five free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a crisis directory.">
-<link rel="canonical" href="https://automatedworkflowllc.com/builds/">
+<title>Proof — A Public, Tamper-Evident Ledger of Our Own Work</title>
+<meta name="description" content="A public, tamper-evident ledger of our own scheduled jobs: what each run claimed, what it actually produced, and the runs where ours produced nothing.">
+<link rel="canonical" href="https://automatedworkflowllc.com/proof/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Builds — The Free Tools and Systems Actually Running">
-<meta property="og:description" content="Every tool Automated Workflow has shipped: five free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a crisis directory.">
-<meta property="og:url" content="https://automatedworkflowllc.com/builds/">
+<meta property="og:title" content="Proof — A Public, Tamper-Evident Ledger of Our Own Work">
+<meta property="og:description" content="A public, tamper-evident ledger of our own scheduled jobs: what each run claimed, what it actually produced, and the runs where ours produced nothing.">
+<meta property="og:url" content="https://automatedworkflowllc.com/proof/">
 <meta property="og:image" content="https://automatedworkflowllc.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 
@@ -172,26 +172,25 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
 <link rel="manifest" href="/site.webmanifest?v=1">
 <style>
-/* ---- builds index ---- */
-.bd-lede{max-width:42rem;color:var(--ink-soft)}
-.bd-sec{margin:2.4rem 0 .9rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;
-color:var(--ink-soft);border-bottom:1px solid var(--line);padding-bottom:.4rem}
-.bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
-@media(max-width:720px){.bd-grid{grid-template-columns:1fr}}
-.bd-card{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:1.1rem 1.2rem;
-display:flex;flex-direction:column}
-.bd-card h3{margin:0 0 .2rem;font-size:1.02rem}
-.bd-card h3 a{text-decoration:none}
-.bd-card h3 a:hover{text-decoration:underline}
-.bd-what{margin:0 0 .6rem;font-size:.9rem;color:var(--ink-soft);flex:1}
-.bd-proof{margin:0 0 .7rem;font-size:.82rem;color:var(--ink-soft);border-left:2px solid var(--line-strong);
-padding-left:.6rem}
-.bd-tags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:auto}
-.bd-tag{font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);
-border-radius:.3rem;padding:.12rem .42rem;color:var(--ink-soft)}
-.bd-tag.live{border-color:var(--accent);color:var(--accent)}
-.bd-note{margin:2.2rem 0 0;padding:1.1rem 1.2rem;border:1px solid var(--line);border-radius:12px;
-background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
+/* ---- proof / evidence ledger ---- */
+.pf-lede{font-size:1.08rem;max-width:40rem}
+.pf-stats{display:flex;gap:.55rem;flex-wrap:wrap;margin:1.6rem 0 0}
+.pf-stat{border:1px solid var(--line);border-radius:.6rem;background:var(--card);padding:.6rem .9rem}
+.pf-stat b{display:block;font-family:var(--mono);font-size:1.3rem;line-height:1.15}
+.pf-stat span{font-size:.68rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.07em}
+.pf-bad{border-left:4px solid #B4452C;background:var(--card);border-radius:.6rem;
+padding:1rem 1.2rem;margin:1.6rem 0;max-width:42rem}
+.pf-steps{display:grid;gap:.8rem;margin:1.2rem 0 0;max-width:44rem}
+.pf-step{border:1px solid var(--line);border-radius:.7rem;background:var(--card);padding:1rem 1.2rem}
+.pf-step h3{margin:0 0 .3rem;font-size:1rem}
+.pf-step p{margin:0;font-size:.92rem;color:var(--ink-soft)}
+.pf-code{font-family:var(--mono);font-size:.85rem;background:var(--card);border:1px solid var(--line);
+border-radius:.5rem;padding:.8rem 1rem;overflow-x:auto;margin:.9rem 0;max-width:44rem}
+.pf-limits{margin:1.1rem 0 0;padding-left:1.15rem;max-width:42rem}
+.pf-limits li{margin:.45rem 0;color:var(--ink-soft)}
+.pf-limits b{color:var(--ink)}
+.pf-cta{margin-top:2rem;padding:1.4rem;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.pf-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
 </style>
 </head>
 <body>
@@ -218,30 +217,102 @@ background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
     <a class="header-cta" href="mailto:colin@automatedworkflowllc.com?subject=Spreadsheet%20cleanup%20%E2%80%94%20free%20mini-demo&amp;body=Hi%20Colin%2C%0A%0AHere%27s%20the%20messy%20spreadsheet%20that%27s%20driving%20me%20crazy%3A%20">Send your file &rarr;</a>
   </div>
 </header>
-<main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3.5rem;max-width:54rem">
-  <h1 style="margin-bottom:.4rem">Builds</h1>
-  <p class="bd-lede">Everything below is running right now &mdash; a tool you can press, a demo you
-  can click, or a repository you can read. No mockups, no "coming soon". If a number appears on this
-  page, it is one that was measured, and the card says how.</p>
+<main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
+  <h1 style="margin-bottom:.4rem">We keep receipts on our own automations.<br>Including the ones that failed.</h1>
+  <p class="pf-lede" style="color:var(--ink-soft)">
+    Anyone can tell you their systems are working. The failure that costs money does not throw an
+    error &mdash; the job runs, the log fills, the exit code is zero, and nothing actually happened.
+    So our scheduled jobs write a signed receipt every time they run, recording what each one
+    <em>claimed</em> against what it actually <em>produced</em>. This page is that ledger, and how
+    you would check it without taking our word for anything.
+  </p>
 
-  <div class="bd-sec">Free tools &mdash; press them, nothing uploads</div>
-  <p class="bd-lede" style="margin-bottom:.9rem;font-size:.9rem">Each one runs entirely in your
-  browser. There is no server to send your file to &mdash; open the network tab and watch: after the
-  page loads, zero requests. That is architecture, not a privacy policy.</p>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/starter/">Job &amp; Invoice Tracker  ·  no file needed</a></h3><p class="bd-what">Every other tool here asks you to upload something first. This one asks for nothing &mdash; press a button and it builds you a working Excel tracker where unbilled jobs and invoices past 60 days flag themselves.</p><p class="bd-proof">A real .xlsx assembled in your browser with no library and no upload &mdash; verified to open with formulas intact and amounts stored as numbers, not text.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/check/">Business File Check  ·  start here</a></h3><p class="bd-what">One drop zone for any business export &mdash; <strong>Excel (.xlsx) works directly</strong>, no save-as-CSV step. It works out what the file is from its columns, runs every check that applies, and reconciles two files against each other if you drop a pair. The Excel file is parsed in your browser with no library and no upload &mdash; nobody else does that.</p><p class="bd-proof">On its sample pair it returns 8 findings with zero configuration and puts a number on the damage: <strong>$1,240 of finished work that was never invoiced</strong>. <a href="/check/example/">See a real report</a> before uploading anything.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/spreadsheet-health-check/">Spreadsheet Health Check</a></h3><p class="bd-what">Drop any CSV and get an honest report: columns that carry no information, status fields that never vary, mixed date formats, duplicate rows. Then download the file with the judgment-free problems already fixed.</p><p class="bd-proof">On its sample: 6 findings down to 2 after the automatic fix &mdash; and the two that remain are exactly the ones a script must not touch.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/money-leak-finder/">Money Leak Finder</a></h3><p class="bd-what">Two exports every business already has &mdash; the work log and the invoices &mdash; lined up so only the mismatches show: finished jobs nobody billed, invoices sitting unpaid past 60 days.</p><p class="bd-proof">Matches on exact ID only, and says so on the report. Nothing fuzzy, nothing guessed.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/duplicate-customer-finder/">Duplicate Customer Finder</a></h3><p class="bd-what">Acme Roofing. Acme Roofing LLC. acme roofing inc. Three rows, one customer &mdash; inflating your count, splitting revenue history, and sending the mail merge three times.</p><p class="bd-proof">Every group states why it grouped: identical after ignoring case, punctuation and legal suffixes, or a near-miss typo worth a human glance.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/shift-coverage-check/">Shift Coverage Check</a></h3><p class="bd-what">For anyone who runs on a roster &mdash; senior living, clinics, restaurants, facilities. Finds days a role is uncovered, staff crossing 40 hours, roles only one person can fill, and turnarounds too short to be safe.</p><p class="bd-proof">Reads the columns itself and shows which ones it used. Deliberately never proposes who should work when &mdash; that is the manager's call, not a CSV's.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article></div>
+  <div class="pf-stats">
+    <div class="pf-stat"><b>9</b><span>receipts on record</span></div>
+    <div class="pf-stat"><b>4</b><span>systems reporting</span></div>
+    <div class="pf-stat"><b>2</b><span>recording our own failures</span></div>
+    <div class="pf-stat"><b>4</b><span>public anchors</span></div>
+  </div>
 
-  <div class="bd-sec">Client work &mdash; live demos</div>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/demo/">Live KPI Dashboard</a></h3><p class="bd-what">A real, self-updating Google Sheets dashboard on sample data &mdash; revenue, jobs, overdue invoices. Click the tabs, tap the chart. No login, no signup.</p><p class="bd-proof">This is the $650 Automated Dashboard, running &mdash; not a screenshot of one.</p><div class="bd-tags"><span class="bd-tag live">Live demo</span><span class="bd-tag">Interactive</span></div></article><article class="bd-card"><h3><a href="/ai-business-pulse/">AI Business Pulse</a></h3><p class="bd-what">The flagship retainer: every Monday an AI reads your live numbers, writes a plain-English summary, and drafts chase emails for money you're owed.</p><p class="bd-proof">Every draft waits for a human approval before anything sends. That gate is the product.</p><div class="bd-tags"><span class="bd-tag">Retainer</span><span class="bd-tag">Human-gated</span></div></article><article class="bd-card"><h3><a href="/staffing-commission-dashboard/">Staffing Commission Dashboard</a></h3><p class="bd-what">A live commission dashboard for a staffing desk that settles splits, draws and fall-off clawbacks by rule instead of by argument.</p><p class="bd-proof">Built for a vertical where the math is the whole disagreement.</p><div class="bd-tags"><span class="bd-tag live">Live demo</span><span class="bd-tag">Vertical</span></div></article><article class="bd-card"><h3><a href="/free/executive-kpi-dashboard.html">Free templates</a></h3><p class="bd-what">Executive KPI dashboard, expense tracker, and a staffing commission tracker &mdash; working Google Sheets templates, no cost, no email required.</p><p class="bd-proof">Take them and never speak to us. That is the point.</p><div class="bd-tags"><span class="bd-tag">Free</span><span class="bd-tag">No signup</span></div></article></div>
+  <div class="pf-bad">
+    <strong>The uncomfortable part, which is the point.</strong> 2 of the receipts above
+    record runs where <em>our own</em> nightly audit produced nothing at all &mdash; a bug in our
+    wrapper meant the tool never ran, twice in a row, while reporting success. The receipts caught
+    it at the moment it happened, and they stay in the ledger permanently. A ledger that contains
+    only clean runs is a ledger nobody should believe.
+  </div>
 
-  <div class="bd-sec">Engineering</div>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/automation-monitoring/">Automation Monitoring</a></h3><p class="bd-what">The recurring service: we watch your automations weekly and send an evidence report. Checks the two things nobody else does &mdash; whether the data <em>inside</em> a fresh file is actually current, and whether a report has quietly stopped changing.</p><p class="bd-proof">Sold on a true story: our own trading digest served Friday's data under Monday's timestamp the day the service page was built. The embedded report is that catch, verbatim.</p><div class="bd-tags"><span class="bd-tag">Service</span><span class="bd-tag">$99/mo</span></div></article><article class="bd-card"><h3><a href="/flatline/">flatline</a></h3><p class="bd-what">An open-source reliability tool that finds signals carrying no information and jobs producing nothing: a check that fires on 100% of rows, a scheduled task that reports success while writing nothing, a branch that can never run.</p><p class="bd-proof">Built after a real scheduled job discarded four days of data while reporting success every run. 108 tests, MIT, public &mdash; the page shows five ways to use it on your own stack.</p><div class="bd-tags"><span class="bd-tag live">Open source</span><span class="bd-tag">MIT</span></div></article><article class="bd-card"><h3><a href="/proof/">Proof — our own ledger</a></h3><p class="bd-what">Every night our scheduled jobs write a signed receipt recording what each run <em>claimed</em> against what it actually <em>produced</em>. The receipts are hash-chained, and the chain head is published publicly so the record binds us too.</p><p class="bd-proof">It includes the receipts where our own nightly audit produced nothing &mdash; kept deliberately, because a ledger holding only clean runs is one nobody should believe.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Evidence</span></div></article><article class="bd-card"><h3><a href="https://automatedworkflowllc-design.github.io/hearth/" target="_blank" rel="noopener">Hearth</a></h3><p class="bd-what">A national crisis-resource directory &mdash; food, shelter, health, legal, support &mdash; built on federal data (HRSA, SAMHSA, USDA, EPA/Hunger Free America) and refreshed automatically.</p><p class="bd-proof">60,000+ live records. Its public health endpoint reports freshness per source, so a stale feed cannot hide behind a fresh one.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Public good</span><span class="bd-tag">Open data</span></div></article><article class="bd-card"><h3><a href="/build-log/">Build log</a></h3><p class="bd-what">How the multi-tenant reporting pipeline behind Automated Workflow is actually assembled &mdash; n8n, Google Sheets, an AI narrative step, and a human approval gate.</p><p class="bd-proof">Written for someone deciding whether this is real engineering or a wrapper.</p><div class="bd-tags"><span class="bd-tag">Write-up</span></div></article></div>
+  <h2>What a receipt actually records</h2>
+  <p style="color:var(--ink-soft);max-width:40rem">Each run declares its outputs up front. Afterwards
+  the file is hashed again and compared &mdash; so &ldquo;the job succeeded&rdquo; has to survive
+  contact with whether anything changed on disk.</p>
 
-  <div class="bd-note"><strong>Why the tools stop where they stop.</strong> Every free tool above
-  ends at the point where a script would have to guess &mdash; which duplicate is the real customer,
-  what a blank cell means, who should cover Thursday. Those decisions need a person who can ask you
-  a question, which is what the <a href="/spreadsheet-cleanup-service/">$300 cleanup</a> and the
-  <a href="/free-demo/">free 1-day demo</a> are. A tool that guessed there would be faster and
-  worse.</div>
+  <div class="pf-steps">
+    <div class="pf-step">
+      <h3>Claimed vs. produced</h3>
+      <p>The declared outputs, hashed before and after the run, with the newest date found
+      <em>inside</em> each text file recorded alongside. A report can be freshly written and still
+      contain last week's numbers; the receipt captures both facts.</p>
+    </div>
+    <div class="pf-step">
+      <h3>The exit code tells the truth</h3>
+      <p>A tool that exits zero without touching its declared output fails the receipt, whatever it
+      says about itself. That is the whole design: the scheduler learns about the lie at the moment
+      it happens, rather than the following week when someone opens the file.</p>
+    </div>
+    <div class="pf-step">
+      <h3>Chained, so history cannot be quietly edited</h3>
+      <p>Every receipt carries the hash of the one before it. Rewriting or deleting any entry breaks
+      every link after it, and the break is visible to anyone holding the ledger.</p>
+    </div>
+    <div class="pf-step">
+      <h3>Anchored in public, so it binds us too</h3>
+      <p>A signed ledger only proves integrity against people without the key &mdash; which does not
+      include us. So the chain head is published to this site on a schedule. Once a head is public,
+      its history cannot be rewritten by anyone, ourselves included.</p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:2.4rem">How you would check it</h2>
+  <p style="color:var(--ink-soft);max-width:40rem">The anchors file is plain text and append-only.
+  Each line is the state of the ledger at the moment it was published.</p>
+
+  <div class="pf-code">2026-08-04T09:57:05 receipts=9 head=sha256:db3b5c3cbb066075455ca36713f1dcad4f3bf03c6a3c82fa2849ed9e4b9683bf</div>
+
+  <p style="color:var(--ink-soft);max-width:42rem">To settle any dispute about work we say we did:
+  take the anchor line that was public on the date in question &mdash; this file's history lives in
+  a public repository, in CDN caches and in web archives, all of which are witnesses we do not
+  control &mdash; then ask us for the ledger and hash its last line at that receipt count. If the
+  hashes match, the history you are holding is the history that existed then. If we had edited
+  anything behind that anchor, they would not.</p>
+
+  <p style="margin-top:1rem"><a href="/proof/attest-anchors.txt">Read the raw anchors file &rarr;</a></p>
+
+  <h2 style="margin-top:2.4rem">What this does not prove</h2>
+  <ul class="pf-limits">
+    <li><b>The signatures are not third-party-verifiable yet.</b> Receipts are signed with a local
+      key, which proves nobody without that key altered them &mdash; it does not prove <em>we</em>
+      didn't, before publishing. Public anchoring is what closes that gap today; a keypair whose
+      public half you can hold is the next step.</li>
+    <li><b>It covers six of our eight scheduled jobs</b>, not all of them. The remaining two are
+      named in our build log rather than quietly omitted.</li>
+    <li><b>A receipt proves an output changed, not that it is correct.</b> Whether yesterday's date
+      in today's report is a problem depends on the cadence, which is a judgment call &mdash; so the
+      date is recorded as evidence and a separate check decides.</li>
+    <li><b>The tool that produces these is not public yet.</b> It is stdlib-only, tested, and being
+      prepared for release; we would rather ship it late than link an install command that does not
+      work.</li>
+  </ul>
+
+  <div class="pf-cta">
+    <h2 style="margin-top:0">If your automations report success, and you have not checked</h2>
+    <p>That is the normal state of things, and it is where this whole line of work came from &mdash;
+    our own stack, failing quietly, four days in a row. We audit for exactly that: the jobs that run,
+    report success, and produce nothing. You get the findings with the evidence for each one,
+    including the ones that turn out to be fine.</p>
+    <p style="margin-bottom:0"><a class="btn" href="/free-demo/">Ask about an automation audit</a>
+    &nbsp; <a href="/flatline/">See the open-source detector &rarr;</a></p>
+  </div>
 </main>
 <footer class="site-footer">
   <div class="wrap footer-in">
@@ -262,15 +333,5 @@ background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
     <span>&copy; <span id="yr">2026</span> Automated Workflow &middot; Gainesville, FL</span>
   </div>
 </footer>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  "name": "Builds — Automated Workflow",
-  "url": "https://automatedworkflowllc.com/builds/",
-  "description": "Every tool Automated Workflow has shipped: five free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a crisis directory."
-}
-</script>
-
 </body>
 </html>
