@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Builds — The Free Tools and Systems Actually Running</title>
-<meta name="description" content="Every tool Automated Workflow has shipped: five free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a crisis directory.">
-<link rel="canonical" href="https://automatedworkflowllc.com/builds/">
+<title>Notarize a File in Your Browser — Signed and Verifiable</title>
+<meta name="description" content="Hash and sign any file in your own browser with Ed25519, then prove later it has not changed. Anyone can verify with the public key. Nothing is uploaded.">
+<link rel="canonical" href="https://automatedworkflowllc.com/proof/notarize/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Builds — The Free Tools and Systems Actually Running">
-<meta property="og:description" content="Every tool Automated Workflow has shipped: five free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a crisis directory.">
-<meta property="og:url" content="https://automatedworkflowllc.com/builds/">
+<meta property="og:title" content="Notarize a File in Your Browser — Signed and Verifiable">
+<meta property="og:description" content="Hash and sign any file in your own browser with Ed25519, then prove later it has not changed. Anyone can verify with the public key. Nothing is uploaded.">
+<meta property="og:url" content="https://automatedworkflowllc.com/proof/notarize/">
 <meta property="og:image" content="https://automatedworkflowllc.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 
@@ -172,26 +172,40 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
 <link rel="manifest" href="/site.webmanifest?v=1">
 <style>
-/* ---- builds index ---- */
-.bd-lede{max-width:42rem;color:var(--ink-soft)}
-.bd-sec{margin:2.4rem 0 .9rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;
-color:var(--ink-soft);border-bottom:1px solid var(--line);padding-bottom:.4rem}
-.bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
-@media(max-width:720px){.bd-grid{grid-template-columns:1fr}}
-.bd-card{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:1.1rem 1.2rem;
-display:flex;flex-direction:column}
-.bd-card h3{margin:0 0 .2rem;font-size:1.02rem}
-.bd-card h3 a{text-decoration:none}
-.bd-card h3 a:hover{text-decoration:underline}
-.bd-what{margin:0 0 .6rem;font-size:.9rem;color:var(--ink-soft);flex:1}
-.bd-proof{margin:0 0 .7rem;font-size:.82rem;color:var(--ink-soft);border-left:2px solid var(--line-strong);
-padding-left:.6rem}
-.bd-tags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:auto}
-.bd-tag{font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);
-border-radius:.3rem;padding:.12rem .42rem;color:var(--ink-soft)}
-.bd-tag.live{border-color:var(--accent);color:var(--accent)}
-.bd-note{margin:2.2rem 0 0;padding:1.1rem 1.2rem;border:1px solid var(--line);border-radius:12px;
-background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
+/* ---- in-browser notary ---- */
+.nz-lede{font-size:1.06rem;max-width:40rem}
+.nz-grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));margin:1.6rem 0 0}
+.nz-card{border:1px solid var(--line);border-radius:.8rem;background:var(--card);padding:1.1rem 1.2rem}
+.nz-card h2{margin:0 0 .25rem;font-size:1.05rem}
+.nz-card p{margin:0 0 .8rem;color:var(--ink-soft);font-size:.9rem}
+.nz-drop{border:1.5px dashed var(--line-strong);border-radius:.6rem;padding:1.2rem;text-align:center;
+  color:var(--ink-soft);font-size:.9rem;cursor:pointer;background:var(--bg-soft);transition:.15s}
+.nz-drop:hover,.nz-drop.over{border-color:var(--accent);color:var(--ink)}
+.nz-drop:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.nz-out{margin:.9rem 0 0;font-family:var(--mono);font-size:.78rem;word-break:break-all;color:var(--ink-soft)}
+.nz-verdict{margin:.9rem 0 0;font-family:var(--mono);font-size:.85rem;padding:.6rem .8rem;
+  border-radius:.5rem;border:1px solid var(--line);background:var(--bg-soft);color:var(--ink-soft)}
+.nz-verdict.ok{border-color:#1F6E4A;color:#1F6E4A}
+.nz-verdict.bad{border-color:#B4452C;color:#B4452C}
+.nz-key{margin:1.6rem 0 0;border:1px solid var(--line);border-radius:.8rem;background:var(--bg-soft);
+  padding:1rem 1.2rem}
+.nz-key code{font-family:var(--mono);font-size:.78rem;word-break:break-all}
+.nz-rows{margin:1rem 0 0;display:grid;gap:.5rem}
+.nz-row{border:1px solid var(--line);border-radius:.55rem;background:var(--card);padding:.6rem .8rem;
+  font-size:.85rem}
+.nz-row b{font-family:var(--mono);font-size:.8rem}
+.nz-row span{color:var(--ink-soft);font-family:var(--mono);font-size:.72rem;word-break:break-all;
+  display:block;margin-top:.15rem}
+.nz-btns{display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0 0}
+.nz-btns button{font:inherit;font-size:.86rem;padding:.5rem .9rem;border-radius:.45rem;cursor:pointer;
+  border:1px solid var(--line-strong);background:var(--card);color:var(--ink)}
+.nz-btns button:hover{border-color:var(--ink)}
+.nz-btns button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.nz-limits{margin:2.2rem 0 0;padding-left:1.15rem;max-width:42rem}
+.nz-limits li{margin:.45rem 0;color:var(--ink-soft)}
+.nz-limits b{color:var(--ink)}
+.nz-unsupported{border:1px solid #B4452C;border-radius:.6rem;padding:.9rem 1.1rem;margin:1.4rem 0 0;
+  color:#B4452C;font-size:.9rem}
 </style>
 </head>
 <body>
@@ -218,31 +232,287 @@ background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
     <a class="header-cta" href="mailto:colin@automatedworkflowllc.com?subject=Spreadsheet%20cleanup%20%E2%80%94%20free%20mini-demo&amp;body=Hi%20Colin%2C%0A%0AHere%27s%20the%20messy%20spreadsheet%20that%27s%20driving%20me%20crazy%3A%20">Send your file &rarr;</a>
   </div>
 </header>
-<main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3.5rem;max-width:54rem">
-  <h1 style="margin-bottom:.4rem">Builds</h1>
-  <p class="bd-lede">Everything below is running right now &mdash; a tool you can press, a demo you
-  can click, or a repository you can read. No mockups, no "coming soon". If a number appears on this
-  page, it is one that was measured, and the card says how.</p>
+<main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
+  <h1 style="margin-bottom:.4rem">Notarize a file in your own browser.</h1>
+  <p class="nz-lede" style="color:var(--ink-soft)">
+    Drop in a report, a contract, an export &mdash; anything. Your browser hashes it and signs a
+    receipt with a key it generates on this device. Later, you (or your auditor, or your client)
+    can prove the file has not changed by a single byte. <b>Nothing is uploaded</b>: there is no
+    endpoint here to receive a file, and you can watch the network tab stay empty.
+  </p>
 
-  <div class="bd-sec">Free tools &mdash; press them, nothing uploads</div>
-  <p class="bd-lede" style="margin-bottom:.9rem;font-size:.9rem">Each one runs entirely in your
-  browser. There is no server to send your file to &mdash; open the network tab and watch: after the
-  page loads, zero requests. That is architecture, not a privacy policy.</p>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/starter/">Job &amp; Invoice Tracker  ·  no file needed</a></h3><p class="bd-what">Every other tool here asks you to upload something first. This one asks for nothing &mdash; press a button and it builds you a working Excel tracker where unbilled jobs and invoices past 60 days flag themselves.</p><p class="bd-proof">A real .xlsx assembled in your browser with no library and no upload &mdash; verified to open with formulas intact and amounts stored as numbers, not text.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/check/">Business File Check  ·  start here</a></h3><p class="bd-what">One drop zone for any business export &mdash; <strong>Excel (.xlsx) works directly</strong>, no save-as-CSV step. It works out what the file is from its columns, runs every check that applies, and reconciles two files against each other if you drop a pair. The Excel file is parsed in your browser with no library and no upload &mdash; nobody else does that.</p><p class="bd-proof">On its sample pair it returns 8 findings with zero configuration and puts a number on the damage: <strong>$1,240 of finished work that was never invoiced</strong>. <a href="/check/example/">See a real report</a> before uploading anything.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/spreadsheet-health-check/">Spreadsheet Health Check</a></h3><p class="bd-what">Drop any CSV and get an honest report: columns that carry no information, status fields that never vary, mixed date formats, duplicate rows. Then download the file with the judgment-free problems already fixed.</p><p class="bd-proof">On its sample: 6 findings down to 2 after the automatic fix &mdash; and the two that remain are exactly the ones a script must not touch.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/money-leak-finder/">Money Leak Finder</a></h3><p class="bd-what">Two exports every business already has &mdash; the work log and the invoices &mdash; lined up so only the mismatches show: finished jobs nobody billed, invoices sitting unpaid past 60 days.</p><p class="bd-proof">Matches on exact ID only, and says so on the report. Nothing fuzzy, nothing guessed.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/duplicate-customer-finder/">Duplicate Customer Finder</a></h3><p class="bd-what">Acme Roofing. Acme Roofing LLC. acme roofing inc. Three rows, one customer &mdash; inflating your count, splitting revenue history, and sending the mail merge three times.</p><p class="bd-proof">Every group states why it grouped: identical after ignoring case, punctuation and legal suffixes, or a near-miss typo worth a human glance.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/shift-coverage-check/">Shift Coverage Check</a></h3><p class="bd-what">For anyone who runs on a roster &mdash; senior living, clinics, restaurants, facilities. Finds days a role is uncovered, staff crossing 40 hours, roles only one person can fill, and turnarounds too short to be safe.</p><p class="bd-proof">Reads the columns itself and shows which ones it used. Deliberately never proposes who should work when &mdash; that is the manager's call, not a CSV's.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article></div>
+  <div id="nz-unsupported" class="nz-unsupported" hidden>
+    This browser does not support Ed25519 signing in the Web Crypto API, so the signing half of this
+    page cannot run. Hashing and comparison still work. Recent Chrome, Edge, Safari and Firefox all
+    support it.
+  </div>
 
-  <div class="bd-sec">Client work &mdash; live demos</div>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/demo/">Live KPI Dashboard</a></h3><p class="bd-what">A real, self-updating Google Sheets dashboard on sample data &mdash; revenue, jobs, overdue invoices. Click the tabs, tap the chart. No login, no signup.</p><p class="bd-proof">This is the $650 Automated Dashboard, running &mdash; not a screenshot of one.</p><div class="bd-tags"><span class="bd-tag live">Live demo</span><span class="bd-tag">Interactive</span></div></article><article class="bd-card"><h3><a href="/ai-business-pulse/">AI Business Pulse</a></h3><p class="bd-what">The flagship retainer: every Monday an AI reads your live numbers, writes a plain-English summary, and drafts chase emails for money you're owed.</p><p class="bd-proof">Every draft waits for a human approval before anything sends. That gate is the product.</p><div class="bd-tags"><span class="bd-tag">Retainer</span><span class="bd-tag">Human-gated</span></div></article><article class="bd-card"><h3><a href="/staffing-commission-dashboard/">Staffing Commission Dashboard</a></h3><p class="bd-what">A live commission dashboard for a staffing desk that settles splits, draws and fall-off clawbacks by rule instead of by argument.</p><p class="bd-proof">Built for a vertical where the math is the whole disagreement.</p><div class="bd-tags"><span class="bd-tag live">Live demo</span><span class="bd-tag">Vertical</span></div></article><article class="bd-card"><h3><a href="/free/executive-kpi-dashboard.html">Free templates</a></h3><p class="bd-what">Executive KPI dashboard, expense tracker, and a staffing commission tracker &mdash; working Google Sheets templates, no cost, no email required.</p><p class="bd-proof">Take them and never speak to us. That is the point.</p><div class="bd-tags"><span class="bd-tag">Free</span><span class="bd-tag">No signup</span></div></article></div>
+  <div class="nz-grid">
+    <div class="nz-card">
+      <h2>1 &middot; Notarize</h2>
+      <p>Hash the file and sign a receipt. The file never leaves this page.</p>
+      <div class="nz-drop" id="drop-sign" tabindex="0" role="button"
+           aria-label="Choose or drop a file to notarize">Drop a file here, or press to choose</div>
+      <input type="file" id="file-sign" hidden>
+      <div class="nz-out" id="out-sign"></div>
+    </div>
 
-  <div class="bd-sec">Engineering</div>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/automation-monitoring/">Automation Monitoring</a></h3><p class="bd-what">The recurring service: we watch your automations weekly and send an evidence report. Checks the two things nobody else does &mdash; whether the data <em>inside</em> a fresh file is actually current, and whether a report has quietly stopped changing.</p><p class="bd-proof">Sold on a true story: our own trading digest served Friday's data under Monday's timestamp the day the service page was built. The embedded report is that catch, verbatim.</p><div class="bd-tags"><span class="bd-tag">Service</span><span class="bd-tag">$99/mo</span></div></article><article class="bd-card"><h3><a href="/flatline/">flatline</a></h3><p class="bd-what">An open-source reliability tool that finds signals carrying no information and jobs producing nothing: a check that fires on 100% of rows, a scheduled task that reports success while writing nothing, a branch that can never run.</p><p class="bd-proof">Built after a real scheduled job discarded four days of data while reporting success every run. 108 tests, MIT, public &mdash; the page shows five ways to use it on your own stack.</p><div class="bd-tags"><span class="bd-tag live">Open source</span><span class="bd-tag">MIT</span></div></article><article class="bd-card"><h3><a href="/proof/notarize/">Notarize a file</a></h3><p class="bd-what">Drop in any file and your browser hashes it and signs a receipt with an Ed25519 key it generates on your device. Later, drop the file back in &mdash; it tells you whether a single byte has changed, and hands you a public key so anyone else can check the signature too.</p><p class="bd-proof">Hand-built on the Web Crypto API: no library, no account, no upload, and no shared secret. Verified by notarizing a report, changing one digit of the revenue figure, and watching it come back ALTERED with both hashes shown.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Free</span><span class="bd-tag">Ed25519</span></div></article><article class="bd-card"><h3><a href="/proof/">Proof — our own ledger</a></h3><p class="bd-what">Every night our scheduled jobs write a signed receipt recording what each run <em>claimed</em> against what it actually <em>produced</em>. The receipts are hash-chained, and the chain head is published publicly so the record binds us too.</p><p class="bd-proof">It includes the receipts where our own nightly audit produced nothing &mdash; kept deliberately, because a ledger holding only clean runs is one nobody should believe.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Evidence</span></div></article><article class="bd-card"><h3><a href="https://automatedworkflowllc-design.github.io/hearth/" target="_blank" rel="noopener">Hearth</a></h3><p class="bd-what">A national crisis-resource directory &mdash; food, shelter, health, legal, support &mdash; built on federal data (HRSA, SAMHSA, USDA, EPA/Hunger Free America) and refreshed automatically.</p><p class="bd-proof">60,000+ live records. Its public health endpoint reports freshness per source, so a stale feed cannot hide behind a fresh one.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Public good</span><span class="bd-tag">Open data</span></div></article><article class="bd-card"><h3><a href="/build-log/">Build log</a></h3><p class="bd-what">How the multi-tenant reporting pipeline behind Automated Workflow is actually assembled &mdash; n8n, Google Sheets, an AI narrative step, and a human approval gate.</p><p class="bd-proof">Written for someone deciding whether this is real engineering or a wrapper.</p><div class="bd-tags"><span class="bd-tag">Write-up</span></div></article></div>
+    <div class="nz-card">
+      <h2>2 &middot; Check it later</h2>
+      <p>Drop the same file &mdash; or a changed one &mdash; and compare against its receipt.</p>
+      <div class="nz-drop" id="drop-check" tabindex="0" role="button"
+           aria-label="Choose or drop a file to check">Drop a file here, or press to choose</div>
+      <input type="file" id="file-check" hidden>
+      <div class="nz-verdict" id="out-check">No file checked yet.</div>
+    </div>
+  </div>
 
-  <div class="bd-note"><strong>Why the tools stop where they stop.</strong> Every free tool above
-  ends at the point where a script would have to guess &mdash; which duplicate is the real customer,
-  what a blank cell means, who should cover Thursday. Those decisions need a person who can ask you
-  a question, which is what the <a href="/spreadsheet-cleanup-service/">$300 cleanup</a> and the
-  <a href="/free-demo/">free 1-day demo</a> are. A tool that guessed there would be faster and
-  worse.</div>
+  <div class="nz-key">
+    <h2 style="margin:0 0 .3rem;font-size:1.05rem">Your public key</h2>
+    <p style="margin:0 0 .5rem;color:var(--ink-soft);font-size:.9rem">Hand this to anyone who needs
+    to verify your receipts. It cannot sign anything and it reveals nothing about the files.</p>
+    <code id="pubkey">generating&hellip;</code>
+    <div class="nz-btns">
+      <button id="btn-verify-all">Verify every receipt</button>
+      <button id="btn-export">Export receipts + key</button>
+      <button id="btn-clear">Clear this device's ledger</button>
+    </div>
+    <div class="nz-verdict" id="out-verify">Chain not yet verified.</div>
+    <div class="nz-rows" id="rows"></div>
+  </div>
+
+  <h2 style="margin-top:2.4rem">What this proves, and what it does not</h2>
+  <ul class="nz-limits">
+    <li><b>It proves continuity, not identity.</b> Anyone can generate a keypair, including someone
+      pretending to be you. What a signature proves is that <em>the holder of this key</em> signed
+      these files in this order. Binding a key to a person means publishing its fingerprint
+      somewhere public &mdash; which is exactly what we do with
+      <a href="/proof/">our own chain head</a>.</li>
+    <li><b>The timestamp is your computer's clock.</b> It is not a trusted time source. It is
+      evidence of ordering, not proof of the hour.</li>
+    <li><b>The private key lives in this browser and nowhere else.</b> We never see it &mdash; there
+      is nothing here to send it to. Clear your browser storage and it is gone for good, and old
+      receipts stay verifiable by their public key but you cannot sign new ones in the same chain.</li>
+    <li><b>A receipt proves the bytes, not the truth.</b> It proves a file has not changed since it
+      was signed. Whether the file was right in the first place is a different question, and an
+      honest tool should not pretend otherwise.</li>
+  </ul>
+
+  <div style="margin-top:2rem;padding:1.4rem;border:1px solid var(--line);border-radius:12px;background:var(--card)">
+    <h2 style="margin-top:0">This is the same machinery we run on ourselves</h2>
+    <p style="color:var(--ink-soft)">Our own scheduled jobs write receipts in this format every
+    night, chained the same way, and we publish the chain head publicly so the record binds us too
+    &mdash; including the nights our own audit produced nothing.</p>
+    <p style="margin-bottom:0"><a class="btn" href="/proof/">See our ledger</a>
+    &nbsp; <a href="/free-demo/">Ask about an automation audit &rarr;</a></p>
+  </div>
 </main>
+
+<script>
+(function(){
+  'use strict';
+  var LS_KEY = 'awllc.notary.key', LS_LEDGER = 'awllc.notary.ledger';
+  var priv = null, pubB64 = null, ledger = [], canSign = true;
+
+  function b64u(buf){
+    var b = '', a = new Uint8Array(buf);
+    for (var i = 0; i < a.length; i++) b += String.fromCharCode(a[i]);
+    return btoa(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+  function unb64u(s){
+    s = s.replace(/-/g,'+').replace(/_/g,'/');
+    while (s.length % 4) s += '=';
+    var bin = atob(s), a = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+    return a;
+  }
+  function hex(buf){
+    return Array.prototype.map.call(new Uint8Array(buf), function(x){
+      return x.toString(16).padStart(2,'0'); }).join('');
+  }
+  async function sha256(data){
+    return hex(await crypto.subtle.digest('SHA-256',
+      typeof data === 'string' ? new TextEncoder().encode(data) : data));
+  }
+  // Canonical JSON: sorted keys, no whitespace. Same rule as our CLI, so a
+  // receipt signed here and a receipt signed there hash identically.
+  function canon(o){
+    if (Array.isArray(o)) return '[' + o.map(canon).join(',') + ']';
+    if (o && typeof o === 'object')
+      return '{' + Object.keys(o).sort().map(function(k){
+        return JSON.stringify(k) + ':' + canon(o[k]); }).join(',') + '}';
+    return JSON.stringify(o);
+  }
+  function esc(s){ return String(s).replace(/[<>&"]/g, function(c){
+    return ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'})[c]; }); }
+
+  async function initKey(){
+    try {
+      var stored = localStorage.getItem(LS_KEY);
+      if (stored){
+        var jwk = JSON.parse(stored);
+        priv = await crypto.subtle.importKey('jwk', jwk, {name:'Ed25519'}, true, ['sign']);
+        var pj = {kty:jwk.kty, crv:jwk.crv, x:jwk.x};
+        var pk = await crypto.subtle.importKey('jwk', pj, {name:'Ed25519'}, true, ['verify']);
+        pubB64 = b64u(await crypto.subtle.exportKey('raw', pk));
+      } else {
+        var kp = await crypto.subtle.generateKey({name:'Ed25519'}, true, ['sign','verify']);
+        priv = kp.privateKey;
+        localStorage.setItem(LS_KEY, JSON.stringify(await crypto.subtle.exportKey('jwk', kp.privateKey)));
+        pubB64 = b64u(await crypto.subtle.exportKey('raw', kp.publicKey));
+      }
+      document.getElementById('pubkey').textContent = 'ed25519:' + pubB64;
+    } catch (e){
+      canSign = false;
+      document.getElementById('nz-unsupported').hidden = false;
+      document.getElementById('pubkey').textContent = 'unavailable in this browser';
+    }
+  }
+
+  function loadLedger(){
+    try { ledger = JSON.parse(localStorage.getItem(LS_LEDGER) || '[]'); }
+    catch (e){ ledger = []; }
+  }
+  function saveLedger(){ localStorage.setItem(LS_LEDGER, JSON.stringify(ledger)); }
+
+  async function headHash(){
+    return ledger.length ? await sha256(ledger[ledger.length-1]) : 'GENESIS';
+  }
+
+  async function notarize(file){
+    var out = document.getElementById('out-sign');
+    out.textContent = 'hashing ' + file.name + '\u2026';
+    var digest = await sha256(await file.arrayBuffer());
+    var body = {
+      spec: 'attest/0.1-web', kind: 'notarize',
+      name: file.name, bytes: file.size, sha256: digest,
+      at: new Date().toISOString().replace(/\.\d+Z$/, ''),
+      prev: await headHash(), pubkey: canSign ? ('ed25519:' + pubB64) : null
+    };
+    if (canSign){
+      var sig = await crypto.subtle.sign({name:'Ed25519'}, priv, new TextEncoder().encode(canon(body)));
+      body.sig = 'ed25519:' + b64u(sig);
+    }
+    ledger.push(canon(body));
+    saveLedger();
+    out.innerHTML = '<b>' + esc(file.name) + '</b> &mdash; sha256 ' + digest.slice(0,32) + '&hellip;'
+      + (canSign ? '<br>signed, receipt ' + ledger.length + ' in your chain'
+                 : '<br>hashed (signing unavailable in this browser)');
+    render();
+  }
+
+  async function check(file){
+    var v = document.getElementById('out-check');
+    if (!ledger.length){ v.className = 'nz-verdict'; v.textContent = 'Notarize a file first.'; return; }
+    var digest = await sha256(await file.arrayBuffer());
+    var hit = null;
+    for (var i = 0; i < ledger.length; i++){
+      var r = JSON.parse(ledger[i]);
+      if (r.sha256 === digest){ hit = {r:r, i:i}; break; }
+    }
+    if (hit){
+      v.className = 'nz-verdict ok';
+      v.textContent = 'MATCHES receipt ' + (hit.i+1) + ' \u2014 ' + hit.r.name + ', notarized '
+        + hit.r.at + '. Not one byte has changed.';
+      return;
+    }
+    var same = null;
+    for (var j = 0; j < ledger.length; j++){
+      var q = JSON.parse(ledger[j]);
+      if (q.name === file.name){ same = q; break; }
+    }
+    v.className = 'nz-verdict bad';
+    v.textContent = same
+      ? 'ALTERED \u2014 a file named ' + file.name + ' was notarized with hash '
+        + same.sha256.slice(0,24) + '\u2026 but this one hashes to ' + digest.slice(0,24)
+        + '\u2026 The contents are not the same.'
+      : 'NO RECEIPT \u2014 nothing in this chain matches this file (' + digest.slice(0,24) + '\u2026).';
+  }
+
+  async function verifyAll(){
+    var v = document.getElementById('out-verify');
+    if (!ledger.length){ v.className = 'nz-verdict'; v.textContent = 'No receipts yet.'; return; }
+    var prev = 'GENESIS', linkBad = 0, sigBad = 0, sigChecked = 0;
+    for (var i = 0; i < ledger.length; i++){
+      var r = JSON.parse(ledger[i]);
+      if (r.prev !== prev) linkBad++;
+      if (r.sig && r.pubkey){
+        var body = {}; Object.keys(r).forEach(function(k){ if (k !== 'sig') body[k] = r[k]; });
+        try {
+          var pk = await crypto.subtle.importKey('raw', unb64u(r.pubkey.replace(/^ed25519:/,'')),
+                     {name:'Ed25519'}, false, ['verify']);
+          var ok = await crypto.subtle.verify({name:'Ed25519'}, pk,
+                     unb64u(r.sig.replace(/^ed25519:/,'')), new TextEncoder().encode(canon(body)));
+          sigChecked++; if (!ok) sigBad++;
+        } catch (e){ sigBad++; }
+      }
+      prev = await sha256(ledger[i]);
+    }
+    if (!linkBad && !sigBad){
+      v.className = 'nz-verdict ok';
+      v.textContent = 'VERIFIED \u2014 ' + ledger.length + ' receipt(s), chain intact, '
+        + sigChecked + ' signature(s) valid. Head ' + prev.slice(0,24) + '\u2026';
+    } else {
+      v.className = 'nz-verdict bad';
+      v.textContent = 'FAILED \u2014 ' + linkBad + ' broken link(s), ' + sigBad + ' bad signature(s).';
+    }
+  }
+
+  function render(){
+    var host = document.getElementById('rows');
+    host.textContent = '';
+    ledger.forEach(function(line, i){
+      var r = JSON.parse(line);
+      var d = document.createElement('div');
+      d.className = 'nz-row';
+      d.innerHTML = '<b>' + (i+1) + ' &middot; ' + esc(r.name) + '</b> <span>' + esc(r.at)
+        + ' &middot; ' + r.bytes + ' bytes &middot; sha256 ' + esc(r.sha256) + '</span>';
+      host.appendChild(d);
+    });
+  }
+
+  function exportAll(){
+    var text = '# Automated Workflow notary export\n'
+      + '# public key: ' + (pubB64 ? 'ed25519:' + pubB64 : '(none)') + '\n'
+      + '# Each line is a receipt. Verify: signature over the canonical JSON of the\n'
+      + '# receipt without its "sig" field; chain: prev = sha256 of the previous raw line.\n'
+      + ledger.join('\n') + '\n';
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], {type:'text/plain'}));
+    a.download = 'notary-receipts.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function wireDrop(dropId, inputId, handler){
+    var d = document.getElementById(dropId), inp = document.getElementById(inputId);
+    d.addEventListener('click', function(){ inp.click(); });
+    d.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); inp.click(); } });
+    d.addEventListener('dragover', function(e){ e.preventDefault(); d.classList.add('over'); });
+    d.addEventListener('dragleave', function(){ d.classList.remove('over'); });
+    d.addEventListener('drop', function(e){
+      e.preventDefault(); d.classList.remove('over');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) handler(e.dataTransfer.files[0]);
+    });
+    inp.addEventListener('change', function(){ if (inp.files[0]) handler(inp.files[0]); });
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    loadLedger(); render();
+    initKey();
+    wireDrop('drop-sign', 'file-sign', notarize);
+    wireDrop('drop-check', 'file-check', check);
+    document.getElementById('btn-verify-all').addEventListener('click', verifyAll);
+    document.getElementById('btn-export').addEventListener('click', exportAll);
+    document.getElementById('btn-clear').addEventListener('click', function(){
+      ledger = []; saveLedger(); render();
+      var v = document.getElementById('out-verify');
+      v.className = 'nz-verdict'; v.textContent = 'Ledger cleared on this device.';
+    });
+  });
+})();
+</script>
 <footer class="site-footer">
   <div class="wrap footer-in">
     <span class="fbrand">
@@ -262,15 +532,5 @@ background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
     <span>&copy; <span id="yr">2026</span> Automated Workflow &middot; Gainesville, FL</span>
   </div>
 </footer>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  "name": "Builds — Automated Workflow",
-  "url": "https://automatedworkflowllc.com/builds/",
-  "description": "Every tool Automated Workflow has shipped: five free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a crisis directory."
-}
-</script>
-
 </body>
 </html>

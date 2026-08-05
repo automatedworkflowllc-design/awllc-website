@@ -135,6 +135,14 @@ MAIN = """
 
   <p style="margin-top:1rem"><a href="/proof/attest-anchors.txt">Read the raw anchors file &rarr;</a></p>
 
+  <h2 style="margin-top:2.4rem">Do it yourself, on your own file</h2>
+  <p style="color:var(--ink-soft);max-width:42rem">The limit stated below &mdash; that our receipts
+  are signed with a key only we hold &mdash; has an answer, and you can use it right now.
+  <a href="/proof/notarize/">Notarize a file in your browser</a>: it hashes the file, signs a
+  receipt with an Ed25519 key generated on your device, and hands you the <em>public</em> half so
+  anyone can verify it without trusting us, without an account, and without uploading a byte. Drop
+  the file back in later &mdash; changed or not &mdash; and it will tell you which.</p>
+
   <h2 style="margin-top:2.4rem">What this does not prove</h2>
   <ul class="pf-limits">
     <li><b>The signatures are not third-party-verifiable yet.</b> Receipts are signed with a local

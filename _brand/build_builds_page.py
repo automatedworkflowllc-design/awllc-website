@@ -129,6 +129,14 @@ ENGINEERING = [
      "Built after a real scheduled job discarded four days of data while reporting success every "
      "run. 108 tests, MIT, public &mdash; the page shows five ways to use it on your own stack.",
      ["Open source", "MIT"]),
+    ("Notarize a file", "/proof/notarize/",
+     "Drop in any file and your browser hashes it and signs a receipt with an Ed25519 key it "
+     "generates on your device. Later, drop the file back in &mdash; it tells you whether a single "
+     "byte has changed, and hands you a public key so anyone else can check the signature too.",
+     "Hand-built on the Web Crypto API: no library, no account, no upload, and no shared secret. "
+     "Verified by notarizing a report, changing one digit of the revenue figure, and watching it "
+     "come back ALTERED with both hashes shown.",
+     ["Live", "Free", "Ed25519"]),
     ("Proof — our own ledger", "/proof/",
      "Every night our scheduled jobs write a signed receipt recording what each run <em>claimed</em> "
      "against what it actually <em>produced</em>. The receipts are hash-chained, and the chain head "
