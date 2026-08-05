@@ -194,6 +194,19 @@ padding:1rem 1.2rem;margin:1.6rem 0;max-width:42rem}
 border-radius:.5rem;padding:.8rem 1rem;overflow-x:auto;margin:.6rem 0}
 .fl-cta{margin-top:2rem;padding:1.4rem;border:1px solid var(--line);border-radius:12px;background:var(--card)}
 .fl-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
+
+.pe{border:1px solid var(--line);border-left:4px solid var(--accent,var(--green,#1E7A47));
+border-radius:.7rem;
+background:var(--card);padding:1rem 1.2rem;margin:1.1rem 0 1.4rem;max-width:42rem}
+.pe h2{margin:0 0 .5rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;
+color:var(--accent,var(--green,#1E7A47))}
+.pe dl{margin:0;display:grid;grid-template-columns:7.5rem 1fr;gap:.4rem .9rem}
+.pe dt{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);
+padding-top:.1rem}
+.pe dd{margin:0;font-size:.95rem;color:var(--ink)}
+.pe dd b{font-weight:600}
+@media(max-width:560px){.pe dl{grid-template-columns:1fr;gap:.15rem}
+.pe dt{margin-top:.5rem}}
 </style>
 </head>
 <body>
@@ -222,6 +235,21 @@ border-radius:.5rem;padding:.8rem 1rem;overflow-x:auto;margin:.6rem 0}
 </header>
 <main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
   <h1 style="margin-bottom:.4rem">Your automations report success.<br>That is not the same as working.</h1>
+<div class="pe">
+  <h2>In plain English</h2>
+  <dl>
+    <dt>What it does</dt><dd>Checks the automatic jobs in your business &mdash; the nightly backup,
+      the sync, the weekly report &mdash; and finds the ones that say they worked but did nothing.</dd>
+    <dt>Why it helps</dt><dd>A backup that has "succeeded" every night for eight months into an
+      empty file looks identical to one that works, right up until you need it.
+      <b>The failures that cost real money never show up as errors</b>, which is exactly why nobody
+      catches them.</dd>
+    <dt>What you need</dt><dd>A little help from whoever is technical &mdash; it is a free tool they
+      run, and it only reads; it changes nothing.</dd>
+    <dt>How long</dt><dd>About twenty minutes to point it at your stack. Or ask us and we will do it
+      and hand you the findings with the evidence.</dd>
+  </dl>
+</div>
   <p class="fl-lede" style="color:var(--ink-soft)">
     Monitoring watches for errors. The expensive failures do not throw one &mdash; the job runs,
     the log gets written, the exit code is zero, and nothing actually happened. Flatline is a free

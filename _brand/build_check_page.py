@@ -25,7 +25,14 @@ from __future__ import annotations
 import pathlib
 import re
 
-from toolkit import PARSE_DATE_JS, XLSX_JS
+from toolkit import PARSE_DATE_JS, XLSX_JS, PLAIN_CSS, plain_english, with_plain
+
+PLAIN = plain_english(
+    'You do not need to know which check you need. Drop in any business file and it works out what kind of file it is, then runs every check that applies. Drop in two and it compares them against each other.',
+    '<b>It puts a dollar figure on what it finds</b> &mdash; for example, finished work that was never invoiced &mdash; so you can see what is worth chasing first instead of reading a list of complaints.',
+    'Any export you already have. One file works; two work better.',
+    'About ten seconds, and you get a report you can download and forward.')
+
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
@@ -40,7 +47,7 @@ PAGE_CSS = """
 /* ---- unified check ---- */
 .ck-drop{border:2px dashed var(--line-strong);border-radius:18px;background:var(--card);
 padding:3rem 1.4rem;text-align:center;cursor:pointer}
-.ck-drop.is-over{border-color:var(--accent);background:var(--well)}
+.ck-drop.is-over{border-color:var(--accent,var(--green,#1E7A47));background:var(--well)}
 .ck-drop:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .ck-drop strong{display:block;font-size:1.15rem;margin-bottom:.35rem}
 .ck-drop span{color:var(--ink-soft);font-size:.92rem}
@@ -87,7 +94,7 @@ border-radius:.6rem;padding:.85rem 1.05rem;margin:0 0 .55rem}
 .ck-find h4{margin:0 0 .2rem;font-size:.96rem}
 .ck-find p{margin:0;font-size:.89rem;color:var(--ink-soft)}
 .ck-find .src{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft)}
-.ck-clean{border-left:4px solid var(--accent);background:var(--card);border-radius:.6rem;
+.ck-clean{border-left:4px solid var(--accent,var(--green,#1E7A47));background:var(--card);border-radius:.6rem;
 padding:1rem 1.2rem;color:var(--ink-soft)}
 .ck-cta{margin-top:1.6rem;padding:1.3rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
 .ck-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
@@ -752,7 +759,7 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:title" content=").*?(">)', rf'\g<1>{TITLE}\g<2>', head)
     head = re.sub(r'(<meta property="og:description" content=").*?(">)', rf'\g<1>{DESC}\g<2>', head)
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
-    head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
+    head = head.replace('</head>', f'<style>{PAGE_CSS}{PLAIN_CSS}</style>\n</head>')
 
     # The roster overtime check needs a real parsed date, not a sliced string.
     # Taken from the shared toolkit rather than hand-copied, so it cannot drift
@@ -764,7 +771,7 @@ def main() -> None:
     script = script.replace('function parseTime(', XLSX_JS.strip() + '\n\nfunction parseTime(', 1)
     if 'function xlsxToRows' not in script or 'function rowsToCSV' not in script:
         raise SystemExit('xlsx reader was not injected -- fix before shipping')
-    page = head + MAIN + footer + LD + script + '\n</body>\n</html>\n'
+    page = head + with_plain(MAIN, PLAIN) + footer + LD + script + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')

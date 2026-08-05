@@ -38,6 +38,8 @@ from __future__ import annotations
 import pathlib
 import re
 
+from toolkit import PLAIN_CSS
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'proof' / 'notarize'
@@ -56,8 +58,8 @@ PAGE_CSS = """
 .nz-card p{margin:0 0 .8rem;color:var(--ink-soft);font-size:.9rem}
 .nz-drop{border:1.5px dashed var(--line-strong);border-radius:.6rem;padding:1.2rem;text-align:center;
   color:var(--ink-soft);font-size:.9rem;cursor:pointer;background:var(--bg-soft);transition:.15s}
-.nz-drop:hover,.nz-drop.over{border-color:var(--accent);color:var(--ink)}
-.nz-drop:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.nz-drop:hover,.nz-drop.over{border-color:var(--accent,var(--green,#1E7A47));color:var(--ink)}
+.nz-drop:focus-visible{outline:2px solid var(--accent,var(--green,#1E7A47));outline-offset:2px}
 .nz-out{margin:.9rem 0 0;font-family:var(--mono);font-size:.78rem;word-break:break-all;color:var(--ink-soft)}
 .nz-verdict{margin:.9rem 0 0;font-family:var(--mono);font-size:.85rem;padding:.6rem .8rem;
   border-radius:.5rem;border:1px solid var(--line);background:var(--bg-soft);color:var(--ink-soft)}
@@ -76,7 +78,7 @@ PAGE_CSS = """
 .nz-btns button{font:inherit;font-size:.86rem;padding:.5rem .9rem;border-radius:.45rem;cursor:pointer;
   border:1px solid var(--line-strong);background:var(--card);color:var(--ink)}
 .nz-btns button:hover{border-color:var(--ink)}
-.nz-btns button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.nz-btns button:focus-visible{outline:2px solid var(--accent,var(--green,#1E7A47));outline-offset:2px}
 .nz-limits{margin:2.2rem 0 0;padding-left:1.15rem;max-width:42rem}
 .nz-limits li{margin:.45rem 0;color:var(--ink-soft)}
 .nz-limits b{color:var(--ink)}
@@ -87,6 +89,21 @@ PAGE_CSS = """
 MAIN = """
 <main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
   <h1 style="margin-bottom:.4rem">Notarize a file in your own browser.</h1>
+<div class="pe">
+  <h2>In plain English</h2>
+  <dl>
+    <dt>What it does</dt><dd>Takes a fingerprint of any file and signs it, so that later you can
+      prove the file has not been changed &mdash; not by a word, not by a digit.</dd>
+    <dt>Why it helps</dt><dd>You send a quote, a contract, a price list or a board report. Weeks
+      later someone says <em>that is not the version I got</em>. <b>This settles it with maths
+      instead of memory</b> &mdash; and they can check it themselves without taking your word for
+      anything, or ours.</dd>
+    <dt>What you need</dt><dd>Any file at all. Then the same file again, later, when you want to
+      check it.</dd>
+    <dt>How long</dt><dd>A second or two. The file never leaves your computer &mdash; there is no
+      account, no upload, and nothing to sign up for.</dd>
+  </dl>
+</div>
   <p class="nz-lede" style="color:var(--ink-soft)">
     Drop in a report, a contract, an export &mdash; anything. Your browser hashes it and signs a
     receipt with a key it generates on this device. Later, you (or your auditor, or your client)
@@ -387,7 +404,7 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:title" content=").*?(">)', rf'\g<1>{TITLE}\g<2>', head)
     head = re.sub(r'(<meta property="og:description" content=").*?(">)', rf'\g<1>{DESC}\g<2>', head)
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
-    head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
+    head = head.replace('</head>', f'<style>{PAGE_CSS}{PLAIN_CSS}</style>\n</head>')
 
     page = head + MAIN + JS + footer + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(parents=True, exist_ok=True)

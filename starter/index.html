@@ -181,7 +181,7 @@ padding:1.6rem;margin:1.6rem 0}
 .st-opt input{margin-top:.25rem}
 .st-opt span{color:var(--ink-soft);font-size:.85rem;display:block}
 .st-go{font:inherit;font-weight:600;font-size:1rem;padding:.8rem 1.5rem;border-radius:.6rem;
-border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+border:1px solid var(--accent,var(--green,#1E7A47));background:var(--accent,var(--green,#1E7A47));color:#fff;cursor:pointer}
 .st-go:hover{filter:brightness(1.08)}
 .st-go:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .st-said{margin:.9rem 0 0;font-size:.9rem;color:var(--ink-soft);min-height:1.3em}
@@ -203,6 +203,19 @@ border-radius:.4rem;padding:.55rem .7rem;overflow-x:auto;margin:.35rem 0}
 .st-form p{margin:.3rem 0 0;font-size:.86rem;color:var(--ink-soft)}
 .st-cta{margin-top:1.8rem;padding:1.4rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
 .st-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
+
+.pe{border:1px solid var(--line);border-left:4px solid var(--accent,var(--green,#1E7A47));
+border-radius:.7rem;
+background:var(--card);padding:1rem 1.2rem;margin:1.1rem 0 1.4rem;max-width:42rem}
+.pe h2{margin:0 0 .5rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;
+color:var(--accent,var(--green,#1E7A47))}
+.pe dl{margin:0;display:grid;grid-template-columns:7.5rem 1fr;gap:.4rem .9rem}
+.pe dt{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);
+padding-top:.1rem}
+.pe dd{margin:0;font-size:.95rem;color:var(--ink)}
+.pe dd b{font-weight:600}
+@media(max-width:560px){.pe dl{grid-template-columns:1fr;gap:.15rem}
+.pe dt{margin-top:.5rem}}
 </style>
 </head>
 <body>
@@ -231,6 +244,16 @@ border-radius:.4rem;padding:.55rem .7rem;overflow-x:auto;margin:.35rem 0}
 </header>
 <main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
   <h1 style="margin-bottom:.4rem">You don't have a spreadsheet problem yet.<br>Start without one.</h1>
+<div class="pe">
+  <h2>In plain English</h2>
+  <dl>
+    <dt>What it does</dt><dd>Builds you a working Excel spreadsheet from scratch &mdash; a job log, an invoice list and a summary page &mdash; without asking you for anything.</dd>
+    <dt>Why it helps</dt><dd>It arrives already set up so the two most expensive mistakes <b>flag themselves</b>: work you finished but never invoiced, and invoices sitting unpaid past 60 days. Nobody has to remember to check.</dd>
+    <dt>What you need</dt><dd>Nothing at all. Press one button.</dd>
+    <dt>How long</dt><dd>About five seconds, and you get a real .xlsx file that opens in Excel or Google Sheets.</dd>
+  </dl>
+</div>
+
   <p class="st-lede" style="color:var(--ink-soft)">
     Our other tools ask you to upload a file so they can tell you what is wrong with it. This one
     asks for nothing. Press the button and you get a working Excel tracker where the two mistakes

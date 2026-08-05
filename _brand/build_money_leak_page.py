@@ -17,7 +17,14 @@ from __future__ import annotations
 import pathlib
 import re
 
-from toolkit import with_core, with_xlsx
+from toolkit import with_core, with_xlsx, PLAIN_CSS, plain_english, with_plain
+
+PLAIN = plain_english(
+    'Lines up the work you finished against the invoices you sent, and shows you only the places they do not match.',
+    '<b>It finds money you already earned but never collected</b> &mdash; jobs completed and never billed, and invoices that quietly went unpaid. It will even write the follow-up emails for you, though it cannot send them; you always press send.',
+    'Two files you already have: a list of jobs or work done, and a list of invoices.',
+    'About ten seconds. Your books never leave your machine.')
+
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
@@ -35,8 +42,8 @@ PAGE_CSS = """
 @media(max-width:640px){.ml-drops{grid-template-columns:1fr}}
 .ml-drop{border:2px dashed var(--line-strong);border-radius:14px;background:var(--card);
 padding:1.6rem 1rem;text-align:center;cursor:pointer}
-.ml-drop.is-over{border-color:var(--accent);background:var(--well)}
-.ml-drop.is-set{border-style:solid;border-color:var(--accent)}
+.ml-drop.is-over{border-color:var(--accent,var(--green,#1E7A47));background:var(--well)}
+.ml-drop.is-set{border-style:solid;border-color:var(--accent,var(--green,#1E7A47))}
 .ml-drop:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .ml-drop strong{display:block;margin-bottom:.3rem}
 .ml-drop span{color:var(--ink-soft);font-size:.85rem;overflow-wrap:anywhere}
@@ -71,7 +78,7 @@ border:1px solid currentColor;border-radius:.3rem;padding:.1rem .4rem;white-spac
 .ml-tier.t-unknown{color:var(--ink-soft)}
 .ml-copy{margin-left:auto;font:inherit;font-size:.78rem;padding:.28rem .8rem;cursor:pointer;
 border:1px solid var(--line-strong);border-radius:.4rem;background:var(--bg-soft);color:var(--ink)}
-.ml-copy:hover{border-color:var(--accent)}
+.ml-copy:hover{border-color:var(--accent,var(--green,#1E7A47))}
 .ml-copy:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .ml-draft-sub{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;
 color:var(--ink-soft);margin-bottom:.5rem}
@@ -555,9 +562,9 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:title" content=").*?(">)', rf'\g<1>{TITLE}\g<2>', head)
     head = re.sub(r'(<meta property="og:description" content=").*?(">)', rf'\g<1>{DESC}\g<2>', head)
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
-    head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
+    head = head.replace('</head>', f'<style>{PAGE_CSS}{PLAIN_CSS}</style>\n</head>')
 
-    page = head + MAIN + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
+    page = head + with_plain(MAIN, PLAIN) + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')

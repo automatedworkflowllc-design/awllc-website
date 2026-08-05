@@ -177,8 +177,8 @@
 @media(max-width:640px){.ml-drops{grid-template-columns:1fr}}
 .ml-drop{border:2px dashed var(--line-strong);border-radius:14px;background:var(--card);
 padding:1.6rem 1rem;text-align:center;cursor:pointer}
-.ml-drop.is-over{border-color:var(--accent);background:var(--well)}
-.ml-drop.is-set{border-style:solid;border-color:var(--accent)}
+.ml-drop.is-over{border-color:var(--accent,var(--green,#1E7A47));background:var(--well)}
+.ml-drop.is-set{border-style:solid;border-color:var(--accent,var(--green,#1E7A47))}
 .ml-drop:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .ml-drop strong{display:block;margin-bottom:.3rem}
 .ml-drop span{color:var(--ink-soft);font-size:.85rem;overflow-wrap:anywhere}
@@ -213,7 +213,7 @@ border:1px solid currentColor;border-radius:.3rem;padding:.1rem .4rem;white-spac
 .ml-tier.t-unknown{color:var(--ink-soft)}
 .ml-copy{margin-left:auto;font:inherit;font-size:.78rem;padding:.28rem .8rem;cursor:pointer;
 border:1px solid var(--line-strong);border-radius:.4rem;background:var(--bg-soft);color:var(--ink)}
-.ml-copy:hover{border-color:var(--accent)}
+.ml-copy:hover{border-color:var(--accent,var(--green,#1E7A47))}
 .ml-copy:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .ml-draft-sub{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;
 color:var(--ink-soft);margin-bottom:.5rem}
@@ -222,6 +222,19 @@ color:var(--ink);background:var(--bg-soft);border:1px solid var(--line);border-r
 .ml-draft textarea{width:100%;font:inherit;font-size:.88rem;line-height:1.5;color:var(--ink);
 background:var(--bg-soft);border:1px solid var(--line);border-radius:.4rem;padding:.5rem;resize:vertical}
 .ml-draft input:focus-visible,.ml-draft textarea:focus-visible{outline:3px solid var(--focus);outline-offset:1px}
+
+.pe{border:1px solid var(--line);border-left:4px solid var(--accent,var(--green,#1E7A47));
+border-radius:.7rem;
+background:var(--card);padding:1rem 1.2rem;margin:1.1rem 0 1.4rem;max-width:42rem}
+.pe h2{margin:0 0 .5rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;
+color:var(--accent,var(--green,#1E7A47))}
+.pe dl{margin:0;display:grid;grid-template-columns:7.5rem 1fr;gap:.4rem .9rem}
+.pe dt{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);
+padding-top:.1rem}
+.pe dd{margin:0;font-size:.95rem;color:var(--ink)}
+.pe dd b{font-weight:600}
+@media(max-width:560px){.pe dl{grid-template-columns:1fr;gap:.15rem}
+.pe dt{margin-top:.5rem}}
 </style>
 </head>
 <body>
@@ -250,6 +263,16 @@ background:var(--bg-soft);border:1px solid var(--line);border-radius:.4rem;paddi
 </header>
 <main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
   <h1 style="margin-bottom:.4rem">Money Leak Finder</h1>
+<div class="pe">
+  <h2>In plain English</h2>
+  <dl>
+    <dt>What it does</dt><dd>Lines up the work you finished against the invoices you sent, and shows you only the places they do not match.</dd>
+    <dt>Why it helps</dt><dd><b>It finds money you already earned but never collected</b> &mdash; jobs completed and never billed, and invoices that quietly went unpaid. It will even write the follow-up emails for you, though it cannot send them; you always press send.</dd>
+    <dt>What you need</dt><dd>Two files you already have: a list of jobs or work done, and a list of invoices.</dd>
+    <dt>How long</dt><dd>About ten seconds. Your books never leave your machine.</dd>
+  </dl>
+</div>
+
   <p style="color:var(--ink-soft);max-width:40rem">
     Two exports every business already has &mdash; the work log (what got done) and the invoices
     (what got billed). This page lines them up and shows <strong>only the mismatches</strong>:

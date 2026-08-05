@@ -175,7 +175,7 @@
 /* ---- health check page ---- */
 .hc-drop{border:2px dashed var(--line-strong);border-radius:16px;background:var(--card);
 padding:2.6rem 1.4rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
-.hc-drop.is-over{border-color:var(--accent);background:var(--well)}
+.hc-drop.is-over{border-color:var(--accent,var(--green,#1E7A47));background:var(--well)}
 .hc-drop:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .hc-drop strong{display:block;font-size:1.05rem;margin-bottom:.35rem}
 .hc-drop span{color:var(--ink-soft);font-size:.92rem}
@@ -195,7 +195,7 @@ border-radius:.6rem;padding:.9rem 1.1rem;margin:0 0 .6rem}
 .hc-find h4{margin:0 0 .25rem;font-size:.98rem}
 .hc-find p{margin:0;color:var(--ink-soft);font-size:.9rem}
 .hc-find .hc-where{font-family:var(--mono);font-size:.8rem;color:var(--ink-soft)}
-.hc-clean{border-left:4px solid var(--accent);background:var(--card);border-radius:.6rem;
+.hc-clean{border-left:4px solid var(--accent,var(--green,#1E7A47));background:var(--card);border-radius:.6rem;
 padding:1rem 1.2rem;color:var(--ink-soft)}
 .hc-cta{margin-top:1.6rem;padding:1.3rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
 .hc-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
@@ -205,6 +205,19 @@ padding:1rem 1.2rem;color:var(--ink-soft)}
 .hc-changes{margin:0 0 1rem;padding-left:1.15rem;color:var(--ink-soft);font-size:.9rem}
 .hc-changes li{margin:.15rem 0}
 .hc-limits{margin:1rem 0 0;font-size:.85rem;color:var(--ink-soft);border-top:1px solid var(--line-soft);padding-top:.8rem}
+
+.pe{border:1px solid var(--line);border-left:4px solid var(--accent,var(--green,#1E7A47));
+border-radius:.7rem;
+background:var(--card);padding:1rem 1.2rem;margin:1.1rem 0 1.4rem;max-width:42rem}
+.pe h2{margin:0 0 .5rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;
+color:var(--accent,var(--green,#1E7A47))}
+.pe dl{margin:0;display:grid;grid-template-columns:7.5rem 1fr;gap:.4rem .9rem}
+.pe dt{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);
+padding-top:.1rem}
+.pe dd{margin:0;font-size:.95rem;color:var(--ink)}
+.pe dd b{font-weight:600}
+@media(max-width:560px){.pe dl{grid-template-columns:1fr;gap:.15rem}
+.pe dt{margin-top:.5rem}}
 </style>
 </head>
 <body>
@@ -233,6 +246,16 @@ padding:1rem 1.2rem;color:var(--ink-soft)}
 </header>
 <main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
   <h1 style="margin-bottom:.4rem">Spreadsheet Health Check</h1>
+<div class="pe">
+  <h2>In plain English</h2>
+  <dl>
+    <dt>What it does</dt><dd>Looks at a spreadsheet you already have and tells you which parts of it can no longer be trusted &mdash; columns that are empty, dates written five different ways, the same row entered twice.</dd>
+    <dt>Why it helps</dt><dd>Bad data quietly makes bad numbers. If a column is half blank or a customer is in there twice, <b>every total built on it is wrong</b> and nothing warns you. This shows you exactly where, and offers a cleaned copy back.</dd>
+    <dt>What you need</dt><dd>One file you already have &mdash; an export from Excel, Google Sheets, QuickBooks or your job software. Spreadsheet (.xlsx) or CSV both work.</dd>
+    <dt>How long</dt><dd>About ten seconds. The file never leaves your computer &mdash; there is nowhere here to send it.</dd>
+  </dl>
+</div>
+
   <p style="color:var(--ink-soft);max-width:40rem">
     Drop any CSV export from Excel, Google Sheets, QuickBooks or your job software and get an
     instant, honest report: columns that carry no information, status fields that never vary,

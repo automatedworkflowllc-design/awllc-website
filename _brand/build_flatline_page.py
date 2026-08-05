@@ -24,6 +24,8 @@ from __future__ import annotations
 import pathlib
 import re
 
+from toolkit import PLAIN_CSS
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'flatline'
@@ -62,6 +64,21 @@ border-radius:.5rem;padding:.8rem 1rem;overflow-x:auto;margin:.6rem 0}
 MAIN = """
 <main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
   <h1 style="margin-bottom:.4rem">Your automations report success.<br>That is not the same as working.</h1>
+<div class="pe">
+  <h2>In plain English</h2>
+  <dl>
+    <dt>What it does</dt><dd>Checks the automatic jobs in your business &mdash; the nightly backup,
+      the sync, the weekly report &mdash; and finds the ones that say they worked but did nothing.</dd>
+    <dt>Why it helps</dt><dd>A backup that has "succeeded" every night for eight months into an
+      empty file looks identical to one that works, right up until you need it.
+      <b>The failures that cost real money never show up as errors</b>, which is exactly why nobody
+      catches them.</dd>
+    <dt>What you need</dt><dd>A little help from whoever is technical &mdash; it is a free tool they
+      run, and it only reads; it changes nothing.</dd>
+    <dt>How long</dt><dd>About twenty minutes to point it at your stack. Or ask us and we will do it
+      and hand you the findings with the evidence.</dd>
+  </dl>
+</div>
   <p class="fl-lede" style="color:var(--ink-soft)">
     Monitoring watches for errors. The expensive failures do not throw one &mdash; the job runs,
     the log gets written, the exit code is zero, and nothing actually happened. Flatline is a free
@@ -196,7 +213,7 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:title" content=").*?(">)', rf'\g<1>{TITLE}\g<2>', head)
     head = re.sub(r'(<meta property="og:description" content=").*?(">)', rf'\g<1>{DESC}\g<2>', head)
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
-    head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
+    head = head.replace('</head>', f'<style>{PAGE_CSS}{PLAIN_CSS}</style>\n</head>')
 
     body = MAIN.replace('REPO_URL', REPO)
     page = head + body + footer + LD + '\n</body>\n</html>\n'

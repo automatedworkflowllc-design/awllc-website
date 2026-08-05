@@ -175,7 +175,7 @@
 /* ---- unified check ---- */
 .ck-drop{border:2px dashed var(--line-strong);border-radius:18px;background:var(--card);
 padding:3rem 1.4rem;text-align:center;cursor:pointer}
-.ck-drop.is-over{border-color:var(--accent);background:var(--well)}
+.ck-drop.is-over{border-color:var(--accent,var(--green,#1E7A47));background:var(--well)}
 .ck-drop:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .ck-drop strong{display:block;font-size:1.15rem;margin-bottom:.35rem}
 .ck-drop span{color:var(--ink-soft);font-size:.92rem}
@@ -222,10 +222,23 @@ border-radius:.6rem;padding:.85rem 1.05rem;margin:0 0 .55rem}
 .ck-find h4{margin:0 0 .2rem;font-size:.96rem}
 .ck-find p{margin:0;font-size:.89rem;color:var(--ink-soft)}
 .ck-find .src{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft)}
-.ck-clean{border-left:4px solid var(--accent);background:var(--card);border-radius:.6rem;
+.ck-clean{border-left:4px solid var(--accent,var(--green,#1E7A47));background:var(--card);border-radius:.6rem;
 padding:1rem 1.2rem;color:var(--ink-soft)}
 .ck-cta{margin-top:1.6rem;padding:1.3rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
 .ck-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
+
+.pe{border:1px solid var(--line);border-left:4px solid var(--accent,var(--green,#1E7A47));
+border-radius:.7rem;
+background:var(--card);padding:1rem 1.2rem;margin:1.1rem 0 1.4rem;max-width:42rem}
+.pe h2{margin:0 0 .5rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;
+color:var(--accent,var(--green,#1E7A47))}
+.pe dl{margin:0;display:grid;grid-template-columns:7.5rem 1fr;gap:.4rem .9rem}
+.pe dt{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);
+padding-top:.1rem}
+.pe dd{margin:0;font-size:.95rem;color:var(--ink)}
+.pe dd b{font-weight:600}
+@media(max-width:560px){.pe dl{grid-template-columns:1fr;gap:.15rem}
+.pe dt{margin-top:.5rem}}
 </style>
 </head>
 <body>
@@ -254,6 +267,16 @@ padding:1rem 1.2rem;color:var(--ink-soft)}
 </header>
 <main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
   <h1 style="margin-bottom:.4rem">Business File Check</h1>
+<div class="pe">
+  <h2>In plain English</h2>
+  <dl>
+    <dt>What it does</dt><dd>You do not need to know which check you need. Drop in any business file and it works out what kind of file it is, then runs every check that applies. Drop in two and it compares them against each other.</dd>
+    <dt>Why it helps</dt><dd><b>It puts a dollar figure on what it finds</b> &mdash; for example, finished work that was never invoiced &mdash; so you can see what is worth chasing first instead of reading a list of complaints.</dd>
+    <dt>What you need</dt><dd>Any export you already have. One file works; two work better.</dd>
+    <dt>How long</dt><dd>About ten seconds, and you get a report you can download and forward.</dd>
+  </dl>
+</div>
+
   <p style="color:var(--ink-soft);max-width:41rem">
     Don't know which check you need? Neither does anyone else. Drop any export &mdash; invoices,
     a staff roster, a customer list, a job log &mdash; and this works out what the file

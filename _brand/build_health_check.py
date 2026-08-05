@@ -14,7 +14,14 @@ from __future__ import annotations
 import pathlib
 import re
 
-from toolkit import with_core, with_xlsx
+from toolkit import with_core, with_xlsx, PLAIN_CSS, plain_english, with_plain
+
+PLAIN = plain_english(
+    'Looks at a spreadsheet you already have and tells you which parts of it can no longer be trusted &mdash; columns that are empty, dates written five different ways, the same row entered twice.',
+    'Bad data quietly makes bad numbers. If a column is half blank or a customer is in there twice, <b>every total built on it is wrong</b> and nothing warns you. This shows you exactly where, and offers a cleaned copy back.',
+    'One file you already have &mdash; an export from Excel, Google Sheets, QuickBooks or your job software. Spreadsheet (.xlsx) or CSV both work.',
+    'About ten seconds. The file never leaves your computer &mdash; there is nowhere here to send it.')
+
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
@@ -30,7 +37,7 @@ PAGE_CSS = """
 /* ---- health check page ---- */
 .hc-drop{border:2px dashed var(--line-strong);border-radius:16px;background:var(--card);
 padding:2.6rem 1.4rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
-.hc-drop.is-over{border-color:var(--accent);background:var(--well)}
+.hc-drop.is-over{border-color:var(--accent,var(--green,#1E7A47));background:var(--well)}
 .hc-drop:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .hc-drop strong{display:block;font-size:1.05rem;margin-bottom:.35rem}
 .hc-drop span{color:var(--ink-soft);font-size:.92rem}
@@ -50,7 +57,7 @@ border-radius:.6rem;padding:.9rem 1.1rem;margin:0 0 .6rem}
 .hc-find h4{margin:0 0 .25rem;font-size:.98rem}
 .hc-find p{margin:0;color:var(--ink-soft);font-size:.9rem}
 .hc-find .hc-where{font-family:var(--mono);font-size:.8rem;color:var(--ink-soft)}
-.hc-clean{border-left:4px solid var(--accent);background:var(--card);border-radius:.6rem;
+.hc-clean{border-left:4px solid var(--accent,var(--green,#1E7A47));background:var(--card);border-radius:.6rem;
 padding:1rem 1.2rem;color:var(--ink-soft)}
 .hc-cta{margin-top:1.6rem;padding:1.3rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
 .hc-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
@@ -495,9 +502,9 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:title" content=").*?(">)', rf'\g<1>{TITLE}\g<2>', head)
     head = re.sub(r'(<meta property="og:description" content=").*?(">)', rf'\g<1>{DESC}\g<2>', head)
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
-    head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
+    head = head.replace('</head>', f'<style>{PAGE_CSS}{PLAIN_CSS}</style>\n</head>')
 
-    page = head + MAIN + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
+    page = head + with_plain(MAIN, PLAIN) + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')

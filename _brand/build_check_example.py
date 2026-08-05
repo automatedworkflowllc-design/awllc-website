@@ -87,7 +87,7 @@ margin:0 0 .4rem;background:var(--bg-soft);font-size:.85rem}
 border-radius:.5rem;padding:.8rem 1rem;margin:0 0 1rem}
 .ex-frame .risk strong{font-size:1.3rem;font-family:var(--mono)}
 .ex-frame .sub{color:var(--ink-soft);font-size:.85rem;margin:0 0 1.2rem}
-.ex-note{border-left:4px solid var(--accent);background:var(--card);border-radius:.6rem;
+.ex-note{border-left:4px solid var(--accent,var(--green,#1E7A47));background:var(--card);border-radius:.6rem;
 padding:1rem 1.2rem;color:var(--ink-soft);font-size:.92rem;margin:1.4rem 0}
 .ex-cta{margin-top:1.8rem;padding:1.4rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
 .ex-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}

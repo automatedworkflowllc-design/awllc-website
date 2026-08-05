@@ -18,7 +18,14 @@ from __future__ import annotations
 import pathlib
 import re
 
-from toolkit import with_core, with_xlsx
+from toolkit import with_core, with_xlsx, PLAIN_CSS, plain_english, with_plain
+
+PLAIN = plain_english(
+    'Reads your staff schedule and points out the four problems that cost money: a shift nobody is covering, someone drifting into overtime, a job only one person can do, and shifts too close together to be safe.',
+    'These are normally noticed on Friday &mdash; <b>after</b> the overtime is already owed or the shift already went uncovered. This finds them while you can still move someone.',
+    'Your schedule export: who works, what role, which day.',
+    'About ten seconds. Nothing about your staff is uploaded anywhere.')
+
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
@@ -33,7 +40,7 @@ PAGE_CSS = """
 /* ---- shift coverage ---- */
 .sc-drop{border:2px dashed var(--line-strong);border-radius:16px;background:var(--card);
 padding:2.6rem 1.4rem;text-align:center;cursor:pointer}
-.sc-drop.is-over{border-color:var(--accent);background:var(--well)}
+.sc-drop.is-over{border-color:var(--accent,var(--green,#1E7A47));background:var(--well)}
 .sc-drop:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .sc-drop strong{display:block;font-size:1.05rem;margin-bottom:.35rem}
 .sc-drop span{color:var(--ink-soft);font-size:.92rem}
@@ -53,7 +60,7 @@ border-radius:.6rem;padding:.85rem 1.05rem;margin:0 0 .55rem}
 .sc-card.warn{border-left-color:#A8842B}
 .sc-card h4{margin:0 0 .2rem;font-size:.96rem}
 .sc-card p{margin:0;font-size:.89rem;color:var(--ink-soft)}
-.sc-clean{border-left:4px solid var(--accent);background:var(--card);border-radius:.6rem;
+.sc-clean{border-left:4px solid var(--accent,var(--green,#1E7A47));background:var(--card);border-radius:.6rem;
 padding:1rem 1.2rem;color:var(--ink-soft)}
 .sc-cta{margin-top:1.6rem;padding:1.3rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
 .sc-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
@@ -63,7 +70,7 @@ padding:1rem 1.2rem;color:var(--ink-soft)}
 border-bottom:1px solid var(--line-strong);white-space:nowrap}
 .sc-map td{padding:.25rem .45rem;text-align:center;border-bottom:1px solid var(--line-soft)}
 .sc-map td.role{text-align:left;color:var(--ink-soft);white-space:nowrap;padding-right:.9rem}
-.sc-map .ok{color:var(--accent)}
+.sc-map .ok{color:var(--accent,var(--green,#1E7A47))}
 .sc-map .gap{color:#B4452C;font-weight:bold}
 """
 
@@ -512,9 +519,9 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:title" content=").*?(">)', rf'\g<1>{TITLE}\g<2>', head)
     head = re.sub(r'(<meta property="og:description" content=").*?(">)', rf'\g<1>{DESC}\g<2>', head)
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
-    head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
+    head = head.replace('</head>', f'<style>{PAGE_CSS}{PLAIN_CSS}</style>\n</head>')
 
-    page = head + MAIN + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
+    page = head + with_plain(MAIN, PLAIN) + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')

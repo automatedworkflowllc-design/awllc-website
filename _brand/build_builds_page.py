@@ -42,7 +42,7 @@ padding-left:.6rem}
 .bd-tags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:auto}
 .bd-tag{font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);
 border-radius:.3rem;padding:.12rem .42rem;color:var(--ink-soft)}
-.bd-tag.live{border-color:var(--accent);color:var(--accent)}
+.bd-tag.live{border-color:var(--accent,var(--green,#1E7A47));color:var(--accent,var(--green,#1E7A47))}
 .bd-note{margin:2.2rem 0 0;padding:1.1rem 1.2rem;border:1px solid var(--line);border-radius:12px;
 background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
 """

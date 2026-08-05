@@ -175,7 +175,7 @@
 /* ---- shift coverage ---- */
 .sc-drop{border:2px dashed var(--line-strong);border-radius:16px;background:var(--card);
 padding:2.6rem 1.4rem;text-align:center;cursor:pointer}
-.sc-drop.is-over{border-color:var(--accent);background:var(--well)}
+.sc-drop.is-over{border-color:var(--accent,var(--green,#1E7A47));background:var(--well)}
 .sc-drop:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .sc-drop strong{display:block;font-size:1.05rem;margin-bottom:.35rem}
 .sc-drop span{color:var(--ink-soft);font-size:.92rem}
@@ -195,7 +195,7 @@ border-radius:.6rem;padding:.85rem 1.05rem;margin:0 0 .55rem}
 .sc-card.warn{border-left-color:#A8842B}
 .sc-card h4{margin:0 0 .2rem;font-size:.96rem}
 .sc-card p{margin:0;font-size:.89rem;color:var(--ink-soft)}
-.sc-clean{border-left:4px solid var(--accent);background:var(--card);border-radius:.6rem;
+.sc-clean{border-left:4px solid var(--accent,var(--green,#1E7A47));background:var(--card);border-radius:.6rem;
 padding:1rem 1.2rem;color:var(--ink-soft)}
 .sc-cta{margin-top:1.6rem;padding:1.3rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
 .sc-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
@@ -205,8 +205,21 @@ padding:1rem 1.2rem;color:var(--ink-soft)}
 border-bottom:1px solid var(--line-strong);white-space:nowrap}
 .sc-map td{padding:.25rem .45rem;text-align:center;border-bottom:1px solid var(--line-soft)}
 .sc-map td.role{text-align:left;color:var(--ink-soft);white-space:nowrap;padding-right:.9rem}
-.sc-map .ok{color:var(--accent)}
+.sc-map .ok{color:var(--accent,var(--green,#1E7A47))}
 .sc-map .gap{color:#B4452C;font-weight:bold}
+
+.pe{border:1px solid var(--line);border-left:4px solid var(--accent,var(--green,#1E7A47));
+border-radius:.7rem;
+background:var(--card);padding:1rem 1.2rem;margin:1.1rem 0 1.4rem;max-width:42rem}
+.pe h2{margin:0 0 .5rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;
+color:var(--accent,var(--green,#1E7A47))}
+.pe dl{margin:0;display:grid;grid-template-columns:7.5rem 1fr;gap:.4rem .9rem}
+.pe dt{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);
+padding-top:.1rem}
+.pe dd{margin:0;font-size:.95rem;color:var(--ink)}
+.pe dd b{font-weight:600}
+@media(max-width:560px){.pe dl{grid-template-columns:1fr;gap:.15rem}
+.pe dt{margin-top:.5rem}}
 </style>
 </head>
 <body>
@@ -235,6 +248,16 @@ border-bottom:1px solid var(--line-strong);white-space:nowrap}
 </header>
 <main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
   <h1 style="margin-bottom:.4rem">Shift Coverage Check</h1>
+<div class="pe">
+  <h2>In plain English</h2>
+  <dl>
+    <dt>What it does</dt><dd>Reads your staff schedule and points out the four problems that cost money: a shift nobody is covering, someone drifting into overtime, a job only one person can do, and shifts too close together to be safe.</dd>
+    <dt>Why it helps</dt><dd>These are normally noticed on Friday &mdash; <b>after</b> the overtime is already owed or the shift already went uncovered. This finds them while you can still move someone.</dd>
+    <dt>What you need</dt><dd>Your schedule export: who works, what role, which day.</dd>
+    <dt>How long</dt><dd>About ten seconds. Nothing about your staff is uploaded anywhere.</dd>
+  </dl>
+</div>
+
   <p style="color:var(--ink-soft);max-width:41rem">
     For anyone who runs on a roster &mdash; senior living, clinics, restaurants, facilities,
     security. Drop your schedule export and see the four things that cost real money and nobody

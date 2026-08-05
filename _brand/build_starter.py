@@ -27,6 +27,15 @@ from __future__ import annotations
 import pathlib
 import re
 
+from toolkit import PLAIN_CSS, plain_english, with_plain
+
+PLAIN = plain_english(
+    'Builds you a working Excel spreadsheet from scratch &mdash; a job log, an invoice list and a summary page &mdash; without asking you for anything.',
+    'It arrives already set up so the two most expensive mistakes <b>flag themselves</b>: work you finished but never invoiced, and invoices sitting unpaid past 60 days. Nobody has to remember to check.',
+    'Nothing at all. Press one button.',
+    'About five seconds, and you get a real .xlsx file that opens in Excel or Google Sheets.')
+
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'starter'
@@ -46,7 +55,7 @@ padding:1.6rem;margin:1.6rem 0}
 .st-opt input{margin-top:.25rem}
 .st-opt span{color:var(--ink-soft);font-size:.85rem;display:block}
 .st-go{font:inherit;font-weight:600;font-size:1rem;padding:.8rem 1.5rem;border-radius:.6rem;
-border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+border:1px solid var(--accent,var(--green,#1E7A47));background:var(--accent,var(--green,#1E7A47));color:#fff;cursor:pointer}
 .st-go:hover{filter:brightness(1.08)}
 .st-go:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .st-said{margin:.9rem 0 0;font-size:.9rem;color:var(--ink-soft);min-height:1.3em}
@@ -387,9 +396,9 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:title" content=").*?(">)', rf'\g<1>{TITLE}\g<2>', head)
     head = re.sub(r'(<meta property="og:description" content=").*?(">)', rf'\g<1>{DESC}\g<2>', head)
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
-    head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
+    head = head.replace('</head>', f'<style>{PAGE_CSS}{PLAIN_CSS}</style>\n</head>')
 
-    page = head + MAIN + footer + LD + SCRIPT + '\n</body>\n</html>\n'
+    page = head + with_plain(MAIN, PLAIN) + footer + LD + SCRIPT + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')

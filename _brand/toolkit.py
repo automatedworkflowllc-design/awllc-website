@@ -349,5 +349,74 @@ def with_core(script_js):
     return out
 
 
+# --- plain-English block -------------------------------------------------
+# Every tool page opened by explaining itself to someone who already knew what
+# a reconciliation, a roster export or a hash was. The people who most need
+# these tools are the ones who do not, and an owner who cannot tell in five
+# seconds what a page does for them simply leaves. This block goes directly
+# under the h1 on every tool and demo: what it does, what it is worth, what
+# you need, and how long it takes -- in words a person can read out loud.
+
+# The accent is a fallback CHAIN on purpose. The tool pages define --green and
+# have no --accent at all; a bare var(--accent) made the whole border shorthand
+# invalid, so the 4px stripe silently computed to `0px none` and the label lost
+# its colour -- caught in a browser, not in the diff. Any page missing both
+# tokens still gets the literal.
+PLAIN_CSS = """
+.pe{border:1px solid var(--line);border-left:4px solid var(--accent,var(--green,#1E7A47));
+border-radius:.7rem;
+background:var(--card);padding:1rem 1.2rem;margin:1.1rem 0 1.4rem;max-width:42rem}
+.pe h2{margin:0 0 .5rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;
+color:var(--accent,var(--green,#1E7A47))}
+.pe dl{margin:0;display:grid;grid-template-columns:7.5rem 1fr;gap:.4rem .9rem}
+.pe dt{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);
+padding-top:.1rem}
+.pe dd{margin:0;font-size:.95rem;color:var(--ink)}
+.pe dd b{font-weight:600}
+@media(max-width:560px){.pe dl{grid-template-columns:1fr;gap:.15rem}
+.pe dt{margin-top:.5rem}}
+"""
+
+_H1_END = '</h1>'
+
+
+def plain_english(does, worth, need, takes):
+    """Render the 'In plain English' block.
+
+    Four questions, always in this order, because it is the order a person
+    actually asks them: what is this, what is it worth to me, what do I need,
+    how long will it take. No jargon, no hedging, and never a claim the page
+    cannot back up elsewhere.
+    """
+    for label, value in (('does', does), ('worth', worth), ('need', need), ('takes', takes)):
+        if not value or not str(value).strip():
+            raise SystemExit('plain_english: %s is empty -- every tool must answer all four' % label)
+    return (
+        '\n<div class="pe">\n'
+        '  <h2>In plain English</h2>\n'
+        '  <dl>\n'
+        '    <dt>What it does</dt><dd>%s</dd>\n'
+        '    <dt>Why it helps</dt><dd>%s</dd>\n'
+        '    <dt>What you need</dt><dd>%s</dd>\n'
+        '    <dt>How long</dt><dd>%s</dd>\n'
+        '  </dl>\n'
+        '</div>\n' % (does, worth, need, takes))
+
+
+def with_plain(main_html, block):
+    """Insert the plain-English block directly after the page's h1.
+
+    Raises rather than returning the page unchanged: a builder that silently
+    skipped the injection would ship a page still speaking only to people who
+    already understand it, while appearing to have been fixed.
+    """
+    if main_html.count(_H1_END) < 1:
+        raise SystemExit('with_plain: no </h1> to anchor to')
+    out = main_html.replace(_H1_END, _H1_END + block, 1)
+    if out.count('class="pe"') != 1:
+        raise SystemExit('with_plain: block not injected exactly once')
+    return out
+
+
 __all__ = ['CORE_JS', 'ESC_JS', 'PARSE_CSV_JS', 'MONEY_JS', 'PARSE_DATE_JS',
-           'NORM_TEXT_JS', 'with_core']
+           'NORM_TEXT_JS', 'with_core', 'PLAIN_CSS', 'plain_english', 'with_plain']

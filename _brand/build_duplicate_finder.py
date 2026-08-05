@@ -18,7 +18,14 @@ from __future__ import annotations
 import pathlib
 import re
 
-from toolkit import with_core, with_xlsx
+from toolkit import with_core, with_xlsx, PLAIN_CSS, plain_english, with_plain
+
+PLAIN = plain_english(
+    'Finds the same customer entered more than once under slightly different names &mdash; <em>Acme Roofing</em>, <em>Acme Roofing LLC</em>, <em>acme roofing inc.</em>',
+    "Your customer count is wrong, and one customer's history is split across three records &mdash; so <b>your best client may not look like your best client</b>. It also stops the mail merge sending the same person three copies.",
+    'One file with a customer or company name column.',
+    'About ten seconds, and it tells you why it grouped each one so you can disagree.')
+
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
@@ -33,7 +40,7 @@ PAGE_CSS = """
 /* ---- duplicate finder ---- */
 .dc-drop{border:2px dashed var(--line-strong);border-radius:16px;background:var(--card);
 padding:2.6rem 1.4rem;text-align:center;cursor:pointer}
-.dc-drop.is-over{border-color:var(--accent);background:var(--well)}
+.dc-drop.is-over{border-color:var(--accent,var(--green,#1E7A47));background:var(--well)}
 .dc-drop:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .dc-drop strong{display:block;font-size:1.05rem;margin-bottom:.35rem}
 .dc-drop span{color:var(--ink-soft);font-size:.92rem}
@@ -59,7 +66,7 @@ border-radius:.6rem;padding:.85rem 1.05rem;margin:0 0 .6rem}
 .dc-why{margin:.4rem 0 0;font-size:.8rem;color:var(--ink-soft);font-style:italic}
 .dc-cta{margin-top:1.6rem;padding:1.3rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-soft)}
 .dc-cta p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
-.dc-clean{border-left:4px solid var(--accent);background:var(--card);border-radius:.6rem;
+.dc-clean{border-left:4px solid var(--accent,var(--green,#1E7A47));background:var(--card);border-radius:.6rem;
 padding:1rem 1.2rem;color:var(--ink-soft)}
 """
 
@@ -352,9 +359,9 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:title" content=").*?(">)', rf'\g<1>{TITLE}\g<2>', head)
     head = re.sub(r'(<meta property="og:description" content=").*?(">)', rf'\g<1>{DESC}\g<2>', head)
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
-    head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
+    head = head.replace('</head>', f'<style>{PAGE_CSS}{PLAIN_CSS}</style>\n</head>')
 
-    page = head + MAIN + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
+    page = head + with_plain(MAIN, PLAIN) + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')

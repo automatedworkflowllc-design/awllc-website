@@ -31,6 +31,8 @@ import json
 import pathlib
 import re
 
+from toolkit import PLAIN_CSS
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'proof'
@@ -66,6 +68,21 @@ border-radius:.5rem;padding:.8rem 1rem;overflow-x:auto;margin:.9rem 0;max-width:
 MAIN = """
 <main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
   <h1 style="margin-bottom:.4rem">We keep receipts on our own automations.<br>Including the ones that failed.</h1>
+<div class="pe">
+  <h2>In plain English</h2>
+  <dl>
+    <dt>What it does</dt><dd>Every night, the automated jobs we run write down what they were
+      <em>supposed</em> to produce and what they <em>actually</em> produced. This page is that
+      record, and it includes the nights ours came up empty.</dd>
+    <dt>Why it helps</dt><dd>Software that fails loudly gets fixed. Software that fails
+      <em>quietly</em> &mdash; the report that still arrives on time with last week's numbers in it
+      &mdash; is what actually costs you money, because everyone keeps trusting it.
+      <b>This is us proving we check ourselves for that, rather than asking you to assume it.</b></dd>
+    <dt>What you need</dt><dd>Nothing. Read it, or hand it to whoever does your due diligence.</dd>
+    <dt>How long</dt><dd>Two minutes to read. If you want to try the same idea on your own file,
+      the <a href="/proof/notarize/">notarizer</a> does it in about a second.</dd>
+  </dl>
+</div>
   <p class="pf-lede" style="color:var(--ink-soft)">
     Anyone can tell you their systems are working. The failure that costs money does not throw an
     error &mdash; the job runs, the log fills, the exit code is zero, and nothing actually happened.
@@ -220,7 +237,7 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:title" content=").*?(">)', rf'\g<1>{TITLE}\g<2>', head)
     head = re.sub(r'(<meta property="og:description" content=").*?(">)', rf'\g<1>{DESC}\g<2>', head)
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
-    head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
+    head = head.replace('</head>', f'<style>{PAGE_CSS}{PLAIN_CSS}</style>\n</head>')
 
     body = (MAIN
             .replace('__RECEIPTS__', str(st['receipts']))

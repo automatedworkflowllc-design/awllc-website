@@ -171,7 +171,7 @@ h1, h2, h3{ font-family:var(--display); font-weight:560; letter-spacing:-.015em;
   font-family:var(--mono); font-size:.72rem; font-weight:500; letter-spacing:.16em; text-transform:uppercase;
   color:var(--ink-soft); margin:0 0 .8rem;
 }
-.eyebrow::before{ content:"//"; letter-spacing:0; color:var(--accent); }
+.eyebrow::before{ content:"//"; letter-spacing:0; color:var(--accent,var(--green,#1E7A47)); }
 .eyebrow.green{ color:var(--green); }
 .eyebrow.green::before{ color:var(--green); }
 
@@ -452,7 +452,7 @@ details.qa .a strong{ color:var(--ink); font-weight:600; }
         <div class="kpi-row">
           <div class="kpi"><span class="kpi-label">Revenue (Q2)</span><span class="kpi-val">$65,050</span></div>
           <div class="kpi"><span class="kpi-label">Top Product</span><span class="kpi-val">Install Kits</span></div>
-          <div class="kpi"><span class="kpi-label">Recovered by cleanup</span><span class="kpi-val" style="color:var(--accent)">$6,100</span></div>
+          <div class="kpi"><span class="kpi-label">Recovered by cleanup</span><span class="kpi-val" style="color:var(--accent,var(--green,#1E7A47))">$6,100</span></div>
         </div>
         <div class="cat-list">
           <p class="cat-cap">Revenue by month</p>
@@ -461,12 +461,12 @@ details.qa .a strong{ color:var(--ink); font-weight:600; }
           <div class="cat-row"><span class="name">April</span><span class="track"><span class="fill" style="--w:73.9%"></span></span><span class="amt">$18,400</span></div>
         </div>
         <div class="cat-list" style="margin-top:1.6rem; padding-top:1.4rem; border-top:1px solid var(--panel-line);">
-          <p class="cat-cap" style="color:var(--accent)">Data Health &mdash; what the cleanup found</p>
-          <div class="cat-row"><span class="name">Revenue miscategorized</span><span class="track"><span class="fill" style="--w:100%; background:var(--accent); opacity:.85"></span></span><span class="amt">$4,200</span></div>
-          <div class="cat-row"><span class="name">Blank sale dates fixed</span><span class="track"><span class="fill" style="--w:45%; background:var(--accent); opacity:.85"></span></span><span class="amt">12 rows &middot; $1,900</span></div>
-          <div class="cat-row"><span class="name">Duplicate invoices removed</span><span class="track"><span class="fill" style="--w:24%; background:var(--accent); opacity:.85"></span></span><span class="amt">3 dupes</span></div>
+          <p class="cat-cap" style="color:var(--accent,var(--green,#1E7A47))">Data Health &mdash; what the cleanup found</p>
+          <div class="cat-row"><span class="name">Revenue miscategorized</span><span class="track"><span class="fill" style="--w:100%; background:var(--accent,var(--green,#1E7A47)); opacity:.85"></span></span><span class="amt">$4,200</span></div>
+          <div class="cat-row"><span class="name">Blank sale dates fixed</span><span class="track"><span class="fill" style="--w:45%; background:var(--accent,var(--green,#1E7A47)); opacity:.85"></span></span><span class="amt">12 rows &middot; $1,900</span></div>
+          <div class="cat-row"><span class="name">Duplicate invoices removed</span><span class="track"><span class="fill" style="--w:24%; background:var(--accent,var(--green,#1E7A47)); opacity:.85"></span></span><span class="amt">3 dupes</span></div>
         </div>
-        <p class="cat-cap" style="margin-top:1.3rem; font-size:.8rem; letter-spacing:.04em; text-transform:none; color:var(--panel-ink);">&rarr; <strong style="color:var(--accent)">$6,100 in real revenue recovered this quarter</strong> &mdash; money that was in the sheet the whole time, just miscounted.</p>
+        <p class="cat-cap" style="margin-top:1.3rem; font-size:.8rem; letter-spacing:.04em; text-transform:none; color:var(--panel-ink);">&rarr; <strong style="color:var(--accent,var(--green,#1E7A47))">$6,100 in real revenue recovered this quarter</strong> &mdash; money that was in the sheet the whole time, just miscounted.</p>
       </div>
     </section>
 
