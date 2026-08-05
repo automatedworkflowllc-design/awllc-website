@@ -104,7 +104,7 @@ MAIN = """
     <div class="hc-cta">
       <strong>Want these fixed by a real person?</strong>
       <p>The <a href="/spreadsheet-cleanup-service/">$300 flat cleanup</a> fixes everything above
-      in 24&ndash;48h &mdash; or start with a <a href="/free-demo/">free 1-day demo on your real
+      in 24&ndash;48h &mdash; or start with a <a href="/free-demo/?from=health-check">free 1-day demo on your real
       data</a>, keep it either way.</p>
       <a class="btn" href="/spreadsheet-cleanup-service/">See the cleanup service</a>
       <p style="margin:.9rem 0 0;font-size:.85rem">Tracking work against invoices? The

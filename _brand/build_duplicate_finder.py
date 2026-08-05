@@ -98,8 +98,8 @@ MAIN = """
       <p>Deciding which spelling is the real record &mdash; and re-pointing every invoice, job and
       contact at it without losing history &mdash; is judgment work, not a script. That's what the
       <a href="/spreadsheet-cleanup-service/">$300 flat cleanup</a> does, or start with a
-      <a href="/free-demo/">free 1-day demo on your real data</a>.</p>
-      <a class="btn" href="/free-demo/">Get it done on your real list — free</a>
+      <a href="/free-demo/?from=duplicate-finder">free 1-day demo on your real data</a>.</p>
+      <a class="btn" href="/free-demo/?from=duplicate-finder">Get it done on your real list — free</a>
       <p style="margin:.9rem 0 0;font-size:.85rem">Also try the
       <a href="/spreadsheet-health-check/">Spreadsheet Health Check</a> (dead columns, mixed dates,
       exact duplicate rows) and the

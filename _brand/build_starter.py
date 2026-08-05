@@ -96,7 +96,7 @@ MAIN = """
          product work is the one moment worth offering the next rung. Hidden until then
          so the page never pitches before it has delivered anything. -->
     <p class="st-next" id="st-next" hidden>Want this running on your <em>real</em> jobs and invoices
-      instead of a blank start? <a href="/free-demo/">Send me one messy export and I&rsquo;ll set it
+      instead of a blank start? <a href="/free-demo/?from=starter">Send me one messy export and I&rsquo;ll set it
       up on your numbers &mdash; free, usually within a business day.</a> You keep it either way.</p>
     <!-- Shown only if the build threw. The old copy said "tell us and we will email you the
          same workbook" without giving anyone a way to tell me, which is an instruction a
@@ -146,7 +146,7 @@ MAIN = """
     <p>Then the tracker is the wrong end. Run your existing export through the
       <a href="/check/">free file check</a> &mdash; it will tell you what is already stranded in
       there. Or <a href="/check/example/">see a real report first</a> without uploading a thing.</p>
-    <p style="margin-bottom:0"><a class="btn" href="/free-demo/">Have us set it up for you, free</a></p>
+    <p style="margin-bottom:0"><a class="btn" href="/free-demo/?from=starter">Have us set it up for you, free</a></p>
   </div>
 </main>
 """

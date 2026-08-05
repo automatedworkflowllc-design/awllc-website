@@ -324,6 +324,7 @@
         <input type="hidden" name="_subject" value="Free 1-day demo request — /free-demo/">
         <input type="hidden" name="lead_source" value="free-demo">
         <input type="hidden" name="offer" value="Free 1-day mini-demo">
+        <input type="hidden" name="source_tool" id="fd-source" value="direct">
         <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
         <label for="fd-email">Your email</label>
         <input id="fd-email" type="email" name="email" autocomplete="email" placeholder="you@company.com" required>
@@ -345,6 +346,14 @@
    form.submit() does not re-fire submit, so no loop and no stranded lead. */
 (function () {
   "use strict";
+  /* Which tool sent them. Read from the query string -- a local read, no request,
+     and nothing about their file. The tool pages themselves stay at zero
+     post-load requests, which /money-leak-finder/ prints as a checkable claim. */
+  try {
+    var m = /[?&]from=([a-z0-9_-]{1,32})/i.exec(location.search);
+    var el = document.getElementById('fd-source');
+    if (m && el) { el.value = m[1].toLowerCase(); }
+  } catch (e) {}
   if (!window.fetch || !window.FormData) { return; }
   var form = document.querySelector('form.fd-form');
   if (!form) { return; }
