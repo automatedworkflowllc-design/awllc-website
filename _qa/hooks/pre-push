@@ -35,3 +35,14 @@ python _qa/seo_audit.py || {
   echo "PUSH BLOCKED — SEO defect count regressed. Fix, or push with --no-verify."
   exit 1
 }
+# The other three gates check STRUCTURE. This one checks whether what the pages
+# SAY is still true, by re-deriving each claim from its source of truth. It is
+# last because it is the slowest (it collects a test suite), and blocking
+# because shipping a page that overclaims is worse than shipping a broken tag.
+echo "Claim audit: re-deriving every factual claim the site makes..."
+python _qa/claim_audit.py || {
+  echo ""
+  echo "PUSH BLOCKED — a published claim no longer matches its source of truth."
+  echo "Fix the page, or fix the claim if the LEDGER is the thing that is wrong."
+  exit 1
+}
