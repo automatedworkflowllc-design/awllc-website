@@ -306,5 +306,20 @@
   "score": 0,
   "pages": 26,
   "by_area": {}
+ },
+ {
+  "when": "2026-08-04 10:52",
+  "score": 0,
+  "pages": 26,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-04 23:39",
+  "score": 2,
+  "pages": 26,
+  "by_area": {
+   "sitemap-coverage": 1,
+   "llms-txt": 1
+  }
  }
 ]

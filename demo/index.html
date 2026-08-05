@@ -209,6 +209,7 @@
   <div class="demo-conv">
     <p class="conv-lead">Like what you see? <b>This runs on your numbers.</b></p>
     <form class="conv-form" action="https://formspree.io/f/mgojgjwv" method="POST">
+      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
       <input type="hidden" name="_subject" value="Free dashboard request (demo page)">
       <input type="hidden" name="lead_source" value="demo-page-conv-band">
       <input type="email" name="email" required placeholder="you@yourbusiness.com" aria-label="Your email">
@@ -295,5 +296,57 @@
   .note,.demo-fallback,.conv-sub{padding-left:12px;padding-right:12px}
 }
 </style>
+<script>
+/* aw-inpage-form — same behaviour as every other lead form on the site.
+   This page was missed in the 8/3 pass because its markup uses .conv-form
+   rather than .cform, so the injector's selector never matched. Without a
+   handler the native POST hands the visitor to formspree.io/thanks and no
+   conversion can fire. fetch + Accept: application/json keeps them here; any
+   failure falls back to the plain browser POST (form.submit() does not
+   re-fire submit, so no loop, no stranded lead). JS off still posts natively. */
+(function () {
+  "use strict";
+  if (!window.fetch || !window.FormData) { return; }
+  var form = document.querySelector('form.conv-form');
+  if (!form) { return; }
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var btn = form.querySelector('[type="submit"]');
+    if (btn) { btn.disabled = true; btn.setAttribute("aria-busy", "true"); }
+    fetch(form.action, {
+      method: "POST",
+      body: new FormData(form),
+      headers: { "Accept": "application/json" }
+    }).then(function (r) {
+      if (!r.ok) { throw new Error("HTTP " + r.status); }
+      var ok = document.getElementById("conv-sent");
+      if (!ok) {
+        ok = document.createElement("p");
+        ok.id = "conv-sent";
+        ok.style.cssText = "margin:.7rem 0 0;padding:.9rem 1rem;border-radius:10px;" +
+          "background:rgba(30,122,71,.10);border:1px solid rgba(30,122,71,.35);font-weight:600;";
+        ok.textContent = "Sent \u2014 that\u2019s with Colin now. He replies personally, " +
+          "usually within a business day.";
+        form.parentNode.insertBefore(ok, form);
+      }
+      ok.style.display = "block";
+      form.style.display = "none";
+      ok.setAttribute("role", "status");
+      ok.setAttribute("tabindex", "-1");
+      try { ok.focus(); } catch (e) {}
+      var fired = false;
+      try { fired = sessionStorage.getItem("aw_lead_fired") === "1"; } catch (e) {}
+      if (!fired && typeof gtag === "function") {
+        gtag("event", "generate_lead", { method: "demo_page" });
+        gtag("event", "conversion", { send_to: "AW-18312491430/t9tRCKHq9M0cEKbjiZxE" });
+        try { sessionStorage.setItem("aw_lead_fired", "1"); } catch (e) {}
+      }
+    })["catch"](function () {
+      if (btn) { btn.disabled = false; btn.removeAttribute("aria-busy"); }
+      form.submit();
+    });
+  });
+})();
+</script>
 </body>
 </html>
