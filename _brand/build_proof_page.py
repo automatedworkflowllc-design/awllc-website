@@ -224,10 +224,14 @@ def _stats() -> dict:
         raise SystemExit('refusing to build /proof/: no ledger to count agents and failures from')
     recs = [json.loads(l) for l in ledger.read_text(encoding='utf-8').splitlines() if l.strip()]
     recs = recs[:stats['receipts']]          # never describe beyond what is anchored
-    # "systems reporting" must mean SYSTEMS. Seal receipts are pre-registered
-    # claims filed under a person or a desk, not automations writing receipts --
-    # counting them here would inflate the headline number on a trust page.
-    runs = [r for r in recs if r.get('kind') != 'seal']
+    # "systems reporting" must mean SYSTEMS. A wrap receipt is the only kind
+    # written BY an automation; seals, predictions and resolutions are filed by a
+    # person or a desk. This tests for the ABSENCE of a 'kind' field rather than
+    # blacklisting the kinds known today, because the blacklist version already
+    # failed twice: first counting seals, then counting a prediction, each time
+    # inflating the headline number on a page whose subject is not inflating
+    # numbers. A new receipt type must not be able to repeat it.
+    runs = [r for r in recs if r.get('kind') is None]
     stats['agents'] = len({r.get('agent') for r in runs if r.get('agent')})
     stats['fails'] = sum(1 for r in runs if r.get('problems'))
     stats['seals'] = len(recs) - len(runs)

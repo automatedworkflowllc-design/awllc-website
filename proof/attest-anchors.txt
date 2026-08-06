@@ -26,3 +26,13 @@
 # a wrapped Claude agent (job-scout, via --out-dir: success = at least one
 # file created or changed under the declared directory).
 2026-08-04T09:57:05 receipts=9 head=sha256:db3b5c3cbb066075455ca36713f1dcad4f3bf03c6a3c82fa2849ed9e4b9683bf
+# receipts 10-19: a day of guards. The claim audit joining the fleet, the first
+# runs that declared their INPUTS and could refuse to work from stale data, and
+# -- receipt 19 -- the first pre-registered PREDICTION: a dated, falsifiable
+# claim whose outcome was not knowable when it was sealed.
+#
+# That last one is why this line matters more than the others. A prediction only
+# we can date is worth nothing. Once this head is public the claim cannot be
+# quietly rewritten, re-dated or dropped by anyone, ourselves included. It
+# resolves 2026-09-04 and the record will say what happened either way.
+2026-08-06T00:11:02 receipts=19 head=sha256:c9bbeb6f5b3c2a4f21b98fa45919c5c8bd30e2f3992470d42b1e32c5232605bf

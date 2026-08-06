@@ -16,12 +16,12 @@
   {
    "status": "SUPPORTED",
    "id": "proof-receipt-count",
-   "detail": "proof/index.html still says \"<b>9</b><span>receipts on record\""
+   "detail": "proof/index.html still says \"<b>19</b><span>receipts on record\""
   },
   {
    "status": "SUPPORTED",
    "id": "proof-anchor-head",
-   "detail": "proof/index.html still says \"head=sha256:db3b5c3cbb066075455ca36713f1dcad4f3bf03c6a3c82fa2849ed9e4b9683bf\""
+   "detail": "proof/index.html still says \"head=sha256:c9bbeb6f5b3c2a4f21b98fa45919c5c8bd30e2f3992470d42b1e32c5232605bf\""
   },
   {
    "status": "SUPPORTED",
