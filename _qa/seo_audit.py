@@ -31,7 +31,7 @@ Checks every git-tracked *.html page:
      page body (not just a mailto:/tel: href -- _qa/last_mile_audit.py already
      covers those; this covers what a HUMAN reader actually sees)
  10. footer business-name string is byte-identical across every page that has
-     one ("Automated Workflow" vs "Automated Workflow LLC" is a NAP-consistency
+     one ("Automated Workflow" vs "Automated Workflow" is a NAP-consistency
      defect, not a stylistic choice)
  11. every JSON-LD Offer block (schema.org) carries a non-empty "price"
  12. og:image file exists on disk; if the page declares no explicit

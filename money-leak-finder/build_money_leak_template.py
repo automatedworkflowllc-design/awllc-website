@@ -55,7 +55,7 @@ def headers_row(ws, r, cols):
     ws.row_dimensions[r].height = 20
 
 def wordmark(ws, row):
-    ws.cell(row, 1, "Template by Automated Workflow LLC · automatedworkflowllc.com")
+    ws.cell(row, 1, "Template by Automated Workflow · automatedworkflowllc.com")
     ws.cell(row, 1).font = Font(italic=True, size=9, color=WORDMARK)
 
 # ================= sample data (same invented scenario as the demo) =================

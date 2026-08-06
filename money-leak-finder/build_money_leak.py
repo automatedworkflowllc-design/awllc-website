@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Build "Money Leak Finder — SAMPLE (Automated Workflow LLC)" as xlsx for Drive conversion.
+"""Build "Money Leak Finder — SAMPLE (Automated Workflow)" as xlsx for Drive conversion.
 
 THE product the money-leak outreach hook promises: put two lists side by side —
 work completed vs. work invoiced — and flag ONLY the mismatches:
@@ -62,7 +62,7 @@ def headers_row(ws, r, cols):
     ws.row_dimensions[r].height = 22
 
 def wordmark(ws, row):
-    ws.cell(row, 1, "Built by Automated Workflow LLC  ·  automatedworkflowllc.com  ·  sample data throughout")
+    ws.cell(row, 1, "Built by Automated Workflow  ·  automatedworkflowllc.com  ·  sample data throughout")
     ws.cell(row, 1).font = Font(italic=True, size=9, color=WORDMARK)
 
 # ================= seed data (INVENTED) =================

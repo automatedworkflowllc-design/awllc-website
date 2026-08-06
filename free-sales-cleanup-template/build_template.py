@@ -1,4 +1,4 @@
-# Build "Sales Cleanup Template - Free (Automated Workflow LLC)" as xlsx for Drive conversion
+# Build "Sales Cleanup Template - Free (Automated Workflow)" as xlsx for Drive conversion
 # Polished to AWLLC brand standards: banner bands, color-coded KPIs, card fills, wordmark footers.
 import datetime as dt
 from openpyxl import Workbook
@@ -37,7 +37,7 @@ def band(ws, rng, text, size=14):
     ws.row_dimensions[minr].height = 30
 
 def wordmark(ws, row, span_last_col="B"):
-    ws.cell(row, 1, "Built by Automated Workflow LLC  ·  automatedworkflowllc.com  ·  free template")
+    ws.cell(row, 1, "Built by Automated Workflow  ·  automatedworkflowllc.com  ·  free template")
     ws.cell(row, 1).font = Font(italic=True, size=9, color=WORDMARK)
 
 # ---------- Sales data ----------
@@ -253,7 +253,11 @@ dh.column_dimensions["A"].width = 62
 dh.column_dimensions["B"].width = 10
 dh.column_dimensions["C"].width = 18
 
-path = r"C:\Users\hisbo\Documents\awllc-website\free-sales-cleanup-template\sales-cleanup-template.xlsx"
+import pathlib as _pl
+# Resolve relative to THIS file. The old hardcoded absolute path pointed at the
+# other checkout, so running this here reported success while writing the
+# workbook somewhere else and leaving the served copy stale.
+path = str(_pl.Path(__file__).resolve().parent / "sales-cleanup-template.xlsx")
 wb.save(path)
 
 # sanity math
