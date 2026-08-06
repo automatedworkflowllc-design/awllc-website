@@ -65,28 +65,18 @@ _WORDS = {0: 'zero', 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 's
           7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten', 11: 'eleven', 12: 'twelve'}
 
 
-def d_wrapped_jobs(scheduled_dir: str, style: str = 'digits', **_) -> str:
-    """How many scheduled jobs actually run under attest.
+def d_wrapped_jobs(style: str = 'words', **_) -> str:
+    """How many registered scheduled jobs actually run under attest.
 
-    `style` exists because prose spells small numbers out ("six of our eight")
-    while a stat block uses digits. The check must match the page as written,
-    not force the page to match the checker.
+    Counts REGISTERED TASKS, not folders. The first version counted directories
+    under Scheduled\\ and so did the page, which is why they agreed while both
+    were wrong: two of those folders hold only a SKILL.md and are not jobs. An
+    audit that shares the page's definition is not checking the page, it is
+    echoing it. The definition now lives once, in fleet.py.
     """
-    root = pathlib.Path(scheduled_dir)
-    if not root.is_dir():
-        raise RuntimeError(f'{root} is not a directory')
-    # Dotted entries are not jobs. `.git` is a directory and iterdir() returns
-    # it, which made the very first run of this audit report a false failure
-    # against a page that was correct -- the checker was wrong, not the claim.
-    jobs = [d for d in sorted(root.iterdir()) if d.is_dir() and not d.name.startswith('.')]
-    wrapped = [d for d in jobs
-               if any('attest' in f.read_text(encoding='utf-8', errors='replace')
-                      for f in d.glob('*.cmd'))]
-    if style == 'words':
-        if len(wrapped) not in _WORDS or len(jobs) not in _WORDS:
-            raise RuntimeError('counts outside the spelled-out range; use digits')
-        return f'{_WORDS[len(wrapped)]} of our {_WORDS[len(jobs)]}'
-    return f'{len(wrapped)} of {len(jobs)}'
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+    from fleet import coverage_phrase                        # noqa: E402
+    return coverage_phrase(style)
 
 
 def d_anchor_receipts(**_) -> str:

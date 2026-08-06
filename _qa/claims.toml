@@ -29,7 +29,7 @@ id = "proof-wrapped-jobs"
 page = "proof/index.html"
 says = "{} scheduled jobs"
 derive = "wrapped_jobs"
-args = { scheduled_dir = "C:/Users/hisbo/claude/Scheduled", style = "words" }
+args = { style = "words" }
 
 # The headline stat must equal the newest PUBLISHED anchor, never the private
 # ledger -- the page may not describe more history than it has published.

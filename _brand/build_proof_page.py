@@ -30,6 +30,7 @@ from __future__ import annotations
 import json
 import pathlib
 import re
+import sys
 
 from toolkit import PLAIN_CSS
 
@@ -166,8 +167,9 @@ MAIN = """
       key, which proves nobody without that key altered them &mdash; it does not prove <em>we</em>
       didn't, before publishing. Public anchoring is what closes that gap today; a keypair whose
       public half you can hold is the next step.</li>
-    <li><b>It covers __WRAPPED__ scheduled jobs</b>, not all of them. The rest are named in our
-      build log rather than quietly omitted.</li>
+    <li><b>It covers __WRAPPED__ scheduled jobs &mdash; and only those.</b> Work done by hand, or by
+      a person at a keyboard, leaves no receipt here. A ledger of the automated half is not a
+      ledger of everything, and reading it as one would be a mistake we would rather you not make.</li>
     <li><b>A receipt proves an output changed, not that it is correct.</b> Whether yesterday's date
       in today's report is a problem depends on the cadence, which is a judgment call &mdash; so the
       date is recorded as evidence and a separate check decides.</li>
@@ -220,22 +222,18 @@ def _stats() -> dict:
     stats['fails'] = sum(1 for r in runs if r.get('problems'))
     stats['seals'] = len(recs) - len(runs)
 
-    # Coverage is COUNTED, never typed. The hand-written "six of our eight" went
-    # stale the same day a seventh job was wrapped, and the nightly claim audit
-    # caught the page asserting it. A number the page derives cannot drift from
-    # the fleet it describes.
-    sched = pathlib.Path(r'C:\Users\hisbo\claude\Scheduled')
-    if not sched.is_dir():
-        raise SystemExit('refusing to build /proof/: cannot count the scheduled fleet')
-    jobs = [d for d in sorted(sched.iterdir()) if d.is_dir() and not d.name.startswith('.')]
-    wrapped = [d for d in jobs
-               if any('attest' in f.read_text(encoding='utf-8', errors='replace')
-                      for f in d.glob('*.cmd'))]
-    words = {1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven',
-             8: 'eight', 9: 'nine', 10: 'ten', 11: 'eleven', 12: 'twelve'}
-    if len(wrapped) not in words or len(jobs) not in words:
-        raise SystemExit('refusing to build /proof/: fleet outside the spelled-out range')
-    stats['wrapped'] = f'{words[len(wrapped)]} of our {words[len(jobs)]}'
+    # Coverage is COUNTED, never typed -- and counted from the WINDOWS TASK
+    # SCHEDULER, not from folders. Counting folders is how this page came to
+    # claim "seven of our nine" while the truth was seven of seven: two folders
+    # under Scheduled\ hold only a SKILL.md and are not jobs at all. The audit
+    # agreed with the page because both counted the same wrong thing, so the
+    # definition now lives in exactly one place. See _qa/fleet.py.
+    sys.path.insert(0, str(ROOT / '_qa'))
+    from fleet import coverage_phrase                       # noqa: E402
+    try:
+        stats['wrapped'] = coverage_phrase()
+    except Exception as e:
+        raise SystemExit(f'refusing to build /proof/: cannot count the scheduled fleet ({e})')
     if stats['fails'] < 1:
         raise SystemExit('refusing to build /proof/: the page argues from our own recorded '
                          'failures and found none -- check the ledger before publishing')
