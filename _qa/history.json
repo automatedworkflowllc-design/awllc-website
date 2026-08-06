@@ -1,23 +1,5 @@
 [
  {
-  "when": "2026-07-19 16:05",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-07-19 16:05",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-07-19 16:23",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
   "when": "2026-07-19 16:23",
   "mode": "fast",
   "score": 0,
@@ -364,6 +346,24 @@
  {
   "when": "2026-08-05 09:56",
   "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-05 14:18",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-05 15:34",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-05 21:12",
+  "mode": "full",
   "score": 0,
   "by_area": {}
  }

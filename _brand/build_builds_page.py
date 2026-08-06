@@ -39,6 +39,15 @@ display:flex;flex-direction:column}
 .bd-what{margin:0 0 .6rem;font-size:.9rem;color:var(--ink-soft);flex:1}
 .bd-proof{margin:0 0 .7rem;font-size:.82rem;color:var(--ink-soft);border-left:2px solid var(--line-strong);
 padding-left:.6rem}
+/* purpose & use: a 3-row grid so the labels align and a reader can scan
+   "what do I need" without reading prose. Inline spans ran together once the
+   text wrapped, which defeated the point. */
+.bd-use{display:grid;grid-template-columns:auto 1fr;gap:.12rem .7rem;margin:0 0 .7rem;
+padding:.55rem .7rem;background:var(--bg-soft);border-radius:.45rem;
+font-size:.78rem;line-height:1.45;color:var(--ink-soft)}
+.bd-use dt{font-family:var(--mono,monospace);font-size:.6rem;letter-spacing:.09em;
+text-transform:uppercase;color:var(--line-strong);padding-top:.18rem}
+.bd-use dd{margin:0}
 .bd-tags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:auto}
 .bd-tag{font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);
 border-radius:.3rem;padding:.12rem .42rem;color:var(--ink-soft)}
@@ -92,6 +101,14 @@ TOOLS = [
 ]
 
 DEMOS = [
+    ("How the automation actually works", "/workflow-automation/",
+     "The whole method in one page: what gets automated, what deliberately does not, and what each "
+     "rung costs. Sensor &rarr; formulas &rarr; AI narrative &rarr; <strong>human approval</strong> "
+     "&rarr; audit trail &mdash; with a live console showing how a chase email's tone is "
+     "<em>derived</em> from invoice age rather than chosen.",
+     "Carries an honesty ledger that opens by stating there are zero paying clients, and status "
+     "chips that say RUNNING (on my own business) rather than LIVE, because no customer is on it yet.",
+     ["Read first", "The method"]),
     ("Live KPI Dashboard", "/demo/",
      "A real, self-updating Google Sheets dashboard on sample data &mdash; revenue, jobs, overdue "
      "invoices. Click the tabs, tap the chart. No login, no signup.",
@@ -107,11 +124,33 @@ DEMOS = [
      "clawbacks by rule instead of by argument.",
      "Built for a vertical where the math is the whole disagreement.",
      ["Live demo", "Vertical"]),
-    ("Free templates", "/free/executive-kpi-dashboard.html",
-     "Executive KPI dashboard, expense tracker, and a staffing commission tracker &mdash; working "
-     "Google Sheets templates, no cost, no email required.",
-     "Take them and never speak to us. That is the point.",
-     ["Free", "No signup"]),
+]
+
+
+# The staffing commission tracker is deliberately NOT listed here. Its page
+# promises "a Google Sheet you can start using today... yours to copy" and
+# contains zero copy links -- the sheet was specced and never built. Listing it
+# would carry that false promise onto the portfolio page. Add it here the day
+# the artifact exists, not before.
+TEMPLATES = [
+    ("Executive KPI Dashboard", "/free/executive-kpi-dashboard.html",
+     "A one-board view of the numbers an owner actually checks &mdash; revenue, jobs, what is "
+     "outstanding &mdash; already wired with the formulas, so you fill in the rows and it keeps "
+     "itself current.",
+     "Copy it straight from the page. No email, no signup, no follow-up sequence &mdash; the copy "
+     "link is right there, and you can take it and never speak to me.",
+     ["Free", "No signup", "Google Sheets"]),
+    ("Business Expense Tracker", "/free-expense-tracker-template/",
+     "Categories already matching a normal small-business chart of accounts, currency formatting "
+     "done, header row frozen. Open it and start typing rather than building it first.",
+     "Same deal: a copy link on the page, nothing to submit. If you would rather I set it up on "
+     "your real numbers, that offer exists separately and is also free.",
+     ["Free", "No signup", "Google Sheets"]),
+    ("Sales Data Cleanup Template", "/free-sales-cleanup-template/",
+     "For an export that arrived messy &mdash; inconsistent names, mixed date formats, duplicate "
+     "rows. The template gives it a structure that stays clean as you add to it.",
+     "Copy link on the page, no email required.",
+     ["Free", "No signup", "Google Sheets"]),
 ]
 
 ENGINEERING = [
@@ -159,6 +198,43 @@ ENGINEERING = [
 ]
 
 
+
+# --- purpose & use -------------------------------------------------------
+# Colin, 2026-08-05: the page must be "well descriptive of its purpose and
+# use". A description says what a thing is; this says who it is for, what you
+# must have in hand, and how long it takes -- which is what actually decides
+# whether a stranger presses it. Keyed by href so the existing card tuples
+# stay untouched. Every "needs" here was checked against the live page.
+USE = {
+    "/starter/":                     ("anyone starting without a system", "nothing at all", "one click"),
+    "/check/":                       ("any export you are unsure about", "one file &mdash; or two to reconcile", "about a minute"),
+    "/spreadsheet-health-check/":    ("a messy sheet you inherited", "one CSV or Excel file", "about a minute"),
+    "/money-leak-finder/":           ("service businesses that invoice per job", "a work log + an invoice export", "about two minutes"),
+    "/duplicate-customer-finder/":   ("a customer list that grew by hand", "your customer list", "under a minute"),
+    "/shift-coverage-check/":        ("anyone who runs on a roster", "a schedule export", "about a minute"),
+    "/free/executive-kpi-dashboard.html": ("owners who want one number board", "a Google account to copy it", "no email, no signup"),
+    "/free-expense-tracker-template/":    ("sole traders and small teams", "a Google account to copy it", "no email, no signup"),
+    "/free-sales-cleanup-template/":      ("anyone with a messy sales export", "a Google account to copy it", "no email, no signup"),
+    "/workflow-automation/":         ("owners weighing whether to automate at all", "nothing &mdash; it is a read", "about five minutes"),
+    "/demo/":                        ("seeing the $650 build before buying", "nothing &mdash; no login", "click the tabs"),
+    "/automation-monitoring/":       ("anyone already running automations", "the reports you already receive", "$99/mo, weekly evidence"),
+    "/proof/notarize/":              ("proving a file has not changed", "the file itself", "seconds, on your device"),
+    "/flatline/":                    ("engineers with silent scheduled jobs", "your own stack", "MIT, read the repo"),
+}
+
+
+def use_line(href: str) -> str:
+    u = USE.get(href)
+    if not u:
+        return ""
+    who, needs, takes = u
+    return ('<dl class="bd-use">'
+            f'<dt>For</dt><dd>{who}</dd>'
+            f'<dt>Needs</dt><dd>{needs}</dd>'
+            f'<dt>Takes</dt><dd>{takes}</dd>'
+            '</dl>')
+
+
 def card(name: str, href: str, what: str, proof: str, tags: list[str]) -> str:
     attrs = ' target="_blank" rel="noopener"' if href.startswith('http') else ''
     tag_html = ''.join(
@@ -166,6 +242,7 @@ def card(name: str, href: str, what: str, proof: str, tags: list[str]) -> str:
         for t in tags)
     return (f'<article class="bd-card"><h3><a href="{href}"{attrs}>{name}</a></h3>'
             f'<p class="bd-what">{what}</p>'
+            f'{use_line(href)}'
             f'<p class="bd-proof">{proof}</p>'
             f'<div class="bd-tags">{tag_html}</div></article>')
 
@@ -188,7 +265,13 @@ def build_main() -> str:
   page loads, zero requests. That is architecture, not a privacy policy.</p>
   {grid(TOOLS)}
 
-  <div class="bd-sec">Client work &mdash; live demos</div>
+  <div class="bd-sec">Free templates &mdash; copy them, no email</div>
+  <p class="bd-lede" style="margin-bottom:.9rem;font-size:.9rem">Working Google Sheets with the
+  formulas already in them. The copy link is on the page &mdash; there is nothing to submit and no
+  follow-up sequence.</p>
+  {grid(TEMPLATES)}
+
+  <div class="bd-sec">The paid work &mdash; see it running first</div>
   {grid(DEMOS)}
 
   <div class="bd-sec">Engineering</div>
