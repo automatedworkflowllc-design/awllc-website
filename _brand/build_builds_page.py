@@ -127,12 +127,22 @@ DEMOS = [
 ]
 
 
-# The staffing commission tracker is deliberately NOT listed here. Its page
-# promises "a Google Sheet you can start using today... yours to copy" and
-# contains zero copy links -- the sheet was specced and never built. Listing it
-# would carry that false promise onto the portfolio page. Add it here the day
-# the artifact exists, not before.
+# The staffing commission tracker was excluded on 8/5 because its page promised
+# a sheet that did not exist. The workbook was built the same evening and the
+# page rewritten to hand it over unconditionally, so the condition set here is
+# met and it is listed. It is a download rather than a Drive copy on purpose:
+# a file needs nobody's Google account, which is what keeps the page's
+# "not a signup wall" line true.
 TEMPLATES = [
+    ("Staffing Commission Tracker", "/free-staffing-commission-tracker/",
+     "For recruiters and staffing agencies: log placements and it works out perm fees, contract "
+     "margins, owner/sourcer splits, each recruiter's draw balance, and which deals are still "
+     "inside their guarantee window and could be clawed back.",
+     "Five tabs with the formulas already in them and a Read Me explaining each one. Every formula "
+     "was evaluated before shipping &mdash; a contract deal at $78/$52 across 36h &times; 26 weeks "
+     "returns <strong>$24,336</strong> gross and <strong>$17,035</strong> to the owner at a 70% "
+     "split, and all three sample deals correctly flag AT RISK inside their guarantee.",
+     ["Free", "No signup", "Download"]),
     ("Executive KPI Dashboard", "/free/executive-kpi-dashboard.html",
      "A one-board view of the numbers an owner actually checks &mdash; revenue, jobs, what is "
      "outstanding &mdash; already wired with the formulas, so you fill in the rows and it keeps "
@@ -215,6 +225,7 @@ USE = {
     "/free/executive-kpi-dashboard.html": ("owners who want one number board", "a Google account to copy it", "no email, no signup"),
     "/free-expense-tracker-template/":    ("sole traders and small teams", "a Google account to copy it", "no email, no signup"),
     "/free-sales-cleanup-template/":      ("anyone with a messy sales export", "a Google account to copy it", "no email, no signup"),
+    "/free-staffing-commission-tracker/": ("recruiters and staffing agencies", "nothing &mdash; it downloads", "no email, no signup"),
     "/workflow-automation/":         ("owners weighing whether to automate at all", "nothing &mdash; it is a read", "about five minutes"),
     "/demo/":                        ("seeing the $650 build before buying", "nothing &mdash; no login", "click the tabs"),
     "/automation-monitoring/":       ("anyone already running automations", "the reports you already receive", "$99/mo, weekly evidence"),
