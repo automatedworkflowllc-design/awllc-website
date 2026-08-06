@@ -46,3 +46,15 @@ python _qa/claim_audit.py || {
   echo "Fix the page, or fix the claim if the LEDGER is the thing that is wrong."
   exit 1
 }
+# Claim audit asks whether what the pages SAY is true. This asks the one thing
+# no other gate does: when a visitor does what the page tells them to do, do
+# they get the thing? /free-staffing-commission-tracker/ promised a sheet
+# "yours to copy" for three and a half weeks with no sheet in existence, and
+# every other gate passed the entire time.
+echo "Promise audit: does every page that offers an artifact actually have one..."
+python _qa/promise_audit.py || {
+  echo ""
+  echo "PUSH BLOCKED — a page promises an artifact it cannot hand over."
+  echo "Build the artifact, or stop promising it. Do not soften the gate."
+  exit 1
+}
