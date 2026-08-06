@@ -131,6 +131,16 @@ MAIN = """
       every link after it, and the break is visible to anyone holding the ledger.</p>
     </div>
     <div class="pf-step">
+      <h3>What it was built from &mdash; and a refusal to work from stale data</h3>
+      <p>A run can also declare its <em>inputs</em>, recorded by hash and by the newest date found
+      inside them. That matters most where a person is least able to check: <b>an AI writing a
+      summary of numbers that stopped updating last week</b> reads exactly like one writing about
+      today. So a job can be given a limit, and if its data is staler than that, <b>it does not run
+      and nothing is written at all</b> &mdash; a warning attached to a finished draft is a note
+      nobody reads. What this proves is bounded: which files the run could see, and that those bytes
+      have not changed since. Not that the program read them correctly.</p>
+    </div>
+    <div class="pf-step">
       <h3>Anchored in public, so it binds us too</h3>
       <p>A signed ledger only proves integrity against people without the key &mdash; which does not
       include us. So the chain head is published to this site on a schedule. Once a head is public,
