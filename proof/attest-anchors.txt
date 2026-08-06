@@ -36,3 +36,4 @@
 # quietly rewritten, re-dated or dropped by anyone, ourselves included. It
 # resolves 2026-09-04 and the record will say what happened either way.
 2026-08-06T00:11:02 receipts=19 head=sha256:c9bbeb6f5b3c2a4f21b98fa45919c5c8bd30e2f3992470d42b1e32c5232605bf
+2026-08-06T14:25:44 receipts=28 head=sha256:840a9f85ab62e65e30eb681d8ea59c0716d4a365da1b505cfce34a2825b93f12

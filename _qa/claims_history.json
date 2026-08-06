@@ -11,17 +11,17 @@
   {
    "status": "SUPPORTED",
    "id": "proof-wrapped-jobs",
-   "detail": "proof/index.html still says \"all seven of our scheduled jobs\""
+   "detail": "proof/index.html still says \"all eight of our scheduled jobs\""
   },
   {
    "status": "SUPPORTED",
    "id": "proof-receipt-count",
-   "detail": "proof/index.html still says \"<b>19</b><span>receipts on record\""
+   "detail": "proof/index.html still says \"<b>28</b><span>receipts on record\""
   },
   {
    "status": "SUPPORTED",
    "id": "proof-anchor-head",
-   "detail": "proof/index.html still says \"head=sha256:c9bbeb6f5b3c2a4f21b98fa45919c5c8bd30e2f3992470d42b1e32c5232605bf\""
+   "detail": "proof/index.html still says \"head=sha256:840a9f85ab62e65e30eb681d8ea59c0716d4a365da1b505cfce34a2825b93f12\""
   },
   {
    "status": "SUPPORTED",
