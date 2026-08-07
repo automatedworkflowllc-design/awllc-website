@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<!-- STAGED, NOT PUBLISHED. noindex is ON PURPOSE: this page is generated from an internal build log and is awaiting Colin's copy review. To publish: remove this robots tag, add /log/ to sitemap.xml, and link it from /builds/. Do NOT add to sitemap while noindex is set. -->
+<link rel="canonical" href="https://automatedworkflowllc.com/log/">
+<title>Build log — every system shipped, and the bugs found</title>
+<meta name="description" content="A running record of what actually gets built here, including the parts that broke and how every claim was checked. Automation, Gainesville FL.">
+<style>
+  :root{
+    --paper:#FBFAF3; --well:#F4F1E8; --ink:#211D14; --ink-soft:#5C5645;
+    --line:#E4DFD1; --line-strong:#D8D2C2; --green:#1E7A47; --amber:#B45309;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#17150F; --well:#201D16; --ink:#EDE8DA; --ink-soft:#A79E8B;
+           --line:#332E23; --line-strong:#4A4335; --green:#4FA69C; --amber:#D8AC55; }
+  }
+  :root[data-theme="dark"]{ --paper:#17150F; --well:#201D16; --ink:#EDE8DA; --ink-soft:#A79E8B;
+           --line:#332E23; --line-strong:#4A4335; --green:#4FA69C; --amber:#D8AC55; }
+  :root[data-theme="light"]{ --paper:#FBFAF3; --well:#F4F1E8; --ink:#211D14; --ink-soft:#5C5645;
+           --line:#E4DFD1; --line-strong:#D8D2C2; --green:#1E7A47; --amber:#B45309; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);
+       font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+       -webkit-font-smoothing:antialiased}
+  .wrap{max-width:58rem;margin:0 auto;padding:3rem 1.4rem 5rem}
+  a{color:inherit}
+  h1{font-size:1.9rem;letter-spacing:-.02em;margin:0 0 .4rem;text-wrap:balance}
+  .sub{color:var(--ink-soft);margin:0;max-width:42rem;text-wrap:pretty}
+  .stamp{font-family:var(--mono);font-size:.76rem;color:var(--ink-soft);margin-top:.9rem}
+  h2{font-size:.76rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-soft);
+     margin:2.7rem 0 .6rem;font-weight:600;padding-bottom:.6rem;border-bottom:1px solid var(--line)}
+  .row{display:grid;grid-template-columns:5.4rem 1fr;gap:0 1rem;padding:.9rem 0;
+       border-bottom:1px solid var(--line)}
+  .date{font-family:var(--mono);font-size:.76rem;color:var(--ink-soft);
+        font-variant-numeric:tabular-nums;padding-top:.25rem}
+  .name{font-weight:600;font-size:1rem;margin:0;display:flex;gap:.45rem;align-items:baseline;flex-wrap:wrap}
+  .chip{font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;
+        border:1px solid var(--line-strong);border-radius:.25rem;padding:.08rem .35rem;
+        color:var(--ink-soft);white-space:nowrap;font-weight:500}
+  .chip.live{border-color:var(--green);color:var(--green)}
+  .chip.staged{border-color:var(--amber);color:var(--amber)}
+  .what{margin:.2rem 0 0;color:var(--ink-soft);font-size:.93rem;text-wrap:pretty}
+  .proof{margin:.45rem 0 0;font-size:.85rem;color:var(--ink-soft);
+         border-left:2px solid var(--line-strong);padding-left:.7rem;text-wrap:pretty}
+  .proof b{color:var(--ink);font-weight:600}
+  .where{font-family:var(--mono);font-size:.73rem;color:var(--ink-soft);margin:.35rem 0 0}
+  code{font-family:var(--mono);font-size:.88em}
+  .note{margin-top:2.2rem;padding:1.1rem 1.25rem;border:1px solid var(--line);
+        border-radius:.7rem;background:var(--well);font-size:.92rem;color:var(--ink-soft)}
+  .note strong{color:var(--ink)}
+  footer{margin-top:2.6rem;padding-top:1.1rem;border-top:1px solid var(--line);
+         font-size:.82rem;color:var(--ink-soft)}
+  @media(max-width:640px){ .row{grid-template-columns:1fr;gap:.25rem} .date{padding-top:0} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Build log</h1>
+  <p class="sub">A running record of what actually gets built here — including the parts that
+  broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
+  <p class="stamp">40 entries · newest first within each group</p>
+</header>
+
+<div class="note">
+  <strong>Why a log with failures in it.</strong>
+  <p style="margin:.5rem 0 0">This company is pointed at one problem: <b>software that reports
+  success while doing nothing.</b> A backup that has "succeeded" every night into an empty file.
+  A weekly report that still arrives on time with numbers that stopped updating in March. Those
+  never show up as errors, which is exactly why they run for months.</p>
+  <p style="margin:.6rem 0 0">A log with only wins would be a brochure, and it would undercut the
+  whole argument. So the misses stay in — including the times a check turned out to be wrong
+  rather than the thing it was checking.</p>
+</div>
+
+<div class="row">
+  <div class="date">Aug 5</div>
+  <div>
+    <p class="name">The audit agreed with the page because both counted the wrong thing
+      <span class="chip live">fixed &amp; live</span></p>
+    <p class="what"><code>/proof/</code> said attest covers "seven of our nine scheduled jobs." The
+    truth is <b>seven of seven — full coverage</b> — and the page was <em>understating</em> itself
+    while counting two things that are not jobs at all: two folders under <code>Scheduled\</code>
+    hold only a SKILL.md, with no launcher and no registered task.</p>
+    <p class="proof"><b>The root cause is worse than the number, and it is mine.</b> The page builder
+    counted directories, and so did the claim audit — so the audit passed. It was <em>echoing</em> the
+    page rather than checking it, which is exactly the rule written at the top of
+    <code>claims.toml</code> this morning: "two things agreeing with each other is not evidence, it
+    is a rumour with a citation." I broke it the same day I wrote it, and a checker that shares the
+    claim's definition is worth nothing.
+    <b>Fixed by moving the definition into one place</b> (<code>_qa/fleet.py</code>) sourced from the
+    <b>Windows Task Scheduler</b> — the thing that actually decides whether a job exists. A folder is
+    not a job; a job is a registered task, guarded when the launcher it runs goes through attest. It
+    raises rather than returning zero if the scheduler cannot be read, since a silent zero would let
+    the page claim coverage over a fleet nobody could see. Verified against ground truth: 7 registered
+    tasks, all 7 guarded, and no task anywhere on the machine references those two folders.
+    <b>The page copy changed too</b> — "not all of them" is false at full coverage, and the honest
+    limit turned out to be a different one: this covers the automated half, and work done by hand
+    leaves no receipt.</p>
+    <p class="where">Live: f55d35c · _qa/fleet.py is now the only definition of "scheduled job"</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">believe — the artifact you hand a senior engineer who thinks you faked it
+      <span class="chip">build 3</span><span class="chip live">run on this repo</span></p>
+    <p class="what">Built for a real situation: someone ships a genuine system with AI, shows two
+    senior developers, and is not believed. The instinct is to argue, or to paste the AI's own
+    glowing summary — and <b>the second fails worse, because an AI grading its own homework is
+    exactly what a skeptical engineer is refusing to accept.</b> You cannot be your own witness,
+    which is the same principle the rest of this stack runs on.</p>
+    <p class="proof"><b>So the report carries only what the reader can check.</b> The <em>shape</em> of
+    the work — one bar per day, because fabricated histories are smooth and real ones are lumpy. The
+    <em>failures</em>, listed first, because nobody manufactures evidence that makes them look worse
+    and it is the section a senior engineer reads first. And every claim ships with the one-line
+    command that re-derives it.
+    <b>What it refuses to do is the actual product.</b> No scores, no hour estimates, no ratings of
+    how hard it was — those are precisely the self-assessments ("3,000–4,500 engineering hours",
+    "8/10 rebuild difficulty") that get a real project rejected. A test enforces their absence by
+    scanning the rendered HTML for that vocabulary, and the report states plainly what git history
+    <em>cannot</em> prove: attribution is a claim, not a measurement.
+    <b>The blunt test earned its keep immediately by failing on my own disclaimer</b> — the sentence
+    "no difficulty ratings" contains the banned word. I reworded the prose rather than teaching the
+    test exceptions, because a guard with a list of allowed violations stops being a guard.
+    Run on this repo: <b>105 commits across 12 days, 22 describing a failure.</b> 5 tests, and an
+    empty repo produces no report at all rather than an empty boast.</p>
+    <p class="where">e596ceb · dev/believe/ · all three builds of UNBELIEVABLE-PLAN-2026-08.md now shipped</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">Predictions with teeth: was the AI <em>right</em>, not just did it run
+      <span class="chip">new primitive</span><span class="chip live">first entry live</span></p>
+    <p class="what">Receipts prove a job <b>ran</b>. Grounding proves its data was <b>current</b>.
+    This is the third question and the only one a business actually cares about: <b>was it right.</b>
+    Every AI product sold to a business ships confidence; none ships a scoreboard, because vendor
+    accuracy claims are written after the fact on data the vendor chose.
+    <code>attest predict</code> seals a claim's content privately but records <em>the condition that
+    would prove it wrong</em> in the clear — a success condition you can reinterpret once you know
+    the outcome is a horoscope, not a prediction.</p>
+    <p class="proof"><b>Three rules do the real work, and each one is a test.</b> A falsifier that
+    cannot be scored is <b>refused and nothing is written</b> — "engagement will improve" can be
+    declared correct after any outcome, so it never reaches the ledger; the rule rejects vagueness,
+    not ordinary English, so "more replies" is refused while "more than 3 replies by 2026-09-01"
+    passes. <b>No accuracy rate below 10 scored predictions</b> — a percentage over a handful is
+    noise wearing a lab coat, so it prints counts and says why. And an unresolved prediction past its
+    date shows as <b>OVERDUE, never dropped</b>: going quiet on the ones that went badly is the
+    easiest way to fake a good record, so silence has to be visible.
+    <b>The first entry is real, not a demo:</b> today's claim that <code>flatline jobs</code> is now
+    redundant, resolving 2026-09-04, falsified if it catches a single silent no-op that the receipts
+    and watchpost both missed. Recorded <em>before</em> the window, because deciding afterwards
+    whether it "felt redundant" is exactly the reasoning this prevents. 36 tests.
+    <b>Scope, honestly, since I overclaimed when I pitched it:</b> pre-registration is not new —
+    clinical trial registries exist for this reason. What is new is applying it to <em>operational</em>
+    AI output with a sealed, chained, publicly anchorable timestamp. It is an internal discipline
+    tool first; it earns the right to be a product only if the record turns out to be worth showing.</p>
+    <p class="where">234a3be · attest predict / resolve / record</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">Audited my own day instead of building more — and it found two things
+      <span class="chip live">both fixed</span></p>
+    <p class="what">Given a free hand, the highest-value move after a long build day is the rule in
+    our own notes: <b>spot-check the load-bearing claims rather than trust them.</b> Four verification
+    layers had gone in since morning, and a fifth would have been worth less than checking the four.</p>
+    <p class="proof"><b>1. The public anchor was ten receipts behind.</b> It still read
+    <code>receipts=9</code> from yesterday while the ledger stood at 19 — and receipt 19 is the first
+    pre-registered prediction. <b>A prediction only we can date is worth nothing</b>; its entire value
+    is that the timestamp sits beyond our reach. It is now anchored at <code>receipts=19</code>,
+    publicly, with that reasoning written into the file.
+    <b>2. The page claimed 8 systems reporting and there are 7.</b> The prediction receipt was being
+    counted as an automation, because the filter blacklisted <code>seal</code> — <em>the same bug I
+    fixed this morning, recurring for a new receipt kind</em>. Fixed properly this time by testing for
+    the <em>absence</em> of a <code>kind</code> field, since a wrap receipt is the only kind written
+    <em>by</em> a system. No future receipt type can repeat it.
+    <b>Everything else checked rather than assumed:</b> 6 live pages returning 200, all three
+    load-bearing phrases serving, the anchors file public, chain intact at 19, the Scheduled repo
+    clean with nothing unpushed. Gates: claim audit clean, SEO 0 across 28 pages, promise audit clean.</p>
+    <p class="where">22174f6 · the second time a headline number tried to inflate itself, and the last</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">The flagship demo is ours now &mdash; and it cannot go stale
+      <span class="chip live">live</span><span class="chip">rebuild</span></p>
+    <p class="what">Colin&rsquo;s verdict on the old one was &ldquo;ghetto af,&rdquo; and he was right, but
+    the interesting part is that <b>every single problem traced to the architecture rather than the
+    design.</b> <code>/demo/</code> was a PNG screenshot linking out to an Apps Script web app. The
+    screenshot live this morning was captured Aug 3 and still said &ldquo;Automated Workflow LLC&rdquo;
+    three days after the name was dropped. The app&rsquo;s <em>data</em> could only be changed by
+    running a builder from the Apps Script editor by hand &mdash; <code>clasp run</code> is not
+    configured &mdash; so a fix waited on a Monday trigger. It rendered in a cross-origin sandbox, so
+    our own gates could not read it, synthetic clicks could not reach it, and it could not be
+    screenshotted from this box at all. And cold start put a spinner in front of the flagship.</p>
+    <p class="proof"><b>It is now plain HTML/CSS/JS on our own domain: builds in ~2ms, zero requests
+    after load, four working views with real tab semantics and arrow-key support.</b> The part that
+    actually matters is not the speed &mdash; <b>the data is generated in the browser from today&rsquo;s
+    date, so it can never be out of date.</b> No trigger to fire, no sheet to rebuild, no screenshot
+    to recapture, ever. The staleness class of bug is gone rather than fixed.
+    <b>Three defects found while building it, each caught by looking rather than assuming:</b>
+    axis labels rendered enormous and overlapping, because text inside an SVG using
+    <code>preserveAspectRatio="none"</code> stretches with the coordinate system &mdash; all text is
+    now HTML and only the bars are SVG. Period stats included the in-progress week, so an ordinary
+    Tuesday read as &ldquo;revenue is falling&rdquo;; every period figure now uses completed weeks
+    only, which is a <em>measurement artifact</em> and exactly what this company sells against.
+    And month-to-date divided every week by 7 while the current week&rsquo;s value was already
+    pro-rated, under-counting the days that had happened &mdash; MTD moved <b>$7,131 &rarr; $8,812</b>
+    once the divisor matched the week.
+    <b>The chart parameters were chosen by simulating 104 possible &ldquo;todays&rdquo;</b> rather
+    than tuning until it looked good on the day I built it, which would have been fitting to one
+    sample. Deliberately <em>not</em> the settings that grow 100% of the time: a demo that can never
+    show a soft week is the smooth up-and-to-the-right line nobody believes.
+    Verified: idempotent regeneration, JS parses, 390px probe clean (scrollWidth 375 &lt; 390), all
+    five gates green, and polled until the live domain actually served it.</p>
+    <p class="where">ff8e011 &middot; _brand/build_demo_app.py &middot; replaces the Apps Script embed entirely</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">A gate blocked a push over a page that was correct
+      <span class="chip">fixed</span><span class="chip">capa</span></p>
+    <p class="what">AutoQA refused a push: <code>log/index.html</code> is &ldquo;in sitemap but still
+    noindex.&rdquo; It was neither &mdash; the page is correctly noindexed and is <em>not</em> in the
+    sitemap.</p>
+    <p class="proof"><b>The checker was wrong, not the page.</b> It tested whether
+    <code>"&lt;slug&gt;/"</code> appeared anywhere in sitemap.xml &mdash; a bare substring match &mdash;
+    so <code>/log/</code> matched the sitemap&rsquo;s <code>/build-log/</code> entry. Anchoring on the
+    leading slash makes <code>/log/</code> fail against <code>/build-log/</code> while still matching a
+    real entry. <b>Proved in both directions rather than just fixing it:</b> clean afterwards, and
+    injecting a genuine <code>/log/</code> &lt;loc&gt; still raises the defect &mdash; so the guard was
+    made <em>correct</em>, not quiet, which is the difference between a fix and a mute.
+    <b>Worth noting it was someone else&rsquo;s in-flight work that tripped it</b> &mdash; uncommitted
+    files from a parallel session in the same checkout. Their work was left untouched and kept out of
+    the commit; only the faulty check changed.</p>
+    <p class="where">d5dc4dc &middot; _qa/autoqa.py</p>
+  </div>
+</div>
+<h2>Public tools — automatedworkflowllc.com</h2>
+<div class="row">
+  <div class="date">Aug 5</div>
+  <div>
+    <p class="name">Every tool now explains itself to a normal person — and a dead CSS token found behind it
+      <span class="chip live">live</span><span class="chip">sitewide</span></p>
+    <p class="what"><b>Every one of these pages opened by explaining itself to someone who already
+    knew the vocabulary.</b> Expertise in running a business is not expertise in spreadsheets, and
+    writing for the second group quietly loses the first — an owner who cannot tell in five seconds
+    what a page does <em>for them</em> simply leaves. All nine tools
+    and demos now carry the same block under the headline, answering the four questions in the order
+    people actually ask them: what it does, why it helps, what you need, how long it takes. The
+    money-leak tool now opens with "it finds money you already earned but never collected" instead of
+    "reconciles two exports."</p>
+    <p class="proof"><b>Built once, not nine times:</b> one helper in <code>_brand/toolkit.py</code>
+    with an injector that <em>raises</em> if the block does not land exactly once — a builder that
+    silently skipped it would ship a page still speaking only to the initiated while appearing fixed.
+    The rollout script <b>hard-failed on the sixth builder</b> rather than patching five and reporting
+    success: <code>/starter/</code> never imported the toolkit, because it generates a file rather
+    than parsing one. Handled explicitly, then re-run.
+    <b>The real find, and it was hiding in plain sight:</b> the token <code>--accent</code> is defined
+    <em>nowhere</em> on this site. Every <code>var(--accent)</code> was therefore invalid at
+    computed-value time and thrown away by the browser — <b>29 declarations across 12 files</b>. On
+    the notarizer that meant the <code>:focus-visible</code> rule computed to
+    <code>outline-style: none</code>, so <b>keyboard users had no visible focus ring at all</b> on the
+    drop zones and buttons. Measured in Chrome before (<code>none</code>) and after
+    (<code>solid 2px rgb(30,122,71)</code>), then fixed with a fallback chain onto
+    <code>--green</code>, the token this site actually defines. Found only because I checked the
+    rendered page instead of trusting the stylesheet I had just written.
+    <b>Also corrected, on the record:</b> the commit message for that fix was mangled by backticks
+    triggering shell substitution, deleting the three phrases carrying the finding. Rather than
+    force-push a shared branch to tidy prose, a follow-up commit (<code>d66d147</code>) restores the
+    full explanation and names the lesson.
+    Gates: SEO 0 across 28 pages, AutoQA 0, security clean, last-mile clean; all nine blocks confirmed
+    on the live domain after deploy.</p>
+    <p class="where">Live: 09d6cc4 + d66d147 · shared block in _brand/toolkit.py · the demo artifact got the same treatment</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 5</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/proof/notarize/">Notarize a file in your browser — Ed25519, no upload</a>
+      <span class="chip live">live</span><span class="chip">cutting edge</span></p>
+    <p class="what">Every page we shipped on this subject carried the same admission: our receipts are
+    signed with a key only we hold, so they prove integrity to <em>us</em> and nothing to a stranger.
+    <b>That limit is now answered on the site itself.</b> Ed25519 landed in the browser's native Web
+    Crypto, so this page mints a keypair on the visitor's own device, hashes any file they drop, signs
+    a chained receipt, and hands them the <em>public</em> half — which anyone can verify with no
+    account, no shared secret, no contact with us, and nothing uploaded. Drop the file back in later
+    and it says MATCHES or ALTERED. It is the third-party-verifiable rung of our own upgrade ladder,
+    shipped as a free tool instead of a promise.</p>
+    <p class="proof"><b>Driven in a real browser, not read in a diff:</b> notarized a board report,
+    changed <em>one digit</em> of the revenue figure, and it came back <code>ALTERED</code> with both
+    hashes side by side; the untouched file came back <code>MATCHES receipt 1</code>. The claim that
+    matters most was tested separately: a signature verifies using <b>only the exported public key</b>,
+    and a forged body checked against that same signature is rejected. Tampering the stored ledger
+    produced <code>FAILED — 1 bad signature</code>. The network panel shows exactly one request, a
+    <code>data:</code> URI font — zero fetch, XHR or socket calls, so the no-upload promise holds in
+    the shipped bytes, and the builder refuses to emit the page if any network-call token appears in
+    its source.
+    <b>Limits stated on the page, not buried:</b> it proves continuity, not identity (anyone can
+    generate a keypair — binding one to a person means publishing its fingerprint, which is what our
+    anchors file does); the timestamp is the visitor's own clock, evidence of ordering rather than
+    proof of the hour; and the private key lives in that browser alone.
+    <b>Gates:</b> SEO 0 defects across 28 pages after it caught an over-long title and description,
+    security clean, last-mile clean.</p>
+    <p class="where">Live: 4570593 · built by _brand/build_notarize_page.py · linked from /proof/, /builds/, sitemap + llms.txt</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 5</div>
+  <div>
+    <p class="name"><a href="https://claude.ai/code/artifact/eda331ac-8994-4083-8a4a-d7537ac02df1">Evidence Console — a demo that invites you to falsify it</a>
+      <span class="chip live">live</span><span class="chip">demo artifact</span></p>
+    <p class="what">A CEO has seen a hundred green dashboards and has no reason to believe another
+    one, so this one does not ask for belief. It embeds our ten <em>real</em> receipts — including the
+    two recording our own nightly audit producing nothing — recomputes the SHA-256 chain in the
+    viewer's own browser with Web Crypto, and then hands them two buttons to attack it.</p>
+    <p class="proof"><b>The independent check comes first:</b> the head the browser computes at receipt
+    9 is <code>db3b5c3c…</code>, character-for-character the head we published to our public website
+    the day before this demo existed. They can open that URL in another tab and compare.
+    <b>Then the two attacks, and the second one is the point.</b> Button 1 is the clumsy edit —
+    rewrite a failure receipt as a success — and the link to the next receipt breaks instantly.
+    <b>That alone would have been a misleading demo,</b> and I only learned it by driving the thing in
+    a real browser: after tampering, the published head <em>still matched</em>, because the head is the
+    hash of the last line. So button 2 does what a competent person would actually do — re-link every
+    downstream receipt so the chain reads clean again. It works completely: 9 of 9 links pass and
+    linkage cannot catch it. The head becomes <code>85b23288…</code>, and the anchor we made public
+    catches exactly what the chain cannot. Two attacks, two independent defenses, which is the real
+    security story rather than the flattering one.
+    <b>Verified end to end in Chrome over a secure context:</b> pristine INTACT + head match, attack 1
+    → 1 broken link, attack 2 → 0 broken links + head mismatch, restore → INTACT, zero console errors.
+    The builder refuses to emit if the ledger stops reproducing the published anchor, if a receipt is
+    non-ASCII, or if there is no genuine failure receipt left to attack.
+    <b>Note before sharing:</b> raw receipt lines contain full local Windows paths, because the hash is
+    over the raw line and sanitizing would break verification. The visible UI shows filenames only.</p>
+    <p class="where">Artifact eda331ac · built by attest/build_evidence_console.py</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/check/">/check/ — the money moves now</a>
+      <span class="chip live">live</span><span class="chip">customer-facing</span></p>
+    <p class="what">For a business owner the report ended in a flat number. Now the money-at-risk
+    figure <em>counts up</em> to the exact computed total, each money finding gets a proportional
+    leak bar, and findings stagger into view. The rule that keeps it honest: <b>nothing decorative
+    carries a number</b> — the counter always lands on the analyzer's exact figure and every bar
+    width is arithmetic on the findings listed beneath it.</p>
+    <p class="proof"><b>Asserted, not admired:</b> the built page's own <code>render()</code> was run
+    in a sandbox and the output checked — counter target exactly <code>1240</code>, the single money
+    finding's bar exactly 100%. <code>prefers-reduced-motion</code> users get the final state
+    immediately: same numbers, no theater. Zero libraries, zero requests, gates 0/0/clean,
+    live-verified after deploy.</p>
+    <p class="proof"><b>Extended to the surfaces that sell (6e5b921):</b> the Money Leak Finder's
+    three KPIs — the exact figures every batch-4/5 email cites — now count up under the same rule:
+    the animation captures the final rendered text and restores it verbatim, so motion can never
+    touch the arithmetic. And <code>/check/</code>'s <em>downloadable</em> report now carries static
+    leak bars (inline widths, no script in the forwarded file), so the version a boss receives shows
+    the same picture the visitor saw. Sandbox-asserted: exact $1,240 in the report banner and bar
+    label, 100% width for the single money finding. Four gates clean including last-mile — form
+    routing re-confirmed today.</p>
+    <p class="where">commits 0eaec53 + 6e5b921</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/check/">/check/ takes real Excel files now</a>
+      <span class="chip live">live</span><span class="chip">moat</span></p>
+    <p class="what">"Save it as CSV first" was the widest closable competitive gap — small businesses
+    have .xlsx files, and that instruction is where prospects quietly leave. Every other tool solves
+    it with SheetJS off a CDN, which would break the one promise every tool page makes. This is a
+    hand-rolled in-browser reader — the mirror image of /starter/'s ZIP writer — using the browser's
+    native <code>DecompressionStream</code>. <b>No library, no upload, and nobody else does that.</b></p>
+    <p class="proof"><b>Date discipline is the hard part done right:</b> Excel stores dates as serial
+    numbers distinguishable from plain numbers only by cell style, so serials convert to ISO
+    <em>strictly</em> when the cell is date-styled — a bare <code>45857</code> stays numeric, because
+    converting on a guess would invent dates and every downstream check trusts dates. Verified end to
+    end on a real openpyxl workbook (dates, rich strings, "Bell &amp; Sons, HOA", angle brackets, a
+    bare serial): the <em>built page's own JS</em> parsed it and the analyzer priced the risk. Float
+    dust (99.90000000000001 in Excel's raw XML) cleaned to what Excel itself displays. Unparseable
+    workbooks fail loud per-file — never a silently empty table. Gates 0/0/clean.
+    <b>Plan for remaining gaps:</b> <code>dev/COMPETITIVE-PLAN-2026-08.md</code> — every CLOSED needs
+    a commit hash; every deliberately-open gap names its reopening trigger.</p>
+    <p class="where">commit 5512adf · reader lives in _brand/toolkit.py, injected with a blocking anchor check</p>
+    <p class="proof"><b>Widened same evening (7092414):</b> Excel intake rolled out to <em>all five</em>
+    tools — one <code>readAny()</code> in the toolkit, injected by a helper that refuses to build
+    unless the reader lands exactly once, four builders patched by a script that exits on any
+    unmatched pattern so a silent partial patch was impossible. <b>Caught before shipping:</b> every
+    file input's <code>accept</code> attribute still filtered the picker to .csv — drag-drop would
+    have worked while the Browse button refused the very files the pages now advertise. All five
+    built pages verified parsing the same real workbook: dates ISO, bare serial kept numeric,
+    <code>readAny</code> present. Gates 0/0/clean. Plan-doc entry moved to CLOSED with the override
+    recorded: Colin's "further the gap" beat the wait-a-week trigger.
+    <b>And the day's lesson applied to ourselves (6f6741e):</b> this log said "live" while the two
+    Excel commits sat unpushed — probed the real domain, found <code>xlsxToRows x0</code>, rebased
+    onto the other session's Money Leak work, regenerated every page from the merged builders
+    (never a textual merge of HTML — verified money-leak carries <em>both</em> features), pushed
+    through the pre-push gate, and re-probed until the deploy surfaced: all five pages now serve
+    the reader on the live domain. A fresh log entry over an undeployed commit is the same lie as
+    a fresh timestamp over stale data.
+    <b>Perfected (edb400a):</b> the reader now parses <em>every</em> sheet (cap 8) and analyzes the
+    busiest — real workbooks lead with cover and notes tabs, and "first sheet" read the wrong one
+    while looking like it worked. Verified adversarially: a workbook laid out Read Me → Jobs Q3 →
+    Blank picks "Jobs Q3", where the old code would have analyzed the cover page. Ties keep
+    workbook order, a sheet that fails to parse scores −1 instead of killing the workbook, page
+    copy updated to match, and the plan's multi-sheet PARTIAL moved to CLOSED.
+    <b>Then caught fooling itself (984d99d):</b> round-tripped the untested seam between two
+    same-day products — <code>/starter/</code>'s generated tracker dropped into <code>/check/</code> —
+    and the busiest-sheet scorer picked the <em>prose guide sheet</em>, because the Jobs sheet is
+    300 formula cells with no cached values and formulas scored as empty. Fixed semantically, not
+    heuristically: a formula cell <em>is</em> data — Excel computes it on open — so formula rows
+    count as occupied. All three checks pass: round trip picks "Jobs", cover-page workbook still
+    picks "Jobs Q3", single-sheet regression intact. Live-verified after deploy.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/money-leak-finder/">Money Leak Finder — it now writes the emails</a>
+      <span class="chip live">live</span><span class="chip">upgrade</span></p>
+    <p class="what">The tool ended at a number — "$705 past 60 days" — and left the reader with no
+    next move. It now drafts one email per finding, built from the two files and nothing else.
+    <b>Tone is derived from how late the invoice is, never chosen:</b> 77 days gets "I'd rather ask
+    than assume it got lost"; 99 days gets "I want to get this closed out rather than let it drift";
+    past 120 gets direct. Never-invoiced jobs get a first-invoice draft rather than a chase, and an
+    invoice with no date gets a fourth tier that says so and tells you to check the age before
+    sending — a reminder carrying the wrong number does more harm than no reminder. Drafts are
+    editable with copy-to-clipboard; <b>nothing can send</b>, and the page says so, because the
+    approve-gate is the product opinion, not a limitation.</p>
+    <p class="proof"><b>Verified by running it, not by reading the diff:</b> served locally and
+    driven in a real browser — 5 drafts from the frozen sample (3 never-billed, one Neutral at 77d,
+    one Firm at 99d), and the KPIs held at <b>$1,280 / $5,430 / $705</b>, still reconciling to the
+    outreach copy to the cent. <b>The part that had to work across files:</b> invoice exports rarely
+    carry a customer column, so INV-2210 resolves to "Hargrove Property Grp" by joining the job key
+    back to the work log. AutoQA 0, security sweep clean, SEO unchanged, and <b>zero fetch/XHR/socket
+    calls in the built page</b> — the "nothing uploads" promise is still architectural, which matters
+    because tomorrow's outreach asserts it. Built through <code>_brand/build_money_leak_page.py</code>,
+    never the output.</p>
+    <p class="where">Live: 046d345 · the surface every batch-4 and batch-5 email points at</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/starter/">/starter/ — the tool that asks for nothing</a>
+      <span class="chip live">live</span><span class="chip">new</span></p>
+    <p class="what">Every other free tool began with "show me your mess," which gates the curious
+    behind an upload — and the people who most need help are the least comfortable handing over
+    their books. This one inverts it: press a button and it builds you a working Excel job log,
+    invoice register and dashboard. Finished work with no matching invoice reads
+    <code>NOT INVOICED</code> by itself; unpaid invoices past 60 days label themselves. Nobody has
+    to remember to check, which is exactly why those numbers sit unnoticed for months.</p>
+    <p class="proof"><b>Verified, not assumed:</b> the page's own JS was run in a sandbox, the bytes
+    written to disk, and the file opened with <code>openpyxl</code> — 4 sheets, formulas intact,
+    amounts stored as <em>numbers not text</em> (a number stored as text is the SUM-skipping defect
+    our own health check reports; shipping it here would be indefensible). The sample rows
+    demonstrate both flags: J-103 unbilled at <b>$380</b>, INV-2202 at 67 days → OVER 60 DAYS.
+    <b>Written with no library</b> — a hand-rolled store-only ZIP writer and SpreadsheetML, because
+    "no request leaves this page" is the promise on every tool page and it outweighs the convenience
+    of a CDN bundle.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/check/example/">A real report, before you upload anything</a>
+      <span class="chip live">live</span></p>
+    <p class="what">The file check produced good output that nobody could see without first handing
+    over a file. This publishes a real report — the same $1,240 of never-invoiced work, the same 8
+    findings — so a stranger can judge the tool before trusting it with anything.</p>
+    <p class="proof"><b>Not a mockup:</b> generated by executing the live analyzer, so it cannot
+    drift into advertising results the tool no longer produces. The builder <em>refuses to publish</em>
+    if the analyzer returns fewer than 5 findings or zero money, rather than shipping an empty
+    "example" that quietly reads as "we find nothing." <b>Caught by the gate, not by me:</b> the
+    sitemap listed both new pages while they were still untracked, which would have pointed crawlers
+    at 404s; and an unclosed <code>&lt;div&gt;</code> found by parsing rather than eyeballing.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/check/">Business File Check — now reports money</a>
+      <span class="chip live">live</span><span class="chip">upgrade</span></p>
+    <p class="what">Findings now carry a dollar figure wherever the arithmetic supports one, the
+    report leads with a money-at-risk headline, and within a severity band the largest amount sorts
+    first. Reconciliation runs <em>both</em> directions: work with no invoice is revenue never
+    billed, while an invoice with no work order is a billing error that reaches a customer.</p>
+    <p class="proof"><b>Verified by hand:</b> J-104 $410 + J-111 $520 + J-112 $310 = <b>$1,240</b>,
+    matching the tool exactly. Duplicate keys count once — J-108 appears twice in the sample and
+    must not inflate a number we ask a business to trust.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name">A silent no-op inside our own flagship <span class="chip">fixed</span></p>
+    <p class="what">The roster overtime check built its month key with
+    <code>String(date).slice(0,7)</code>. On <code>2026-07-14</code> that gives <code>2026-07</code>
+    and works. On <code>07/14/2026</code> it gives <code>07/14/2</code> — a per-<em>day</em> bucket —
+    so hours never accumulated into a month and the 160-hour check <strong>could never fire</strong>
+    on a US-formatted file. It reported nothing, which reads exactly like a clean result.</p>
+    <p class="proof"><b>Verified:</b> the same 24-shift roster now reports 288h in both date
+    formats; before the fix, ISO reported it and US reported silence. Rows whose dates can't be read
+    are counted and surfaced rather than dropped. <b>Caught in the same pass:</b> my first version
+    of the fix called <code>parseDate</code>, which this page never had — it would have thrown on
+    any roster with time columns. The test found it before it shipped.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/flatline/">/flatline/ explainer</a>
+      <span class="chip live">live</span></p>
+    <p class="what">The repo was public but written for engineers who already know they have the
+    problem. This page leads with the symptom instead, and gives five concrete uses: the backup
+    succeeding into a 0-byte file, the client Zap that stopped returning rows, the frozen dashboard
+    column, the alert that has never fired, the quietly stale report.</p>
+    <p class="proof"><b>Also shipped:</b> <code>_brand/toolkit.py</code> — five builders each carried
+    their own <code>parseCSV</code> and the health-check copy had already diverged (cosmetically).
+    New tools build on the shared copy instead of adding a sixth. <b>Caught:</b> a dead
+    <code>/contact/</code> CTA; the site convention is <code>/free-demo/</code>.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/check/">Business File Check</a>
+      <span class="chip live">live</span><span class="chip">flagship</span></p>
+    <p class="what">One drop zone. Classifies a file by what its columns <em>mean</em> — invoice export,
+    roster, customer list, job log — runs every applicable check, reconciles two files against each
+    other, and hands back a downloadable report. Answers "which tool do I need?" by not asking.</p>
+    <p class="proof"><b>Verified:</b> 8 findings from the sample pair with zero configuration,
+    including 3 completed jobs never invoiced and 2 customer names spelled two ways.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/shift-coverage-check/">Shift Coverage Check</a>
+      <span class="chip live">live</span></p>
+    <p class="what">For roster businesses — senior living, clinics, restaurants, facilities. Uncovered
+    days, staff crossing 40 hours, roles only one person can fill, turnarounds under 10 hours, streaks
+    past 6 days.</p>
+    <p class="proof"><b>Verified:</b> caught the seeded coverage gap, correctly split a 7-day stretch
+    at the week boundary (72h, not a phantom 84h), and raised no false fatigue flags.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/duplicate-customer-finder/">Duplicate Customer Finder</a>
+      <span class="chip live">live</span></p>
+    <p class="what">Acme Roofing / Acme Roofing LLC / acme roofing inc. — your real customer count,
+    with every group stating <em>why</em> it grouped.</p>
+    <p class="proof"><b>Verified:</b> 12 spellings → 7 real customers, 4 collisions, and zero false
+    merges on unrelated short names.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name">Health Check — the fix half <span class="chip live">live</span></p>
+    <p class="what">Added <em>Download cleaned .csv</em>: trims whitespace, drops duplicate rows,
+    unifies spelling variants, converts mixed dates to ISO, and makes text-numbers numeric so SUM()
+    stops skipping them.</p>
+    <p class="proof"><b>Verified:</b> 6 findings down to 2 — and the two survivors are exactly the
+    ones a script must not touch on its own.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/builds/">/builds/ index</a>
+      <span class="chip live">live</span></p>
+    <p class="what">The public portfolio page — every shipped thing, each linking to something a
+    stranger can press or read right now.</p>
+    <p class="proof"><b>Verified:</b> all 11 internal links resolve.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 2</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/money-leak-finder/">Money Leak Finder</a>
+      <span class="chip live">live</span></p>
+    <p class="what">Work log versus invoices, showing only the mismatches: jobs finished but never
+    billed, invoices unpaid past 60 days. Exact-ID matching, stated plainly on the report.</p>
+    <p class="proof"><b>Verified:</b> reproduces the outreach email's figures to the cent —
+    $1,280 never invoiced, $5,430 unpaid, $705 past 60 days.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 2</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/spreadsheet-health-check/">Spreadsheet Health Check</a>
+      <span class="chip live">live</span></p>
+    <p class="what">The first one. Dead columns, status fields that never vary, mixed date formats,
+    duplicate rows — flatline's entropy test, ported to the browser.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/workflow-automation/"><code>/workflow-automation/</code> v3.0 — the flagship rebuild</a>
+      <span class="chip live">live</span></p>
+    <p class="what">Commissioned as "the end-all-be-all of our brand." Three Opus agents wrote the
+    design, copy and architecture specs independently; a fourth reconciled and built them. 15 sections:
+    a <b>Gate Console</b> where tone tiers are <em>derived</em> from invoice age and a live run ledger
+    records each layer, the 5-layer Method Stack, a W1–W5 workflow rail with honest
+    BUILDING/DESIGNED chips, a price stair, and an <b>Honesty Ledger</b> that opens with "I have zero
+    paying clients." Builder split into orchestrator + copy + components, with 14 blocking gates.</p>
+    <p class="proof"><b>Verified:</b> all 14 gates pass — brand tokens 0 off-brand, sample figures
+    reconciled against the Money Leak builder to the cent, FALSE_PROOF and TRACTION_DRIFT 0,
+    zero external requests, byte-identical rebuild, 390px probe shows no overflow. AutoQA 0 defects,
+    security sweep clean. <b>Found en route:</b> the builder wrote to the <em>other</em> repo checkout
+    (hardcoded path — an edit here would have appeared to do nothing); the page declared four
+    webfonts it never embedded, so every heading was silently falling back to Georgia; and a wide-layout
+    <code>transform</code> was being cancelled by the reveal animation, slamming whole sections
+    off-centre.</p>
+    <p class="proof"><b>Published Aug 3</b> on Colin's approval (<code>f7618fa</code>): robots flipped
+    to <code>index,follow</code> in the builder, listed in <code>sitemap.xml</code> and
+    <code>llms.txt</code>, linked from the homepage footer. The <b>$500–750 workflow install</b> rung
+    is now public pricing. A 15th gate, <code>G-LISTED</code>, asserts all three discovery surfaces
+    reference the page, so it cannot be orphaned while claiming to be public.</p>
+    <p class="where">Live · 21 URLs in the sitemap · verified HTTP 200 after deploy</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name">Homepage demo dashboard — operability check <span class="chip live">passing</span></p>
+    <p class="what">Colin asked whether the demo on the splash still works. It does. All four sheet
+    tabs switch the hero dashboard's view — Dashboard, Revenue, Receivables, Raw data — each rendering
+    genuinely different content, not a re-skin. The Revenue view carries its own KPI set
+    ($5,280 best week, $8,340 not yet invoiced, 3 jobs ready to bill), a 13-week trend chart, and an
+    AI-written narrative. The <em>Open the live dashboard</em> button reaches the real Apps Script app.</p>
+    <p class="proof"><b>Verified by driving the handlers, not by looking:</b> tab clicks flip
+    <code>data-view</code> through all four states and the revenue panel computes to
+    <code>display:block</code>. <code>/demo/</code> returns HTTP 200 at 79KB; the Apps Script
+    <code>/exec</code> returns HTTP 200 at 116KB with live revenue and overdue markers, cache-busted
+    so it is a fresh serve rather than a cached one. <b>Corrected mid-check:</b> I first reported the
+    range chips as dead controls. They are decorative by design — <code>aria-hidden="true"</code>
+    inside a container the page declares <code>role="img"</code> — and the caption's "tap the tabs"
+    points at the sheet tabs, which work. The finding was wrong; the page is not.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 2–3</div>
+  <div>
+    <p class="name">Site work from other sessions <span class="chip">merged</span></p>
+    <p class="what">SEO title and description passes, and the demo page's failing iframe replaced with a
+    real screenshot and a link out.</p>
+    <p class="proof"><b>Caught:</b> one session hand-edited generated HTML; the next rebuild would
+    have silently reverted it. Fixed by porting the change into the builders.
+    <b>Standing rule:</b> edit <code>_brand/build_*.py</code>, never the output.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name">Independent audit of the live flagship <span class="chip">verified</span></p>
+    <p class="what">Because that page's own status claims turned out wrong, its engineering claims
+    were re-checked from outside the session that built it — the rule being that a wrong claim about
+    yourself is a reason to re-test the rest, not a reason to panic.</p>
+    <p class="proof"><b>All of it holds.</b> Zero external resource requests (one LinkedIn
+    <code>&lt;a href&gt;</code>, not a load). Fonts genuinely embedded — 6 <code>@font-face</code>,
+    6 data-URIs, every family the CSS vars point at is among them. No broken internal links, no
+    image missing <code>alt</code>, heading order valid. Sample figures reconcile to the Money Leak
+    builder exactly: <code>$1,280</code> never invoiced, <code>$5,430</code> unpaid, <code>$705</code>
+    past 60 days. The one big number, <code>$208,900</code>, is labelled <em>"invented sample
+    numbers"</em> on the page itself. <b>One false alarm of my own:</b> I flagged
+    <code>JBMono</code> as declared-but-not-embedded; a stricter grep had missed a space after the
+    brace. It is embedded. Checked before reporting.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 5</div>
+  <div>
+    <p class="name">witness — the countersigning service, built
+      <span class="chip staged">built, not deployed</span><span class="chip">the thesis</span></p>
+    <p class="what">The moat argument in one file. <b>A ledger you hold alone proves nothing about
+    you, because you are the one holding it</b> — self-attestation is precisely the thing being
+    distrusted, which is why notaries, auditors, certificate authorities and escrow all exist.
+    Hand the witness a receipt and it records <em>when it saw those exact bytes</em>, by its own
+    clock, in its own append-only chain, signed with a key the submitter does not have. From then on
+    "this work happened before Tuesday" no longer rests on our word or our timestamps.</p>
+    <p class="proof"><b>Deliberately narrow, because a witness that overclaims is worse than none:</b>
+    it does <em>not</em> verify the receipt's own signature — that needs the submitter's key, which it
+    must never hold — and it does <em>not</em> vouch that the work happened. Both disclaimers are
+    written <em>inside</em> every countersignature so they cannot be quoted away, and a test asserts
+    that text is present. It binds to loopback by default: exposing a witness publicly should be a
+    decision, not a flag that defaulted.
+    <b>The property that makes it worth anything is custody, not algorithm</b> — a separate key means
+    the submitter cannot forge the record, and the witness publishes its own head so it is auditable
+    too. 7 tests cover what someone would actually lean on in a dispute: the recorded hash is the
+    receipt's, the chain links, <em>a witness that backdates its own sighting is caught</em>, deleting
+    a countersignature breaks the chain, an impostor key cannot forge a signature, the head is sha256
+    of the last raw line, and identical bytes submitted twice are two distinct sightings. 21 pass
+    alongside the attest suite.
+    <b>Verified over real HTTP, not just as a class:</b> started the service, countersigned an actual
+    receipt from our live ledger, watched the chain advance from GENESIS — and the recorded
+    <code>receipt_sha256</code> matched an independently computed <code>sha256sum</code> exactly.
+    <b>Not deployed anywhere, on purpose.</b> Standing up paid public infrastructure before a customer
+    asks is the product-freeze violation our own notes warn about. This is the primitive, ready for
+    the day someone asks.</p>
+    <p class="where">4ffed35 · attest/witness.py + test_witness.py</p>
+  </div>
+</div>
+<h2>Client workflow engine — Zapier</h2>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name">Contact form verified end to end — and a false alarm I raised and then killed
+      <span class="chip live">verified</span></p>
+    <p class="what">W2 triggers on <code>from:noreply@formspree.io</code>, so the whole Lead Concierge
+    chain rests on Formspree actually delivering — and that routing had not been verified since
+    <b>2026-07-11</b>, because a form endpoint answers <code>405</code> to a GET and looks healthy
+    either way. I submitted a real one, it never arrived, and <b>I reported the form as possibly
+    broken. That was wrong, and the cause was my own test payload.</b></p>
+    <p class="proof"><b>The resolution:</b> both live forms deliver, in <b>about two seconds</b>.
+    Homepage form submitted 00:38:46Z → in the inbox 00:38:48Z with its custom
+    <code>_subject</code> intact. Expense-tracker form submitted 00:39:35Z → delivered 00:39:36Z with
+    <code>lead_source</code> captured. All six pages post to the one endpoint
+    <code>mgojgjwv</code>, so this covers the lot.
+    <b>Why the first test failed:</b> it put <code>INTERNAL TEST 2026-08-03 — verifying…</code> in a
+    text field and used an address <em>identical to the account owner's</em> — a textbook spam
+    signature. <b>Formspree accepts a spam-classified submission, returns the normal success page,
+    and silently sends nothing.</b> Success page ≠ delivery, and that trap will catch the next person
+    who tests this. Test with a <code>+alias</code> and ordinary prose instead.
+    <b>What went right anyway:</b> the finding was logged as <em>needs-Colin, not proven</em>, and I
+    refused to soften the flagship page's fifteen-minute promise on incomplete evidence. Had I
+    "fixed" the copy, I'd have damaged true copy to chase a defect that never existed.
+    <b>Harness note, still true:</b> a synthetic click won't submit these forms;
+    <code>requestSubmit()</code> does. That is a limitation of my tooling, <em>not</em> a site bug —
+    a real person's click is a trusted event.</p>
+    <p class="where">verified by two live submissions + Gmail receipt timestamps · endpoint mgojgjwv, 6 pages</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name">The flagship rail caught up to reality <span class="chip live">live</span></p>
+    <p class="what">With W1 and W2 actually firing, the page saying BUILDING and DESIGNED had become
+    an <em>under</em>statement — the rarer direction, but still a page that doesn't match its
+    system. Adds a <b>RUNNING</b> status distinct from LIVE: RUNNING means built, published and on a
+    schedule against Colin's <em>own</em> data. LIVE stays reserved for "running for a paying
+    customer" and is therefore still unused, because there isn't one.</p>
+    <p class="proof"><b>The chip can't outrun the disclosure.</b> New blocking gate
+    <code>G-RUNNING</code>: a RUNNING chip only builds while the page also says whose data it runs
+    on, states plainly that it is not a customer, and carries no LIVE chip. Verified on the deployed
+    page — two <code>wl-live">RUNNING</code> chips, three DESIGNED, and the "they run for
+    <em>me</em>, not a customer" paragraph present. <b>Budget raised in the open:</b>
+    <code>G-PERF</code> went 92,000 → 93,500 once, deliberately, because the added bytes <em>are</em>
+    the disclosure copy and shaving honest text to hold a round number is the wrong trade. Still a
+    hard gate; the comment names font subsetting as the real lever, worth ~200× more than any word
+    on the page.</p>
+    <p class="where">16 gates pass · byte-identical rebuild · AutoQA 0 · seo_audit 0 · <code>c1f0a99</code></p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name">W2 — Lead Concierge <span class="chip live">live</span></p>
+    <p class="what">Watches the site's own contact form. A submission arrives → the AI reads it,
+    extracts the lead's name, email and actual request, judges which rung fits, and drafts a personal
+    reply → Gmail <em>draft</em> addressed to the lead, waiting for Colin to read and send. Dogfooded
+    on our own Formspree endpoint on purpose: the pitch "submit the form on my site and watch what
+    happens" is now a demonstrable fact rather than a claim.</p>
+    <p class="proof"><b>The honesty rule held under a real run.</b> The sample submission was a bare
+    test entry with no stated need. The AI did not invent one — it returned <em>"Unclear — the
+    submission is a test entry with no actual business need described; ask them"</em>, exactly as the
+    prompt requires, and wrote a reply that admits it looks like a test rather than pretending to
+    understand. Zero invented clients, zero promised dates. <b>Design decision:</b> the triage lines
+    stay <em>out</em> of the draft body. Internal notes sitting in an email addressed to a prospect
+    are one distracted click from being sent — the same class of defect <code>/presend</code> exists
+    to catch.</p>
+    <p class="where">Live · polls every 15 min · drafts only, no send step exists in the Zap</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name">W1 — Money Leak Autopilot <span class="chip live">live</span></p>
+    <p class="what">Weekly schedule → read the Chase Queue tab → AI writes the owner digest and a
+    tone-matched chase draft per invoice → Gmail <em>draft</em>, never a send. The prompt carries the
+    house rule as a hard constraint: the model may not compute, sum or alter a number, only quote what
+    the sheet already calculated, and writes <code>[not in sheet]</code> rather than guessing.</p>
+    <p class="proof"><b>Verified end to end, not in parts:</b> the published Zap wrote a real Gmail
+    draft carrying all 8 invoices with tone tiers derived from age — 3 SERIOUS, 2 FIRMER, 3 FRIENDLY,
+    totalling <b>$10,605</b>. That is the <em>same</em> total and the <em>same</em> tier split the
+    workbook builder asserts in <code>build_nudge_template.py</code>, which is the test that matters:
+    the model quoted the sheet rather than doing arithmetic. Every recipient is a <code>.example</code>
+    domain, so a misfire cannot reach a real person, and the returned label is <code>DRAFT</code>.
+    <b>Correction:</b> I reported this blocked on a Google consent click. It wasn't — the Gmail
+    connection already existed on the account, and I claimed a blocker without checking. Cost about an
+    hour of it sitting "waiting on Colin" when nothing was.
+    <b>Unit economics:</b> ~30–50 tasks per client per month against a 750-task plan.</p>
+    <p class="where">Live · runs Mondays 07:00 · Plan: <code>Documents/AWLLC-zapier-workflow-plan-2026-08-03.md</code></p>
+  </div>
+</div>
+<h2>Reliability &amp; discipline tooling</h2>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name"><a href="https://automatedworkflowllc.com/automation-monitoring/">/automation-monitoring/ — the recurring rung</a>
+      <span class="chip live">live</span><span class="chip">$99/mo</span></p>
+    <p class="what">The service ladder had one-off rungs and nothing that renews. This sells the
+    standing guard: $99/mo Watch (10 outputs, weekly evidence report, same-day alert when something
+    goes quiet) and $225/mo Watch + fix. The pitch is today's incident told plainly, with the
+    actual watchpost catch embedded — verdict, STALE-CONTENT finding and all.</p>
+    <p class="proof"><b>Nothing on the page is a mockup:</b> the embedded report is the real catch
+    with paths generalized, and the builder <em>refuses to ship</em> if internal machine paths leak
+    into it or the report shape changes. Honest scope stated up front: it watches outputs on the
+    client's systems; an all-SaaS stack with no exportable output isn't a fit yet, and the page says
+    we'd say so on the first call. Gates clean at 26 pages.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name">silencegate <span class="chip">internal</span></p>
+    <p class="what">Proves a reporting gate knows when to stay quiet. Grades false-alarm rate and
+    missed-escalation rate separately, never averaged into one flattering number. Clears the stated
+    blocker on the Judgment Gate retainer, and costs nothing to run because it never calls a model.</p>
+    <p class="proof"><b>Found:</b> <code>always_send</code> — the product most competitors ship —
+    fails <em>both</em> metrics, because a real problem delivered as a routine summary is one nobody
+    acted on. A tuned rules gate scores 0% and 0%, so a model has to beat that, not beat nothing.</p>
+    <p class="where">dev/silencegate · 19 tests</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 3</div>
+  <div>
+    <p class="name">signal_graveyard <span class="chip">internal</span></p>
+    <p class="what">Asks which of 29 signal generators has ever actually told you anything. Classifies
+    each log DEAD / THIN / ALIVE using flatline's entropy test, so "does this carry information" has
+    one definition across the whole stack.</p>
+    <p class="proof"><b>First run:</b> 0 alive, 10 thin, 0 dead. Nothing is retirement-worthy and
+    nothing is provable yet — the two biggest logs are still days of span short of judgeable.</p>
+    <p class="where">Documents/Portfolio Tools</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Jul 27 – Aug 1</div>
+  <div>
+    <p class="name">flatline <span class="chip staged">MIT, not yet pushed</span></p>
+    <p class="what">Finds signals carrying no information and jobs producing nothing: <code>scan</code>
+    (entropy), <code>jobs</code> (silent no-ops), <code>verify</code> (claims versus primitives),
+    <code>code</code> (unreachable branches, swallowed errors). Plus HTML reports and a nightly 03:17
+    audit guarding every scheduled job on the machine.</p>
+    <p class="proof"><b>Caught in the wild:</b> Weekly Intel's relative-path bug, found <em>before</em>
+    its first scheduled run ever fired. <b>Also caught three false positives in itself</b> — NaN
+    guards, reconfigure guards, and its own severity model — each fixed by measuring real code
+    instead of arguing about it.</p>
+    <p class="proof"><b>Status corrected 8/4:</b> this was chipped <em>open source</em>, which reads as
+    "go look at it." <b>There is no git remote — it has never been pushed anywhere public.</b> The MIT
+    licence and the <code>flatline-publish</code> branch are real; the public repo is not. Caught while
+    fact-checking a LinkedIn post that would have said "it's open source" and pointed at nothing.
+    <b>Also re-verified rather than assumed:</b> all four subcommands genuinely exist
+    (<code>--help</code> lists scan/jobs/verify/code) — an earlier grep of mine missed two and I nearly
+    logged a defect that wasn't there. 108 tests pass on a clean run.</p>
+    <p class="where">dev/flatline · 108 tests · installable from source (not on PyPI) · unpushed</p>
+  </div>
+</div>
+<h2>Silent failures killed</h2>
+<div class="row">
+  <div class="date">Jul 29</div>
+  <div>
+    <p class="name">The <code>call</code> bug — 5 scheduled scripts</p>
+    <p class="what">A batch file invoking another batch file without <code>call</code> transfers
+    control and never comes back. Every line after it was dead code.</p>
+    <p class="proof"><b>Consequence:</b> the desktop toast had <em>never fired once</em> in the life of
+    the script, and every task's reported exit code came from <code>claude.cmd</code> rather than its
+    own logic. <b>Verified:</b> each log now holds exactly one exit marker, written on lines that were
+    previously unreachable.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Jul 29 – Aug 2</div>
+  <div>
+    <p class="name">Three more of the same shape</p>
+    <p class="what"><b>ntm_oi</b> flagged 100% of rows for a week because the two sides measured
+    different strike bands — recalibrated against 16 healthy rows. <b>shadow_log</b>'s partial-bar
+    guard wrapped itself in <code>except: pass</code>, so any throw would silently restore the exact
+    bug it existed to prevent; it now fails closed. <b>Weekly Intel</b>'s three relative-path writes
+    would have landed in system32 on its first-ever run, and were fixed before it fired.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">canary goes on the schedule — and the schedule breaks it
+      <span class="chip">guard #8</span><span class="chip live">8 of 8 guarded</span></p>
+    <p class="what"><b>In plain terms:</b> canary was a tool you had to remember to run. Now it runs
+    by itself at 3:47am, checks every spreadsheet this machine saved that day, and leaves a signed
+    receipt saying what it found — whether or not anyone reads it. Every one of the eight jobs on
+    this computer now works that way.</p>
+    <p class="what"><b>Putting it on a timer immediately broke it, which is the useful part.</b>
+    First scheduled run: 42 files, 21 with findings, exit code 2 — problem. Second run: exit 2.
+    Third: exit 2. The findings were real but <em>stable</em> — a ruleset column that is constant by
+    design, a side column constant because every trade is the same side. A guard that reports a
+    problem every single night gets muted, and <b>a muted guard is indistinguishable from no
+    guard.</b> Nothing in the standalone tool was wrong; the schedule asked a question the tool had
+    never been asked.</p>
+    <p class="proof"><b>Fix: the exit code reports news, not inventory.</b> It now fires on findings
+    in files actually re-examined that run. Everything known stays in the report — nothing is
+    hidden — but "this is still here" is not an alarm, and rows checked this run are tagged so the
+    difference is visible. Confirmed against the real fleet: first run exit 2 with 21 findings,
+    next run exit 0 with the same 21 still listed, <code>0 new</code>.
+    <b>The mirror image of yesterday's decision.</b> The claim audit declares no <code>--out</code>
+    because its artifact is deterministic and would have failed every quiet night; canary declares
+    none because its report carries a timestamp and could <em>never</em> fail. Opposite failure
+    modes, same conclusion: the file is the wrong thing to watch, so watch the exit code.
+    <b>Also:</b> a file whose last check ERRORED is now re-examined even when its bytes have not
+    moved — an ERROR is not a result, it is the absence of one, and letting it expire whenever the
+    file happens to change would leave the report asserting a status nobody had retested.
+    <b>Verified through Task Scheduler, not just from a shell</b> — LastTaskResult 0, log grew,
+    signed receipt written. 9 tests.</p>
+    <p class="proof"><b>The public numbers moved on their own.</b> The fleet count comes from the
+    Windows task scheduler via <code>_qa/fleet.py</code>, so /proof/ went from "all seven of our" to
+    <b>"all eight of our"</b> without anyone typing a number. The receipt count did <em>not</em>
+    move until a new anchor was published — the builder truncates to the newest anchored count
+    (<code>recs[:receipts]</code>) and refuses to describe receipts the public cannot yet verify.
+    Anchored at <b>28 receipts</b>, chain verified intact, all signatures valid; page now reads 28
+    receipts / 8 systems / 2 recorded failures / 6 anchors, <b>read back out of the rendered HTML
+    rather than trusted from the builder's own summary line.</b> Claim audit clean.</p>
+    <p class="where">bf62675 · 2b357af · 061c339 · dev/canary/ · Scheduled/canary/ · nightly 03:47</p>
+  </div>
+</div>
+
+<footer>
+  <p style="margin:0 0 .5rem">Want this kind of scrutiny pointed at your own spreadsheets?
+  <a href="/free-demo/">Send one over</a> — you get the fix back either way.</p>
+  <p style="margin:0">Automated Workflow · Gainesville, FL ·
+  <a href="mailto:colin@automatedworkflowllc.com">colin@automatedworkflowllc.com</a> ·
+  <a href="tel:+17039391174">(703) 939-1174</a></p>
+</footer>
+</div>
+</body>
+</html>
