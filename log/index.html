@@ -63,7 +63,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">41 entries · newest first within each group</p>
+  <p class="stamp">42 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -966,6 +966,41 @@
     <b>Verified on the exact trees that would go out:</b> attest 9 commits, 36 tests pass;
     watchpost 4 commits, 17 tests pass. The dev repo's own history is untouched.</p>
     <p class="where">local branches only · nothing pushed · blocked on push permission, not on readiness</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">Audited the day's own claims again — and caught myself writing a commit message that was not true
+      <span class="chip live">fixed &amp; deployed</span></p>
+    <p class="what"><b>In plain terms:</b> with two jobs blocked on permissions, the useful move was
+    to re-check the things claimed earlier today rather than build more. Nobody but me had verified
+    any of them.</p>
+    <p class="proof"><b>What held up.</b> The receipt chain verifies intact at 29 with every
+    signature valid; the public anchor sits at 28 and the 29th receipt was written afterwards by a
+    real job (watchpost, exit 0, 17:15), which is why <code>/proof/</code> still says 28 — it
+    refuses to describe receipts nobody outside can check yet. canary's task <em>and</em> its
+    trigger are both enabled with missed-run recovery on, next fire 03:47. All six site gates
+    green.
+    <b>And the claim I had no right to make yet:</b> the evidence report says repository
+    reachability is "tested, not assumed", but I had only ever exercised the <em>unknown</em> branch
+    — a bad hostname. The branch that actually matters, a repo that exists and refuses anonymous
+    callers, had never been run against reality. Checked all four against live GitHub: public
+    &rarr; true, private/nonexistent &rarr; false, unreachable host &rarr; unknown, ssh remote
+    &rarr; unknown. It holds — but it was luck that it did, not evidence, until it was run.</p>
+    <p class="proof"><b>Two real findings.</b> The homepage had an <em>uncommitted</em> change
+    sitting in the working tree: it still preconnected and dns-prefetched
+    <code>script.google.com</code> to warm a dashboard that no longer lives there, costing a DNS
+    lookup and TLS handshake on every load while asserting an architecture that had been removed.
+    Verified nothing still referenced it, committed, deployed, and confirmed <b>0 occurrences on the
+    live page</b>.
+    <b>The second finding was mine.</b> My first attempt staged the files with a path that no longer
+    existed, so <code>git add</code> aborted — and the commit ran anyway, capturing only a file
+    deletion while its message described the homepage work too. A commit message that claims more
+    than the commit contains is the same failure this whole log is about, in miniature. Caught by
+    checking <code>git show --stat</code> instead of trusting the exit code, and amended while still
+    unpushed so the record never went out wrong.</p>
+    <p class="where">ec1bcc6 · deployed and verified live · gates: claim, promise, SEO, security, autoqa, last-mile</p>
   </div>
 </div>
 
