@@ -323,6 +323,13 @@ APP_CSS = """
   .dbody{padding:.95rem .8rem 1.1rem}
   .dh{font-size:1.28rem}
 }
+/* On a phone the archive row's description wraps to five lines and buries the
+   date and the button, which are the only parts you act on. Drop it there. */
+@media (max-width:560px){
+  .drep .dp-t{display:none}
+  .drep{gap:.5rem}
+  .drep .dp-d{min-width:0;flex:1}
+}
 @media (max-width:430px){
   .dkpi .dk-v{font-size:1.22rem}
   .dtop{padding:.55rem .7rem}
@@ -449,9 +456,12 @@ APP_HTML = """
           <div class="dpanel">
             <p class="dph"><b>Archive</b> &mdash; your weekly history</p>
             <div id="p-list"></div>
+            <div id="p-open"></div>
           </div>
-          <p class="dnote">Each one is the summary at the top of the dashboard, captured the morning
-          it was written, so you can see what you knew at the time rather than only what is true now.</p>
+          <p class="dnote">Open any week and the summary is <b>recomputed from that week's figures</b>
+          — not a stored snapshot, so it cannot quietly disagree with the chart above it. On a live
+          account these arrive by email every Monday morning; here they are rebuilt on demand from
+          the same series everything else on this page is drawn from.</p>
         </section>
       </div>
 
@@ -1227,14 +1237,58 @@ __SHARED_INTAKE__
   }
 
   function renderReports(){
-    var out = [];
-    for (var i = 0; i < 8; i++) {
-      var d = addDays(CURMON, -7 * i);
-      out.push('<div class="drep"><span class="dp-d">' + fmtDay(d) +
-               '</span><span class="dp-t">Weekly summary — revenue, receivables and what to chase' +
-               '</span><span class="dp-s">' + (i === 0 ? 'This week' : 'Sent') + '</span></div>');
+    /* One row per week we actually hold, newest first -- never a fixed 8, which
+       would list reports for weeks that are not in the data. */
+    var rows = weeks.slice(-8).slice().reverse();
+    if (!rows.length) { el('p-list').innerHTML = '<p class="dnote" style="margin:0">No weeks in this book yet.</p>'; return; }
+    el('p-list').innerHTML = rows.map(function (w, i) {
+      var idx = weeks.indexOf(w);
+      return '<div class="drep"><span class="dp-d">' + esc(w.label) + '</span>' +
+             '<span class="dp-t">Weekly summary — what changed, and what it was worth</span>' +
+             '<button class="dr-act" type="button" data-report="' + idx + '">Open</button>' +
+             '<span class="dp-s">' + (i === 0 ? (w.partial ? 'In progress' : 'This week') : 'Sent') +
+             '</span></div>';
+    }).join('');
+    var slot = el('p-open'); if (slot) { slot.innerHTML = ''; }
+  }
+
+  /* Open one week's report. Every figure is recomputed from the weekly series
+     for THAT week, so it is a real report rather than a stub -- and the note
+     says plainly which part of a live weekly report cannot be reconstructed
+     from one export, instead of quietly inventing it. */
+  function renderReport(idx){
+    var slot = el('p-open');
+    if (!slot) { return; }
+    var w = weeks[idx];
+    if (!w) { slot.innerHTML = ''; return; }
+    var prev = weeks[idx - 1];
+    var done = weeks.filter(function (x) { return !x.partial; });
+    var avg = done.length
+      ? done.reduce(function (a, x) { return a + x.value; }, 0) / done.length : w.value;
+    var diff = prev ? w.value - prev.value : null;
+    var vsAvg = w.value - avg;
+
+    var body = 'Week of <b>' + esc(w.label) + '</b> brought in <b>' + money(w.value) + '</b>';
+    if (diff !== null) {
+      body += diff >= 0
+        ? ', up ' + money(diff) + ' on the week before'
+        : ', down ' + money(Math.abs(diff)) + ' on the week before';
     }
-    el('p-list').innerHTML = out.join('');
+    body += '. That is ' + (vsAvg >= 0 ? money(vsAvg) + ' above' : money(Math.abs(vsAvg)) + ' below') +
+            ' the ' + done.length + '-week average of ' + money(Math.round(avg)) + '.';
+    if (w.partial) {
+      body += ' <b>This week is still running</b> — ' + w.days + ' of 7 days counted, so it is not ' +
+              'comparable to a finished one and is left out of the average above.';
+    }
+
+    slot.innerHTML =
+      '<div class="ddraft"><p class="ddraft-h">&#10022; Weekly summary &mdash; ' + esc(w.label) + '</p>' +
+      '<div class="ddraft-mail"><p class="ddraft-body">' + body + '</p></div>' +
+      '<p class="ddraft-why" style="margin:.6rem 0 0">Written from the figures, not about them: every ' +
+      'number here is recomputed from the same weekly series the chart draws. A live weekly report ' +
+      'also carries what was outstanding <em>that</em> week — one export only knows what is open ' +
+      '<b>today</b>, so that part is left out rather than guessed.</p></div>';
+    try { slot.querySelector('.ddraft').scrollIntoView({ block: 'nearest' }); } catch (e) {}
   }
 
   /* ---------- tabs ------------------------------------------------------ */
@@ -1257,9 +1311,30 @@ __SHARED_INTAKE__
       rendered[name] = true;
     }
     el('d-crumb').innerHTML = LABEL[name] + ' &middot; <span id="d-asof">' + fmtLong(TODAY) + '</span>';
+
+    /* Put the view in the URL so a tab can be linked to and shared. No element
+       on this page carries these ids, so the browser will not jump-scroll to a
+       matching anchor -- checked before choosing plain hashes over a query
+       param. replaceState, not pushState: the back button should leave the page
+       the visitor came from, not walk them backwards through tabs they clicked. */
+    if (window.history && history.replaceState) {
+      try { history.replaceState(null, '', '#' + name); } catch (e) {}
+    }
   }
 
+  function viewFromHash(){
+    var h = String(location.hash || '').replace(/^#/, '').toLowerCase();
+    return VIEWS.indexOf(h) >= 0 ? h : null;
+  }
+  window.addEventListener('hashchange', function () {
+    var v = viewFromHash();
+    if (v) { show(v); }
+  });
+
   app.addEventListener('click', function (ev) {
+    var rp = ev.target.closest('[data-report]');
+    if (rp && app.contains(rp)) { renderReport(Number(rp.getAttribute('data-report'))); return; }
+
     var d = ev.target.closest('[data-draft]');
     if (d && app.contains(d)) { renderDraft(Number(d.getAttribute('data-draft'))); return; }
 
@@ -1595,7 +1670,7 @@ __SHARED_INTAKE__
   el('d-refreshed').textContent = 'Built ' +
     TODAY.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   renderDashboard();
-  show('dashboard');
+  show(viewFromHash() || 'dashboard');
 
   if (t0) {
     var ms = Math.max(1, Math.round(performance.now() - t0));
