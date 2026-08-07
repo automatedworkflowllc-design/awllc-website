@@ -569,7 +569,7 @@ APP_JS = r"""
        days:null so every age comparison has to decide about it explicitly. */
     recv.push({ customer: 'Tioga Town Homes', days: null, amount: 2180 });
 
-    return { business: 'Gator Shine Exterior Cleaning', sample: true, weeks: out,
+    return { business: 'Gator Shine Exterior Cleaning', sample: true, hasSpend: true, weeks: out,
              receivables: recv, spend: 226 + Math.round((1 + hash(epochWeek(CURMON))) * 140),
              activeCustomers: CUSTOMERS.length + 3 };
   }
@@ -618,6 +618,7 @@ APP_JS = r"""
     return {
       business: String(raw.business || 'Your business'),
       sample: false,
+      hasSpend: isFinite(Number(raw.spend)) && Number(raw.spend) > 0,
       weeks: weeks,
       receivables: recv,
       spend: isFinite(spend) && spend >= 0 ? Math.round(spend) : 0,
@@ -1048,9 +1049,27 @@ APP_JS = r"""
       s += '. Nothing is outstanding — every invoice is paid';
     }
 
-    s += '. Finished-but-never-invoiced work totals <b>' + money(neverInvoiced) +
-         '</b> — invoice it this week. Spending is ' + money(spend) +
-         ' this month, leaving <b>' + money(netCash) + '</b> net cash flow.';
+    /* THE HONESTY GATE ON THIS WHOLE FEATURE.
+       "Finished-but-never-invoiced" is a SAMPLE figure -- it comes from a
+       fixed proportion of recent weeks, not from comparing jobs against
+       invoices, which one file cannot support. Printing it over a stranger's
+       own data would be inventing a finding about their business, which is
+       precisely what this company exists not to do. Same for spend: a CSV of
+       invoices does not know what they spent, and "Spending is $0" is a claim,
+       not an absence. On real data both are replaced by what is actually
+       missing, and by the tool that genuinely answers it. */
+    if (D.sample) {
+      s += '. Finished-but-never-invoiced work totals <b>' + money(neverInvoiced) +
+           '</b> — invoice it this week. Spending is ' + money(spend) +
+           ' this month, leaving <b>' + money(netCash) + '</b> net cash flow.';
+    } else {
+      s += '. ' + (D.hasSpend
+        ? 'Spending is ' + money(spend) + ' this month, leaving <b>' + money(netCash) + '</b> net cash flow.'
+        : 'This file has no costs in it, so there is no cash-flow figure here — that needs an expense export too.') +
+        ' Work you finished but never invoiced needs your job log alongside these invoices; ' +
+        '<a href="/money-leak-finder/" style="color:inherit">the money-leak tool</a> does exactly that ' +
+        'comparison, also without uploading anything.';
+    }
     return s;
   }
 
@@ -1077,11 +1096,17 @@ APP_JS = r"""
              (undated.length ? undated.length + ' carries no date, so it is counted in the total but ' +
               'cannot be aged — it has its own column rather than being quietly filed under 0–30.'
               : 'Every one of them can be aged.') },
-      { l: 'Net cash flow',   v: money(netCash), d: money(spend) + ' spent this month',
-        t: netCash >= 0 ? 'pos' : 'neg', go: 'revenue',
-        why: 'Month-to-date revenue of <b>' + money(mtd) + '</b> minus <b>' + money(spend) +
-             '</b> of recorded spend. It is cash in against cash out for this month only — not ' +
-             'profit, and it does not know about anything you have not entered.' },
+      (D.hasSpend
+        ? { l: 'Net cash flow', v: money(netCash), d: money(spend) + ' spent this month',
+            t: netCash >= 0 ? 'pos' : 'neg', go: 'revenue',
+            why: 'Month-to-date revenue of <b>' + money(mtd) + '</b> minus <b>' + money(spend) +
+                 '</b> of recorded spend. Cash in against cash out for this month only — not ' +
+                 'profit, and it does not know about anything you have not entered.' }
+        : { l: 'Net cash flow', v: '—', d: 'no costs in this file',
+            t: '', go: 'revenue',
+            why: 'Left blank on purpose. This file carries invoices but no costs, and showing ' +
+                 'revenue here labelled &ldquo;net cash flow&rdquo; would be wrong by a whole side ' +
+                 'of the ledger. Add an expense export and it fills in.' }),
       /* Was the hardcoded string "across 3 crews". Harmless on sample data and a
          FABRICATION the moment a real book is loaded -- the dashboard would be
          asserting a fact about a business it knows nothing about. Derived now. */
@@ -1449,7 +1474,7 @@ APP_JS = r"""
     var label = fileName.replace(/\.[a-z0-9]+$/i, '').slice(0, 48) || 'Your business';
     return {
       book: { business: label, weeks: out, receivables: open.slice(0, 40), spend: 0,
-              activeCustomers: nOpen },
+              hasSpend: false, activeCustomers: nOpen },
       map: { date: header[di], amount: header[ai],
              customer: ci >= 0 ? header[ci] : null,
              status: si >= 0 ? header[si] : null,
