@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">51 entries · newest first within each group</p>
+  <p class="stamp">52 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -494,6 +494,35 @@
     aging both still reconcile to the AR tile to the cent, no invented figure survives, and
     <b>the file caused zero network requests</b> &mdash; measured, not asserted.</p>
     <p class="where">Live &middot; CSV today; the mapping line names every column it used, so a wrong read is visible rather than silent</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 7</div>
+  <div>
+    <p class="name">Excel works on the demo now &mdash; and the fix removed code rather than adding it
+      <span class="chip live">live</span><span class="chip">no duplication</span></p>
+    <p class="what">Our own <code>/builds/</code> copy calls &ldquo;save it as CSV first&rdquo; the
+    widest closable competitive gap and <em>the place where prospects quietly leave</em>. A flagship
+    demo that took CSV only was therefore contradicting our own positioning. Drop an <b>.xlsx</b> now
+    and it is unzipped and parsed in the browser like everything else.</p>
+    <p class="proof"><b>The good part is that this is not a second copy of the parser.</b>
+    <code>_brand/toolkit.py</code> already exports the CSV and XLSX readers and
+    <code>build_check_page.py</code> injects them; this generator now does the same, with the same
+    fail-closed guard if the injection does not land. Which meant the change also let me
+    <b>delete</b> the CSV parser written the day before &mdash; a byte-for-byte duplicate of the
+    shared one, i.e. precisely the drift this repo has already been bitten by. Net effect: Excel
+    support arrived while the codebase got smaller.
+    <b>Testing with a real workbook caught a regression the same minute.</b> The fixture was built
+    with openpyxl so it had genuine date and numeric cells rather than a renamed CSV &mdash; and
+    removing the duplicate <code>parseCSV</code> had also removed <code>looksLikeDate</code>, the
+    helper <em>both</em> parsers depend on. Worth recording how it failed: the app refused, named the
+    error, and left the sample data on screen. It behaved exactly as designed while being broken,
+    which is the entire argument for building the refusal path first.
+    <b>Verified:</b> real date and numeric cells read, 9 rows, 3 unpaid rows became receivables,
+    AR = 2180 + 940 + 680 = <b>3800 exactly</b>, invoice list and aging both reconcile to the tile,
+    no invented figure survives on real data, and the workbook parsed with <b>zero network
+    requests</b>. One <code>parseCSV</code> definition in the output, confirmed by count.</p>
+    <p class="where">Live &middot; 971239d &middot; shared intake injected from _brand/toolkit.py, never pasted</p>
   </div>
 </div>
 <h2>Public tools — automatedworkflowllc.com</h2>
