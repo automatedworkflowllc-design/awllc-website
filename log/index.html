@@ -3,8 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
-<!-- STAGED, NOT PUBLISHED. noindex is ON PURPOSE: this page is generated from an internal build log and is awaiting Colin's copy review. To publish: remove this robots tag, add /log/ to sitemap.xml, and link it from /builds/. Do NOT add to sitemap while noindex is set. -->
+<!-- PUBLISHED 2026-08-06, Colin approved. Indexable on purpose: this is the
+     strongest trust asset the site has. The privacy filter in the builder is
+     what makes that safe — it drops the job lane and personal projects and
+     refuses to write at all if a blocked term survives. Never publish this page
+     by hand; always regenerate through the builder. -->
 <link rel="canonical" href="https://automatedworkflowllc.com/log/">
 <title>Build log — every system shipped, and the bugs found</title>
 <meta name="description" content="A running record of what actually gets built here, including the parts that broke and how every claim was checked. Automation, Gainesville FL.">
@@ -63,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">42 entries · newest first within each group</p>
+  <p class="stamp">44 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -243,6 +246,65 @@
     files from a parallel session in the same checkout. Their work was left untouched and kept out of
     the commit; only the faulty check changed.</p>
     <p class="where">d5dc4dc &middot; _qa/autoqa.py</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">The demo can now be driven by a real client&rsquo;s numbers &mdash; and proving it found five bugs
+      <span class="chip live">live</span><span class="chip">seam</span></p>
+    <p class="what">The rebuilt dashboard still had its sample-data generation welded into the
+    renderer, so it could only ever show invented figures. It now renders from <b>one object</b>, and
+    sample data is the fallback rather than the only path: set <code>window.AW_DASHBOARD_DATA</code>
+    with a business name, weekly revenue, open invoices and spend, and the same page becomes that
+    client&rsquo;s dashboard. <b>The client supplies facts only</b> &mdash; month-to-date, the
+    prior-month comparison, AR, the aging buckets and the written summary are all derived here, so a
+    figure cannot be right in one place and stale in another.</p>
+    <p class="proof"><b>Feeding it real books immediately exposed five defects that sample data had
+    hidden</b>, which is the whole argument for testing a seam instead of declaring one.
+    <code>"across 3 crews"</code> was hardcoded in a KPI tile &mdash; harmless on sample data and a
+    <em>fabrication about a real business</em> the moment one loads. The summary called the oldest
+    invoice &ldquo;N days past due&rdquo; when it was merely N days <em>old</em> and not due for
+    another month &mdash; <b>the page contradicting its own list</b>, which said &ldquo;due Sep
+    2&rdquo; directly beside it. With no prior month it printed &ldquo;+0.0% vs the same point last
+    month&rdquo;, which reads as <em>flat</em> about a month there is no data for. A one-week book
+    read <code>weeks[-1]</code> and rendered <b>$NaN</b> on the flagship page. And a fully paid-up
+    client got a red alert badge reading <b>0</b> beside two blank panels.
+    <b>Bad data refuses rather than renders</b>, naming the field and index
+    (<code>receivables[0].amount is not a non-negative number: lots</code>), and takes the
+    surrounding chrome down with it so a refusal cannot sit under a live-looking shell. Rendering
+    <code>$NaN</code>, or silently dropping a malformed invoice and showing a confident total that is
+    quietly wrong, is the exact failure this company sells against.
+    <b>Verified, not asserted:</b> 15/15 automated checks on the sample path after the refactor and
+    9/9 against the live domain &mdash; including that the prose in the AI summary reconciles to the
+    penny with the KPI tiles, that the invoice list sums to the AR tile, and that the aging buckets
+    sum to the same figure. Six fixtures live in <code>_qa/demo_seam_fixtures.py</code> so the seam
+    can be re-checked instead of rotting; every one of them caught one of the bugs above.</p>
+    <p class="where">fc3c458 &middot; window.AW_DASHBOARD_DATA &middot; 0 requests after load, confirmed on the live page</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">Deleted the Apps Script demo, after checking rather than assuming nothing needed it
+      <span class="chip">cleanup</span></p>
+    <p class="what">With the client-side demo verified live, the old stack came out: the production
+    web-app deployment, <code>demo/dashboard-preview.png</code> (the Aug 3 screenshot that still said
+    &ldquo;LLC&rdquo;), and three <code>preconnect</code> hints on the homepage whose comment said
+    they warmed the connection for a CTA that no longer goes there &mdash; so they were opening a TLS
+    connection to a host the site never contacts.</p>
+    <p class="proof"><b>Checked first:</b> no deployment IDs anywhere in the site, no links to
+    script.google.com, no reference to the preview image, and the only two hits outside the repo were
+    a documentation file and the stale checkout &mdash; neither a live dependency.
+    <b>And the deletion itself was verified rather than trusted:</b> <code>clasp</code> printed
+    &ldquo;Deleted deployment&rdquo; while <em>still listing it</em> in the very next command, so it
+    was confirmed by URL instead &mdash; <b>404</b>. The @HEAD deployment cannot be deleted at all
+    (Apps Script always keeps one) but now redirects to a Google sign-in, so it is not publicly
+    reachable. The Apps Script project itself was left alone: it still holds the sheet-reskin tooling
+    and the staffing demo builder, neither of which is a web app.
+    <b>One thing only Colin can close:</b> the <code>pd_refreshDemo</code> weekly trigger still fires
+    and rebuilds a demo sheet nothing displays. Triggers are UI-only here, so it is a 30-second click.</p>
+    <p class="where">ec1bcc6 &middot; live: /demo/dashboard-preview.png now 404, /demo/ 200</p>
   </div>
 </div>
 <h2>Public tools — automatedworkflowllc.com</h2>
