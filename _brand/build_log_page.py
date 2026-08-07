@@ -20,7 +20,7 @@ term survives into the output. A leak here is irreversible once indexed, so the
 gate fails closed rather than warning.
 
 House rules honoured: generated page (edit this builder, never the output);
-ships STAGED with noindex for Colin's review before publishing.
+PUBLISHED 2026-08-06 with Colin's approval; the privacy filter is what makes that safe.
 """
 
 import io
@@ -148,15 +148,20 @@ def build():
     leaks = blocked_terms_in(page)
     if leaks:
         sys.exit("REFUSING TO WRITE: blocked terms in final page -> %s" % leaks)
-    if "noindex" not in page:
-        sys.exit("REFUSING TO WRITE: staged page lost its noindex tag")
+    # PUBLISHED page: the guard that matters now is that the privacy filter is
+    # still doing its job, which is checked above. Assert the page did not
+    # silently lose its canonical or collapse to a stub.
+    if 'rel="canonical"' not in page:
+        sys.exit("REFUSING TO WRITE: page lost its canonical link")
+    if len(page) < 8000:
+        sys.exit("REFUSING TO WRITE: page collapsed to %d bytes - filter or source broke" % len(page))
 
     if not os.path.isdir(OUT_DIR):
         os.makedirs(OUT_DIR)
     io.open(OUT, "w", encoding="utf-8").write(page)
     print("wrote %s" % OUT)
     print("  kept %d entries, dropped %d (job lane, other projects, people)" % (total_kept, dropped))
-    print("  STAGED: noindex is set. Remove it + add to sitemap to publish.")
+    print("  PUBLISHED page: indexable, in sitemap. Privacy filter is the only thing making that safe.")
 
 
 PAGE = u"""<!doctype html>
@@ -164,8 +169,11 @@ PAGE = u"""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
-<!-- STAGED, NOT PUBLISHED. noindex is ON PURPOSE: this page is generated from an internal build log and is awaiting Colin's copy review. To publish: remove this robots tag, add /log/ to sitemap.xml, and link it from /builds/. Do NOT add to sitemap while noindex is set. -->
+<!-- PUBLISHED 2026-08-06, Colin approved. Indexable on purpose: this is the
+     strongest trust asset the site has. The privacy filter in the builder is
+     what makes that safe — it drops the job lane and personal projects and
+     refuses to write at all if a blocked term survives. Never publish this page
+     by hand; always regenerate through the builder. -->
 <link rel="canonical" href="https://automatedworkflowllc.com/log/">
 <title>Build log — every system shipped, and the bugs found</title>
 <meta name="description" content="A running record of what actually gets built here, including the parts that broke and how every claim was checked. Automation, Gainesville FL.">

@@ -190,8 +190,15 @@ def check_pages():
             # the checker was wrong, not the page. Requiring the leading slash
             # makes "/log/" fail to match "/build-log/" while still matching a
             # genuine "/log/" entry.
+            # ...and test for an actual robots directive, not the word appearing
+            # anywhere in the file. /log/ publishes entries that DISCUSS noindex
+            # work in their prose, so a bare substring search flagged a page
+            # carrying zero <meta name="robots"> tags. Same failure as the slug
+            # bug above, one layer in: the checker was wrong, not the page. Any
+            # page whose body may quote its own markup would have hit this.
             slug = os.path.basename(os.path.dirname(f))
-            if slug and '/' + slug + '/' in smtxt and 'noindex' in s:
+            robots = re.search(r'<meta[^>]+name=["\']robots["\'][^>]*>', s, re.I)
+            if slug and '/' + slug + '/' in smtxt and robots and 'noindex' in robots.group(0).lower():
                 defect('page', '%s is in sitemap but still noindex' % rel)
 
 # ---------------------------------------------------------------- staleness

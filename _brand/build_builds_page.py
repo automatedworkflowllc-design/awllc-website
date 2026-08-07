@@ -205,6 +205,14 @@ ENGINEERING = [
      "Verified by notarizing a report, changing one digit of the revenue figure, and watching it "
      "come back ALTERED with both hashes shown.",
      ["Live", "Free", "Ed25519"]),
+    ("Build log — including the misses", "/log/",
+     "A running record of what actually gets built here, newest first. Every entry states how its "
+     "claim was checked, because &ldquo;we tested it&rdquo; is not a test. It regenerates itself "
+     "nightly, so it cannot quietly fall behind the work it describes.",
+     "The defects stay in &mdash; the dead CSS token that removed the keyboard focus ring, the "
+     "check that could never fire, the gate that blocked a page for being right. A log with only "
+     "wins is a brochure, and it would undercut the whole argument.",
+     ["Live", "Updated nightly"]),
     ("Proof — our own ledger", "/proof/",
      "Every night our scheduled jobs write a signed receipt recording what each run <em>claimed</em> "
      "against what it actually <em>produced</em>. The receipts are hash-chained, and the chain head "
