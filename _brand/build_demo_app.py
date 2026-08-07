@@ -35,7 +35,11 @@ HOUSE RULES HONOURED HERE
 """
 
 import re
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from toolkit import PARSE_CSV_JS, XLSX_JS   # single source: /check/ injects these too
 
 ROOT = Path(__file__).resolve().parents[1]
 PAGE = ROOT / 'demo' / 'index.html'
@@ -386,14 +390,15 @@ APP_HTML = """
           <div class="ddrop" id="d-drop">
             <span class="ddrop-m">
               <p class="ddrop-t">Want to see this on your own numbers?</p>
-              <p class="ddrop-s">Drop a CSV of your invoices or jobs &mdash; any export with a date and
-              an amount. It is read <b>in this browser</b>: nothing is uploaded, and you can have the
-              network tab open while you do it.</p>
+              <p class="ddrop-s">Drop an <b>Excel file or CSV</b> of your invoices or jobs &mdash; any
+              export with a date and an amount. <b>.xlsx works as-is</b>, no save-as-CSV step. It is
+              read <b>in this browser</b>: nothing is uploaded, and you can have the network tab open
+              while you do it.</p>
               <div class="dmap" id="d-map"></div>
             </span>
-            <button class="ddrop-b" type="button" id="d-pick">Choose a CSV</button>
+            <button class="ddrop-b" type="button" id="d-pick">Choose a file</button>
             <button class="ddrop-b ghost" type="button" id="d-reset" hidden>Back to sample</button>
-            <input type="file" id="d-file" accept=".csv,text/csv,text/plain">
+            <input type="file" id="d-file" accept=".csv,.tsv,.txt,.xlsx,.xlsm,text/csv,text/plain">
           </div>
 
           <div class="dsum">
@@ -473,6 +478,12 @@ APP_JS = r"""
   var app = document.getElementById('dapp');
   if (!app) { return; }
   var t0 = (window.performance && performance.now) ? performance.now() : 0;
+
+  /* ---- shared intake, injected from _brand/toolkit.py -------------------
+     parseCSV / xlsxToRows / rowsToCSV come from the SAME source the tool
+     pages use, injected at build time rather than pasted: two copies of a
+     parser drift, and this repo has already been bitten by exactly that. */
+__SHARED_INTAKE__
 
   /* ---------- deterministic variation (no Math.random) ------------------
      Keyed on the CALENDAR week, not on position in the array. A position key
@@ -1310,32 +1321,9 @@ APP_JS = r"""
      admits it could not read them -- and it would be the exact failure this
      business sells against, committed on our own demo. */
 
-  function parseCSV(text){
-    var rows = [], row = [], cell = '', q = false, i = 0, c;
-    /* Sniff the delimiter: exports are as often tab- as comma-separated. */
-    var delim = (text.split('\t').length > text.split(',').length) ? '\t' : ',';
-    while (i < text.length) {
-      c = text[i];
-      if (q) {
-        if (c === '"') { if (text[i+1] === '"') { cell += '"'; i++; } else { q = false; } }
-        else { cell += c; }
-      }
-      else if (c === '"') { q = true; }
-      else if (c === delim) { row.push(cell); cell = ''; }
-      else if (c === '\n' || c === '\r') {
-        if (c === '\r' && text[i+1] === '\n') { i++; }
-        row.push(cell); cell = '';
-        if (row.length > 1 || row[0] !== '') { rows.push(row); }
-        row = [];
-      } else { cell += c; }
-      i++;
-    }
-    if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
-    return rows;
-  }
-
-  /* Looks like a calendar date rather than money: two separators between digit
-     groups, or a month name. Needed by BOTH parsers below. */
+  /* Looks like a calendar date rather than money: two separators between
+     digit groups, or a month name. Needed by BOTH parsers below, which is
+     why it lives here rather than inside either one. */
   function looksLikeDate(t){
     return /^\s*\d{1,4}[-\/.]\d{1,2}[-\/.]\d{1,4}/.test(t) ||
            /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(t);
@@ -1513,6 +1501,8 @@ APP_JS = r"""
     show('dashboard');
   }
 
+  var XLSX_NAME = new RegExp('[.](xlsx|xlsm)$', 'i');
+
   (function wireDrop(){
     var zone = el('d-drop'), input = el('d-file'), pick = el('d-pick'), reset = el('d-reset');
     if (!zone || !input) { return; }
@@ -1522,17 +1512,38 @@ APP_JS = r"""
         '.</span><br>The sample data is still on screen and nothing was changed. It needs one column ' +
         'that reads as a date and one that reads as an amount.';
     }
+    function use(text, name){
+      try {
+        var r = bookFromCSV(text, name);
+        applyBook(r.book, mapLine(r.map));
+      } catch (e) { fail(e && e.message ? e.message : 'it could not be parsed'); }
+    }
     function take(file){
       if (!file) { return; }
       if (file.size > 8 * 1024 * 1024) { fail('that file is over 8MB'); return; }
       var fr = new FileReader();
       fr.onerror = function () { fail('the file could not be read'); };
-      fr.onload = function () {
-        try {
-          var r = bookFromCSV(String(fr.result || ''), file.name);
-          applyBook(r.book, mapLine(r.map));
-        } catch (e) { fail(e && e.message ? e.message : 'it could not be parsed'); }
-      };
+      /* .xlsx is unzipped and parsed HERE, in the browser, by the same reader the
+         tool pages use. "Save it as CSV first" is the instruction this site itself
+         calls the place where prospects quietly leave, so the flagship demo had
+         better not require it. The toolkit's readAny() alerts on failure; its
+         primitives are used directly instead, so a bad workbook lands in the same
+         in-page message as every other refusal. */
+      if (XLSX_NAME.test(file.name)) {
+        fr.onload = function () {
+          xlsxToRows(fr.result).then(function (rows) {
+            if (!rows || !rows.length) { fail('that workbook has no readable sheet'); return; }
+            use(rowsToCSV(rows), file.name);
+          })['catch'](function (err) {
+            fail('that file could not be read as an Excel workbook (' +
+                 (err && err.message ? err.message : 'unknown') +
+                 '); a very old .xls needs saving as .xlsx or CSV first');
+          });
+        };
+        fr.readAsArrayBuffer(file);
+        return;
+      }
+      fr.onload = function () { use(String(fr.result || ''), file.name); };
       fr.readAsText(file);
     }
 
@@ -1599,8 +1610,12 @@ APP_JS = r"""
 def main() -> None:
     s = PAGE.read_text(encoding='utf-8')
 
+    app_js = APP_JS.replace('__SHARED_INTAKE__',
+                            PARSE_CSV_JS.strip() + chr(10) + chr(10) + XLSX_JS.strip())
+    if 'function xlsxToRows' not in app_js or 'function parseCSV' not in app_js:
+        raise SystemExit('shared intake failed to inject -- did toolkit.py change?')
     block = (START + '\n<style>' + APP_CSS + '</style>\n'
-             + APP_HTML + '\n<script>' + APP_JS + '</script>\n' + END)
+             + APP_HTML + '\n<script>' + app_js + '</script>\n' + END)
 
     if START in s:
         # Idempotent path: swap whatever is between the markers. Re-running with
