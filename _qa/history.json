@@ -1,145 +1,5 @@
 [
  {
-  "when": "2026-08-03 23:39",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 00:17",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 00:17",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 00:25",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 00:27",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 00:27",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 00:46",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 01:55",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 01:56",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 01:57",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 01:58",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 09:57",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 10:52",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 10:52",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 23:39",
-  "mode": "full",
-  "score": 1,
-  "by_area": {
-   "live": 1
-  }
- },
- {
-  "when": "2026-08-04 23:39",
-  "mode": "full",
-  "score": 1,
-  "by_area": {
-   "live": 1
-  }
- },
- {
-  "when": "2026-08-04 23:39",
-  "mode": "full",
-  "score": 1,
-  "by_area": {
-   "live": 1
-  }
- },
- {
-  "when": "2026-08-04 23:40",
-  "mode": "full",
-  "score": 1,
-  "by_area": {
-   "live": 1
-  }
- },
- {
-  "when": "2026-08-04 23:41",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 23:41",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-05 00:10",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-05 00:11",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
   "when": "2026-08-05 01:08",
   "mode": "fast",
   "score": 0,
@@ -374,6 +234,144 @@
  },
  {
   "when": "2026-08-06 21:54",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:56",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:59",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:59",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 22:24",
+  "mode": "full",
+  "score": 1,
+  "by_area": {
+   "page": 1
+  }
+ },
+ {
+  "when": "2026-08-06 22:26",
+  "mode": "full",
+  "score": 1,
+  "by_area": {
+   "page": 1
+  }
+ },
+ {
+  "when": "2026-08-06 22:27",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 22:27",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 22:27",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 22:28",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 22:28",
+  "mode": "full",
+  "score": 1,
+  "by_area": {
+   "page": 1
+  }
+ },
+ {
+  "when": "2026-08-06 22:28",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 22:30",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 22:30",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 22:31",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 22:57",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 23:43",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 23:43",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 23:44",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 23:57",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 23:58",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 23:58",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 00:07",
   "mode": "full",
   "score": 0,
   "by_area": {}

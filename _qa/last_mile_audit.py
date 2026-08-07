@@ -65,7 +65,13 @@ def main():
     endpoints = {}
     for rel in pages:
         s = io.open(os.path.join(ROOT, rel), encoding='utf-8', errors='replace').read()
-        for addr in re.findall(r'mailto:([^"?\s>]+)', s):
+        # Anchored on href= on purpose. Matching a bare "mailto:" anywhere in the
+        # file also matches the WORD in body copy -- /log/ and /build-log/ both
+        # discuss mailto: links in prose, and this gate reported those sentences
+        # as dead ends that "silently drop the lead". A link is an href, not a
+        # string; treating a word as structure is the same mistake that had the
+        # sitemap check flag /log/ for matching /build-log/.
+        for addr in re.findall(r'href=["\']mailto:([^"\'?\s>]+)', s):
             mailto += 1
             if addr.strip().lower() != CANON_EMAIL:
                 findings.append((rel, 'non-canonical mailto: %s (leads to this address vanish)' % addr))

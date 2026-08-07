@@ -1,127 +1,5 @@
 [
  {
-  "when": "2026-08-04 00:27",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 00:27",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 00:46",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 01:55",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 01:56",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 01:57",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 01:58",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 09:57",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 10:52",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 10:52",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 23:39",
-  "score": 2,
-  "pages": 26,
-  "by_area": {
-   "sitemap-coverage": 1,
-   "llms-txt": 1
-  }
- },
- {
-  "when": "2026-08-04 23:39",
-  "score": 1,
-  "pages": 26,
-  "by_area": {
-   "sitemap-coverage": 1
-  }
- },
- {
-  "when": "2026-08-04 23:39",
-  "score": 1,
-  "pages": 26,
-  "by_area": {
-   "sitemap-coverage": 1
-  }
- },
- {
-  "when": "2026-08-04 23:40",
-  "score": 2,
-  "pages": 27,
-  "by_area": {
-   "orphan-page": 1,
-   "title": 1
-  }
- },
- {
-  "when": "2026-08-04 23:40",
-  "score": 1,
-  "pages": 27,
-  "by_area": {
-   "title": 1
-  }
- },
- {
-  "when": "2026-08-04 23:41",
-  "score": 1,
-  "pages": 27,
-  "by_area": {
-   "title": 1
-  }
- },
- {
-  "when": "2026-08-04 23:41",
-  "score": 0,
-  "pages": 27,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 23:41",
-  "score": 0,
-  "pages": 27,
-  "by_area": {}
- },
- {
   "when": "2026-08-05 00:10",
   "score": 0,
   "pages": 27,
@@ -386,6 +264,122 @@
  },
  {
   "when": "2026-08-06 21:54",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:56",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:59",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:59",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 22:24",
+  "score": 1,
+  "pages": 29,
+  "by_area": {
+   "llms-txt": 1
+  }
+ },
+ {
+  "when": "2026-08-06 22:26",
+  "score": 1,
+  "pages": 29,
+  "by_area": {
+   "llms-txt": 1
+  }
+ },
+ {
+  "when": "2026-08-06 22:27",
+  "score": 1,
+  "pages": 29,
+  "by_area": {
+   "llms-txt": 1
+  }
+ },
+ {
+  "when": "2026-08-06 22:28",
+  "score": 1,
+  "pages": 29,
+  "by_area": {
+   "llms-txt": 1
+  }
+ },
+ {
+  "when": "2026-08-06 22:30",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 22:30",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 22:31",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 22:57",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 23:43",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 23:43",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 23:44",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 23:57",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 23:58",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 23:58",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 00:07",
   "score": 0,
   "pages": 29,
   "by_area": {}

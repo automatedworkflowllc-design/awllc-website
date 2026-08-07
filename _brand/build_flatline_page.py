@@ -167,10 +167,34 @@ MAIN = """
     <h2 style="margin-top:0">Run it yourself</h2>
     <p style="color:var(--ink-soft);margin-top:.3rem">Free, MIT licensed, 108 tests. It reads; it
     does not change anything it looks at.</p>
-    <pre>pip install flatline
+    <pre>git clone https://github.com/automatedworkflowllc-design/flatline
+pip install ./flatline
 flatline scan your-export.csv
 flatline jobs</pre>
+    <p style="color:var(--ink-soft);font-size:.88rem;margin:.55rem 0 0">Install from the repository,
+    not by name: <strong>the name <code>flatline</code> on PyPI belongs to an unrelated project</strong>
+    (a Ghidra decompiler wrapper), so <code>pip install flatline</code> would fetch someone else's
+    tool. Ours publishes as <code>awllc-flatline</code>.</p>
     <p style="margin:.6rem 0 0"><a href="REPO_URL">Source and documentation on GitHub &rarr;</a></p>
+  </div>
+
+  <div class="fl-run">
+    <h2 style="margin-top:0">Its other half: canary</h2>
+    <p style="color:var(--ink-soft);margin-top:.3rem">flatline waits to be asked. That is backwards
+    &mdash; the people who most need the check are the ones who never think to run it. So
+    <strong>canary</strong> watches the folders where your exports already get saved and asks
+    flatline the moment a file changes. You save an invoice export at 2:14pm; at 2:15 you know what
+    is wrong with it.</p>
+    <p style="color:var(--ink-soft)"><strong>Software fails loudly. Data fails quietly.</strong>
+    flatline is the judgment &mdash; it decides whether a signal still carries information. canary is
+    the trigger. <strong>Neither tool will ever call a file clean that it failed to read:</strong> a
+    check that could not run is reported as a failure to check, never as a pass &mdash; in code, and
+    with a test, in both.</p>
+    <pre>git clone https://github.com/automatedworkflowllc-design/canary
+pip install ./canary
+canary ~/Downloads --report canary.html</pre>
+    <p style="margin:.6rem 0 0"><a href="https://github.com/automatedworkflowllc-design/canary">canary
+    on GitHub &rarr;</a></p>
   </div>
 
   <div class="fl-cta">
