@@ -667,7 +667,7 @@ APP_JS = r"""
        a page that half-worked, which is the ambiguity the refusal exists to
        remove. */
     ['d-samplechip', 'd-arbadge'].forEach(function (id) {
-      var n = document.getElementById(id); if (n) { n.remove(); }
+      var n = document.getElementById(id); if (n) { n.hidden = true; }
     });
     var biz = document.getElementById('d-biz');
     if (biz) { biz.textContent = (window.AW_DASHBOARD_DATA && window.AW_DASHBOARD_DATA.business)
@@ -1476,11 +1476,13 @@ APP_JS = r"""
   function applyBook(book, mapHTML){
     deriveFrom(decorate(book));
     rendered = {};                       /* force every tab to re-render */
-    var chip = el('d-samplechip'); if (chip) { chip.remove(); }
+    var chip = el('d-samplechip'); if (chip) { chip.hidden = true; }
     var biz = el('d-biz'); if (biz) { biz.textContent = book.business; }
     var fn = el('d-footnote');
     if (fn) { fn.textContent = book.business + ' · your data, read in this browser'; }
     var rst = el('d-reset'); if (rst) { rst.hidden = false; }
+    var bdg2 = el('d-arbadge');
+    if (bdg2) { bdg2.textContent = String(overdue.length); bdg2.hidden = !overdue.length; }
     el('d-map').innerHTML = mapHTML;
     renderDashboard();
     show('dashboard');
@@ -1529,6 +1531,9 @@ APP_JS = r"""
       rendered = {};
       el('d-map').innerHTML = '';
       reset.hidden = true;
+      var chip2 = el('d-samplechip'); if (chip2) { chip2.hidden = false; }
+      var bdg3 = el('d-arbadge');
+      if (bdg3) { bdg3.textContent = String(overdue.length); bdg3.hidden = !overdue.length; }
       var biz = el('d-biz'); if (biz) { biz.textContent = D.business; }
       var fn = el('d-footnote');
       if (fn) { fn.textContent = 'Sample data — yours runs on your numbers'; }
@@ -1541,14 +1546,16 @@ APP_JS = r"""
   /* Name and the "Sample data" chip follow the DATA, so a real book renders as
      itself and does not sit under a label calling it a sample. */
   el('d-biz').textContent = D.business;
+  /* Hidden, never removed: the visitor can load their own file and then go
+     back to the sample, and a chip torn out of the DOM cannot return. */
   var chip = el('d-samplechip');
-  if (chip && !D.sample) { chip.remove(); }
+  if (chip) { chip.hidden = !D.sample; }
   var fn = el('d-footnote');
   if (fn && !D.sample) { fn.textContent = D.business + ' · live data'; }
   /* A red alert badge showing 0 is an alarm about nothing -- remove it when
      there is nothing overdue, which is the state a healthy client is in. */
   var bdg = el('d-arbadge');
-  if (bdg) { if (overdue.length) { bdg.textContent = String(overdue.length); } else { bdg.remove(); } }
+  if (bdg) { bdg.textContent = String(overdue.length); bdg.hidden = !overdue.length; }
   el('d-refreshed').textContent = 'Built ' +
     TODAY.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   renderDashboard();

@@ -32,9 +32,9 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'canary'
 
-TITLE = 'Canary — Know What Is Wrong With an Export Before You Send It'
-DESC = ('Free open-source watcher: point it at the folder where your exports get saved and it '
-        'checks each file the moment it changes. Local only, nothing uploads. MIT licensed.')
+TITLE = 'Canary — Catch a Broken Export Before Anyone Else Sees It'
+DESC = ('Free tool that checks every export the moment you save it: constant columns, empty '
+        'fields, reports that stopped changing. Runs locally, nothing uploads.')
 CANON = 'https://automatedworkflowllc.com/canary/'
 REPO = 'https://github.com/automatedworkflowllc-design/canary'
 REL = 'https://github.com/automatedworkflowllc-design/canary/releases/download/v0.1.0'

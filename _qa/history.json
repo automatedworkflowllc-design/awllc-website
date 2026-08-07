@@ -1,17 +1,5 @@
 [
  {
-  "when": "2026-08-05 14:18",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-05 15:34",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
   "when": "2026-08-05 21:12",
   "mode": "full",
   "score": 0,
@@ -374,6 +362,20 @@
  },
  {
   "when": "2026-08-07 01:14",
+  "mode": "full",
+  "score": 1,
+  "by_area": {
+   "live": 1
+  }
+ },
+ {
+  "when": "2026-08-07 01:15",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 01:16",
   "mode": "full",
   "score": 1,
   "by_area": {

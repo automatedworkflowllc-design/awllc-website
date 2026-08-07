@@ -1,23 +1,5 @@
 [
  {
-  "when": "2026-08-05 01:26",
-  "score": 0,
-  "pages": 28,
-  "by_area": {}
- },
- {
-  "when": "2026-08-05 01:27",
-  "score": 0,
-  "pages": 28,
-  "by_area": {}
- },
- {
-  "when": "2026-08-05 01:27",
-  "score": 0,
-  "pages": 28,
-  "by_area": {}
- },
- {
   "when": "2026-08-05 09:56",
   "score": 0,
   "pages": 28,
@@ -384,5 +366,29 @@
   "by_area": {
    "sitemap-coverage": 1
   }
+ },
+ {
+  "when": "2026-08-07 01:15",
+  "score": 2,
+  "pages": 30,
+  "by_area": {
+   "title": 1,
+   "meta-description": 1
+  }
+ },
+ {
+  "when": "2026-08-07 01:15",
+  "score": 2,
+  "pages": 30,
+  "by_area": {
+   "title": 1,
+   "meta-description": 1
+  }
+ },
+ {
+  "when": "2026-08-07 01:16",
+  "score": 0,
+  "pages": 30,
+  "by_area": {}
  }
 ]
