@@ -265,6 +265,21 @@
 .dk-d.pos{color:var(--d-green)}
 .dk-d.neg{color:var(--d-red)}
 
+/* Hover/focus insight on a KPI tile: where the number CAME FROM. The whole
+   product is "numbers you can trace", so the tile should be able to say what
+   it is made of rather than only asserting a figure. */
+.dkpi{overflow:visible}
+.dkpi-why{position:absolute;left:0;right:0;top:100%;margin-top:.35rem;z-index:3;
+  background:var(--d-paper);border:1px solid var(--d-line2);border-radius:9px;
+  padding:.5rem .6rem;box-shadow:0 8px 20px rgba(33,29,20,.14);
+  font-size:.78rem;line-height:1.5;color:var(--d-soft);text-align:left;
+  opacity:0;visibility:hidden;transition:opacity .12s ease;pointer-events:none;
+  min-width:13rem;text-wrap:pretty}
+.dkpi:hover .dkpi-why,.dkpi:focus-visible .dkpi-why{opacity:1;visibility:visible}
+.dkpi-why b{color:var(--d-ink)}
+@media (max-width:860px){ .dkpi-why{min-width:0} }
+
+
 .dgrid{display:grid;grid-template-columns:1.35fr 1fr;gap:.7rem}
 .dpanel{border:1px solid var(--d-line);border-radius:10px;background:var(--d-paper);
   padding:.8rem .9rem;min-width:0}
@@ -277,18 +292,55 @@
   text-transform:uppercase;padding:0}
 .dph .dlink:hover{text-decoration:underline}
 
-.dchartwrap{width:100%;min-width:0}
-.dchart{width:100%;display:block}
-.dchart .cb{fill:var(--d-bar);transition:fill .15s ease}
-.dchart .cb.hi{fill:var(--d-ink)}
-.dchart .cb.best{fill:var(--d-green)}
-.dchart .cb:hover{fill:var(--d-ink)}
-.dchart .cg{stroke:var(--d-line);stroke-width:1}
-/* Label strip lives in HTML, not in the SVG -- see the comment on chart(). */
+/* Shared label strip: text stays in HTML so it never scales with a
+   non-uniformly stretched SVG coordinate system. */
 .dclabels{display:flex;gap:1.4%;margin-top:.4rem}
 .dclabels .dcl{flex:1 1 0;min-width:0;text-align:center;font-family:var(--d-mono);
   font-size:.6rem;color:var(--d-soft);white-space:nowrap;overflow:hidden}
 .dclabels .dcl.cur{color:var(--d-ink);font-weight:700}
+/* On a phone a 13-point axis clips each label to its month. Hide slots rather
+   than shrink text -- the flex positions stay put so the remaining labels still
+   line up with their points, and the exact week is one tap away in the readout. */
+@media (max-width:560px){
+  .dclabels .dcl:not(:nth-child(4n+1)):not(:last-child){ visibility:hidden }
+}
+
+/* ---- line/area chart with a hover readout -----------------------------
+   Single series over time, so: area fill, one hue, NO legend (the panel
+   title names it). Marks live in SVG; every piece of text lives in HTML,
+   because an SVG stretched with preserveAspectRatio="none" scales its text
+   with the coordinate system and the labels came out enormous. */
+.dlc{position:relative;width:100%;min-width:0}
+.dlc-svg{width:100%;display:block;overflow:visible}
+.dlc-grid{stroke:var(--d-line);stroke-width:1}
+.dlc-area{fill:var(--d-green);opacity:.10}
+.dlc-line{fill:none;stroke:var(--d-green);stroke-width:2;
+  stroke-linejoin:round;stroke-linecap:round}
+.dlc-hair{stroke:var(--d-line2);stroke-width:1;stroke-dasharray:3 3;opacity:0}
+.dlc-dot{fill:var(--d-green);stroke:var(--d-paper);stroke-width:2;opacity:0}
+.dlc.on .dlc-hair,.dlc.on .dlc-dot{opacity:1}
+.dlc-hit{fill:transparent;cursor:crosshair}
+.dlc:focus-visible{outline:2px solid var(--d-green);outline-offset:3px;border-radius:6px}
+
+/* Values lead, labels follow -- the reader already knows the series and
+   wants the number. */
+.dlc-tip{position:absolute;top:0;transform:translateX(-50%);pointer-events:none;
+  background:var(--d-paper);border:1px solid var(--d-line2);border-radius:9px;
+  padding:.4rem .6rem;box-shadow:0 6px 18px rgba(33,29,20,.13);opacity:0;
+  transition:opacity .1s ease;white-space:nowrap;z-index:2}
+.dlc.on .dlc-tip{opacity:1}
+.dlc-tip .t-v{display:block;font-size:1.02rem;font-weight:800;letter-spacing:-.015em;
+  font-variant-numeric:tabular-nums;line-height:1.15}
+.dlc-tip .t-l{display:block;font-family:var(--d-mono);font-size:.6rem;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--d-soft);margin-top:.12rem}
+.dlc-tip .t-d{display:block;font-family:var(--d-mono);font-size:.62rem;margin-top:.15rem}
+.dlc-tip .t-d.pos{color:var(--d-green)}
+.dlc-tip .t-d.neg{color:var(--d-red)}
+.dlc-tip .t-note{display:block;font-size:.68rem;color:var(--d-soft);margin-top:.15rem;
+  max-width:13rem;white-space:normal}
+.dlc-peak{position:absolute;transform:translate(-50%,-118%);pointer-events:none;
+  font-family:var(--d-mono);font-size:.6rem;color:var(--d-soft);white-space:nowrap}
+
 
 .drow{display:flex;align-items:flex-start;gap:.6rem;padding:.5rem 0;
   border-bottom:1px solid var(--d-line)}
@@ -683,7 +735,7 @@
     book.weeks = book.weeks.map(function (wk, idx, arr) {
       var isCur = (idx === arr.length - 1) && (wk.start.getTime() === CURMON.getTime());
       /* The current week is only as far along as today, so it is not comparable
-         to a finished one. Pro-rating stops the newest bar reading as a crash,
+         to a finished one. Pro-rating stops the last point reading as a crash,
          and `days` is the divisor for any per-day figure -- dividing a pro-rated
          week by 7 under-counts the days that actually happened. */
       var elapsed = isCur ? Math.min(7, Math.max(1, dayDiff(TODAY, wk.start) + 1)) : 7;
@@ -805,53 +857,135 @@
   function esc(s){ return String(s).replace(/[&<>"]/g, function (c) {
     return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' })[c]; }); }
 
-  /* Bar chart: SVG for the bars, HTML for every piece of text.
-     WHY THE TEXT IS NOT IN THE SVG. The bars want preserveAspectRatio="none" so
-     they stretch to whatever width the panel is without a resize listener. That
-     scales the coordinate system non-uniformly -- and any <text> inside stretches
-     with it, so at a ~4x horizontal scale the axis labels rendered enormous and
-     overlapping. Text in a non-uniformly scaled SVG cannot be made to behave;
-     the fix is to keep text out of it. Labels and values are a normal HTML flex
-     row under the chart, sharing the same column widths. */
-  function chart(rows, opts){
+  /* ---------- line/area chart -------------------------------------------
+     Trend over time for ONE series, which the form guide answers with a line
+     plus an area fill and no legend. Y starts at ZERO: a revenue trend on a
+     truncated axis exaggerates every wobble into a cliff, and this dashboard
+     is sold on not doing that.
+
+     The hover layer is part of the deliverable, not an upgrade. A vertical
+     hairline snaps to the nearest week, so the reader aims at a date rather
+     than at a 2px line, and the readout leads with the value because they
+     already know which series they are looking at. Keyboard gets the identical
+     readout via arrow keys -- the tooltip enhances, it never gates: every
+     figure in it is also in the stat row above.  */
+  function lineChart(rows, opts){
     opts = opts || {};
-    var n = rows.length, W = 100, H = opts.h || 34, gap = 1.4;
-    var bw = (W - gap * (n - 1)) / n;
-    var max = 0, bestI = 0;
-    rows.forEach(function (r, i) { if (r.value > max) { max = r.value; bestI = i; } });
+    var W = 720, H = opts.h || 210, PAD = 6;
+    var n = rows.length;
+    var max = 0;
+    rows.forEach(function (r) { if (r.value > max) { max = r.value; } });
     if (max <= 0) { max = 1; }
+    var top = max * 1.10;                      /* headroom so the peak is not clipped */
+    var xAt = function (i) { return n === 1 ? W / 2 : PAD + (W - PAD * 2) * (i / (n - 1)); };
+    var yAt = function (v) { return H - (v / top) * H; };
 
-    var svg = ['<svg class="dchart" viewBox="0 0 ' + W + ' ' + H +
-               '" preserveAspectRatio="none" role="img" aria-label="' +
-               esc(opts.label || 'Revenue by week') + '" style="height:' + (opts.px || 120) + 'px">'];
-    [0.25, 0.5, 0.75].forEach(function (g) {
-      var y = (H - H * g).toFixed(2);
-      svg.push('<line class="cg" x1="0" y1="' + y + '" x2="' + W + '" y2="' + y +
-               '" vector-effect="non-scaling-stroke"/>');
-    });
-    rows.forEach(function (r, i) {
-      var h = Math.max(0.8, (r.value / max) * H);
-      var x = i * (bw + gap), y = H - h;
-      var cls = 'cb';
-      if (i === bestI) { cls += ' best'; }
-      if (i === n - 1) { cls += ' hi'; }
-      svg.push('<rect class="' + cls + '" x="' + x.toFixed(2) + '" y="' + y.toFixed(2) +
-               '" width="' + bw.toFixed(2) + '" height="' + h.toFixed(2) + '">' +
-               '<title>' + esc(r.label) + ' · ' + money(r.value) +
-               (r.partial ? ' (week in progress)' : '') + '</title></rect>');
-    });
-    svg.push('</svg>');
+    var pts = rows.map(function (r, i) { return xAt(i).toFixed(1) + ',' + yAt(r.value).toFixed(1); });
+    var line = 'M' + pts.join('L');
+    var area = line + 'L' + xAt(n - 1).toFixed(1) + ',' + H + 'L' + xAt(0).toFixed(1) + ',' + H + 'Z';
 
-    /* Label strip. Every other label is dropped on dense charts so they never
-       collide -- the tooltip still carries the exact figure for each bar. */
+    var g = [];
+    [0.25, 0.5, 0.75, 1].forEach(function (f) {
+      var y = (H - H * f).toFixed(1);
+      g.push('<line class="dlc-grid" x1="0" y1="' + y + '" x2="' + W + '" y2="' + y + '"/>');
+    });
+
+    var peakI = 0;
+    rows.forEach(function (r, i) { if (r.value > rows[peakI].value) { peakI = i; } });
+
+    var svg = '<svg class="dlc-svg" viewBox="0 0 ' + W + ' ' + H +
+      '" preserveAspectRatio="none" aria-hidden="true" focusable="false">' +
+      g.join('') +
+      '<path class="dlc-area" d="' + area + '"/>' +
+      '<path class="dlc-line" d="' + line + '" vector-effect="non-scaling-stroke"/>' +
+      '<line class="dlc-hair" x1="0" y1="0" x2="0" y2="' + H + '" vector-effect="non-scaling-stroke"/>' +
+      '<circle class="dlc-dot" cx="0" cy="0" r="4.5" vector-effect="non-scaling-stroke"/>' +
+      '<rect class="dlc-hit" x="0" y="0" width="' + W + '" height="' + H + '"/>' +
+      '</svg>';
+
+    /* Selective direct label -- the peak only. A number on every point is
+       noise, and the rest are one hover away. */
+    var peak = '<span class="dlc-peak" style="left:' + (xAt(peakI) / W * 100).toFixed(2) + '%;top:' +
+      (yAt(rows[peakI].value) / H * 100).toFixed(2) + '%">' + money(rows[peakI].value) + '</span>';
+
     var labs = rows.map(function (r, i) {
       var skip = (n > 8 && (i % 2 === 1));
-      return '<span class="dcl' + (i === n - 1 ? ' cur' : '') + '">' +
-             (skip ? '' : esc(r.label)) + '</span>';
+      return '<span class="dcl' + (i === n - 1 ? ' cur' : '') + '">' + (skip ? '' : esc(r.label)) + '</span>';
     }).join('');
 
-    return '<div class="dchartwrap">' + svg.join('') +
-           '<div class="dclabels" aria-hidden="true">' + labs + '</div></div>';
+    return '<div class="dlc" tabindex="0" role="img" aria-label="' +
+      esc(opts.label || 'Revenue by week') + '. Use arrow keys to read each week." data-h="' + H + '">' +
+      svg + peak + '<div class="dlc-tip"></div>' +
+      '<div class="dclabels" aria-hidden="true">' + labs + '</div></div>';
+  }
+
+  /* Wire hover + keyboard onto a rendered lineChart. Kept separate so the
+     markup can be built as a string and the listeners attached once. */
+  function wireLine(host, rows){
+    var box = host.querySelector('.dlc');
+    if (!box) { return; }
+    var svg = box.querySelector('.dlc-svg');
+    var hair = box.querySelector('.dlc-hair');
+    var dot = box.querySelector('.dlc-dot');
+    var tip = box.querySelector('.dlc-tip');
+    var W = 720, H = Number(box.getAttribute('data-h')) || 210, PAD = 6;
+    var n = rows.length;
+    var max = 0;
+    rows.forEach(function (r) { if (r.value > max) { max = r.value; } });
+    var top = (max || 1) * 1.10;
+    var idx = -1;
+
+    function show(i){
+      if (i < 0 || i >= n) { return; }
+      idx = i;
+      var r = rows[i];
+      var x = n === 1 ? W / 2 : PAD + (W - PAD * 2) * (i / (n - 1));
+      var y = H - (r.value / top) * H;
+      hair.setAttribute('x1', x); hair.setAttribute('x2', x);
+      dot.setAttribute('cx', x); dot.setAttribute('cy', y);
+      box.classList.add('on');
+
+      /* textContent, not innerHTML: labels are data. */
+      tip.textContent = '';
+      var v = document.createElement('span'); v.className = 't-v'; v.textContent = money(r.value);
+      var l = document.createElement('span'); l.className = 't-l'; l.textContent = 'Week of ' + r.label;
+      tip.appendChild(v); tip.appendChild(l);
+
+      if (i > 0) {
+        var prev = rows[i - 1].value;
+        var diff = r.value - prev;
+        var d = document.createElement('span');
+        d.className = 't-d ' + (diff >= 0 ? 'pos' : 'neg');
+        d.textContent = (diff >= 0 ? '+' : '−') + money(Math.abs(diff)) + ' vs the week before';
+        tip.appendChild(d);
+      }
+      if (r.partial) {
+        var note = document.createElement('span'); note.className = 't-note';
+        note.textContent = 'This week is still running — it dips because it is not finished, not because takings fell.';
+        tip.appendChild(note);
+      }
+      tip.style.left = (x / W * 100).toFixed(2) + '%';
+    }
+    function hide(){ box.classList.remove('on'); }
+
+    svg.addEventListener('pointermove', function (ev) {
+      var b = svg.getBoundingClientRect();
+      if (!b.width) { return; }
+      var rel = (ev.clientX - b.left) / b.width;              /* 0..1 across the plot */
+      var i = Math.round(rel * (n - 1));
+      if (i < 0) { i = 0; } if (i > n - 1) { i = n - 1; }
+      show(i);
+    });
+    svg.addEventListener('pointerleave', hide);
+    box.addEventListener('focus', function () { show(idx < 0 ? n - 1 : idx); });
+    box.addEventListener('blur', hide);
+    box.addEventListener('keydown', function (ev) {
+      if (ev.key === 'ArrowRight') { ev.preventDefault(); show(Math.min(n - 1, idx + 1)); }
+      else if (ev.key === 'ArrowLeft') { ev.preventDefault(); show(Math.max(0, idx - 1)); }
+      else if (ev.key === 'Home') { ev.preventDefault(); show(0); }
+      else if (ev.key === 'End') { ev.preventDefault(); show(n - 1); }
+      else if (ev.key === 'Escape') { hide(); }
+    });
   }
 
   function rowsHTML(items, withDraft){
@@ -1021,26 +1155,45 @@
     var kpis = [
       { l: 'Monthly revenue', v: money(mtd),
         d: pmtd > 0 ? pct(mtdDelta) + ' vs prior MTD' : 'no prior month yet',
-        t: pmtd > 0 ? (mtdDelta >= 0 ? 'pos' : 'neg') : '', go: 'revenue' },
+        t: pmtd > 0 ? (mtdDelta >= 0 ? 'pos' : 'neg') : '', go: 'revenue',
+        why: 'Completed work dated inside ' + MON[TODAY.getMonth()] + ', counted day by day up to ' +
+             'today' + (pmtd > 0 ? '. Compared against the same day-of-month last month (' +
+             money(pmtd) + '), never against a whole month' : '. No prior month in the data yet, so ' +
+             'no comparison is shown rather than a misleading 0%') + '.' },
       { l: 'Outstanding AR',  v: money(arTotal),
         d: overdue.length + (overdue.length === 1 ? ' invoice past due' : ' invoices past due'),
-        t: overdue.length ? 'neg' : '', go: 'receivables' },
-      { l: 'Net cash flow',   v: money(netCash), d: money(spend) + ' spent this month', t: netCash >= 0 ? 'pos' : 'neg', go: 'revenue' },
+        t: overdue.length ? 'neg' : '', go: 'receivables',
+        why: 'Every open invoice added up — ' + receivables.length + ' of them. ' +
+             (overdue.length ? overdue.length + ' sit past 30 days, worth ' + money(overdueTotal) + '. ' : '') +
+             (undated.length ? undated.length + ' carries no date, so it is counted in the total but ' +
+              'cannot be aged — it has its own column rather than being quietly filed under 0–30.'
+              : 'Every one of them can be aged.') },
+      { l: 'Net cash flow',   v: money(netCash), d: money(spend) + ' spent this month',
+        t: netCash >= 0 ? 'pos' : 'neg', go: 'revenue',
+        why: 'Month-to-date revenue of <b>' + money(mtd) + '</b> minus <b>' + money(spend) +
+             '</b> of recorded spend. It is cash in against cash out for this month only — not ' +
+             'profit, and it does not know about anything you have not entered.' },
       /* Was the hardcoded string "across 3 crews". Harmless on sample data and a
          FABRICATION the moment a real book is loaded -- the dashboard would be
          asserting a fact about a business it knows nothing about. Derived now. */
       { l: 'Active customers',v: String(activeCustomers),
         d: openAccounts + (openAccounts === 1 ? ' with open work' : ' with open invoices'),
-        t: '', go: 'receivables' }
+        t: '', go: 'receivables',
+        why: 'Accounts on the book. <b>' + openAccounts + '</b> of them currently carry an open ' +
+             'invoice. Deliberately not a guess at crew counts or headcount — this only reports ' +
+             'what the invoices actually show.' }
     ];
     el('d-kpis').innerHTML = kpis.map(function (k) {
       return '<button class="dkpi" type="button" data-goto="' + k.go + '">' +
              '<span class="dk-l">' + esc(k.l) + '</span>' +
              '<span class="dk-v">' + k.v + '</span>' +
-             '<span class="dk-d' + (k.t ? ' ' + k.t : '') + '">' + esc(k.d) + '</span></button>';
+             '<span class="dk-d' + (k.t ? ' ' + k.t : '') + '">' + esc(k.d) + '</span>' +
+             (k.why ? '<span class="dkpi-why">' + k.why + '</span>' : '') + '</button>';
     }).join('');
 
-    el('d-minichart').innerHTML = chart(weeks.slice(-6), { h: 30, px: 132, label: 'Revenue, last six weeks' });
+    var mini = weeks.slice(-6);
+    el('d-minichart').innerHTML = lineChart(mini, { h: 128, label: 'Revenue, last six weeks' });
+    wireLine(el('d-minichart'), mini);
     el('d-callfirst').innerHTML = receivables.length
       ? rowsHTML(receivables.slice(0, 3))
       : '<p class="dnote" style="margin:0">Nothing outstanding — every invoice is paid.</p>';
@@ -1076,9 +1229,10 @@
       stat((delta >= 0 ? '+' : '') + money(delta), 'vs prior ' + half + ' wks',
            delta >= 0 ? 'pos' : 'neg') +
       stat(above + ' of ' + (vals.length - half), 'Weeks above avg');
-    el('r-chart').innerHTML = chart(rows, { h: 40, px: 168, label: 'Revenue, last thirteen weeks' });
+    el('r-chart').innerHTML = lineChart(rows, { h: 210, label: 'Revenue, last thirteen weeks' });
+    wireLine(el('r-chart'), rows);
     el('r-note').innerHTML = 'Best week was <b>' + bestRow.label + '</b> at ' + money(best) +
-      '. The newest bar is the week in progress, so it is short by design rather than a downturn — ' +
+      '. The last point is the week in progress, so it dips by design rather than as a downturn — ' +
       '<b>every figure above is calculated on completed weeks only</b>, because an average that ' +
       'quietly includes a half-finished week drops every Monday and recovers by Friday, and you ' +
       'would spend months reacting to the calendar instead of the business.';
