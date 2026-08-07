@@ -73,6 +73,9 @@ border-radius:.5rem;padding:.8rem 1rem;overflow-x:auto;margin:.7rem 0}
 .cy-dl a{display:inline-block;border:1px solid var(--line);border-radius:.5rem;
 padding:.45rem .8rem;font-family:var(--mono);font-size:.8rem;text-decoration:none;background:var(--card)}
 .cy-dl a:hover{border-color:var(--green,#1E7A47)}
+.cy-dl a.primary{background:var(--green,#1E7A47);color:#fff;border-color:var(--green,#1E7A47);
+font-size:.9rem;padding:.6rem 1.1rem}
+.cy-dl a.primary:hover{filter:brightness(1.08)}
 .cy-warn{border-left:4px solid #8A6A16;background:var(--card);border-radius:.6rem;
 padding:.9rem 1.1rem;margin:1.2rem 0;max-width:42rem;font-size:.9rem}
 .cy-codes{border-collapse:collapse;margin:1rem 0 0;font-size:.9rem}
@@ -150,6 +153,21 @@ MAIN = """
     canary calls <a href="/flatline/">flatline</a> for the analysis rather than reimplementing it,
     so you install both &mdash; two files, no account, no service.</p>
 
+    <p style="margin:.2rem 0 0"><b>If you just want to use it &mdash; Windows, one file, nothing to
+    install:</b></p>
+    <div class="cy-dl">
+      <a class="primary" href="CANARY_EXE">&darr; canary.exe &mdash; 13 MB, no Python needed</a>
+    </div>
+    <p style="color:var(--ink-soft);font-size:.88rem;margin:.5rem 0 0">Double-click it, pick your
+    folder, and the report opens in your browser. Everything happens on your machine.</p>
+
+    <div class="cy-warn"><strong>Windows will warn you the first time.</strong> This download is not
+    code-signed &mdash; a certificate costs a few hundred dollars a year and we have not bought one
+    &mdash; so SmartScreen shows &ldquo;Windows protected your PC&rdquo;. That warning means
+    <em>unrecognized</em>, not <em>unsafe</em>. Click <b>More info &rarr; Run anyway</b>, or skip the
+    app entirely and install from source below &mdash; it is the same code you can read on GitHub.</div>
+
+    <p style="margin:1.2rem 0 0"><b>If you are technical, or not on Windows:</b></p>
     <div class="cy-dl">
       <a href="CANARY_WHL">&darr; canary 0.1.0 (wheel)</a>
       <a href="CANARY_SRC">&darr; canary 0.1.0 (source)</a>
@@ -235,6 +253,7 @@ def main() -> None:
     head = head.replace('</head>', f'<style>{PAGE_CSS}{PLAIN_CSS}</style>\n</head>')
 
     body = (MAIN.replace('REPO_URL', REPO)
+                .replace('CANARY_EXE', f'{REL}/canary.exe')
                 .replace('CANARY_WHL', f'{REL}/awllc_canary-0.1.0-py3-none-any.whl')
                 .replace('CANARY_SRC', f'{REL}/awllc_canary-0.1.0.tar.gz')
                 .replace('FLATLINE_WHL', f'{FL_REL}/awllc_flatline-0.2.0-py3-none-any.whl')
@@ -243,7 +262,8 @@ def main() -> None:
     # Refuse rather than ship a page whose download buttons are decoration. A
     # placeholder that survives to the page is a link that goes nowhere, and this
     # page's whole job is handing someone a file.
-    for token in ('REPO_URL', 'CANARY_WHL', 'CANARY_SRC', 'FLATLINE_WHL', 'FLATLINE_SRC'):
+    for token in ('REPO_URL', 'CANARY_EXE', 'CANARY_WHL', 'CANARY_SRC',
+                  'FLATLINE_WHL', 'FLATLINE_SRC'):
         if token in body:
             raise SystemExit(f'refusing to build /canary/: placeholder {token} was never replaced')
 
