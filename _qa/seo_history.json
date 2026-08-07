@@ -1,83 +1,5 @@
 [
  {
-  "when": "2026-08-03 22:17",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-03 22:18",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-03 22:19",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-03 23:36",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-03 23:36",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-03 23:39",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-03 23:39",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-03 23:39",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-03 23:39",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 00:17",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 00:17",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 00:25",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
-  "when": "2026-08-04 00:25",
-  "score": 0,
-  "pages": 26,
-  "by_area": {}
- },
- {
   "when": "2026-08-04 00:27",
   "score": 0,
   "pages": 26,
@@ -378,6 +300,94 @@
   "when": "2026-08-06 14:16",
   "score": 0,
   "pages": 28,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 14:29",
+  "score": 0,
+  "pages": 28,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:04",
+  "score": 0,
+  "pages": 28,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:05",
+  "score": 0,
+  "pages": 28,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:21",
+  "score": 0,
+  "pages": 28,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:24",
+  "score": 0,
+  "pages": 28,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:38",
+  "score": 0,
+  "pages": 28,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:39",
+  "score": 5,
+  "pages": 29,
+  "by_area": {
+   "meta-description": 1,
+   "noindex-undocumented": 1,
+   "nap": 1,
+   "canonical": 1,
+   "title": 1
+  }
+ },
+ {
+  "when": "2026-08-06 21:40",
+  "score": 3,
+  "pages": 29,
+  "by_area": {
+   "meta-description": 1,
+   "noindex-undocumented": 1,
+   "title": 1
+  }
+ },
+ {
+  "when": "2026-08-06 21:42",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:51",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:51",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:54",
+  "score": 0,
+  "pages": 29,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-06 21:54",
+  "score": 0,
+  "pages": 29,
   "by_area": {}
  }
 ]
