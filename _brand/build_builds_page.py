@@ -197,6 +197,14 @@ ENGINEERING = [
      "Built after a real scheduled job discarded four days of data while reporting success every "
      "run. 108 tests, MIT, public &mdash; the page shows five ways to use it on your own stack.",
      ["Open source", "MIT"]),
+    ("canary", "/canary/",
+     "The always-on half of flatline. Point it at the folder where your exports already get saved "
+     "and it checks each file the moment it changes &mdash; a column that is one value all the way "
+     "down, a field empty on every row, a report that stopped moving weeks ago.",
+     "Every tool of this kind waits to be asked, which means the people who most need the check "
+     "never run it. This one inverts the trigger. Wheels for both tools download straight from the "
+     "page; it reads only, and nothing leaves the machine.",
+     ["Open source", "MIT", "Download"]),
     ("Notarize a file", "/proof/notarize/",
      "Drop in any file and your browser hashes it and signs a receipt with an Ed25519 key it "
      "generates on your device. Later, drop the file back in &mdash; it tells you whether a single "
@@ -258,6 +266,7 @@ USE = {
     "/automation-monitoring/":       ("anyone already running automations", "the reports you already receive", "$99/mo, weekly evidence"),
     "/proof/notarize/":              ("proving a file has not changed", "the file itself", "seconds, on your device"),
     "/flatline/":                    ("engineers with silent scheduled jobs", "your own stack", "MIT, read the repo"),
+    "/canary/":                      ("anyone who sends exports they never check", "a folder where files land", "MIT, download and run"),
 }
 
 

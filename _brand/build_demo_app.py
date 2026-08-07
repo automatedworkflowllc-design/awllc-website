@@ -264,6 +264,27 @@ APP_CSS = """
 .ddraft-btn:hover{border-color:var(--d-green);color:var(--d-green)}
 .ddraft-btn[disabled]{cursor:not-allowed;opacity:.5;border-style:dashed}
 .ddraft-btn[disabled]:hover{border-color:var(--d-line2);color:var(--d-ink)}
+/* ---- "run it on your own numbers" dropzone ----------------------------
+   The whole funnel asks a stranger to email a file and wait a day. This does
+   it in a second, in their browser, with nothing leaving the machine -- so the
+   promise the site makes about privacy is demonstrated rather than described. */
+.ddrop{margin:0 0 1.05rem;border:1.5px dashed var(--d-line2);border-radius:11px;
+  background:var(--d-tint);padding:.8rem .9rem;display:flex;gap:.75rem;
+  align-items:center;flex-wrap:wrap;transition:border-color .12s ease,background .12s ease}
+.ddrop.over{border-color:var(--d-green);background:#F1F7F3}
+.ddrop-m{min-width:0;flex:1}
+.ddrop-t{margin:0;font-size:.92rem;font-weight:700}
+.ddrop-s{margin:.15rem 0 0;font-size:.8rem;color:var(--d-soft);text-wrap:pretty}
+.ddrop-b{flex:none;font:inherit;font-size:.85rem;cursor:pointer;border-radius:9px;
+  padding:.45rem .8rem;border:1px solid var(--d-ink);background:var(--d-ink);color:var(--d-paper)}
+.ddrop-b:hover{opacity:.88}
+.ddrop-b.ghost{background:none;color:var(--d-ink);border-color:var(--d-line2)}
+.ddrop-b:focus-visible{outline:2px solid var(--d-green);outline-offset:2px}
+.ddrop input[type=file]{display:none}
+.dmap{margin:.55rem 0 0;font-family:var(--d-mono);font-size:.63rem;letter-spacing:.03em;
+  color:var(--d-soft);line-height:1.7;width:100%}
+.dmap b{color:var(--d-ink)}
+.dmap .bad{color:var(--d-red)}
 .dnote{margin:.85rem 0 0;font-size:.85rem;color:var(--d-soft);text-wrap:pretty}
 .dnote b{color:var(--d-ink)}
 
@@ -361,6 +382,19 @@ APP_HTML = """
         <section id="view-dashboard" role="tabpanel" aria-labelledby="tab-dashboard" tabindex="0">
           <h2 class="dh" id="d-greet">Good morning.</h2>
           <p class="dhsub" id="d-greetsub"></p>
+
+          <div class="ddrop" id="d-drop">
+            <span class="ddrop-m">
+              <p class="ddrop-t">Want to see this on your own numbers?</p>
+              <p class="ddrop-s">Drop a CSV of your invoices or jobs &mdash; any export with a date and
+              an amount. It is read <b>in this browser</b>: nothing is uploaded, and you can have the
+              network tab open while you do it.</p>
+              <div class="dmap" id="d-map"></div>
+            </span>
+            <button class="ddrop-b" type="button" id="d-pick">Choose a CSV</button>
+            <button class="ddrop-b ghost" type="button" id="d-reset" hidden>Back to sample</button>
+            <input type="file" id="d-file" accept=".csv,text/csv,text/plain">
+          </div>
 
           <div class="dsum">
             <p class="dsum-h">&#10022; AI weekly summary &mdash; written by the dashboard, not by you</p>
@@ -658,17 +692,28 @@ APP_JS = r"""
     return;
   }
 
-  var weeks           = D.weeks;
-  var receivables     = D.receivables;
-  var spend           = D.spend;
-  var activeCustomers = D.activeCustomers;
+  /* ---- derived model, RELOADABLE ---------------------------------------
+     These were computed once at load. They are now reassigned by loadBook(),
+     so the whole dashboard can be re-derived from a different book without
+     touching a single render function -- which is what lets a visitor drop
+     their own export on it. Declared with the same names in the same closure
+     precisely so nothing downstream has to change. */
+  var weeks, receivables, spend, activeCustomers, arTotal, undated, overdue,
+      overdueTotal, mtd, pmtd, mtdDelta, neverInvoiced, netCash, openAccounts;
 
-  var arTotal = receivables.reduce(function (s, r) { return s + r.amount; }, 0);
+  function deriveFrom(book){
+    D = book;
+    weeks           = D.weeks;
+    receivables     = D.receivables;
+    spend           = D.spend;
+    activeCustomers = D.activeCustomers;
+
+    arTotal = receivables.reduce(function (s, r) { return s + r.amount; }, 0);
   /* An undated invoice is not "not overdue" -- it is UNKNOWN, and it must not
      be quietly counted either way. */
-  var undated = receivables.filter(function (r) { return r.days === null; });
-  var overdue = receivables.filter(function (r) { return r.days !== null && r.days > 30; });
-  var overdueTotal = overdue.reduce(function (s, r) { return s + r.amount; }, 0);
+    undated = receivables.filter(function (r) { return r.days === null; });
+    overdue = receivables.filter(function (r) { return r.days !== null && r.days > 30; });
+    overdueTotal = overdue.reduce(function (s, r) { return s + r.amount; }, 0);
 
   /* Month-to-date from the weekly series: only the part of each week that falls
      inside the current calendar month. Computed, never typed. */
@@ -693,25 +738,28 @@ APP_JS = r"""
     return monthSum(new Date(TODAY.getFullYear(), TODAY.getMonth() - 1, 1), TODAY.getDate());
   }
 
-  var mtd = monthToDate();
-  var pmtd = priorMonthSame();
-  var mtdDelta = pmtd > 0 ? ((mtd - pmtd) / pmtd) * 100 : 0;
+    mtd = monthToDate();
+    pmtd = priorMonthSame();
+    mtdDelta = pmtd > 0 ? ((mtd - pmtd) / pmtd) * 100 : 0;
   /* "Never invoiced" is the thing this whole product is pointed at: finished work
      that no one billed. Derived from the book so it moves with it. */
   /* Guard the lookback: a real book may have fewer than three weeks in it, and
      weeks[-1] would be undefined -> "$NaN" on the flagship page. */
-  var recent = weeks.slice(-3, -1);
-  var neverInvoiced = recent.length
+    var recent = weeks.slice(-3, -1);
+    neverInvoiced = recent.length
     ? Math.round(recent.reduce(function (a, w) { return a + w.value; }, 0) * 0.17)
     : Math.round((weeks[weeks.length - 1] || { value: 0 }).value * 0.17);
-  var netCash = mtd - spend;
+    netCash = mtd - spend;
   /* Distinct accounts carrying an open invoice -- a fact we actually hold,
      unlike crew counts. */
-  var openAccounts = (function () {
+    openAccounts = (function () {
     var seen = {}, k = 0;
     receivables.forEach(function (r) { if (!seen[r.customer]) { seen[r.customer] = 1; k++; } });
     return k;
   })();
+  }
+
+  deriveFrom(D);
 
   /* ---------- rendering helpers ---------------------------------------- */
   function el(id){ return document.getElementById(id); }
@@ -1224,6 +1272,270 @@ APP_JS = r"""
     var tab = el('tab-' + next);
     if (tab) { try { tab.focus(); } catch (e) {} }
   });
+
+  /* ================= RUN IT ON YOUR OWN NUMBERS =========================
+     Reads a CSV in the browser and rebuilds the dashboard from it. No upload,
+     no server, no library -- the same architecture claim every tool page makes,
+     demonstrated on the flagship instead of described.
+
+     It REFUSES rather than guesses. A date column and an amount column are the
+     two things it cannot work without, and if it cannot find them with
+     confidence it says which one is missing and leaves the sample data up. A
+     dashboard confidently drawn from columns it misread is worse than one that
+     admits it could not read them -- and it would be the exact failure this
+     business sells against, committed on our own demo. */
+
+  function parseCSV(text){
+    var rows = [], row = [], cell = '', q = false, i = 0, c;
+    /* Sniff the delimiter: exports are as often tab- as comma-separated. */
+    var delim = (text.split('\t').length > text.split(',').length) ? '\t' : ',';
+    while (i < text.length) {
+      c = text[i];
+      if (q) {
+        if (c === '"') { if (text[i+1] === '"') { cell += '"'; i++; } else { q = false; } }
+        else { cell += c; }
+      }
+      else if (c === '"') { q = true; }
+      else if (c === delim) { row.push(cell); cell = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i+1] === '\n') { i++; }
+        row.push(cell); cell = '';
+        if (row.length > 1 || row[0] !== '') { rows.push(row); }
+        row = [];
+      } else { cell += c; }
+      i++;
+    }
+    if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+    return rows;
+  }
+
+  /* Looks like a calendar date rather than money: two separators between digit
+     groups, or a month name. Needed by BOTH parsers below. */
+  function looksLikeDate(t){
+    return /^\s*\d{1,4}[-\/.]\d{1,2}[-\/.]\d{1,4}/.test(t) ||
+           /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(t);
+  }
+
+  function parseNum(v){
+    if (v === null || v === undefined) { return null; }
+    var raw = String(v).trim();
+    /* A DATE IS NOT AN AMOUNT. Stripping separators out of "2026-07-01" yields
+       20260701, which sails through every numeric test -- that is exactly how
+       the date column got selected as the amount column, and the dashboard
+       would have drawn confident revenue out of calendar dates. */
+    if (looksLikeDate(raw)) { return null; }
+    var t = raw.replace(/[^0-9.\-]/g, '');
+    if (!t || t === '-' || t === '.') { return null; }
+    var n = parseFloat(t);
+    if (!isFinite(n)) { return null; }
+    /* (1,234) is accounting notation for negative. */
+    return /\(/.test(raw) ? -n : n;
+  }
+
+  function parseWhen(v){
+    if (!v) { return null; }
+    var t = String(v).trim();
+    var m = t.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+    if (m) { return new Date(+m[1], +m[2] - 1, +m[3]); }
+    m = t.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})/);
+    if (m) {
+      var y = +m[3];
+      if (y < 100) { y += 2000; }
+      /* Ambiguous d/m vs m/d. US order is assumed, and the mapping line says
+         which column was used so a wrong read is visible rather than silent. */
+      return new Date(y, +m[1] - 1, +m[2]);
+    }
+    /* A BARE NUMBER IS NOT A DATE. new Date("1200") is the year 1200, so an
+       amount column full of round numbers reads as 60%+ parseable dates and
+       gets picked as the date column. Require something date-shaped before
+       handing the string to Date(). */
+    if (!looksLikeDate(t)) { return null; }
+    var d = new Date(t);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  /* Name match first, then CONTENT validation -- a column called "Date" full of
+     job numbers is not a date column. Same two-stage rule the tool pages use. */
+  function pickCol(header, rows, namePat, test, minFrac){
+    function frac(ix){
+      var vals = [];
+      rows.forEach(function (r) {
+        var v = r[ix];
+        if (v !== undefined && String(v).trim() !== '') { vals.push(v); }
+      });
+      if (!vals.length) { return 0; }
+      var ok = 0;
+      vals.forEach(function (v) { if (test(v)) { ok++; } });
+      return ok / vals.length;
+    }
+    var byName = -1;
+    for (var i = 0; i < header.length; i++) {
+      if (byName < 0 && namePat.test(header[i])) { byName = i; }
+    }
+    if (byName >= 0 && frac(byName) > minFrac) { return byName; }
+    var best = -1, bestF = 0;
+    for (var j = 0; j < header.length; j++) {
+      var f = frac(j);
+      if (f > bestF) { bestF = f; best = j; }
+    }
+    return bestF > minFrac ? best : -1;
+  }
+
+  function bookFromCSV(text, fileName){
+    var grid = parseCSV(text);
+    if (grid.length < 2) { throw new Error('that file has no rows under its header'); }
+    var header = grid[0].map(function (h) { return String(h || '').trim(); });
+    var rows = [];
+    grid.slice(1).forEach(function (r) { if (r.join('').trim() !== '') { rows.push(r); } });
+    if (!rows.length) { throw new Error('that file has a header but no data rows'); }
+
+    var di = pickCol(header, rows, /date|day|issued|invoiced|completed|created/i,
+                     function (v) { return parseWhen(v) !== null; }, 0.6);
+    var ai = pickCol(header, rows, /amount|total|value|price|revenue|charge|due|net|subtotal/i,
+                     function (v) { var n = parseNum(v); return n !== null && n !== 0; }, 0.6);
+    if (di < 0) { throw new Error('no column in that file reads as a date'); }
+    if (ai < 0) { throw new Error('no column in that file reads as an amount'); }
+    /* Belt and braces: one column cannot be both. If the detectors ever agree
+       again, refuse rather than plot a column against itself. */
+    if (ai === di) { throw new Error('only one usable column was found (' + header[di] +
+                                     '), so there is nothing to plot against the date'); }
+
+    var ci = -1;
+    for (var k = 0; k < header.length; k++) {
+      if (/client|customer|account|company|payer|name/i.test(header[k])) { ci = k; break; }
+    }
+    /* An explicit paid/status column lets open invoices be split out. Without
+       one, receivables are NOT invented -- the mapping line says so. */
+    var si = -1;
+    for (var p = 0; p < header.length; p++) {
+      if (/paid|status|state|settled/i.test(header[p])) { si = p; break; }
+    }
+
+    var byWeek = {}, open = [], used = 0, skipped = 0;
+    rows.forEach(function (r) {
+      var d = parseWhen(r[di]), n = parseNum(r[ai]);
+      if (d === null || n === null) { skipped++; return; }
+      used++;
+      if (si >= 0 && n > 0) {
+        var sv = String(r[si] || '').trim().toLowerCase();
+        var settled = (sv === 'paid' || sv === 'yes' || sv === 'y' || sv === 'true' ||
+                       sv === 'settled' || sv === 'complete' || sv === 'closed' || sv === '1');
+        if (!settled) {
+          open.push({ customer: ci >= 0 ? String(r[ci] || 'Unnamed account') : 'Unnamed account',
+                      amount: n, days: Math.max(0, dayDiff(TODAY, d)) });
+        }
+      }
+      var key = mondayOf(d).getTime();
+      byWeek[key] = (byWeek[key] || 0) + n;
+    });
+    if (!used) { throw new Error('the columns were found, but no row had both a readable date and amount'); }
+
+    var keys = [];
+    for (var kk in byWeek) { if (byWeek.hasOwnProperty(kk)) { keys.push(Number(kk)); } }
+    keys.sort(function (a, b) { return a - b; });
+
+    /* Fill gaps: a week with no work is a real zero, and dropping it would
+       compress the timeline and quietly flatter the trend. */
+    var out = [], cur = keys[0], last = keys[keys.length - 1], guard = 0;
+    while (cur <= last && guard++ < 400) {
+      out.push({ start: new Date(cur), value: Math.max(0, Math.round(byWeek[cur] || 0)) });
+      cur += 604800000;
+    }
+    if (out.length > 26) { out = out.slice(-26); }
+
+    var names = {}, nOpen = 0;
+    open.forEach(function (o) { if (!names[o.customer]) { names[o.customer] = 1; nOpen++; } });
+
+    var label = fileName.replace(/\.[a-z0-9]+$/i, '').slice(0, 48) || 'Your business';
+    return {
+      book: { business: label, weeks: out, receivables: open.slice(0, 40), spend: 0,
+              activeCustomers: nOpen },
+      map: { date: header[di], amount: header[ai],
+             customer: ci >= 0 ? header[ci] : null,
+             status: si >= 0 ? header[si] : null,
+             used: used, skipped: skipped, weeks: out.length, open: open.length }
+    };
+  }
+
+  function mapLine(m){
+    var bits = ['Read <b>' + m.used + '</b> rows into <b>' + m.weeks + '</b> weeks',
+                'date &rarr; <b>' + esc(m.date) + '</b>',
+                'amount &rarr; <b>' + esc(m.amount) + '</b>'];
+    bits.push('customer &rarr; ' + (m.customer
+      ? '<b>' + esc(m.customer) + '</b>'
+      : '<span class="bad">not found</span>'));
+    bits.push(m.status
+      ? 'open invoices from <b>' + esc(m.status) + '</b> (' + m.open + ')'
+      : '<span class="bad">no paid/status column &mdash; receivables left empty rather than invented</span>');
+    if (m.skipped) {
+      bits.push('<span class="bad">' + m.skipped + ' row(s) skipped: unreadable date or amount</span>');
+    }
+    return bits.join(' &middot; ') + '<br>Read it wrong? Rename the column and drop it again.';
+  }
+
+  function applyBook(book, mapHTML){
+    deriveFrom(decorate(book));
+    rendered = {};                       /* force every tab to re-render */
+    var chip = el('d-samplechip'); if (chip) { chip.remove(); }
+    var biz = el('d-biz'); if (biz) { biz.textContent = book.business; }
+    var fn = el('d-footnote');
+    if (fn) { fn.textContent = book.business + ' · your data, read in this browser'; }
+    var rst = el('d-reset'); if (rst) { rst.hidden = false; }
+    el('d-map').innerHTML = mapHTML;
+    renderDashboard();
+    show('dashboard');
+  }
+
+  (function wireDrop(){
+    var zone = el('d-drop'), input = el('d-file'), pick = el('d-pick'), reset = el('d-reset');
+    if (!zone || !input) { return; }
+
+    function fail(msg){
+      el('d-map').innerHTML = '<span class="bad">Could not use that file &mdash; ' + esc(msg) +
+        '.</span><br>The sample data is still on screen and nothing was changed. It needs one column ' +
+        'that reads as a date and one that reads as an amount.';
+    }
+    function take(file){
+      if (!file) { return; }
+      if (file.size > 8 * 1024 * 1024) { fail('that file is over 8MB'); return; }
+      var fr = new FileReader();
+      fr.onerror = function () { fail('the file could not be read'); };
+      fr.onload = function () {
+        try {
+          var r = bookFromCSV(String(fr.result || ''), file.name);
+          applyBook(r.book, mapLine(r.map));
+        } catch (e) { fail(e && e.message ? e.message : 'it could not be parsed'); }
+      };
+      fr.readAsText(file);
+    }
+
+    pick.addEventListener('click', function () { input.click(); });
+    input.addEventListener('change', function () {
+      take(input.files && input.files[0]);
+      input.value = '';
+    });
+    ['dragenter', 'dragover'].forEach(function (t) {
+      zone.addEventListener(t, function (ev) { ev.preventDefault(); zone.classList.add('over'); });
+    });
+    ['dragleave', 'drop'].forEach(function (t) {
+      zone.addEventListener(t, function (ev) { ev.preventDefault(); zone.classList.remove('over'); });
+    });
+    zone.addEventListener('drop', function (ev) {
+      var f = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
+      take(f);
+    });
+    reset.addEventListener('click', function () {
+      deriveFrom(decorate(buildSample()));
+      rendered = {};
+      el('d-map').innerHTML = '';
+      reset.hidden = true;
+      var biz = el('d-biz'); if (biz) { biz.textContent = D.business; }
+      var fn = el('d-footnote');
+      if (fn) { fn.textContent = 'Sample data — yours runs on your numbers'; }
+      renderDashboard();
+      show('dashboard');
+    });
+  })();
 
   /* ---------- boot ------------------------------------------------------ */
   /* Name and the "Sample data" chip follow the DATA, so a real book renders as

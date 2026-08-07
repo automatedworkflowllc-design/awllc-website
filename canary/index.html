@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Builds — The Free Tools and Systems Actually Running</title>
-<meta name="description" content="Every tool Automated Workflow has shipped: five free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a crisis directory.">
-<link rel="canonical" href="https://automatedworkflowllc.com/builds/">
+<title>Canary — Know What Is Wrong With an Export Before You Send It</title>
+<meta name="description" content="Free open-source watcher: point it at the folder where your exports get saved and it checks each file the moment it changes. Local only, nothing uploads. MIT licensed.">
+<link rel="canonical" href="https://automatedworkflowllc.com/canary/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Builds — The Free Tools and Systems Actually Running">
-<meta property="og:description" content="Every tool Automated Workflow has shipped: five free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a crisis directory.">
-<meta property="og:url" content="https://automatedworkflowllc.com/builds/">
+<meta property="og:title" content="Canary — Know What Is Wrong With an Export Before You Send It">
+<meta property="og:description" content="Free open-source watcher: point it at the folder where your exports get saved and it checks each file the moment it changes. Local only, nothing uploads. MIT licensed.">
+<meta property="og:url" content="https://automatedworkflowllc.com/canary/">
 <meta property="og:image" content="https://automatedworkflowllc.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 
@@ -172,54 +172,59 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
 <link rel="manifest" href="/site.webmanifest?v=1">
 <style>
-/* ---- builds index ---- */
-.bd-lede{max-width:42rem;color:var(--ink-soft)}
-.bd-sec{margin:2.4rem 0 .9rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.09em;
-color:var(--ink-soft);border-bottom:1px solid var(--line);padding-bottom:.4rem}
-.bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
-@media(max-width:720px){.bd-grid{grid-template-columns:1fr}}
-.bd-card{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:1.1rem 1.2rem;
-display:flex;flex-direction:column}
-.bd-card h3{margin:0 0 .2rem;font-size:1.02rem}
-.bd-card h3 a{text-decoration:none}
-.bd-card h3 a:hover{text-decoration:underline}
-.bd-what{margin:0 0 .6rem;font-size:.9rem;color:var(--ink-soft);flex:1}
-.bd-proof{margin:0 0 .7rem;font-size:.82rem;color:var(--ink-soft);border-left:2px solid var(--line-strong);
-padding-left:.6rem}
-/* purpose & use: a 3-row grid so the labels align and a reader can scan
-   "what do I need" without reading prose. Inline spans ran together once the
-   text wrapped, which defeated the point. */
-.bd-use{display:grid;grid-template-columns:auto 1fr;gap:.12rem .7rem;margin:0 0 .7rem;
-padding:.55rem .7rem;background:var(--bg-soft);border-radius:.45rem;
-font-size:.78rem;line-height:1.45;color:var(--ink-soft)}
-.bd-use dt{font-family:var(--mono,monospace);font-size:.6rem;letter-spacing:.09em;
-text-transform:uppercase;color:var(--line-strong);padding-top:.18rem}
-.bd-use dd{margin:0}
-.bd-tags{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:auto}
-.bd-tag{font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);
-border-radius:.3rem;padding:.12rem .42rem;color:var(--ink-soft)}
-.bd-tag.live{border-color:var(--accent,var(--green,#1E7A47));color:var(--accent,var(--green,#1E7A47))}
-.bd-note{margin:2.2rem 0 0;padding:1.1rem 1.2rem;border:1px solid var(--line);border-radius:12px;
-background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
-/* Ask box. This page is the LinkedIn landing target, and LinkedIn traffic is
-   overwhelmingly mobile -- where a mailto: on a phone with no mail app
-   configured does nothing at all and the visitor is simply lost. Same failure
-   we fixed sitewide on 2026-08-03. A real field beats a link that may be inert. */
-.bd-ask{margin:2.2rem 0 0;padding:1.3rem 1.25rem;border:1px solid var(--line);border-radius:12px;
-background:var(--bg-soft)}
-.bd-ask h2{margin:0 0 .3rem;font-size:1.12rem;letter-spacing:-.01em}
-.bd-ask .bd-asklede{margin:0 0 1rem;font-size:.9rem;color:var(--ink-soft);max-width:34rem}
-.bd-form{display:grid;gap:.75rem;max-width:30rem;margin:0}
-.bd-form label{font-size:.72rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
-color:var(--ink-soft);margin-bottom:-.5rem}
-.bd-form input[type=email],.bd-form input[type=text]{width:100%;padding:.7rem .8rem;
-border:1px solid var(--line);border-radius:9px;font:inherit;font-size:.95rem;
-background:var(--bg,#fff);color:var(--ink)}
-.bd-form input:focus{outline:none;border-color:var(--green,#1E7A47);
-box-shadow:0 0 0 3px rgba(30,122,71,.14)}
-.bd-form .btn{width:100%;justify-content:center;cursor:pointer;margin-top:.25rem}
-.bd-form .bd-privacy{margin:.1rem 0 0;font-size:.82rem;color:var(--ink-soft)}
-#bd-sent{margin:0;font-size:.95rem;color:var(--ink);display:none}
+/* ---- canary page ---- */
+.cy-lede{font-size:1.08rem;max-width:40rem;color:var(--ink-soft)}
+.cy-clock{display:grid;grid-template-columns:auto 1fr;gap:.5rem 1rem;margin:1.6rem 0;
+max-width:42rem;align-items:baseline}
+.cy-clock dt{font-family:var(--mono);font-size:.95rem;font-weight:600;color:var(--green,#1E7A47);
+white-space:nowrap}
+.cy-clock dd{margin:0;color:var(--ink-soft)}
+.cy-sample{border:1px solid var(--line);border-radius:.7rem;overflow:hidden;margin:1.2rem 0 .4rem;
+background:var(--card)}
+.cy-sample .bar{background:var(--bg-soft);border-bottom:1px solid var(--line);padding:.55rem .9rem;
+font-family:var(--mono);font-size:.78rem;color:var(--ink-soft)}
+.cy-sample table{border-collapse:collapse;width:100%;font-size:.86rem}
+.cy-sample td{border-top:1px solid var(--line);padding:.5rem .9rem;vertical-align:top}
+.cy-sample tr:first-child td{border-top:none}
+.cy-sample .st{font-family:var(--mono);font-size:.76rem;font-weight:600;white-space:nowrap}
+.cy-sample .bad .st{color:#B4452C}
+.cy-sample .err .st{color:#8A6A16}
+.cy-sample .ok .st{color:#1E7A47}
+.cy-sample .fn{font-family:var(--mono);font-size:.8rem}
+.cy-cap{font-size:.82rem;color:var(--ink-soft);margin:0 0 1.4rem;max-width:42rem}
+.cy-cards{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));margin:1.2rem 0 0}
+.cy-card{border:1px solid var(--line);border-radius:.6rem;padding:.8rem 1rem;background:var(--bg-soft)}
+.cy-card b{font-family:var(--mono);font-size:.9rem;display:block;margin-bottom:.2rem}
+.cy-card span{font-size:.88rem;color:var(--ink-soft)}
+.cy-get{border:1px solid var(--line);border-radius:12px;background:var(--bg-soft);
+padding:1.3rem;margin:1.8rem 0 0}
+.cy-get pre{font-family:var(--mono);font-size:.85rem;background:var(--card);border:1px solid var(--line);
+border-radius:.5rem;padding:.8rem 1rem;overflow-x:auto;margin:.7rem 0}
+.cy-dl{display:flex;flex-wrap:wrap;gap:.5rem;margin:.9rem 0 .2rem}
+.cy-dl a{display:inline-block;border:1px solid var(--line);border-radius:.5rem;
+padding:.45rem .8rem;font-family:var(--mono);font-size:.8rem;text-decoration:none;background:var(--card)}
+.cy-dl a:hover{border-color:var(--green,#1E7A47)}
+.cy-warn{border-left:4px solid #8A6A16;background:var(--card);border-radius:.6rem;
+padding:.9rem 1.1rem;margin:1.2rem 0;max-width:42rem;font-size:.9rem}
+.cy-codes{border-collapse:collapse;margin:1rem 0 0;font-size:.9rem}
+.cy-codes td{border-top:1px solid var(--line);padding:.45rem .9rem .45rem 0;vertical-align:top}
+.cy-codes td:first-child{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.cy-pair{margin-top:2rem;padding:1.4rem;border:1px solid var(--line);border-radius:12px;
+background:var(--card)}
+.cy-pair p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
+
+.pe{border:1px solid var(--line);border-left:4px solid var(--accent,var(--green,#1E7A47));
+border-radius:.7rem;
+background:var(--card);padding:1rem 1.2rem;margin:1.1rem 0 1.4rem;max-width:42rem}
+.pe h2{margin:0 0 .5rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;
+color:var(--accent,var(--green,#1E7A47))}
+.pe dl{margin:0;display:grid;grid-template-columns:7.5rem 1fr;gap:.4rem .9rem}
+.pe dt{font-size:.76rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);
+padding-top:.1rem}
+.pe dd{margin:0;font-size:.95rem;color:var(--ink)}
+.pe dd b{font-weight:600}
+@media(max-width:560px){.pe dl{grid-template-columns:1fr;gap:.15rem}
+.pe dt{margin-top:.5rem}}
 </style>
 </head>
 <body>
@@ -246,102 +251,122 @@ box-shadow:0 0 0 3px rgba(30,122,71,.14)}
     <a class="header-cta" href="mailto:colin@automatedworkflowllc.com?subject=Spreadsheet%20cleanup%20%E2%80%94%20free%20mini-demo&amp;body=Hi%20Colin%2C%0A%0AHere%27s%20the%20messy%20spreadsheet%20that%27s%20driving%20me%20crazy%3A%20">Send your file &rarr;</a>
   </div>
 </header>
-<main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3.5rem;max-width:54rem">
-  <h1 style="margin-bottom:.4rem">Builds</h1>
-  <p class="bd-lede">Everything below is running right now &mdash; a tool you can press, a demo you
-  can click, or a repository you can read. No mockups, no "coming soon". If a number appears on this
-  page, it is one that was measured, and the card says how.</p>
+<main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
+  <h1 style="margin-bottom:.4rem">You saved the export at 2:14.<br>At 2:15 you know what is wrong with it.</h1>
 
-  <div class="bd-sec">Free tools &mdash; press them, nothing uploads</div>
-  <p class="bd-lede" style="margin-bottom:.9rem;font-size:.9rem">Each one runs entirely in your
-  browser. There is no server to send your file to &mdash; open the network tab and watch: after the
-  page loads, zero requests. That is architecture, not a privacy policy.</p>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/starter/">Job &amp; Invoice Tracker  ·  no file needed</a></h3><p class="bd-what">Every other tool here asks you to upload something first. This one asks for nothing &mdash; press a button and it builds you a working Excel tracker where unbilled jobs and invoices past 60 days flag themselves.</p><dl class="bd-use"><dt>For</dt><dd>anyone starting without a system</dd><dt>Needs</dt><dd>nothing at all</dd><dt>Takes</dt><dd>one click</dd></dl><p class="bd-proof">A real .xlsx assembled in your browser with no library and no upload &mdash; verified to open with formulas intact and amounts stored as numbers, not text.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/check/">Business File Check  ·  start here</a></h3><p class="bd-what">One drop zone for any business export &mdash; <strong>Excel (.xlsx) works directly</strong>, no save-as-CSV step. It works out what the file is from its columns, runs every check that applies, and reconciles two files against each other if you drop a pair. The Excel file is parsed in your browser with no library and no upload &mdash; nobody else does that.</p><dl class="bd-use"><dt>For</dt><dd>any export you are unsure about</dd><dt>Needs</dt><dd>one file &mdash; or two to reconcile</dd><dt>Takes</dt><dd>about a minute</dd></dl><p class="bd-proof">On its sample pair it returns 8 findings with zero configuration and puts a number on the damage: <strong>$1,240 of finished work that was never invoiced</strong>. <a href="/check/example/">See a real report</a> before uploading anything.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/spreadsheet-health-check/">Spreadsheet Health Check</a></h3><p class="bd-what">Drop any CSV and get an honest report: columns that carry no information, status fields that never vary, mixed date formats, duplicate rows. Then download the file with the judgment-free problems already fixed.</p><dl class="bd-use"><dt>For</dt><dd>a messy sheet you inherited</dd><dt>Needs</dt><dd>one CSV or Excel file</dd><dt>Takes</dt><dd>about a minute</dd></dl><p class="bd-proof">On its sample: 6 findings down to 2 after the automatic fix &mdash; and the two that remain are exactly the ones a script must not touch.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/money-leak-finder/">Money Leak Finder</a></h3><p class="bd-what">Two exports every business already has &mdash; the work log and the invoices &mdash; lined up so only the mismatches show: finished jobs nobody billed, invoices sitting unpaid past 60 days.</p><dl class="bd-use"><dt>For</dt><dd>service businesses that invoice per job</dd><dt>Needs</dt><dd>a work log + an invoice export</dd><dt>Takes</dt><dd>about two minutes</dd></dl><p class="bd-proof">Matches on exact ID only, and says so on the report. Nothing fuzzy, nothing guessed.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/duplicate-customer-finder/">Duplicate Customer Finder</a></h3><p class="bd-what">Acme Roofing. Acme Roofing LLC. acme roofing inc. Three rows, one customer &mdash; inflating your count, splitting revenue history, and sending the mail merge three times.</p><dl class="bd-use"><dt>For</dt><dd>a customer list that grew by hand</dd><dt>Needs</dt><dd>your customer list</dd><dt>Takes</dt><dd>under a minute</dd></dl><p class="bd-proof">Every group states why it grouped: identical after ignoring case, punctuation and legal suffixes, or a near-miss typo worth a human glance.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/shift-coverage-check/">Shift Coverage Check</a></h3><p class="bd-what">For anyone who runs on a roster &mdash; senior living, clinics, restaurants, facilities. Finds days a role is uncovered, staff crossing 40 hours, roles only one person can fill, and turnarounds too short to be safe.</p><dl class="bd-use"><dt>For</dt><dd>anyone who runs on a roster</dd><dt>Needs</dt><dd>a schedule export</dd><dt>Takes</dt><dd>about a minute</dd></dl><p class="bd-proof">Reads the columns itself and shows which ones it used. Deliberately never proposes who should work when &mdash; that is the manager's call, not a CSV's.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article></div>
+<div class="pe">
+  <h2>In plain English</h2>
+  <dl>
+    <dt>What it does</dt><dd>Watches the folder where your spreadsheets and exports already get
+      saved. Every time a file changes it checks it and tells you what looks broken &mdash; a column
+      that is the same value all the way down, a field that is empty on every row, a report that
+      stopped changing weeks ago.</dd>
+    <dt>Why it helps</dt><dd>Every tool like this waits for you to bring it a file, which means you
+      have to already suspect something is wrong. <b>The people who most need the check are the ones
+      who never think to run it.</b> This one runs itself.</dd>
+    <dt>What you need</dt><dd>A folder where files land, and someone technical for about ten minutes
+      to install it. It only reads &mdash; it changes nothing, and sends nothing anywhere.</dd>
+    <dt>How long</dt><dd>Minutes to set up, then never again. It runs on a schedule or watches
+      continuously.</dd>
+  </dl>
+</div>
 
-  <div class="bd-sec">Free templates &mdash; copy them, no email</div>
-  <p class="bd-lede" style="margin-bottom:.9rem;font-size:.9rem">Working Google Sheets with the
-  formulas already in them. The copy link is on the page &mdash; there is nothing to submit and no
-  follow-up sequence.</p>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/free-staffing-commission-tracker/">Staffing Commission Tracker</a></h3><p class="bd-what">For recruiters and staffing agencies: log placements and it works out perm fees, contract margins, owner/sourcer splits, each recruiter's draw balance, and which deals are still inside their guarantee window and could be clawed back.</p><dl class="bd-use"><dt>For</dt><dd>recruiters and staffing agencies</dd><dt>Needs</dt><dd>nothing &mdash; it downloads</dd><dt>Takes</dt><dd>no email, no signup</dd></dl><p class="bd-proof">Five tabs with the formulas already in them and a Read Me explaining each one. Every formula was evaluated before shipping &mdash; a contract deal at $78/$52 across 36h &times; 26 weeks returns <strong>$24,336</strong> gross and <strong>$17,035</strong> to the owner at a 70% split, and all three sample deals correctly flag AT RISK inside their guarantee.</p><div class="bd-tags"><span class="bd-tag">Free</span><span class="bd-tag">No signup</span><span class="bd-tag">Download</span></div></article><article class="bd-card"><h3><a href="/free/executive-kpi-dashboard.html">Executive KPI Dashboard</a></h3><p class="bd-what">A one-board view of the numbers an owner actually checks &mdash; revenue, jobs, what is outstanding &mdash; already wired with the formulas, so you fill in the rows and it keeps itself current.</p><dl class="bd-use"><dt>For</dt><dd>owners who want one number board</dd><dt>Needs</dt><dd>a Google account to copy it</dd><dt>Takes</dt><dd>no email, no signup</dd></dl><p class="bd-proof">Copy it straight from the page. No email, no signup, no follow-up sequence &mdash; the copy link is right there, and you can take it and never speak to me.</p><div class="bd-tags"><span class="bd-tag">Free</span><span class="bd-tag">No signup</span><span class="bd-tag">Google Sheets</span></div></article><article class="bd-card"><h3><a href="/free-expense-tracker-template/">Business Expense Tracker</a></h3><p class="bd-what">Categories already matching a normal small-business chart of accounts, currency formatting done, header row frozen. Open it and start typing rather than building it first.</p><dl class="bd-use"><dt>For</dt><dd>sole traders and small teams</dd><dt>Needs</dt><dd>a Google account to copy it</dd><dt>Takes</dt><dd>no email, no signup</dd></dl><p class="bd-proof">Same deal: a copy link on the page, nothing to submit. If you would rather I set it up on your real numbers, that offer exists separately and is also free.</p><div class="bd-tags"><span class="bd-tag">Free</span><span class="bd-tag">No signup</span><span class="bd-tag">Google Sheets</span></div></article><article class="bd-card"><h3><a href="/free-sales-cleanup-template/">Sales Data Cleanup Template</a></h3><p class="bd-what">For an export that arrived messy &mdash; inconsistent names, mixed date formats, duplicate rows. The template gives it a structure that stays clean as you add to it.</p><dl class="bd-use"><dt>For</dt><dd>anyone with a messy sales export</dd><dt>Needs</dt><dd>a Google account to copy it</dd><dt>Takes</dt><dd>no email, no signup</dd></dl><p class="bd-proof">Copy link on the page, no email required.</p><div class="bd-tags"><span class="bd-tag">Free</span><span class="bd-tag">No signup</span><span class="bd-tag">Google Sheets</span></div></article></div>
+  <p class="cy-lede">Nobody checks the export before it goes out, because checking it is a chore and
+  it has been fine for a year. The one time it is not fine, it looks exactly the same.</p>
 
-  <div class="bd-sec">The paid work &mdash; see it running first</div>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/workflow-automation/">How the automation actually works</a></h3><p class="bd-what">The whole method in one page: what gets automated, what deliberately does not, and what each rung costs. Sensor &rarr; formulas &rarr; AI narrative &rarr; <strong>human approval</strong> &rarr; audit trail &mdash; with a live console showing how a chase email's tone is <em>derived</em> from invoice age rather than chosen.</p><dl class="bd-use"><dt>For</dt><dd>owners weighing whether to automate at all</dd><dt>Needs</dt><dd>nothing &mdash; it is a read</dd><dt>Takes</dt><dd>about five minutes</dd></dl><p class="bd-proof">Carries an honesty ledger that opens by stating there are zero paying clients, and status chips that say RUNNING (on my own business) rather than LIVE, because no customer is on it yet.</p><div class="bd-tags"><span class="bd-tag">Read first</span><span class="bd-tag">The method</span></div></article><article class="bd-card"><h3><a href="/demo/">Live KPI Dashboard</a></h3><p class="bd-what">A real, self-updating Google Sheets dashboard on sample data &mdash; revenue, jobs, overdue invoices. Click the tabs, tap the chart. No login, no signup.</p><dl class="bd-use"><dt>For</dt><dd>seeing the $650 build before buying</dd><dt>Needs</dt><dd>nothing &mdash; no login</dd><dt>Takes</dt><dd>click the tabs</dd></dl><p class="bd-proof">This is the $650 Automated Dashboard, running &mdash; not a screenshot of one.</p><div class="bd-tags"><span class="bd-tag live">Live demo</span><span class="bd-tag">Interactive</span></div></article><article class="bd-card"><h3><a href="/ai-business-pulse/">AI Business Pulse</a></h3><p class="bd-what">The flagship retainer: every Monday an AI reads your live numbers, writes a plain-English summary, and drafts chase emails for money you're owed.</p><p class="bd-proof">Every draft waits for a human approval before anything sends. That gate is the product.</p><div class="bd-tags"><span class="bd-tag">Retainer</span><span class="bd-tag">Human-gated</span></div></article><article class="bd-card"><h3><a href="/staffing-commission-dashboard/">Staffing Commission Dashboard</a></h3><p class="bd-what">A live commission dashboard for a staffing desk that settles splits, draws and fall-off clawbacks by rule instead of by argument.</p><p class="bd-proof">Built for a vertical where the math is the whole disagreement.</p><div class="bd-tags"><span class="bd-tag live">Live demo</span><span class="bd-tag">Vertical</span></div></article></div>
+  <dl class="cy-clock">
+    <dt>2:14pm</dt><dd>Your system writes <code>invoices-august.csv</code> to the usual folder.</dd>
+    <dt>2:15pm</dt><dd>canary has already read it: <b>the <code>status</code> column is
+      &ldquo;OPEN&rdquo; on all 412 rows</b>, and <code>paid_date</code> is empty on every one.</dd>
+    <dt>2:16pm</dt><dd>You discover the billing sync stopped writing three weeks ago &mdash; instead
+      of discovering it when a client asks why they were never invoiced.</dd>
+  </dl>
 
-  <div class="bd-sec">Engineering</div>
-  <div class="bd-grid"><article class="bd-card"><h3><a href="/automation-monitoring/">Automation Monitoring</a></h3><p class="bd-what">The recurring service: we watch your automations weekly and send an evidence report. Checks the two things nobody else does &mdash; whether the data <em>inside</em> a fresh file is actually current, and whether a report has quietly stopped changing.</p><dl class="bd-use"><dt>For</dt><dd>anyone already running automations</dd><dt>Needs</dt><dd>the reports you already receive</dd><dt>Takes</dt><dd>$99/mo, weekly evidence</dd></dl><p class="bd-proof">Sold on a true story: our own trading digest served Friday's data under Monday's timestamp the day the service page was built. The embedded report is that catch, verbatim.</p><div class="bd-tags"><span class="bd-tag">Service</span><span class="bd-tag">$99/mo</span></div></article><article class="bd-card"><h3><a href="/flatline/">flatline</a></h3><p class="bd-what">An open-source reliability tool that finds signals carrying no information and jobs producing nothing: a check that fires on 100% of rows, a scheduled task that reports success while writing nothing, a branch that can never run.</p><dl class="bd-use"><dt>For</dt><dd>engineers with silent scheduled jobs</dd><dt>Needs</dt><dd>your own stack</dd><dt>Takes</dt><dd>MIT, read the repo</dd></dl><p class="bd-proof">Built after a real scheduled job discarded four days of data while reporting success every run. 108 tests, MIT, public &mdash; the page shows five ways to use it on your own stack.</p><div class="bd-tags"><span class="bd-tag live">Open source</span><span class="bd-tag">MIT</span></div></article><article class="bd-card"><h3><a href="/canary/">canary</a></h3><p class="bd-what">The always-on half of flatline. Point it at the folder where your exports already get saved and it checks each file the moment it changes &mdash; a column that is one value all the way down, a field empty on every row, a report that stopped moving weeks ago.</p><dl class="bd-use"><dt>For</dt><dd>anyone who sends exports they never check</dd><dt>Needs</dt><dd>a folder where files land</dd><dt>Takes</dt><dd>MIT, download and run</dd></dl><p class="bd-proof">Every tool of this kind waits to be asked, which means the people who most need the check never run it. This one inverts the trigger. Wheels for both tools download straight from the page; it reads only, and nothing leaves the machine.</p><div class="bd-tags"><span class="bd-tag live">Open source</span><span class="bd-tag">MIT</span><span class="bd-tag">Download</span></div></article><article class="bd-card"><h3><a href="/proof/notarize/">Notarize a file</a></h3><p class="bd-what">Drop in any file and your browser hashes it and signs a receipt with an Ed25519 key it generates on your device. Later, drop the file back in &mdash; it tells you whether a single byte has changed, and hands you a public key so anyone else can check the signature too.</p><dl class="bd-use"><dt>For</dt><dd>proving a file has not changed</dd><dt>Needs</dt><dd>the file itself</dd><dt>Takes</dt><dd>seconds, on your device</dd></dl><p class="bd-proof">Hand-built on the Web Crypto API: no library, no account, no upload, and no shared secret. Verified by notarizing a report, changing one digit of the revenue figure, and watching it come back ALTERED with both hashes shown.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Free</span><span class="bd-tag">Ed25519</span></div></article><article class="bd-card"><h3><a href="/log/">Build log — including the misses</a></h3><p class="bd-what">A running record of what actually gets built here, newest first. Every entry states how its claim was checked, because &ldquo;we tested it&rdquo; is not a test. It regenerates itself nightly, so it cannot quietly fall behind the work it describes.</p><p class="bd-proof">The defects stay in &mdash; the dead CSS token that removed the keyboard focus ring, the check that could never fire, the gate that blocked a page for being right. A log with only wins is a brochure, and it would undercut the whole argument.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Updated nightly</span></div></article><article class="bd-card"><h3><a href="/proof/">Proof — our own ledger</a></h3><p class="bd-what">Every night our scheduled jobs write a signed receipt recording what each run <em>claimed</em> against what it actually <em>produced</em>. The receipts are hash-chained, and the chain head is published publicly so the record binds us too.</p><p class="bd-proof">It includes the receipts where our own nightly audit produced nothing &mdash; kept deliberately, because a ledger holding only clean runs is one nobody should believe.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Evidence</span></div></article><article class="bd-card"><h3><a href="https://automatedworkflowllc-design.github.io/hearth/" target="_blank" rel="noopener">Hearth</a></h3><p class="bd-what">A national crisis-resource directory &mdash; food, shelter, health, legal, support &mdash; built on federal data (HRSA, SAMHSA, USDA, EPA/Hunger Free America) and refreshed automatically.</p><p class="bd-proof">60,000+ live records. Its public health endpoint reports freshness per source, so a stale feed cannot hide behind a fresh one.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Public good</span><span class="bd-tag">Open data</span></div></article><article class="bd-card"><h3><a href="/build-log/">Build log</a></h3><p class="bd-what">How the multi-tenant reporting pipeline behind Automated Workflow is actually assembled &mdash; n8n, Google Sheets, an AI narrative step, and a human approval gate.</p><p class="bd-proof">Written for someone deciding whether this is real engineering or a wrapper.</p><div class="bd-tags"><span class="bd-tag">Write-up</span></div></article></div>
+  <h2 style="margin-top:2.2rem">What the report looks like</h2>
+  <div class="cy-sample">
+    <div class="bar">What is in your files right now &middot; 3 files checked &middot; 1 with findings &middot; 1 could not be checked</div>
+    <table>
+      <tr class="bad"><td class="fn">invoices-august.csv</td><td class="st">FINDINGS</td>
+        <td>status: CONSTANT &mdash; identical value &lsquo;OPEN&rsquo; on all 412 rows<br>paid_date: empty on every row</td></tr>
+      <tr class="err"><td class="fn">payroll-q3.csv</td><td class="st">COULD NOT CHECK</td>
+        <td>file locked by another process &mdash; this is <b>not</b> a pass</td></tr>
+      <tr class="ok"><td class="fn">crew-hours.csv</td><td class="st">CLEAN</td>
+        <td>nothing to report</td></tr>
+    </table>
+  </div>
+  <p class="cy-cap">An illustration of the real output format. The middle row is the entire point of
+  the tool: a file it could not read is reported as a failure to read it, never quietly counted as
+  fine.</p>
 
-  <div class="bd-note"><strong>Why the tools stop where they stop.</strong> Every free tool above
-  ends at the point where a script would have to guess &mdash; which duplicate is the real customer,
-  what a blank cell means, who should cover Thursday. Those decisions need a person who can ask you
-  a question, which is what the <a href="/spreadsheet-cleanup-service/">$300 cleanup</a> and the
-  <a href="/free-demo/">free 1-day demo</a> are. A tool that guessed there would be faster and
-  worse.</div>
+  <h2 style="margin-top:2.2rem">Three decisions that decide whether you keep reading it</h2>
+  <div class="cy-cards">
+    <div class="cy-card"><b>content, not timestamps</b><span>Files are compared by hash. A file
+      re-saved with identical bytes has not changed in any way you care about, and re-reporting it
+      every night is how a tool teaches you to ignore it.</span></div>
+    <div class="cy-card"><b>news, not inventory</b><span>It raises the alarm for findings in files
+      it actually re-checked. Everything known stays in the report, but a known-bad file sitting
+      untouched is not an alarm &mdash; a guard that shouts nightly gets muted.</span></div>
+    <div class="cy-card"><b>never a false all-clear</b><span>A check that could not run is reported
+      as a failure to check. The report says so in plain words, because a tool that says &ldquo;no
+      findings&rdquo; when it never looked is the exact failure this exists to catch.</span></div>
+  </div>
 
-  <div class="bd-ask">
-    <h2>Want one of these pointed at your own numbers?</h2>
-    <p class="bd-asklede">Tell me the chore and I&rsquo;ll rebuild a real piece of it on your own
-    file, usually within a business day. Free, and yours to keep either way &mdash; there is no
-    contract and no follow-up sequence.</p>
-    <p id="bd-sent" role="status" tabindex="-1"></p>
-    <form class="bd-form" action="https://formspree.io/f/mgojgjwv" method="POST">
-      <input type="hidden" name="_subject" value="Free demo request &mdash; /builds/">
-      <input type="hidden" name="lead_source" value="builds">
-      <input type="hidden" name="offer" value="Free 1-day mini-demo">
-      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <label for="bd-email">Your email</label>
-      <input id="bd-email" type="email" name="email" autocomplete="email" placeholder="you@company.com" required>
-      <label for="bd-chore">The chore you want gone (optional)</label>
-      <input id="bd-chore" type="text" name="chore" autocomplete="off" placeholder="e.g. I rebuild the same job report every Friday">
-      <button class="btn btn-primary" type="submit">Ask for the free demo &rarr;</button>
-      <p class="bd-privacy">I reply personally &mdash; no spam, no sequence, no list.</p>
-    </form>
+  <div class="cy-get">
+    <h2 style="margin-top:0">Get it</h2>
+    <p style="color:var(--ink-soft);margin-top:.3rem">Free, MIT licensed, runs on your machine.
+    canary calls <a href="/flatline/">flatline</a> for the analysis rather than reimplementing it,
+    so you install both &mdash; two files, no account, no service.</p>
+
+    <div class="cy-dl">
+      <a href="https://github.com/automatedworkflowllc-design/canary/releases/download/v0.1.0/awllc_canary-0.1.0-py3-none-any.whl">&darr; canary 0.1.0 (wheel)</a>
+      <a href="https://github.com/automatedworkflowllc-design/canary/releases/download/v0.1.0/awllc_canary-0.1.0.tar.gz">&darr; canary 0.1.0 (source)</a>
+      <a href="https://github.com/automatedworkflowllc-design/flatline/releases/download/v0.2.0/awllc_flatline-0.2.0-py3-none-any.whl">&darr; flatline 0.2.0 (wheel)</a>
+      <a href="https://github.com/automatedworkflowllc-design/flatline/releases/download/v0.2.0/awllc_flatline-0.2.0.tar.gz">&darr; flatline 0.2.0 (source)</a>
+    </div>
+
+    <pre>pip install awllc_flatline-0.2.0-py3-none-any.whl
+pip install awllc_canary-0.1.0-py3-none-any.whl
+
+canary ~/Downloads --report canary.html</pre>
+
+    <div class="cy-warn"><strong>Install from these files, not by name.</strong> The names
+    <code>canary</code> and <code>flatline</code> on PyPI belong to unrelated projects, so
+    <code>pip install canary</code> would fetch someone else&rsquo;s tool. Ours publish as
+    <code>awllc-canary</code> and <code>awllc-flatline</code>. canary checks for this too &mdash; if
+    the wrong package is installed it says so, rather than blaming your data for a packaging
+    mistake.</div>
+
+    <p style="margin:.6rem 0 0"><a href="https://github.com/automatedworkflowllc-design/canary">Source, tests and documentation on GitHub &rarr;</a></p>
+  </div>
+
+  <h2 style="margin-top:2.2rem">Running it on a schedule</h2>
+  <p style="color:var(--ink-soft);max-width:42rem">Give it <code>--fail-on-findings</code> so it has
+  something to say, and let your scheduler read the exit code. Watching the report file instead
+  would prove nothing: it carries a timestamp, so it changes every run whether or not anything
+  happened.</p>
+  <table class="cy-codes">
+    <tr><td>0</td><td>every re-examined file came back clean</td></tr>
+    <tr><td>1</td><td>a file could not be checked &mdash; worse than a finding, because it hides an
+      unknown number of them</td></tr>
+    <tr><td>2</td><td>new findings</td></tr>
+  </table>
+
+  <h2 style="margin-top:2.2rem">What it does not see</h2>
+  <p style="color:var(--ink-soft);max-width:42rem">Only files that change on disk. It knows nothing
+  about whether a scheduled job ran at all, or whether an output went stale between runs &mdash;
+  different questions, different tools. Saying so is the point: a tool that implies it covers more
+  than it does is how coverage comes to be assumed instead of checked.</p>
+
+  <div class="cy-pair">
+    <h2 style="margin-top:0">The other half: flatline</h2>
+    <p><strong>Software fails loudly. Data fails quietly.</strong> flatline is the judgment &mdash;
+    it decides whether a signal still carries information. canary is the trigger. <strong>Neither
+    tool will ever call a file clean that it failed to read:</strong> a check that could not run is
+    reported as a failure to check, never as a pass &mdash; in code, and with a test, in both.</p>
+    <p style="margin-bottom:0"><a class="btn" href="/flatline/">See flatline</a>
+    &nbsp; <a href="/automation-monitoring/">Or have us watch your stack &rarr;</a></p>
   </div>
 </main>
-
-<script>
-/* aw-inpage-form -- identical behaviour to /free-demo/ and the tool pages.
-   Formspree IGNORES _next (verified 2026-08-03: its JSON reply is
-   {"next":"/thanks","ok":true}), so a plain POST ejects the visitor to a
-   third-party page at the highest-intent moment and no conversion fires.
-   fetch + Accept: application/json keeps them here. On ANY failure we fall back
-   to the normal browser POST -- form.submit() does not re-fire submit, so there
-   is no loop and no stranded lead. */
-(function () {
-  "use strict";
-  if (!window.fetch || !window.FormData) { return; }
-  var form = document.querySelector('form.bd-form');
-  var ok = document.getElementById('bd-sent');
-  if (!form || !ok) { return; }
-  form.addEventListener("submit", function (ev) {
-    ev.preventDefault();
-    var btn = form.querySelector('[type="submit"]');
-    if (btn) { btn.disabled = true; btn.setAttribute("aria-busy", "true"); }
-    fetch(form.action, {
-      method: "POST",
-      body: new FormData(form),
-      headers: { "Accept": "application/json" }
-    }).then(function (r) {
-      if (!r.ok) { throw new Error("HTTP " + r.status); }
-      ok.textContent = "Sent — that’s with Colin now. He replies personally, usually within a business day.";
-      ok.style.display = "block";
-      form.style.display = "none";
-      try { ok.focus(); } catch (e) {}
-      /* Once per submission, and it shares the sessionStorage guard with every
-         other form on the site so one visitor is never counted twice. */
-      var fired = false;
-      try { fired = sessionStorage.getItem("aw_lead_fired") === "1"; } catch (e) {}
-      if (!fired && typeof gtag === "function") {
-        gtag("event", "generate_lead", { method: "builds_form" });
-        gtag("event", "conversion", { send_to: "AW-18312491430/t9tRCKHq9M0cEKbjiZxE" });
-        try { sessionStorage.setItem("aw_lead_fired", "1"); } catch (e) {}
-      }
-    })["catch"](function () {
-      if (btn) { btn.disabled = false; btn.removeAttribute("aria-busy"); }
-      form.submit();
-    });
-  });
-})();
-</script>
 <footer class="site-footer">
   <div class="wrap footer-in">
     <span class="fbrand">
@@ -364,10 +389,16 @@ box-shadow:0 0 0 3px rgba(30,122,71,.14)}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  "name": "Builds — Automated Workflow",
-  "url": "https://automatedworkflowllc.com/builds/",
-  "description": "Every tool Automated Workflow has shipped: five free in-browser analyzers, live dashboard demos, an open-source reliability tool, and a crisis directory."
+  "@type": "SoftwareApplication",
+  "name": "Canary",
+  "url": "https://automatedworkflowllc.com/canary/",
+  "codeRepository": "https://github.com/automatedworkflowllc-design/canary",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any",
+  "softwareVersion": "0.1.0",
+  "license": "https://opensource.org/licenses/MIT",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Open-source watcher that checks each export the moment it is saved: constant columns, empty fields, files that stopped changing. Local only; nothing uploads."
 }
 </script>
 
