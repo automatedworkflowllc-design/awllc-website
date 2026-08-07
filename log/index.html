@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">50 entries · newest first within each group</p>
+  <p class="stamp">51 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -456,6 +456,44 @@
     <em>event</em>. Proved the handler correct by synthetic dispatch instead of shrugging at a red
     line. 11 checks pass against the live domain, 390px probe clean, still 0 requests after load.</p>
     <p class="where">Live &middot; single-series line + area, crosshair readout, per-tile derivations</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 7</div>
+  <div>
+    <p class="name">Drop your own CSV on the demo and it becomes your dashboard
+      <span class="chip live">live</span><span class="chip">the funnel, collapsed</span></p>
+    <p class="what">The entire funnel asks a stranger to <em>email a file and wait a day</em>. This
+    does it <b>in a second, in their browser, with nothing leaving the machine</b> &mdash; so the
+    privacy claim every tool page makes is demonstrated on the flagship rather than described. Drop a
+    CSV of invoices or jobs and the whole dashboard re-derives from it: chart, KPI tiles,
+    receivables, the written summary, and the chase drafter all follow their numbers.
+    <b>It cost almost nothing architecturally</b>, which is the argument for having built the data
+    seam yesterday: the derivation was one-shot at load, and became a reloadable
+    <code>deriveFrom()</code> using the same names in the same closure, so <em>not one render
+    function had to change</em>.</p>
+    <p class="proof"><b>It refuses rather than guesses &mdash; and testing proved that mattered.</b>
+    Two real defects, both the same shape: the parsers were permissive enough that the detectors
+    guessed instead of declining. <code>parseNum("2026-07-01")</code> stripped the separators to
+    <code>20260701</code>, a perfectly valid &ldquo;amount&rdquo;, so <b>a date column was selected as
+    the amount column</b>. And <code>new Date("1200")</code> is the year 1200, so a column of round
+    money read as 60%+ parseable dates and <b>was selected as the date column</b>. Each now rejects
+    the other&rsquo;s shape, and a third guard refuses outright if the two detectors ever land on the
+    same column again.
+    <b>The honesty gate is the most important part of this build.</b> The sample carries an
+    illustrative &ldquo;finished but never invoiced&rdquo; figure taken from a fixed proportion of
+    recent weeks. Printed over a stranger&rsquo;s own numbers that is <b>an invented finding about
+    their business</b> &mdash; precisely what this company exists not to do. On real data it is
+    dropped, and so is the cash-flow line: an invoice export does not know what they spent, and
+    &ldquo;Spending is $0&rdquo; is a claim, not an absence. The tile reads <b>&mdash;</b> with
+    &ldquo;no costs in this file&rdquo;, and the summary says what is missing and points at the
+    money-leak tool, which genuinely does the job-versus-invoice comparison.
+    Also caught: the sample chip and the AR badge were being <em>removed</em> from the DOM rather than
+    hidden, so neither could return after a reset.
+    <b>Verified on the live domain:</b> the dashboard rebuilds from a real file, the invoice list and
+    aging both still reconcile to the AR tile to the cent, no invented figure survives, and
+    <b>the file caused zero network requests</b> &mdash; measured, not asserted.</p>
+    <p class="where">Live &middot; CSV today; the mapping line names every column it used, so a wrong read is visible rather than silent</p>
   </div>
 </div>
 <h2>Public tools — automatedworkflowllc.com</h2>
