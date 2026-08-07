@@ -183,6 +183,35 @@ APP_CSS = """
 .dagec.b3 .da-f{background:#C2701F}
 .dagec.b4 .da-f{background:var(--d-red)}
 
+.drow .dr-act{flex:none;align-self:center;font:inherit;font-family:var(--d-mono);font-size:.6rem;
+  letter-spacing:.06em;text-transform:uppercase;cursor:pointer;background:none;
+  border:1px solid var(--d-line2);border-radius:999px;padding:.22rem .55rem;color:var(--d-soft);
+  white-space:nowrap}
+.drow .dr-act:hover{border-color:var(--d-green);color:var(--d-green)}
+.drow .dr-act:focus-visible{outline:2px solid var(--d-green);outline-offset:2px}
+
+/* Draft panel. The whole point is that it ENDS here -- there is no send. */
+.ddraft{margin:.9rem 0 0;border:1px solid var(--d-line);border-left:3px solid var(--d-green);
+  border-radius:10px;background:var(--d-tint);padding:.85rem .95rem}
+.ddraft.refuse{border-left-color:var(--d-red)}
+.ddraft-h{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:0 0 .55rem;
+  font-family:var(--d-mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--d-green);font-weight:700}
+.ddraft.refuse .ddraft-h{color:var(--d-red)}
+.ddraft-why{margin:0 0 .6rem;font-size:.82rem;color:var(--d-soft)}
+.ddraft-mail{background:var(--d-paper);border:1px solid var(--d-line);border-radius:8px;
+  padding:.7rem .8rem;font-size:.9rem;line-height:1.6}
+.ddraft-sub{font-weight:700;margin:0 0 .45rem;padding-bottom:.4rem;border-bottom:1px solid var(--d-line)}
+.ddraft-body{margin:0;white-space:pre-wrap;text-wrap:pretty}
+.ddraft-gate{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin:.7rem 0 0;
+  padding-top:.6rem;border-top:1px dashed var(--d-line2)}
+.ddraft-gate .dgate-note{font-family:var(--d-mono);font-size:.6rem;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--d-soft)}
+.ddraft-btn{font:inherit;font-size:.8rem;cursor:pointer;border-radius:8px;padding:.4rem .7rem;
+  border:1px solid var(--d-line2);background:var(--d-paper);color:var(--d-ink)}
+.ddraft-btn:hover{border-color:var(--d-green);color:var(--d-green)}
+.ddraft-btn[disabled]{cursor:not-allowed;opacity:.5;border-style:dashed}
+.ddraft-btn[disabled]:hover{border-color:var(--d-line2);color:var(--d-ink)}
 .dnote{margin:.85rem 0 0;font-size:.85rem;color:var(--d-soft);text-wrap:pretty}
 .dnote b{color:var(--d-ink)}
 
@@ -318,6 +347,7 @@ APP_HTML = """
           <div class="dpanel">
             <p class="dph"><b>Open invoices</b></p>
             <div id="a-list"></div>
+            <div id="a-draft"></div>
           </div>
           <p class="dnote" id="a-note"></p>
         </section>
@@ -446,6 +476,12 @@ APP_JS = r"""
       return { customer: CUSTOMERS[i % CUSTOMERS.length], days: age,
                amount: 900 + Math.round((1 + hash(i * 17)) * 950) * 2 };
     });
+    /* One invoice with NO DATE on it. This is not padding -- it is the case that
+       forced the whole tone design: chase-email tone is derived from age, and
+       here there is no age. A tool that quietly picks "friendly" is confidently
+       wrong on the one invoice most likely to be a real problem. Carried as
+       days:null so every age comparison has to decide about it explicitly. */
+    recv.push({ customer: 'Tioga Town Homes', days: null, amount: 2180 });
 
     return { business: 'Gator Shine Exterior Cleaning', sample: true, weeks: out,
              receivables: recv, spend: 226 + Math.round((1 + hash(epochWeek(CURMON))) * 140),
@@ -480,11 +516,15 @@ APP_JS = r"""
       if (!isFinite(amt) || amt < 0) {
         throw new Error('receivables[' + i + '].amount is not a non-negative number: ' + (r && r.amount));
       }
-      if (!isFinite(days) || days < 0) {
+      /* null/undefined days means "this invoice carries no date" -- a real and
+         common state in exports, and distinct from a malformed value like
+         "lots", which must still refuse. */
+      var undated = (r.days === null || r.days === undefined || r.days === '');
+      if (!undated && (!isFinite(days) || days < 0)) {
         throw new Error('receivables[' + i + '].days is not a non-negative number: ' + (r && r.days));
       }
       return { customer: String((r && r.customer) || 'Unnamed account'),
-               amount: Math.round(amt), days: Math.round(days) };
+               amount: Math.round(amt), days: undated ? null : Math.round(days) };
     });
 
     var spend = Number(raw.spend);
@@ -512,9 +552,18 @@ APP_JS = r"""
                value: isCur ? Math.max(1, Math.round(wk.value * elapsed / 7)) : wk.value,
                full: wk.value, partial: isCur && elapsed < 7 };
     });
-    book.receivables = book.receivables.slice().sort(function (a, b) { return b.days - a.days; })
-      .map(function (r) { return { customer: r.customer, amount: r.amount, days: r.days,
-                                   due: addDays(TODAY, -r.days) }; });
+    /* Undated invoices sort LAST, never first. `b.days - a.days` with a null
+       yields NaN, and a NaN comparator leaves order to the engine -- an undated
+       invoice could have surfaced as "call this one first" purely by accident. */
+    book.receivables = book.receivables.slice().sort(function (a, b) {
+      if (a.days === null && b.days === null) { return 0; }
+      if (a.days === null) { return 1; }
+      if (b.days === null) { return -1; }
+      return b.days - a.days;
+    }).map(function (r) {
+      return { customer: r.customer, amount: r.amount, days: r.days,
+               due: r.days === null ? null : addDays(TODAY, -r.days) };
+    });
     return book;
   }
 
@@ -563,7 +612,10 @@ APP_JS = r"""
   var activeCustomers = D.activeCustomers;
 
   var arTotal = receivables.reduce(function (s, r) { return s + r.amount; }, 0);
-  var overdue = receivables.filter(function (r) { return r.days > 30; });
+  /* An undated invoice is not "not overdue" -- it is UNKNOWN, and it must not
+     be quietly counted either way. */
+  var undated = receivables.filter(function (r) { return r.days === null; });
+  var overdue = receivables.filter(function (r) { return r.days !== null && r.days > 30; });
   var overdueTotal = overdue.reduce(function (s, r) { return s + r.amount; }, 0);
 
   /* Month-to-date from the weekly series: only the part of each week that falls
@@ -663,17 +715,118 @@ APP_JS = r"""
            '<div class="dclabels" aria-hidden="true">' + labs + '</div></div>';
   }
 
-  function rowsHTML(items){
-    return items.map(function (r) {
-      var late = r.days > 30;
-      var note = late ? (r.days + 'd overdue · ' + (r.days > 90 ? 'oldest open — call first'
-                        : r.days > 60 ? 'crossed 60 days' : 'due ' + fmtDay(r.due)))
-                      : ('due ' + fmtDay(addDays(r.due, 30)));
+  function rowsHTML(items, withDraft){
+    return items.map(function (r, i) {
+      var late = r.days !== null && r.days > 30;
+      var note = r.days === null
+        ? 'no date on this invoice — age unknown'
+        : (late ? (r.days + 'd overdue · ' + (r.days > 90 ? 'oldest open — call first'
+                   : r.days > 60 ? 'crossed 60 days' : 'due ' + fmtDay(r.due)))
+                : ('due ' + fmtDay(addDays(r.due, 30))));
+      var amt = '<span class="dr-a">' + (r.days !== null && r.days > 90
+                ? '<span class="dpill">' + money(r.amount) + '</span>'
+                : money(r.amount)) + '</span>';
+      var act = withDraft
+        ? '<button class="dr-act" type="button" data-draft="' + i + '">Draft chase</button>'
+        : '';
       return '<div class="drow"><span class="dr-m"><span class="dr-n">' + esc(r.customer) + '</span>' +
              '<span class="dr-s' + (late ? ' late' : '') + '">' + esc(note) + '</span></span>' +
-             '<span class="dr-a">' + (r.days > 90 ? '<span class="dpill">' + money(r.amount) + '</span>'
-                                                  : money(r.amount)) + '</span></div>';
+             amt + act + '</div>';
     }).join('');
+  }
+
+  /* ---------- the chase drafter -----------------------------------------
+     THIS IS THE POSITIONING, MADE PRESSABLE. Everything up to the send is
+     automated; the send is not automated at all. A page that only *claims* a
+     human gate is indistinguishable from one that quietly sends, so the gate is
+     shown: there is no send control anywhere in this app, and the disabled
+     control says why rather than pretending to be busy.
+
+     Tone is derived from age. Which means that when there is NO age, tone
+     cannot be derived -- and the honest move is to refuse. That is not an edge
+     case bolted on for show: it is the case that forced this design, because
+     the alternative is quietly picking "friendly" for the one invoice nobody
+     can date, which is exactly where a wrong tone does the most damage. */
+  var TONES = [
+    { min: 91, key: 'firm',    label: 'Firm — final notice before escalation' },
+    { min: 61, key: 'direct',  label: 'Direct — past 60 days' },
+    { min: 31, key: 'neutral', label: 'Neutral — a nudge, not a chase' }
+  ];
+
+  function draftFor(r){
+    if (r.days === null) { return null; }          /* no age -> no tone -> refuse */
+    for (var i = 0; i < TONES.length; i++) {
+      if (r.days >= TONES[i].min) { return TONES[i]; }
+    }
+    return null;                                    /* not yet due -> nothing to chase */
+  }
+
+  function chaseBody(r, tone){
+    var amt = money(r.amount);
+    var NL = String.fromCharCode(10);   /* built at runtime: keeps newline escapes
+                                           out of a source file that passes through
+                                           a generator, where they get eaten */
+    var lines;
+    if (tone.key === 'firm') {
+      lines = ['Hi,', '',
+        'Invoice for ' + amt + ' is now ' + r.days + ' days past due, and it is the oldest item ' +
+        'open on the account.', '',
+        'Could you let me know today when it will be paid, or tell me what is holding it up so I ' +
+        'can help sort it? If there is a problem with the invoice itself I would rather hear that ' +
+        'than keep chasing it.', '',
+        'Thanks,', 'Colin'];
+    } else if (tone.key === 'direct') {
+      lines = ['Hi,', '',
+        'Invoice for ' + amt + ' has crossed 60 days.', '',
+        'Can you confirm it is in the payment run, and roughly when I should expect it? If it needs ' +
+        'a PO number or a resend to a different address, just say and I will get it over.', '',
+        'Thanks,', 'Colin'];
+    } else {
+      lines = ['Hi,', '',
+        'Quick one — invoice for ' + amt + ' is ' + r.days + ' days past due.', '',
+        'No drama at all if it is already scheduled; just flagging it in case it slipped through. ' +
+        'Let me know if you need anything from me.', '',
+        'Thanks,', 'Colin'];
+    }
+    return lines.join(NL);
+  }
+
+  function renderDraft(idx){
+    var slot = el('a-draft');
+    if (!slot) { return; }
+    var r = receivables[idx];
+    if (!r) { slot.innerHTML = ''; return; }
+    var tone = draftFor(r);
+
+    if (!tone) {
+      var why = r.days === null
+        ? 'This invoice carries <b>no date</b>, so there is no age to derive a tone from. It will not ' +
+          'guess. Picking &ldquo;friendly&rdquo; here would read as confident and be unfounded &mdash; ' +
+          'and an invoice nobody can date is the one most likely to be a real problem.'
+        : 'This invoice is <b>not past due yet</b>. There is nothing to chase, so nothing is drafted.';
+      slot.innerHTML = '<div class="ddraft refuse"><p class="ddraft-h">&#9888; No draft written &mdash; ' +
+        esc(r.customer) + '</p><p class="ddraft-why">' + why + '</p>' +
+        '<div class="ddraft-gate"><span class="dgate-note">A human decides what to say here</span></div></div>';
+      try { slot.querySelector('.ddraft').scrollIntoView({ block: 'nearest' }); } catch (e) {}
+      return;
+    }
+
+    slot.innerHTML =
+      '<div class="ddraft"><p class="ddraft-h">&#10022; Drafted &mdash; ' + esc(r.customer) +
+      ' <span class="dchip">' + esc(tone.label) + '</span></p>' +
+      '<p class="ddraft-why">Tone derived from age: <b>' + r.days + ' days past due</b>. ' +
+      'The figures come from the invoice, not from the model.</p>' +
+      '<div class="ddraft-mail"><p class="ddraft-sub">Subject: ' +
+      esc(tone.key === 'firm' ? 'Overdue invoice — ' + money(r.amount)
+          : tone.key === 'direct' ? 'Invoice past 60 days — ' + money(r.amount)
+          : 'Quick nudge — invoice for ' + money(r.amount)) + '</p>' +
+      '<p class="ddraft-body">' + esc(chaseBody(r, tone)) + '</p></div>' +
+      '<div class="ddraft-gate">' +
+      '<button class="ddraft-btn" type="button" data-copy="' + idx + '">Copy the text</button>' +
+      '<button class="ddraft-btn" type="button" disabled title="No send exists in this app">Send &mdash; not available</button>' +
+      '<span class="dgate-note">It drafts. You send it, from your own inbox.</span>' +
+      '</div></div>';
+    try { slot.querySelector('.ddraft').scrollIntoView({ block: 'nearest' }); } catch (e) {}
   }
 
   function stat(v, l, tone){
@@ -794,10 +947,16 @@ APP_JS = r"""
 
   function renderReceivables(){
     var buckets = [
-      { l: '0–30',  v: receivables.filter(function(r){ return r.days <= 30; }) },
-      { l: '31–60', v: receivables.filter(function(r){ return r.days > 30 && r.days <= 60; }) },
-      { l: '61–90', v: receivables.filter(function(r){ return r.days > 60 && r.days <= 90; }) },
-      { l: '90+',        v: receivables.filter(function(r){ return r.days > 90; }) }
+      /* Every filter tests days !== null FIRST. `null <= 30` is true in
+         JavaScript, so an undated invoice would otherwise land silently in the
+         0-30 bucket, the column totals would still reconcile, and the one
+         invoice nobody can age would be the one nobody ever sees. It gets its
+         own cell instead -- so the buckets still sum to AR and nothing hides. */
+      { l: '0–30',  v: receivables.filter(function(r){ return r.days !== null && r.days <= 30; }) },
+      { l: '31–60', v: receivables.filter(function(r){ return r.days !== null && r.days > 30 && r.days <= 60; }) },
+      { l: '61–90', v: receivables.filter(function(r){ return r.days !== null && r.days > 60 && r.days <= 90; }) },
+      { l: '90+',   v: receivables.filter(function(r){ return r.days !== null && r.days > 90; }) },
+      { l: 'Undated', v: undated }
     ].map(function (b) { return { l: b.l, total: b.v.reduce(function(s,r){ return s+r.amount; }, 0) }; });
     var mx = Math.max.apply(null, buckets.map(function (b) { return b.total; })) || 1;
     var worst = receivables[0];
@@ -814,14 +973,18 @@ APP_JS = r"""
              Math.max(3, Math.round(b.total / mx * 100)) + '%"></span></span></div>';
     }).join('');
     el('a-list').innerHTML = receivables.length
-      ? rowsHTML(receivables)
+      ? rowsHTML(receivables, true)
       : '<p class="dnote" style="margin:0">No open invoices.</p>';
+    var slot0 = el('a-draft'); if (slot0) { slot0.innerHTML = ''; }
     var lead = overdue[0];   /* the oldest OVERDUE one, not merely the oldest */
     el('a-note').innerHTML = arTotal > 0
       ? ('Of <b>' + money(arTotal) + '</b> outstanding, <b>' + money(overdueTotal) +
          '</b> is past 30 days' + (lead ? '. Start with <b>' + esc(lead.customer) + '</b> (' +
          money(lead.amount) + ', ' + lead.days + 'd late)' : ' — nothing has aged past 30 days yet') +
-         '. The chase emails draft themselves — and then wait for you to press send.')
+         '. Press <b>Draft chase</b> on any row: the tone is derived from how late it is, and then it ' +
+         'stops. There is no send button in this app' +
+         (undated.length ? ' — and on the invoice with no date it refuses to pick a tone at all, ' +
+          'rather than guessing' : '') + '.')
       : 'Nothing is outstanding. When something ages past 30 days, the chase email drafts itself — and then waits for you to press send.';
   }
 
@@ -859,6 +1022,26 @@ APP_JS = r"""
   }
 
   app.addEventListener('click', function (ev) {
+    var d = ev.target.closest('[data-draft]');
+    if (d && app.contains(d)) { renderDraft(Number(d.getAttribute('data-draft'))); return; }
+
+    var c = ev.target.closest('[data-copy]');
+    if (c && app.contains(c)) {
+      /* Copy is a local clipboard write, not a network call -- the page's
+         "0 requests after load" claim still holds, and it is the only action
+         this app takes on the outside world. */
+      var box = app.querySelector('.ddraft-mail');
+      var text = box ? box.innerText : '';
+      var done = function () { c.textContent = 'Copied'; setTimeout(function () {
+        c.textContent = 'Copy the text'; }, 1600); };
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, function () { c.textContent = 'Select and copy'; });
+        } else { c.textContent = 'Select and copy'; }
+      } catch (e) { c.textContent = 'Select and copy'; }
+      return;
+    }
+
     var t = ev.target.closest('[data-view],[data-goto]');
     if (!t || !app.contains(t)) { return; }
     var name = t.getAttribute('data-view') || t.getAttribute('data-goto');
