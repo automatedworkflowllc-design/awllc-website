@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">44 entries · newest first within each group</p>
+  <p class="stamp">47 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -305,6 +305,85 @@
     <b>One thing only Colin can close:</b> the <code>pd_refreshDemo</code> weekly trigger still fires
     and rebuilds a demo sheet nothing displays. Triggers are UI-only here, so it is a 30-second click.</p>
     <p class="where">ec1bcc6 &middot; live: /demo/dashboard-preview.png now 404, /demo/ 200</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">Audited every page for a working way to contact us &mdash; and got the answer wrong the first time
+      <span class="chip live">live</span><span class="chip">funnel</span></p>
+    <p class="what">Having found the same defect twice by accident this week &mdash; <code>/free-demo/</code>
+    with no form at all, then <code>/builds/</code> reachable only by <code>mailto:</code> &mdash; the
+    obvious move was to stop finding it by accident. All 28 pages, checked for whether a visitor can
+    actually reach us.</p>
+    <p class="proof"><b>The first pass said 21 of 28 pages were broken. That was wrong, and worth
+    recording.</b> It counted <code>&lt;form&gt;</code> tags only, so it flagged every tool page &mdash;
+    but those carry no form <em>on purpose</em>: a form would sit directly beside their printed
+    &ldquo;zero network requests after load&rdquo; claim, so they route one click to
+    <code>/free-demo/</code> instead. Counting a link to a conversion page as what it is, the real
+    number was <b>one</b>. A checker that measures the wrong thing produces a confident number and an
+    alarming one &mdash; the same failure this company sells against, this time in my own audit.
+    <b>The one real gap was <code>/build-log/</code></b>, whose two calls to action were <em>both</em>
+    mailto: &mdash; on the page LinkedIn traffic lands on, which is overwhelmingly mobile, where a
+    mailto with no mail app configured does nothing at all and the visitor is simply gone. It now has
+    the same in-page form as everywhere else; the email option stays as a secondary button for anyone
+    who wants to attach a file. <b>0 of 28 pages now lack a clickable route.</b> Verified live by
+    polling until the form actually served.</p>
+    <p class="where">build-log/index.html &middot; audit re-run after the fix: 0 gaps</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">Twice tonight I raised an alarm that was not real &mdash; both times for the same reason
+      <span class="chip">correction</span></p>
+    <p class="what">Two findings I reported turned out to be my own measurement error, and they share a
+    single root cause worth naming: <b>I searched for a WORD and treated a match as if it were
+    STRUCTURE.</b></p>
+    <p class="proof"><b>First:</b> &ldquo;21 of 28 pages have no way to contact us.&rdquo; I counted
+    <code>&lt;form&gt;</code> tags, but the tool pages carry none <em>deliberately</em> &mdash; a form
+    would sit beside their printed &ldquo;zero network requests&rdquo; claim, so they route one click
+    to <code>/free-demo/</code>. Counting a link to a conversion page as a conversion path, the real
+    number was <b>one</b>.
+    <b>Second:</b> &ldquo;<code>/log/</code> carries noindex while sitting in the sitemap &mdash; a
+    contradiction only Colin can resolve.&rdquo; The page has <b>no robots meta tag at all</b>. My
+    grep for the word &ldquo;noindex&rdquo; had matched <em>my own prose</em>, in the build-log entry
+    describing an <em>earlier</em> false positive of exactly this kind. There was nothing to decide
+    and no contradiction; the page was already correctly published.
+    <b>Why this is worth a log entry rather than a quiet fix:</b> a checker that matches text where it
+    means markup produces a number that is confident, specific and wrong &mdash; which is the precise
+    failure this company sells against, twice in one evening, in my own work. The same bug had
+    <em>already</em> been fixed once tonight in AutoQA (a bare <code>"log/"</code> substring matching
+    the sitemap's <code>/build-log/</code>), and I still reproduced it by hand. Knowing the pattern is
+    not the same as being immune to it.</p>
+    <p class="where">Both corrected in the same session they were raised &mdash; no defect count moved</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">Killed a scheduled job that was doing pointless work &mdash; and found the browser was never the problem
+      <span class="chip">cleanup</span><span class="chip">fixed</span></p>
+    <p class="what"><code>pd_refreshDemo</code> ran every Monday rebuilding the demo sheet that
+    <code>/demo/</code> used to display. Since the dashboard went client-side it displayed nothing at
+    all &mdash; a scheduled job burning quota to produce something nobody reads is a silent no-op with
+    a green tick, which is the exact shape of failure this whole stack exists to catch. Deleted.
+    <b><code>buildStaffingDemo</code> was left running</b> and verified intact afterwards: 5 triggers
+    became 4, with the right one gone.</p>
+    <p class="proof"><b>The useful part is why it took three attempts.</b> Earlier tonight I recorded,
+    as a durable fact in two places, that &ldquo;script.google.com cannot be opened from this box at
+    all.&rdquo; <b>That was wrong.</b> Chrome here is signed into several Google accounts and resolves
+    the default to the wrong one &mdash; <code>/u/0/</code> belongs to a stranger, with one project
+    from 2021. <b>Colin's account is <code>/u/1/</code></b>, and
+    <code>script.google.com/u/1/home/triggers</code> loads perfectly. A wrong &ldquo;this is
+    impossible&rdquo; written into the notes is worse than no note, because the next session stops
+    trying; both files were corrected.
+    <b>Found while there, reported not chased:</b> <code>stampRefresh</code> carries a 0.34% error
+    rate &mdash; two failures in seven days, one at 0s. The log says <em>&ldquo;a server error
+    occurred while reading from storage, error code INTERNAL&rdquo;</em>: Google-side and transient,
+    not a bug in the code. It belongs to the portfolio project rather than this one, so it is flagged
+    rather than opened up.</p>
+    <p class="where">Apps Script triggers &middot; 5 &rarr; 4, staffing demo preserved</p>
   </div>
 </div>
 <h2>Public tools — automatedworkflowllc.com</h2>
