@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">49 entries · newest first within each group</p>
+  <p class="stamp">50 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -418,6 +418,44 @@
     new cell, undated-not-counted-as-overdue, the send control disabled, the refusal writing no email
     body, and still <b>0 requests after load</b>. 390px probe clean.</p>
     <p class="where">Live &middot; _brand/build_demo_app.py &middot; copy-to-clipboard is the only outward action, and it is local</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 7</div>
+  <div>
+    <p class="name">Put back the line chart and the hover insight &mdash; both were real regressions
+      <span class="chip live">live</span><span class="chip">dataviz</span></p>
+    <p class="what">Colin, from memory of the old app: <em>&ldquo;I remember being impressed with how
+    many things you could hover over and get insights, and how impressive the financial line graphs
+    were &mdash; don&rsquo;t see those anymore.&rdquo;</em> He was right on both counts, and neither
+    was nostalgia. The rebuild shipped <b>bar charts whose only hover was a native browser tooltip</b>,
+    and KPI tiles that asserted a number and explained nothing.</p>
+    <p class="proof"><b>The chart.</b> One series over time is a line with an area fill and no legend
+    &mdash; the panel title already names it. <b>Y starts at zero</b>, because a revenue trend on a
+    truncated axis turns every ordinary wobble into a cliff, and this dashboard is sold on not doing
+    that. Marks are SVG, every piece of text is HTML: an SVG stretched with
+    <code>preserveAspectRatio="none"</code> scales its text with the coordinate system, which is
+    exactly the bug that made the first axis labels enormous.
+    <b>The hover.</b> A dashed hairline snaps to the nearest week so the reader aims at a <em>date</em>
+    rather than at a 2px line, and the readout <b>leads with the value</b> &mdash; they already know
+    which series they are looking at &mdash; then the week, then the change against the week before.
+    The peak is direct-labelled and every other point is one hover away, rather than thirteen numbers
+    printed on top of each other. Arrow keys give the identical readout, and nothing is hover-only:
+    every figure in the tooltip also appears in the stat row above.
+    <b>The tiles now say where their number came from</b> on hover and focus &mdash; which days the
+    month-to-date total counted, that the comparison is same-day-of-month rather than part-month
+    against whole, that AR carries the undated invoice but cannot age it, and that active customers
+    deliberately does <em>not</em> guess at crew counts. The product is &ldquo;numbers you can
+    trace&rdquo;; a tile should be able to say what it is made of.
+    <b>Colour was computed, not eyeballed</b> &mdash; the line hue was run against the surface for
+    lightness band, chroma floor and contrast before any chart code was written. The now-unused bar
+    renderer and its CSS were <em>deleted</em> rather than left to drift, and copy still saying
+    &ldquo;the newest bar&rdquo; was corrected to match the form.
+    <b>Two checks failed and neither was a bug:</b> <code>document.hasFocus()</code> is false in this
+    automation environment, so the browser sets <code>activeElement</code> but suppresses the focus
+    <em>event</em>. Proved the handler correct by synthetic dispatch instead of shrugging at a red
+    line. 11 checks pass against the live domain, 390px probe clean, still 0 requests after load.</p>
+    <p class="where">Live &middot; single-series line + area, crosshair readout, per-tile derivations</p>
   </div>
 </div>
 <h2>Public tools — automatedworkflowllc.com</h2>
