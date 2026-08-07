@@ -58,3 +58,23 @@ python _qa/promise_audit.py || {
   echo "Build the artifact, or stop promising it. Do not soften the gate."
   exit 1
 }
+
+# The public /log/ is GENERATED from the private dev/BUILD-LOG.html, which other
+# sessions append to daily. Nothing stops a push from shipping a version that is
+# days behind the log it claims to mirror — a page quietly stating stale facts is
+# the exact failure this company sells against, so it cannot be the one thing we
+# ship un-checked. Regenerate and compare; the builder is fail-closed on privacy.
+echo "Public log: checking /log/ is in step with the private build log..."
+python _brand/build_log_page.py >/dev/null || {
+  echo ""
+  echo "PUSH BLOCKED — the public log builder refused to write."
+  echo "Usually means a blocked term (job lane / personal projects) reached the output."
+  exit 1
+}
+if ! git diff --quiet -- log/index.html; then
+  echo ""
+  echo "PUSH BLOCKED — /log/ was stale and has just been regenerated."
+  echo "Review the diff, then: git add log/index.html && git commit --amend --no-edit"
+  echo "(or commit it separately) and push again."
+  exit 1
+fi

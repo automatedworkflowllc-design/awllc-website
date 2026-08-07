@@ -63,7 +63,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">40 entries · newest first within each group</p>
+  <p class="stamp">41 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -933,6 +933,39 @@
     receipts / 8 systems / 2 recorded failures / 6 anchors, <b>read back out of the rendered HTML
     rather than trusted from the builder's own summary line.</b> Claim audit clean.</p>
     <p class="where">bf62675 · 2b357af · 061c339 · dev/canary/ · Scheduled/canary/ · nightly 03:47</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">Preparing the history republish caught a leak that would have been permanent
+      <span class="chip staged">staged, not pushed</span></p>
+    <p class="what"><b>In plain terms:</b> the two tools we open-sourced were published as a single
+    snapshot commit each, which means the repos an outsider can actually inspect show almost no
+    history — the weakest possible evidence in the one place it matters most. The fix is to
+    republish them with the real commits behind them. That is prepared and checked; it is not
+    pushed, because pushing is blocked.</p>
+    <p class="proof"><b>The naive version of this would have been a mistake, and finding that out is
+    the whole value of preparing it first.</b> A straight subtree split of <code>attest</code>
+    carries <code>build_evidence_console.py</code>, an internal builder that hardcodes an absolute
+    scratch path containing the machine username and a session id. That would have gone into
+    <em>public history</em> — on a repository whose entire selling point is that history cannot be
+    quietly rewritten afterwards. Stripped it along with the packaging artefacts, then swept every
+    remaining commit for usernames, absolute paths, private keys and API keys: clean.
+    <b>watchpost had the same shape:</b> its <code>watch-own-stack.json</code> manifest names real
+    paths on this machine and is correctly absent from the published package, so it was stripped
+    from history too.</p>
+    <p class="proof"><b>Two things the check surfaced that change the decision itself.</b> First,
+    the published <code>attest</code> predates <code>predict/resolve/record</code> entirely — so
+    this was never "just add the commits", it ships the newest feature as well, which is a bigger
+    call than it looked. Second, the published watchpost carries a <code>demo-report.html</code>
+    that never existed in the development repo; rebuilding history from source alone would have
+    silently <em>deleted</em> a file the public repo already showed. It is restored in a final
+    commit, because republishing has to be strictly additive to what is already out there —
+    quietly dropping a file while claiming to add evidence would be its own small dishonesty.
+    <b>Verified on the exact trees that would go out:</b> attest 9 commits, 36 tests pass;
+    watchpost 4 commits, 17 tests pass. The dev repo's own history is untouched.</p>
+    <p class="where">local branches only · nothing pushed · blocked on push permission, not on readiness</p>
   </div>
 </div>
 
