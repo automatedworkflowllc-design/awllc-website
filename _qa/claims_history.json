@@ -1,12 +1,12 @@
 {
  "claims": 7,
- "failed": 0,
+ "failed": 1,
  "uncheckable": 1,
  "rows": [
   {
-   "status": "SUPPORTED",
+   "status": "DISAGREES",
    "id": "flatline-test-count",
-   "detail": "flatline/index.html still says \"108 tests\""
+   "detail": "derived \"114\" -> expected \"114 tests\" in flatline/index.html, not found"
   },
   {
    "status": "SUPPORTED",

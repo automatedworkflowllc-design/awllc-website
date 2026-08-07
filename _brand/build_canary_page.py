@@ -38,7 +38,7 @@ DESC = ('Free tool that checks every export the moment you save it: constant col
 CANON = 'https://automatedworkflowllc.com/canary/'
 REPO = 'https://github.com/automatedworkflowllc-design/canary'
 REL = 'https://github.com/automatedworkflowllc-design/canary/releases/download/v0.1.0'
-FL_REL = 'https://github.com/automatedworkflowllc-design/flatline/releases/download/v0.2.0'
+FL_REL = 'https://github.com/automatedworkflowllc-design/flatline/releases/download/v0.2.1'
 
 PAGE_CSS = """
 /* ---- canary page ---- */
@@ -171,11 +171,11 @@ MAIN = """
     <div class="cy-dl">
       <a href="CANARY_WHL">&darr; canary 0.1.0 (wheel)</a>
       <a href="CANARY_SRC">&darr; canary 0.1.0 (source)</a>
-      <a href="FLATLINE_WHL">&darr; flatline 0.2.0 (wheel)</a>
-      <a href="FLATLINE_SRC">&darr; flatline 0.2.0 (source)</a>
+      <a href="FLATLINE_WHL">&darr; flatline 0.2.1 (wheel)</a>
+      <a href="FLATLINE_SRC">&darr; flatline 0.2.1 (source)</a>
     </div>
 
-    <pre>pip install awllc_flatline-0.2.0-py3-none-any.whl
+    <pre>pip install awllc_flatline-0.2.1-py3-none-any.whl
 pip install awllc_canary-0.1.0-py3-none-any.whl
 
 canary ~/Downloads --report canary.html</pre>
@@ -256,8 +256,8 @@ def main() -> None:
                 .replace('CANARY_EXE', f'{REL}/canary.exe')
                 .replace('CANARY_WHL', f'{REL}/awllc_canary-0.1.0-py3-none-any.whl')
                 .replace('CANARY_SRC', f'{REL}/awllc_canary-0.1.0.tar.gz')
-                .replace('FLATLINE_WHL', f'{FL_REL}/awllc_flatline-0.2.0-py3-none-any.whl')
-                .replace('FLATLINE_SRC', f'{FL_REL}/awllc_flatline-0.2.0.tar.gz'))
+                .replace('FLATLINE_WHL', f'{FL_REL}/awllc_flatline-0.2.1-py3-none-any.whl')
+                .replace('FLATLINE_SRC', f'{FL_REL}/awllc_flatline-0.2.1.tar.gz'))
 
     # Refuse rather than ship a page whose download buttons are decoration. A
     # placeholder that survives to the page is a link that goes nowhere, and this
