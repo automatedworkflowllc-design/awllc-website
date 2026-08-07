@@ -588,11 +588,73 @@
         <p style="color:#C9C3B4;font-size:1rem;line-height:1.55;margin:0 0 22px;max-width:52ch">
           I&rsquo;ll build you a working, self-updating version of it and send it back within a day &mdash;
           free, and yours to keep whether we ever work together or not. Same checks described above run on it.</p>
-        <style>.bl-cta .btn-ghost{border-color:#443f34;color:#E4DFD1;background:transparent}.bl-cta .btn-ghost:hover{border-color:#74E1EC;color:#fff}.bl-cta .btn-primary{background:#74E1EC;color:#0c2a2d;border-color:#74E1EC}.bl-cta .hero-actions{display:flex;flex-wrap:wrap;gap:10px}</style><div class="hero-actions" style="margin:0">
-          <a class="btn btn-primary" href="mailto:colin@automatedworkflowllc.com?subject=Here%27s%20my%20messy%20spreadsheet">Email me the file &rarr;</a>
+        <style>.bl-cta .btn-ghost{border-color:#443f34;color:#E4DFD1;background:transparent}.bl-cta .btn-ghost:hover{border-color:#74E1EC;color:#fff}.bl-cta .btn-primary{background:#74E1EC;color:#0c2a2d;border-color:#74E1EC}.bl-cta .hero-actions{display:flex;flex-wrap:wrap;gap:10px}
+/* Both CTAs on this page used to be mailto:, and this is the page LinkedIn
+   traffic lands on -- overwhelmingly mobile, where a mailto with no mail app
+   configured does nothing at all and the visitor is simply gone. The email
+   option stays for anyone who wants to attach the file; it is no longer the
+   only way through. */
+.bl-form{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px;max-width:34rem}
+.bl-form input[type=email]{flex:1 1 15rem;min-width:0;padding:.7rem .8rem;border-radius:9px;
+border:1px solid #443f34;background:#0f1512;color:#FBFAF3;font:inherit;font-size:.95rem}
+.bl-form input[type=email]::placeholder{color:#8b8474}
+.bl-form input[type=email]:focus{outline:none;border-color:#74E1EC;box-shadow:0 0 0 3px rgba(116,225,236,.16)}
+.bl-form button{flex:none;cursor:pointer}
+#bl-sent{margin:0 0 12px;color:#74E1EC;font-size:.95rem;display:none}</style>
+        <p id="bl-sent" role="status" tabindex="-1"></p>
+        <form class="bl-form" action="https://formspree.io/f/mgojgjwv" method="POST">
+          <input type="hidden" name="_subject" value="Build log &mdash; messy spreadsheet">
+          <input type="hidden" name="lead_source" value="build-log">
+          <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <input type="email" name="email" required autocomplete="email" placeholder="you@company.com" aria-label="Your email">
+          <button class="btn btn-primary" type="submit">Send it to me &rarr;</button>
+        </form>
+        <div class="hero-actions" style="margin:0">
+          <a class="btn btn-ghost" href="mailto:colin@automatedworkflowllc.com?subject=Here%27s%20my%20messy%20spreadsheet">Or email the file &rarr;</a>
           <a class="btn btn-ghost" href="/demo/">Open a live dashboard &rarr;</a>
           <a class="btn btn-ghost" href="/ai-business-pulse/">See the product it became &rarr;</a>
         </div>
+<script>
+/* aw-inpage-form -- same behaviour as /free-demo/, /builds/ and the tool pages.
+   Formspree IGNORES _next (its JSON reply is {"next":"/thanks","ok":true}), so a
+   plain POST ejects the visitor to a third-party page at the highest-intent
+   moment and no conversion fires. On ANY failure we fall back to the normal
+   browser POST -- form.submit() does not re-fire submit, so no loop, no
+   stranded lead. */
+(function () {
+  "use strict";
+  if (!window.fetch || !window.FormData) { return; }
+  var form = document.querySelector('form.bl-form');
+  var ok = document.getElementById('bl-sent');
+  if (!form || !ok) { return; }
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var btn = form.querySelector('[type="submit"]');
+    if (btn) { btn.disabled = true; btn.setAttribute("aria-busy", "true"); }
+    fetch(form.action, {
+      method: "POST", body: new FormData(form),
+      headers: { "Accept": "application/json" }
+    }).then(function (r) {
+      if (!r.ok) { throw new Error("HTTP " + r.status); }
+      ok.textContent = "Sent — that’s with Colin now. He replies personally, usually within a business day.";
+      ok.style.display = "block";
+      form.style.display = "none";
+      try { ok.focus(); } catch (e) {}
+      /* Shares the sitewide guard so one visitor is never counted twice. */
+      var fired = false;
+      try { fired = sessionStorage.getItem("aw_lead_fired") === "1"; } catch (e) {}
+      if (!fired && typeof gtag === "function") {
+        gtag("event", "generate_lead", { method: "build_log_form" });
+        gtag("event", "conversion", { send_to: "AW-18312491430/t9tRCKHq9M0cEKbjiZxE" });
+        try { sessionStorage.setItem("aw_lead_fired", "1"); } catch (e) {}
+      }
+    })["catch"](function () {
+      if (btn) { btn.disabled = false; btn.removeAttribute("aria-busy"); }
+      form.submit();
+    });
+  });
+})();
+</script>
       </div>
       <p class="bl-note" style="margin-top:20px"><b>Hiring rather than outsourcing?</b> I&rsquo;m also open to
       automation, AI-operations, and solutions-engineering roles &mdash; the work above is the work.
