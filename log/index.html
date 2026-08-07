@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">52 entries · newest first within each group</p>
+  <p class="stamp">53 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -523,6 +523,37 @@
     no invented figure survives on real data, and the workbook parsed with <b>zero network
     requests</b>. One <code>parseCSV</code> definition in the output, confirmed by count.</p>
     <p class="where">Live &middot; 971239d &middot; shared intake injected from _brand/toolkit.py, never pasted</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 7</div>
+  <div>
+    <p class="name">Tabs are linkable, and Reports finally opens a report
+      <span class="chip live">live</span></p>
+    <p class="what">Two gaps closed on the flagship. <b>Tabs put the view in the URL</b>, so
+    <code>/demo/#receivables</code> opens straight there and any tab can be sent to someone.
+    <b>Reports was the one view listing things you could not click</b> &mdash; every week now opens a
+    real summary: what it brought in, the change on the week before, and where it sat against the
+    average of <em>completed</em> weeks.</p>
+    <p class="proof"><b>Every figure in a report is recomputed from the same weekly series the chart
+    draws</b>, so a report cannot quietly disagree with the chart directly above it. The in-progress
+    week says it is in progress, states how many of seven days are counted, and is excluded from the
+    average rather than dragging it down. The archive also stopped listing a fixed eight rows &mdash;
+    it lists the weeks actually in the book, so a short file no longer gets reports for weeks that do
+    not exist.
+    <b>Plain hashes were only chosen after checking</b> that no element on the page carries those
+    ids, since a hash matching an id makes the browser jump-scroll. <code>replaceState</code> rather
+    than <code>pushState</code>: back should return a visitor to the page they arrived from, not walk
+    them backwards through tabs they clicked.
+    <b>Two honesty details.</b> The summary states plainly that a live weekly report also carries what
+    was outstanding <em>that</em> week &mdash; which one export cannot reconstruct, since it knows
+    only what is open today &mdash; so that part is omitted rather than guessed. And the panel's own
+    copy had to change: it claimed each report was &ldquo;captured the morning it was written&rdquo;,
+    true of a stored snapshot and false of a recomputed one. <b>A label contradicting its value is
+    the exact defect class this dashboard is pointed at</b>, so it could hardly stay on the page.
+    Verified 14 checks locally and 9 against the live domain; 390px probe clean after hiding the
+    archive row description on phones, where it wrapped to five lines and buried the date and button.</p>
+    <p class="where">Live &middot; 4c211fb &middot; /demo/#dashboard · #revenue · #receivables · #reports</p>
   </div>
 </div>
 <h2>Public tools — automatedworkflowllc.com</h2>
