@@ -184,8 +184,14 @@ def check_pages():
         sm = os.path.join(ROOT, 'sitemap.xml')
         if os.path.exists(sm):
             smtxt = io.open(sm, encoding='utf-8').read()
+            # Anchor on the full path segment. Matching a bare "<slug>/" is a
+            # substring test, so /log/ matched the sitemap's /build-log/ entry
+            # and a correctly-noindexed staging page was reported as a defect --
+            # the checker was wrong, not the page. Requiring the leading slash
+            # makes "/log/" fail to match "/build-log/" while still matching a
+            # genuine "/log/" entry.
             slug = os.path.basename(os.path.dirname(f))
-            if slug and slug + '/' in smtxt and 'noindex' in s:
+            if slug and '/' + slug + '/' in smtxt and 'noindex' in s:
                 defect('page', '%s is in sitemap but still noindex' % rel)
 
 # ---------------------------------------------------------------- staleness
