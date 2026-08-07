@@ -16,3 +16,4 @@ tree-service-demo/
 # python build artifacts
 __pycache__/
 *.pyc
+_qa/_seam_out/

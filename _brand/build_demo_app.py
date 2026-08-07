@@ -270,7 +270,7 @@ APP_HTML = """
         <span class="ddots" aria-hidden="true"><i></i><i></i><i></i></span>
         <span class="dcrumb" id="d-crumb">Dashboard &middot; <span id="d-asof"></span></span>
         <span class="dchips">
-          <span class="dchip warn">Sample data</span>
+          <span class="dchip warn" id="d-samplechip">Sample data</span>
           <span class="dchip ok">&#9679; Self-updating</span>
           <span class="dchip" id="d-refreshed">Refreshed</span>
         </span>
@@ -335,7 +335,7 @@ APP_HTML = """
       </div>
 
       <div class="dfoot">
-        <span>Sample data &mdash; yours runs on your numbers</span>
+        <span id="d-footnote">Sample data &mdash; yours runs on your numbers</span>
         <span class="dsp" id="d-perf"></span>
       </div>
     </div>
@@ -380,57 +380,187 @@ APP_JS = r"""
   function money(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
   function pct(n){ return (n >= 0 ? '+' : '') + n.toFixed(1) + '%'; }
 
-  /* ---------- the book -------------------------------------------------- */
+  /* ================= THE DATA SEAM =====================================
+     Everything below renders from ONE object. Sample data is the fallback,
+     not the only path -- so the same page drives a real client's numbers.
+
+     To feed it real data, define this before the app script runs:
+
+       window.AW_DASHBOARD_DATA = {
+         business: "Acme Pressure Washing",     // string
+         weeks: [                               // oldest first, Mondays
+           { start: "2026-05-11", value: 12480 },
+           ...
+         ],
+         receivables: [                         // open invoices only
+           { customer: "Hogtown Brewing", amount: 4402, days: 96 },
+           ...
+         ],
+         spend: 262,                            // month-to-date, optional
+         activeCustomers: 12                    // optional
+       };
+
+     The client supplies FACTS ONLY. Every derived figure -- month-to-date,
+     prior-month comparison, AR total, aging buckets, the written summary --
+     is computed here from those facts, so a number cannot be right in one
+     place and stale in another. That is the same rule the sheets follow:
+     math from formulas, narrative from templates.
+
+     A real integration replaces the assignment and nothing else: fetch the
+     JSON, assign it, load this script. The renderer never learns where the
+     numbers came from.
+     ==================================================================== */
   var TODAY   = new Date();
   var CURMON  = mondayOf(TODAY);
-  var BASE    = 11500;   /* target revenue per full week (~$44-49k/mo) */
-  var AMP     = 3400;    /* swing. At 1800 the octave blend regressed to the mean and every
-                            bar came out the same height -- the chart looked broken. */
-  var WEEKS   = 18;
 
-  /* Gentle upward drift across the window (~+11% oldest to newest) on top of the
-     wobble. Without it the hash alone decides the shape, and for many starting
-     weeks that is a steadily FALLING book -- an odd thing for a sample business
-     to model, and it made "0 of 6 weeks above average" the headline stat. This
-     is invented data either way and the panel is labelled "Sample data"; the
-     choice is only whether the invented business is plausible. Growth stays
-     small enough that the week-to-week lumpiness still dominates, because a
-     smooth up-and-to-the-right line is the thing nobody believes. */
-  var GROWTH = 0.45;
+  /* ---- sample book (the fallback when no real data is supplied) --------- */
+  function buildSample(){
+    var BASE   = 11500;   /* target revenue per full week (~$44-49k/mo) */
+    var AMP    = 3400;    /* swing. At 1800 the octave blend regressed to the mean and every
+                             bar came out the same height -- the chart looked broken. */
+    var WEEKS  = 18;
+    /* Gentle upward drift on top of the wobble. Without it the hash alone decides
+       the shape, and for many starting weeks that is a steadily FALLING book --
+       an odd thing for a sample business to model. Chosen by simulating 104
+       possible "todays" rather than tuning to look good on one day, and
+       deliberately NOT the setting that grows every time: a demo that can never
+       show a soft week is the smooth line nobody believes. */
+    var GROWTH = 0.45;
 
-  var weeks = [];
-  for (var w = WEEKS - 1; w >= 0; w--) {
-    var start = addDays(CURMON, -7 * w);
-    var age = (WEEKS - 1 - w) / (WEEKS - 1);          /* 0 = oldest, 1 = newest */
-    var trend = 1 + GROWTH * (age - 0.5);
-    var target = BASE * trend + AMP * wobble(epochWeek(start));
-    /* The current week is only as far along as today, so it is not comparable to
-       a finished week. Pro-rating it stops the newest bar reading as a crash. */
-    var isCur = (w === 0);
-    var elapsed = isCur ? Math.min(7, Math.max(1, dayDiff(TODAY, start) + 1)) : 7;
-    var frac = elapsed / 7;
-    weeks.push({ start: start, label: fmtDay(start), value: Math.max(600, Math.round(target * frac)),
-                 full: Math.round(target),
-                 /* days actually elapsed in this week -- the divisor for any
-                    per-day figure. Dividing a pro-rated week by 7 under-counts
-                    the days that did happen. */
-                 days: elapsed,
-                 partial: isCur && elapsed < 7 });
+    var out = [];
+    for (var w = WEEKS - 1; w >= 0; w--) {
+      var start = addDays(CURMON, -7 * w);
+      var age = (WEEKS - 1 - w) / (WEEKS - 1);        /* 0 = oldest, 1 = newest */
+      var target = BASE * (1 + GROWTH * (age - 0.5)) + AMP * wobble(epochWeek(start));
+      out.push({ start: start, value: Math.max(600, Math.round(target)) });
+    }
+
+    var CUSTOMERS = [
+      'Hogtown Brewing','Sweetwater Vet Clinic','Celebration Pointe Realty','Haile Plantation HOA',
+      'Depot Park Cafe','Archer Road Dental','Tioga Town Homes','Duckpond B&B','Micanopy Vintage Co.'
+    ];
+    /* Ages are fixed offsets so every aging bucket is populated; amounts vary
+       deterministically by index. */
+    var AGES = [96, 66, 47, 31, 12, 6];
+    var recv = AGES.map(function (age, i) {
+      return { customer: CUSTOMERS[i % CUSTOMERS.length], days: age,
+               amount: 900 + Math.round((1 + hash(i * 17)) * 950) * 2 };
+    });
+
+    return { business: 'Gator Shine Exterior Cleaning', sample: true, weeks: out,
+             receivables: recv, spend: 226 + Math.round((1 + hash(epochWeek(CURMON))) * 140),
+             activeCustomers: CUSTOMERS.length + 3 };
   }
 
-  var CUSTOMERS = [
-    'Hogtown Brewing','Sweetwater Vet Clinic','Celebration Pointe Realty','Haile Plantation HOA',
-    'Depot Park Cafe','Archer Road Dental','Tioga Town Homes','Duckpond B&B','Micanopy Vintage Co.'
-  ];
+  /* ---- adopt: validate and normalise whatever was handed in -------------
+     Fails LOUDLY with the offending field named. A dashboard that renders
+     "$NaN", or silently drops a malformed invoice and shows a confident total
+     that is quietly wrong, is worse than one that refuses -- that is the whole
+     thesis of the business, so it had better hold here. */
+  function adopt(raw){
+    if (!raw || typeof raw !== 'object') { throw new Error('AW_DASHBOARD_DATA is not an object'); }
+    if (!Array.isArray(raw.weeks) || !raw.weeks.length) {
+      throw new Error('AW_DASHBOARD_DATA.weeks must be a non-empty array');
+    }
+    var weeks = raw.weeks.map(function (w, i) {
+      var d = (w && w.start instanceof Date) ? w.start
+            : new Date(String(w && w.start) + 'T00:00:00');
+      if (!d || isNaN(d.getTime())) {
+        throw new Error('weeks[' + i + '].start is not a date: ' + (w && w.start));
+      }
+      var v = Number(w.value);
+      if (!isFinite(v) || v < 0) {
+        throw new Error('weeks[' + i + '].value is not a non-negative number: ' + (w && w.value));
+      }
+      return { start: mondayOf(d), value: Math.round(v) };
+    }).sort(function (a, b) { return a.start - b.start; });
 
-  /* Open invoices. Ages are fixed offsets so the aging buckets are always
-     populated the same way; amounts vary deterministically by index. */
-  var AGES = [96, 66, 47, 31, 12, 6];
-  var receivables = AGES.map(function (age, i) {
-    var amt = 900 + Math.round((1 + hash(i * 17)) * 950) * 2;
-    return { customer: CUSTOMERS[i % CUSTOMERS.length], days: age, amount: amt,
-             due: addDays(TODAY, -age) };
-  }).sort(function (a, b) { return b.days - a.days; });
+    var recv = (raw.receivables || []).map(function (r, i) {
+      var amt = Number(r && r.amount), days = Number(r && r.days);
+      if (!isFinite(amt) || amt < 0) {
+        throw new Error('receivables[' + i + '].amount is not a non-negative number: ' + (r && r.amount));
+      }
+      if (!isFinite(days) || days < 0) {
+        throw new Error('receivables[' + i + '].days is not a non-negative number: ' + (r && r.days));
+      }
+      return { customer: String((r && r.customer) || 'Unnamed account'),
+               amount: Math.round(amt), days: Math.round(days) };
+    });
+
+    var spend = Number(raw.spend);
+    var cust  = Number(raw.activeCustomers);
+    return {
+      business: String(raw.business || 'Your business'),
+      sample: false,
+      weeks: weeks,
+      receivables: recv,
+      spend: isFinite(spend) && spend >= 0 ? Math.round(spend) : 0,
+      activeCustomers: isFinite(cust) && cust >= 0 ? Math.round(cust) : recv.length
+    };
+  }
+
+  /* ---- derive the fields the renderer needs from either source ---------- */
+  function decorate(book){
+    book.weeks = book.weeks.map(function (wk, idx, arr) {
+      var isCur = (idx === arr.length - 1) && (wk.start.getTime() === CURMON.getTime());
+      /* The current week is only as far along as today, so it is not comparable
+         to a finished one. Pro-rating stops the newest bar reading as a crash,
+         and `days` is the divisor for any per-day figure -- dividing a pro-rated
+         week by 7 under-counts the days that actually happened. */
+      var elapsed = isCur ? Math.min(7, Math.max(1, dayDiff(TODAY, wk.start) + 1)) : 7;
+      return { start: wk.start, label: fmtDay(wk.start), days: elapsed,
+               value: isCur ? Math.max(1, Math.round(wk.value * elapsed / 7)) : wk.value,
+               full: wk.value, partial: isCur && elapsed < 7 };
+    });
+    book.receivables = book.receivables.slice().sort(function (a, b) { return b.days - a.days; })
+      .map(function (r) { return { customer: r.customer, amount: r.amount, days: r.days,
+                                   due: addDays(TODAY, -r.days) }; });
+    return book;
+  }
+
+  var DATA_ERROR = null, D = null;
+  try {
+    D = decorate(window.AW_DASHBOARD_DATA ? adopt(window.AW_DASHBOARD_DATA) : buildSample());
+  } catch (e) {
+    DATA_ERROR = e && e.message ? e.message : String(e);
+  }
+
+  if (DATA_ERROR) {
+    /* Refuse rather than render something confident and wrong -- and take the
+       surrounding chrome down with it. A refusal sitting under a live-looking
+       shell (a business name, an overdue badge, a "self-updating" pill) reads as
+       a page that half-worked, which is the ambiguity the refusal exists to
+       remove. */
+    ['d-samplechip', 'd-arbadge'].forEach(function (id) {
+      var n = document.getElementById(id); if (n) { n.remove(); }
+    });
+    var biz = document.getElementById('d-biz');
+    if (biz) { biz.textContent = (window.AW_DASHBOARD_DATA && window.AW_DASHBOARD_DATA.business)
+                                 ? String(window.AW_DASHBOARD_DATA.business) : 'Dashboard'; }
+    var live = document.querySelector('#dapp .dlive');
+    if (live) { live.textContent = 'Not loaded'; live.style.color = '#B4402F'; }
+    var crumb = document.getElementById('d-crumb');
+    if (crumb) { crumb.textContent = 'Data error'; }
+    var chips = document.querySelector('#dapp .dchips');
+    if (chips) { chips.textContent = ''; }
+    var foot = document.getElementById('d-footnote');
+    if (foot) { foot.textContent = 'No data rendered'; }
+    var body = document.querySelector('#dapp .dbody');
+    if (body) {
+      body.innerHTML = '<h2 class="dh">This dashboard did not load.</h2>' +
+        '<p class="dhsub">It was given data it could not trust, so it is showing you nothing ' +
+        'rather than a number that might be wrong.</p>' +
+        '<div class="dsum" style="border-left-color:#B4402F">' +
+        '<p class="dsum-h" style="color:#B4402F">Problem with the supplied data</p>' +
+        '<p><code>' + esc(DATA_ERROR) + '</code></p></div>';
+    }
+    return;
+  }
+
+  var weeks           = D.weeks;
+  var receivables     = D.receivables;
+  var spend           = D.spend;
+  var activeCustomers = D.activeCustomers;
 
   var arTotal = receivables.reduce(function (s, r) { return s + r.amount; }, 0);
   var overdue = receivables.filter(function (r) { return r.days > 30; });
@@ -464,10 +594,20 @@ APP_JS = r"""
   var mtdDelta = pmtd > 0 ? ((mtd - pmtd) / pmtd) * 100 : 0;
   /* "Never invoiced" is the thing this whole product is pointed at: finished work
      that no one billed. Derived from the book so it moves with it. */
-  var neverInvoiced = Math.round((weeks[weeks.length - 2].value + weeks[weeks.length - 3].value) * 0.17);
-  var spend = 226 + Math.round((1 + hash(epochWeek(CURMON))) * 140);
+  /* Guard the lookback: a real book may have fewer than three weeks in it, and
+     weeks[-1] would be undefined -> "$NaN" on the flagship page. */
+  var recent = weeks.slice(-3, -1);
+  var neverInvoiced = recent.length
+    ? Math.round(recent.reduce(function (a, w) { return a + w.value; }, 0) * 0.17)
+    : Math.round((weeks[weeks.length - 1] || { value: 0 }).value * 0.17);
   var netCash = mtd - spend;
-  var activeCustomers = CUSTOMERS.length + 3;
+  /* Distinct accounts carrying an open invoice -- a fact we actually hold,
+     unlike crew counts. */
+  var openAccounts = (function () {
+    var seen = {}, k = 0;
+    receivables.forEach(function (r) { if (!seen[r.customer]) { seen[r.customer] = 1; k++; } });
+    return k;
+  })();
 
   /* ---------- rendering helpers ---------------------------------------- */
   function el(id){ return document.getElementById(id); }
@@ -547,13 +687,32 @@ APP_JS = r"""
      prose, because a sentence that quietly disagrees with the chart above it
      is the exact failure this product exists to catch. */
   function summary(){
-    var worst = receivables[0];
-    var s = 'Revenue this month is <b>' + money(mtd) + '</b> (' + pct(mtdDelta) +
-            ' vs the same point last month). You are owed <b>' + money(arTotal) + '</b>';
-    if (worst) {
-      s += '; call <b>' + esc(worst.customer) + '</b> first — ' + money(worst.amount) +
-           ' is ' + worst.days + ' days past due';
+    var s = 'Revenue this month is <b>' + money(mtd) + '</b>';
+    /* Only claim a comparison when there is something to compare against. With
+       no prior-month data, pct() would print "+0.0% vs the same point last
+       month" -- which reads as "flat", a statement about a month we have no
+       data for. */
+    s += pmtd > 0 ? ' (' + pct(mtdDelta) + ' vs the same point last month)'
+                  : ' (no prior month to compare against yet)';
+
+    if (arTotal > 0) {
+      s += '. You are owed <b>' + money(arTotal) + '</b>';
+      /* The oldest open invoice is NOT necessarily an overdue one. Asserting
+         "N days past due" about an invoice that is merely N days OLD is the
+         dashboard contradicting its own list, which says "due <date>" beside
+         it -- the exact self-disagreement this product is sold to catch. Only
+         the genuinely overdue get the chase sentence. */
+      var late = overdue[0];
+      if (late) {
+        s += '; call <b>' + esc(late.customer) + '</b> first — ' + money(late.amount) +
+             ' is ' + late.days + ' days past due';
+      } else {
+        s += ', and none of it is past due yet';
+      }
+    } else {
+      s += '. Nothing is outstanding — every invoice is paid';
     }
+
     s += '. Finished-but-never-invoiced work totals <b>' + money(neverInvoiced) +
          '</b> — invoice it this week. Spending is ' + money(spend) +
          ' this month, leaving <b>' + money(netCash) + '</b> net cash flow.';
@@ -568,10 +727,19 @@ APP_JS = r"""
     el('d-summary').innerHTML = summary();
 
     var kpis = [
-      { l: 'Monthly revenue', v: money(mtd), d: pct(mtdDelta) + ' vs prior MTD', t: mtdDelta >= 0 ? 'pos' : 'neg', go: 'revenue' },
-      { l: 'Outstanding AR',  v: money(arTotal), d: overdue.length + ' invoices past due', t: 'neg', go: 'receivables' },
+      { l: 'Monthly revenue', v: money(mtd),
+        d: pmtd > 0 ? pct(mtdDelta) + ' vs prior MTD' : 'no prior month yet',
+        t: pmtd > 0 ? (mtdDelta >= 0 ? 'pos' : 'neg') : '', go: 'revenue' },
+      { l: 'Outstanding AR',  v: money(arTotal),
+        d: overdue.length + (overdue.length === 1 ? ' invoice past due' : ' invoices past due'),
+        t: overdue.length ? 'neg' : '', go: 'receivables' },
       { l: 'Net cash flow',   v: money(netCash), d: money(spend) + ' spent this month', t: netCash >= 0 ? 'pos' : 'neg', go: 'revenue' },
-      { l: 'Active customers',v: String(activeCustomers), d: 'across 3 crews', t: '', go: 'receivables' }
+      /* Was the hardcoded string "across 3 crews". Harmless on sample data and a
+         FABRICATION the moment a real book is loaded -- the dashboard would be
+         asserting a fact about a business it knows nothing about. Derived now. */
+      { l: 'Active customers',v: String(activeCustomers),
+        d: openAccounts + (openAccounts === 1 ? ' with open work' : ' with open invoices'),
+        t: '', go: 'receivables' }
     ];
     el('d-kpis').innerHTML = kpis.map(function (k) {
       return '<button class="dkpi" type="button" data-goto="' + k.go + '">' +
@@ -581,7 +749,9 @@ APP_JS = r"""
     }).join('');
 
     el('d-minichart').innerHTML = chart(weeks.slice(-6), { h: 30, px: 132, label: 'Revenue, last six weeks' });
-    el('d-callfirst').innerHTML = rowsHTML(receivables.slice(0, 3));
+    el('d-callfirst').innerHTML = receivables.length
+      ? rowsHTML(receivables.slice(0, 3))
+      : '<p class="dnote" style="margin:0">Nothing outstanding — every invoice is paid.</p>';
   }
 
   function renderRevenue(){
@@ -643,11 +813,16 @@ APP_JS = r"""
              '<span class="da-t"><span class="da-f" style="width:' +
              Math.max(3, Math.round(b.total / mx * 100)) + '%"></span></span></div>';
     }).join('');
-    el('a-list').innerHTML = rowsHTML(receivables);
-    el('a-note').innerHTML = 'Of <b>' + money(arTotal) + '</b> outstanding, <b>' + money(overdueTotal) +
-      '</b> is past 30 days' + (worst ? '. Start with <b>' + esc(worst.customer) + '</b> (' +
-      money(worst.amount) + ', ' + worst.days + 'd late)' : '') +
-      '. The chase emails draft themselves — and then wait for you to press send.';
+    el('a-list').innerHTML = receivables.length
+      ? rowsHTML(receivables)
+      : '<p class="dnote" style="margin:0">No open invoices.</p>';
+    var lead = overdue[0];   /* the oldest OVERDUE one, not merely the oldest */
+    el('a-note').innerHTML = arTotal > 0
+      ? ('Of <b>' + money(arTotal) + '</b> outstanding, <b>' + money(overdueTotal) +
+         '</b> is past 30 days' + (lead ? '. Start with <b>' + esc(lead.customer) + '</b> (' +
+         money(lead.amount) + ', ' + lead.days + 'd late)' : ' — nothing has aged past 30 days yet') +
+         '. The chase emails draft themselves — and then wait for you to press send.')
+      : 'Nothing is outstanding. When something ages past 30 days, the chase email drafts itself — and then waits for you to press send.';
   }
 
   function renderReports(){
@@ -714,7 +889,17 @@ APP_JS = r"""
   });
 
   /* ---------- boot ------------------------------------------------------ */
-  el('d-arbadge').textContent = String(overdue.length);
+  /* Name and the "Sample data" chip follow the DATA, so a real book renders as
+     itself and does not sit under a label calling it a sample. */
+  el('d-biz').textContent = D.business;
+  var chip = el('d-samplechip');
+  if (chip && !D.sample) { chip.remove(); }
+  var fn = el('d-footnote');
+  if (fn && !D.sample) { fn.textContent = D.business + ' · live data'; }
+  /* A red alert badge showing 0 is an alarm about nothing -- remove it when
+     there is nothing overdue, which is the state a healthy client is in. */
+  var bdg = el('d-arbadge');
+  if (bdg) { if (overdue.length) { bdg.textContent = String(overdue.length); } else { bdg.remove(); } }
   el('d-refreshed').textContent = 'Built ' +
     TODAY.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   renderDashboard();
