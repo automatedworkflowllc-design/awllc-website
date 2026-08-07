@@ -54,6 +54,25 @@ border-radius:.3rem;padding:.12rem .42rem;color:var(--ink-soft)}
 .bd-tag.live{border-color:var(--accent,var(--green,#1E7A47));color:var(--accent,var(--green,#1E7A47))}
 .bd-note{margin:2.2rem 0 0;padding:1.1rem 1.2rem;border:1px solid var(--line);border-radius:12px;
 background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
+/* Ask box. This page is the LinkedIn landing target, and LinkedIn traffic is
+   overwhelmingly mobile -- where a mailto: on a phone with no mail app
+   configured does nothing at all and the visitor is simply lost. Same failure
+   we fixed sitewide on 2026-08-03. A real field beats a link that may be inert. */
+.bd-ask{margin:2.2rem 0 0;padding:1.3rem 1.25rem;border:1px solid var(--line);border-radius:12px;
+background:var(--bg-soft)}
+.bd-ask h2{margin:0 0 .3rem;font-size:1.12rem;letter-spacing:-.01em}
+.bd-ask .bd-asklede{margin:0 0 1rem;font-size:.9rem;color:var(--ink-soft);max-width:34rem}
+.bd-form{display:grid;gap:.75rem;max-width:30rem;margin:0}
+.bd-form label{font-size:.72rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+color:var(--ink-soft);margin-bottom:-.5rem}
+.bd-form input[type=email],.bd-form input[type=text]{width:100%;padding:.7rem .8rem;
+border:1px solid var(--line);border-radius:9px;font:inherit;font-size:.95rem;
+background:var(--bg,#fff);color:var(--ink)}
+.bd-form input:focus{outline:none;border-color:var(--green,#1E7A47);
+box-shadow:0 0 0 3px rgba(30,122,71,.14)}
+.bd-form .btn{width:100%;justify-content:center;cursor:pointer;margin-top:.25rem}
+.bd-form .bd-privacy{margin:.1rem 0 0;font-size:.82rem;color:var(--ink-soft)}
+#bd-sent{margin:0;font-size:.95rem;color:var(--ink);display:none}
 """
 
 TOOLS = [
@@ -294,7 +313,75 @@ def build_main() -> str:
   a question, which is what the <a href="/spreadsheet-cleanup-service/">$300 cleanup</a> and the
   <a href="/free-demo/">free 1-day demo</a> are. A tool that guessed there would be faster and
   worse.</div>
+
+  <div class="bd-ask">
+    <h2>Want one of these pointed at your own numbers?</h2>
+    <p class="bd-asklede">Tell me the chore and I&rsquo;ll rebuild a real piece of it on your own
+    file, usually within a business day. Free, and yours to keep either way &mdash; there is no
+    contract and no follow-up sequence.</p>
+    <p id="bd-sent" role="status" tabindex="-1"></p>
+    <form class="bd-form" action="https://formspree.io/f/mgojgjwv" method="POST">
+      <input type="hidden" name="_subject" value="Free demo request &mdash; /builds/">
+      <input type="hidden" name="lead_source" value="builds">
+      <input type="hidden" name="offer" value="Free 1-day mini-demo">
+      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <label for="bd-email">Your email</label>
+      <input id="bd-email" type="email" name="email" autocomplete="email" placeholder="you@company.com" required>
+      <label for="bd-chore">The chore you want gone (optional)</label>
+      <input id="bd-chore" type="text" name="chore" autocomplete="off" placeholder="e.g. I rebuild the same job report every Friday">
+      <button class="btn btn-primary" type="submit">Ask for the free demo &rarr;</button>
+      <p class="bd-privacy">I reply personally &mdash; no spam, no sequence, no list.</p>
+    </form>
+  </div>
 </main>
+"""
+
+
+ASK_JS = r"""
+<script>
+/* aw-inpage-form -- identical behaviour to /free-demo/ and the tool pages.
+   Formspree IGNORES _next (verified 2026-08-03: its JSON reply is
+   {"next":"/thanks","ok":true}), so a plain POST ejects the visitor to a
+   third-party page at the highest-intent moment and no conversion fires.
+   fetch + Accept: application/json keeps them here. On ANY failure we fall back
+   to the normal browser POST -- form.submit() does not re-fire submit, so there
+   is no loop and no stranded lead. */
+(function () {
+  "use strict";
+  if (!window.fetch || !window.FormData) { return; }
+  var form = document.querySelector('form.bd-form');
+  var ok = document.getElementById('bd-sent');
+  if (!form || !ok) { return; }
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var btn = form.querySelector('[type="submit"]');
+    if (btn) { btn.disabled = true; btn.setAttribute("aria-busy", "true"); }
+    fetch(form.action, {
+      method: "POST",
+      body: new FormData(form),
+      headers: { "Accept": "application/json" }
+    }).then(function (r) {
+      if (!r.ok) { throw new Error("HTTP " + r.status); }
+      ok.textContent = "Sent — that’s with Colin now. He replies personally, usually within a business day.";
+      ok.style.display = "block";
+      form.style.display = "none";
+      try { ok.focus(); } catch (e) {}
+      /* Once per submission, and it shares the sessionStorage guard with every
+         other form on the site so one visitor is never counted twice. */
+      var fired = false;
+      try { fired = sessionStorage.getItem("aw_lead_fired") === "1"; } catch (e) {}
+      if (!fired && typeof gtag === "function") {
+        gtag("event", "generate_lead", { method: "builds_form" });
+        gtag("event", "conversion", { send_to: "AW-18312491430/t9tRCKHq9M0cEKbjiZxE" });
+        try { sessionStorage.setItem("aw_lead_fired", "1"); } catch (e) {}
+      }
+    })["catch"](function () {
+      if (btn) { btn.disabled = false; btn.removeAttribute("aria-busy"); }
+      form.submit();
+    });
+  });
+})();
+</script>
 """
 
 
@@ -328,7 +415,7 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
     head = head.replace('</head>', f'<style>{PAGE_CSS}</style>\n</head>')
 
-    page = head + build_main() + footer + LD + '\n</body>\n</html>\n'
+    page = head + build_main() + ASK_JS + footer + LD + '\n</body>\n</html>\n'
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')
