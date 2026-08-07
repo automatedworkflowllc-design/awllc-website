@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">47 entries · newest first within each group</p>
+  <p class="stamp">49 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -384,6 +384,40 @@
     not a bug in the code. It belongs to the portfolio project rather than this one, so it is flagged
     rather than opened up.</p>
     <p class="where">Apps Script triggers &middot; 5 &rarr; 4, staffing demo preserved</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">The chase email now drafts itself in the demo &mdash; and refuses when it cannot know
+      <span class="chip live">live</span><span class="chip">the judgment gate</span></p>
+    <p class="what">The judgment gate is the claim the entire positioning rests on, and it is also the
+    thing that earned this account its only real engagement &mdash; a builder peer arriving at it
+    independently in a comment. <b>And the dashboard only ASSERTED it, in a sentence.</b> A page that
+    claims a human gate is indistinguishable from one that quietly sends. So now it is pressable:
+    hit <em>Draft chase</em> on any overdue invoice and the email writes itself &mdash; tone derived
+    from age, figures taken from the invoice rather than from a model &mdash; and then it stops. The
+    send control exists only to say <b>&ldquo;not available&rdquo;</b>, because a gate you cannot see
+    is not a gate.</p>
+    <p class="proof"><b>The refusal is the important half.</b> Tone is derived from age, so when there
+    is no age, tone cannot be derived &mdash; and it declines to write anything at all, saying why.
+    That is not an edge case added for effect: it is the case that <em>forced</em> the design, because
+    the alternative is quietly picking &ldquo;friendly&rdquo; for the one invoice nobody can date,
+    which is precisely where a wrong tone does the most damage.
+    <b>Modelling that meant teaching the data layer about undated invoices, and the trap was real:</b>
+    <code>null &lt;= 30</code> is <b>true</b> in JavaScript, so an undated invoice would have landed
+    silently in the 0&ndash;30 aging bucket, <em>the column totals would still have reconciled</em>,
+    and the one invoice nobody can age is the one nobody would ever see. All 8 age comparisons are now
+    null-explicit; undated gets its own aging cell so the buckets still sum to AR; and it sorts LAST
+    rather than being left to a <code>NaN</code> comparator that could have surfaced it as
+    &ldquo;call this one first&rdquo; by accident.
+    <b>The seam still holds:</b> <code>adopt()</code> accepts a genuinely absent date &mdash; blank
+    date columns are ordinary in real exports &mdash; while a malformed one like <code>"lots"</code>
+    still refuses the whole render.
+    Verified with 16 checks locally and 8 against the live domain, including aging-sums-to-AR with the
+    new cell, undated-not-counted-as-overdue, the send control disabled, the refusal writing no email
+    body, and still <b>0 requests after load</b>. 390px probe clean.</p>
+    <p class="where">Live &middot; _brand/build_demo_app.py &middot; copy-to-clipboard is the only outward action, and it is local</p>
   </div>
 </div>
 <h2>Public tools — automatedworkflowllc.com</h2>
@@ -1142,6 +1176,49 @@
     checking <code>git show --stat</code> instead of trusting the exit code, and amended while still
     unpushed so the record never went out wrong.</p>
     <p class="where">ec1bcc6 · deployed and verified live · gates: claim, promise, SEO, security, autoqa, last-mile</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 6</div>
+  <div>
+    <p class="name">canary is public — and packaging it found that all four of our tool names belong to someone else
+      <span class="chip live">released</span><span class="chip">4 commits from day one</span></p>
+    <p class="what"><b>The mission these two share, now printed identically in both repositories
+    so it reads as a position rather than copy:</b></p>
+    <p class="proof" style="border-left-color:var(--accent)"><b>Software fails loudly. Data fails
+    quietly.</b> A column that stopped updating in March. An export byte-identical for six weeks. A
+    nightly job that has "succeeded" every night into an empty file. Nothing alerts on any of it,
+    because nothing is <em>broken</em> — the numbers simply stopped being true, and every dashboard
+    above them kept reporting with complete confidence.
+    <b>flatline is the judgment:</b> it decides whether a signal still carries information.
+    <b>canary is the trigger:</b> it watches the folders where files land and asks flatline the
+    moment one changes, so the answer arrives before anyone thinks to ask the question.
+    <b>Neither tool will ever call a file clean that it failed to read.</b> A check that could not
+    run is reported as a failure to check, never as a pass — in code, and with a test, in both.</p>
+    <p class="proof"><b>canary shipped with history from day one</b>, which is the lesson from
+    earlier today applied rather than merely written down: 4 commits, public, MIT, and a README
+    whose install instructions were <em>executed</em> rather than drafted.
+    <b>Packaging it turned up something that changed the plan entirely:</b> all four of our tool
+    names are already taken on PyPI by unrelated projects — <code>flatline</code> is a Ghidra
+    decompiler wrapper, <code>attest</code> a unit-testing library, <code>canary</code> an exception
+    shipper, <code>watchpost</code> a Checkmk tool. Declaring flatline as a dependency would have
+    made <code>pip install</code> fetch a stranger's package.
+    <b>Worse, it exposed a live defect in a fix I had written an hour before:</b> resolving flatline
+    via <code>find_spec('flatline')</code> treats any importable module of that name as ours, so a
+    user with the Ghidra tool installed would have had canary shell out to it. Identity is now
+    verified by the package's own files, inspected on disk rather than imported — verifying identity
+    must not execute third-party code that merely shares a name.</p>
+    <p class="proof"><b>Fixed across every repo:</b> the distributions are now
+    <code>awllc-attest</code>, <code>awllc-watchpost</code>, <code>awllc-flatline</code> and
+    <code>awllc-canary</code>, with every module name and typed command unchanged. No harm was
+    outstanding — all three public READMEs install from a clone, so nobody was ever pointed at PyPI
+    for the wrong package.
+    <b>Proven the way a stranger meets it, not by inspection:</b> built a wheel, installed it into a
+    clean virtualenv with no flatline present — exit 1, one file "could not be checked", and a
+    message naming the remedy. Then installed flatline exactly as the README instructs and re-ran:
+    exit 2, one finding, zero uncheckable. The instructions are verified, not just written.
+    11 tests.</p>
+    <p class="where">github.com/automatedworkflowllc-design/canary · mission statement also live in the flatline README and both repo descriptions</p>
   </div>
 </div>
 
