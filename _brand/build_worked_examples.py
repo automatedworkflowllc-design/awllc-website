@@ -42,7 +42,7 @@ PAGE_CSS = """
 padding:.8rem .95rem;background:var(--well);border-radius:.5rem;font-size:.86rem;
 line-height:1.5;color:var(--ink-soft);max-width:40rem}
 .we-meta dt{font-family:var(--mono,monospace);font-size:.62rem;letter-spacing:.09em;
-text-transform:uppercase;color:var(--line-strong);padding-top:.24rem}
+text-transform:uppercase;color:var(--ink-faint);padding-top:.24rem}
 .we-meta dd{margin:0}
 /* The invented-data band sits ABOVE the numbers on purpose. Under them it reads
    as a disclaimer; above them it reads as a fact about what you are looking at. */
@@ -147,18 +147,25 @@ FAKE_BAND = (
 )
 
 
+def _numeric(c) -> bool:
+    """True for a cell that should right-align. &minus; is how negatives are
+    written here, so it has to count as a leading sign."""
+    c = str(c).replace('&minus;', '-')
+    return bool(re.match(r'^[-+$(\d]', c))
+
+
 def table(headers, rows, total=None) -> str:
     """Rows are (cells, css_class). Cells beginning with '$' or a digit right-align."""
     th = ''.join(f'<th>{h}</th>' for h in headers)
     body = ''
     for cells, cls in rows:
         tds = ''.join(
-            f'<td class="num">{c}</td>' if i and re.match(r'^[-+$(\d]', str(c)) else f'<td>{c}</td>'
+            f'<td class="num">{c}</td>' if i and _numeric(c) else f'<td>{c}</td>'
             for i, c in enumerate(cells))
         body += f'<tr class="{cls}">{tds}</tr>' if cls else f'<tr>{tds}</tr>'
     if total:
         tds = ''.join(
-            f'<td class="num">{c}</td>' if i and re.match(r'^[-+$(\d]', str(c)) else f'<td>{c}</td>'
+            f'<td class="num">{c}</td>' if i and _numeric(c) else f'<td>{c}</td>'
             for i, c in enumerate(total))
         body += f'<tr class="tot">{tds}</tr>'
     return (f'<div class="we-tw"><table class="we-t"><thead><tr>{th}</tr></thead>'
