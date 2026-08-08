@@ -1,31 +1,5 @@
 [
  {
-  "when": "2026-08-06 22:27",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 22:28",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 22:28",
-  "mode": "full",
-  "score": 1,
-  "by_area": {
-   "page": 1
-  }
- },
- {
-  "when": "2026-08-06 22:28",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
   "when": "2026-08-06 22:30",
   "mode": "fast",
   "score": 0,
@@ -365,6 +339,30 @@
  },
  {
   "when": "2026-08-08 10:17",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-08 10:17",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-08 10:17",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-08 10:17",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-08 11:15",
   "mode": "full",
   "score": 0,
   "by_area": {}
