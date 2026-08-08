@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">59 entries · newest first within each group</p>
+  <p class="stamp">60 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -672,6 +672,37 @@
   </div>
 </div>
 <h2>Public tools — automatedworkflowllc.com</h2>
+<div class="row">
+  <div class="date">Aug 8</div>
+  <div>
+    <p class="name">Published three finished demos as real pages &mdash; after finding two of them named real local businesses
+      <span class="chip live">live</span><span class="chip">3 pages</span></p>
+    <p class="what">Three completed demo workbooks &mdash; job costing, owner statements, invoice
+    reconciliation &mdash; had sat in a local folder since mid&#8209;July. A LinkedIn post on 8/6 said of
+    four sample builds <em>&ldquo;they&rsquo;re all on my site&rdquo;</em> and <b>three of them
+    404&rsquo;d.</b> The claim&#8209;trace that cleared that post had run <code>ls</code> in the
+    <b>stale <code>Documents/</code> checkout</b>, which is why it passed while being false. The honest
+    fix is to make the sentence true, so they are now pages: the finding, an explicit statement that
+    every figure is invented, a working <code>.xlsx</code> handed over with no email, and a list of
+    what the build does not do.</p>
+    <p class="proof"><b>The blocker was found in the source data, not the code.</b> Two of the three
+    workbooks were seeded with <b>real Gainesville businesses lifted straight from the outreach
+    tracker</b> &mdash; and the job&#8209;costing sheet said two named real companies <em>lost money on a
+    job</em>, against invented numbers. Harmless in a private sales file; not publishable. Every real
+    company name and street address was replaced with a fictional one before anything shipped, and a
+    grep now asserts none survive. <b>Both workbook builders also hardcoded the stale checkout&rsquo;s
+    absolute path</b>, so they had been writing files nobody serves; they resolve from the repo root now.
+    Two render defects the gates could not see were caught by opening the pages: negatives are written
+    as the <code>&amp;minus;</code> entity so they typeset properly, which made them fail a
+    leading&#8209;digit test and render <b>left&#8209;aligned inside a right&#8209;aligned money
+    column</b> &mdash; the one column a reader actually scans. Verified live: all three return
+    <b>200</b>, each <code>.xlsx</code> downloads with the correct MIME and <b>re&#8209;opens with its
+    tabs and fictional data intact</b> after being pulled back off the live domain. Mobile checked with
+    a 390px iframe probe &mdash; body scrollWidth 375, no page&#8209;level overflow. Gates: security
+    clean, SEO 0, claim clean, promise clean, AutoQA back to 0 once Pages deployed.</p>
+    <p class="where">/job-costing/ &middot; /owner-statements/ &middot; /reconciler/ &middot; sitemap 31 urls, llms.txt, /builds/ &middot; a451f2a, 950d26b</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 5</div>
   <div>
