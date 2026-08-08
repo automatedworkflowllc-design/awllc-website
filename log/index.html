@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">60 entries · newest first within each group</p>
+  <p class="stamp">61 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -1587,6 +1587,55 @@
     unreviewed. A malformed policy raises rather than silently evaluating to &ldquo;no rules&rdquo;,
     which is the most dangerous way for a typo to behave.</p>
     <p class="where">2e155b5 + 99de7aa · dev/custody/ · question: what did the AI do and was it right · blind spot: it cannot see inside the model, only what was declared and what changed on disk</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 7–8</div>
+  <div>
+    <p class="name">Five tools, one set: published, cross-linked, and each naming its own blind spot
+      <span class="chip live">all 5 public</span><span class="chip">all 5 downloadable</span></p>
+    <p class="what"><b>In plain terms:</b> the tools existed but did not add up to anything. A
+    stranger who found one had no way to discover the rest, two of the five had nothing you could
+    download, and the newest was invisible on our own site. They are now a set you can walk
+    through from any entry point.</p>
+    <p class="proof"><b>The cross-linking was measured, not assumed.</b> attest &mdash; the
+    primitive the other four are built on &mdash; <em>linked to nothing at all</em>; flatline and
+    watchpost linked to one sibling each; only canary carried a real map. Four repos, four dead
+    ends. Every README now ends with the same table in the same words, listing the four others and
+    never itself, <b>with the blind spots beside the capabilities</b> &mdash; a set of tools that
+    only advertised what each covers is how a reader comes to believe the set covers everything.
+    Checked mechanically rather than by eye: four rows each, zero self-references, zero duplicate
+    link definitions.
+    <b>The best writing in the project was private.</b> The page explaining <em>why</em> there are
+    several rather than one &mdash; the rule each had to pass to exist, name your question and
+    your blind spot in one line or you are a feature of something that already exists &mdash; sat
+    in a local file nobody could read. It is public now, and it publishes the overlap that is
+    <em>real</em> before it is resolved: <code>flatline jobs</code> is largely redundant, condition
+    one of its retirement is met, condition two is a pre-registered prediction resolving
+    <b>2026-09-04</b>. Announcing a deprecation date we can be held to beats deleting the tool
+    later and saying nothing.</p>
+    <p class="proof"><b>Publishing it caught the page arguing about staleness being stale.</b> It
+    warned its own numbers could drift "exactly the way /proof/ did" &mdash; they had, and
+    <b>two of its four re-derivation commands were wrong</b>. One counted <em>directories</em>
+    rather than registered tasks, the precise mistake <code>_qa/fleet.py</code> exists to end. The
+    other counted every non-test file as a gate and returned 7 where the hook that actually blocks
+    runs 5 &mdash; right number, wrong method. The correction is left visible rather than quietly
+    overwritten. The public version deliberately carries <em>no</em> fleet figures at all: they are
+    operational detail about one machine, useless to a reader, and they are exactly what went
+    stale.
+    <b>custody and watchpost shipped.</b> custody with 8 commits of history from day one and every
+    commit swept before anything left the machine; watchpost with the release it never had, proven
+    on a file written today containing 2019 data &mdash; 1983 business days behind, the check
+    nothing else does. Both installed into empty virtualenvs and run before publishing, because
+    install instructions nobody executed are a promise nobody checked.</p>
+    <p class="proof"><b>Three false alarms tonight, all mine, none the code's.</b> A missing
+    <code>strings</code> command "proved" tkinter was absent from a bundle. A mismatched
+    <code>ATTEST_HOME</code> made every signature look forged and turned 32 lost receipts into a
+    reported 64 problems. And <code>$?</code> read through a pipe nearly had me report that
+    watchpost exits 0 on failure &mdash; it exits 2, exactly as documented. <b>Every false alarm
+    came from my instrumentation.</b> Worth writing down: the measurement is as likely to be
+    broken as the thing measured, and it fails in the direction that makes you look busy.</p>
+    <p class="where">5 public repos · attest v0.1.1 · flatline v0.2.1 · canary v0.1.0 + .exe · watchpost v0.1.0 · custody v0.1.0 · WHY-SEVERAL-TOOLS.md</p>
   </div>
 </div>
 
