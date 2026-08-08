@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">55 entries · newest first within each group</p>
+  <p class="stamp">57 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -585,6 +585,61 @@
     <b>Verified:</b> regeneration preserves the hand-edited note (it sits outside the generator's
     markers), and the live domain was polled until all three corrections actually served.</p>
     <p class="where">Live &middot; 5e57ef3 &middot; homepage · /demo/ · /builds/ · structured data</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 7</div>
+  <div>
+    <p class="name">Pointed the demo page at a search someone actually performs &mdash; and left a suspicious-looking decision alone
+      <span class="chip live">live</span><span class="chip">seo</span></p>
+    <p class="what">The title still sold the old demo &mdash; <em>&ldquo;Live KPI Dashboard Demo, tap
+    around the real thing&rdquo;</em> &mdash; which describes an <em>experience</em> rather than a job
+    to be done, and targets nothing anybody types into a search box. The page now turns a visitor's
+    own spreadsheet into a dashboard without uploading it, which is a thing people actively look for.
+    It reads <b>&ldquo;Turn Your Spreadsheet Into a Dashboard &mdash; Nothing Uploads&rdquo;</b> now,
+    with a description that says what to do and what does not happen to the file.</p>
+    <p class="proof"><b>Checked for cannibalisation before changing anything</b>, because
+    <code>/free-demo/</code> was deliberately kept out of organic for exactly that reason. The intents
+    stay separate: the homepage is local service, <code>/google-sheets-dashboard/</code> is
+    done-for-you, and <code>/demo/</code> is now self-serve DIY &mdash; a different searcher, not a
+    competing page.
+    <b>And the more useful half: something that looked broken turned out to be deliberate.</b>
+    <code>/free-demo/</code> carries <code>noindex,nofollow</code> and is absent from the sitemap
+    while <b>14 pages link to it</b> &mdash; the exact signature of a page published and left in
+    staging. The commit that shipped it says plainly it was kept out of organic <em>on purpose</em>
+    as an ad landing page, so it would not cannibalise the homepage. <b>Verified before touching it;
+    the decision was sound and stands.</b> A tempting fix that reverses a documented decision is not
+    a fix, and the only thing separating those two outcomes was reading the commit message.
+    Lengths were checked against the SEO gate's own thresholds rather than eyeballed (title 56 of
+    50&ndash;60, description 145 of 120&ndash;158), and the structured-data name was aligned with the
+    replacement count asserted, so a silent no-op could not pass as done.</p>
+    <p class="where">Live &middot; c23fc2f &middot; polled until the new title actually served</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 7</div>
+  <div>
+    <p class="name">Three posts written off this log &mdash; and the trace killed a number before it shipped
+      <span class="chip">queued, not posted</span><span class="chip">claim-traced</span></p>
+    <p class="what">Three new posts drafted from entries nothing had used yet: the public log and its
+    fail-closed filter, the check that <em>agreed</em> with the page because both counted folders, and
+    the monitor that cried wolf. <b>None went out today</b> &mdash; the feed was opened first and the
+    newest post was 12 hours old, so one-a-day already held. Queued behind the existing four.</p>
+    <p class="proof"><b>The trace earned its keep for the third time, and in a new way.</b> The first
+    draft cited how many entries the public log carries. Building it twice twenty minutes apart
+    returned <b>52, then 53, then 55</b> &mdash; because other sessions append to the source all day.
+    The figure was not wrong so much as <em>unclaimable</em>: any post citing it is false by the time
+    anyone reads it. So the rule written into the kit is that the count may never appear in a post,
+    and what gets claimed instead is the property that actually holds &mdash; the page's stated count
+    matches its own rows, verified at 55 = 55.
+    <b>Everything else checked against the live domain rather than recalled:</b> <code>/log/</code>
+    and <code>/proof/</code> both 200, the nightly task registered and reporting Ready, four distinct
+    refuse-to-write exits in the builder, <code>_qa/fleet.py</code> present and sourcing the fleet
+    from the OS scheduler, and 7 watches in the watch file with the reasoning note quoted verbatim
+    rather than paraphrased.
+    <b>One deliberate omission:</b> the cried-wolf post never names the project whose log it was.
+    That lane is not public, and "a log file" is true and sufficient.</p>
+    <p class="where">Documents\AWLLC-linkedin-launch-kit.md &middot; POSTS 15-17 &middot; order: 14 &rarr; 11 &rarr; 12 &rarr; 13 &rarr; 15 &rarr; 16 &rarr; 17</p>
   </div>
 </div>
 <h2>Public tools — automatedworkflowllc.com</h2>
