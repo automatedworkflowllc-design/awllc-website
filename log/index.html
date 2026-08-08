@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">57 entries · newest first within each group</p>
+  <p class="stamp">59 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -642,6 +642,35 @@
     <p class="where">Documents\AWLLC-linkedin-launch-kit.md &middot; POSTS 15-17 &middot; order: 14 &rarr; 11 &rarr; 12 &rarr; 13 &rarr; 15 &rarr; 16 &rarr; 17</p>
   </div>
 </div>
+<div class="row">
+  <div class="date">Aug 7</div>
+  <div>
+    <p class="name">Two suspicions were wrong; the one real defect was mine
+      <span class="chip live">fixed &amp; live</span><span class="chip">correction</span></p>
+    <p class="what">Went looking for stale copy on the homepage and found three things worth
+    checking. <b>Two were not defects at all. The third was one I had introduced that morning.</b></p>
+    <p class="proof"><b>The real one.</b> The No. 01 sample card links to a <em>Google Sheet</em>, not
+    to <code>/demo/</code>. In this morning's pass to make copy match the rebuilt web app, I rewrote
+    that card to say &ldquo;hover the chart, open a weekly report, or <b>drop your own export on it
+    and watch it rebuild</b>&rdquo; &mdash; and never checked the href. <b>You cannot drop an export
+    on a Google Sheet.</b> A false promise, live on the homepage, put there by the exact pass whose
+    purpose was removing false promises. Now reads &ldquo;click through the sheet tabs and read the
+    weekly summary it writes itself&rdquo;, which is true of that artifact, and it also drops a
+    range-chips claim the old copy carried that had never been verified for the sheet either.
+    <b>The two that were not defects.</b> The hero mock renders a Range strip and a Raw-data tab the
+    web app does not have &mdash; which looked exactly like the same stale-copy problem. Its own
+    aria-label says it depicts <em>&ldquo;a Google Sheets KPI dashboard&rdquo;</em>: the $650
+    deliverable, where both are accurate. Left alone. Earlier the same day,
+    <code>/free-demo/</code>'s <code>noindex</code> plus absence from the sitemap, with 14 pages
+    linking to it, looked like a page abandoned in staging &mdash; its shipping commit says it was
+    kept out of organic on purpose as an ad landing page. Also left alone.
+    <b>The pattern, stated plainly because it is the useful part:</b> assuming a link target is the
+    same class of error as assuming a page is stale. The only difference between the two harmless
+    checks and the one live defect was whether the assumption happened to be true &mdash; and the
+    one time I skipped the check was the one time it was false.</p>
+    <p class="where">Live &middot; 0b052c7 &middot; polled until the claim was actually gone</p>
+  </div>
+</div>
 <h2>Public tools — automatedworkflowllc.com</h2>
 <div class="row">
   <div class="date">Aug 5</div>
@@ -1112,6 +1141,37 @@
   </div>
 </div>
 <h2>Client workflow engine — Zapier</h2>
+<div class="row">
+  <div class="date">Aug 8</div>
+  <div>
+    <p class="name">Checked whether our own scheduled workflow had silently died &mdash; it had not, and the reason matters
+      <span class="chip">verified</span><span class="chip">no change</span></p>
+    <p class="what">The Zap list showed <b>W1 with an empty &ldquo;Last run&rdquo; column</b> five days
+    after being published. That is the exact shape of the failure this business exists to sell
+    against, so it got checked rather than assumed either way.</p>
+    <p class="proof"><b>It is correct, and the arithmetic is the answer.</b> W1 runs Mondays 07:00 and
+    was published <em>on</em> Monday 8/3 &mdash; so its first full-cycle run is <b>Monday 8/10</b>,
+    two days out. Nothing has failed. <b>But &ldquo;it has not run yet&rdquo; and &ldquo;it will never
+    run&rdquo; are indistinguishable from that screen</b>, which is precisely why the check was worth
+    doing and why Monday morning is worth confirming.
+    W2 last ran 8/5 and has been idle since &mdash; because no Formspree email has arrived. An idle
+    trigger, not a broken one. Task usage <b>56/750</b>, far inside the ~150 internal guardrail.
+    W2's chain and its strict rules were read back intact: never invent a fact, never claim clients
+    or revenue, never promise a date, draft-only.
+    <b>A real gap was found and deliberately left alone.</b> W2 captures Lead Name / Email / Inquiry /
+    Apparent Need but <em>not</em> <code>lead_source</code> &mdash; so the first real lead will not
+    say in the AI summary which page converted it, even though every form now stamps one. It was not
+    fixed: the raw notification Colin receives already carries that line, so nothing is lost but the
+    structured field, and the change would mean drafting and republishing <b>the pitch centrepiece
+    that has never yet fired on a real lead</b> for marginal gain. Recorded with the exact way to do
+    it if it is ever wanted &mdash; as an output field, never in the draft body, since a triage line
+    inside an email addressed to a prospect is one click from being sent.
+    <b>Tooling note that cost time:</b> the Zapier editor canvas does not render in screenshots at
+    all, and a reload does not fix it. Step configuration is readable straight from the DOM instead,
+    which is how the whole inspection was done without touching a running workflow.</p>
+    <p class="where">Read-only &middot; W1 375030986 &middot; W2 375068469 &middot; both ON, v1, nothing edited</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 3</div>
   <div>
