@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">53 entries · newest first within each group</p>
+  <p class="stamp">55 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -554,6 +554,37 @@
     Verified 14 checks locally and 9 against the live domain; 390px probe clean after hiding the
     archive row description on phones, where it wrapped to five lines and buried the date and button.</p>
     <p class="where">Live &middot; 4c211fb &middot; /demo/#dashboard · #revenue · #receivables · #reports</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 7</div>
+  <div>
+    <p class="name">The site was describing a demo that no longer exists
+      <span class="chip live">fixed &amp; live</span><span class="chip">honesty</span></p>
+    <p class="what">The app had been rebuilt three times over in two days and <b>no page had been
+    told</b>. Audited every page that describes <code>/demo/</code> against what it actually does.
+    Two of the findings were defects rather than undersell.</p>
+    <p class="proof"><b>A false affordance on the homepage.</b> The blurb invited visitors to
+    &ldquo;drive the range chips&rdquo; &mdash; the rebuilt app has no range chips at all, so the one
+    action the copy named was the one action that could not be taken. That is a promise that fails in
+    the visitor's hand, on the highest-traffic page we have.
+    <b>A false claim on /builds/.</b> The card called it &ldquo;a real, self-updating <em>Google
+    Sheets</em> dashboard&rdquo;. It has not been Google Sheets since the client-side rebuild &mdash;
+    and <code>/builds/</code> is where LinkedIn traffic lands, so a wrong statement was sitting on the
+    highest-intent page on the site.
+    <b>The rest was undersell, which matters because the strongest thing this business now has was
+    mentioned nowhere.</b> The /demo/ note, its structured-data description, the homepage blurb and
+    the /builds/ card all now say plainly: hover the chart, open a weekly report, press <em>Draft
+    chase</em> and watch it stop &mdash; or drop your own Excel/CSV and watch it rebuild, read in the
+    browser with zero network requests. The /builds/ card states the honesty rule as a feature,
+    because it is one: on real data it drops every illustrative figure rather than inventing a
+    finding about your business.
+    Also retired &ldquo;the live version of the dashboard from the homepage&rdquo; &mdash; the
+    homepage carries a CSS replica and /demo/ is now a different and better thing, so that framing
+    had quietly stopped being true.
+    <b>Verified:</b> regeneration preserves the hand-edited note (it sits outside the generator's
+    markers), and the live domain was polled until all three corrections actually served.</p>
+    <p class="where">Live &middot; 5e57ef3 &middot; homepage · /demo/ · /builds/ · structured data</p>
   </div>
 </div>
 <h2>Public tools — automatedworkflowllc.com</h2>
@@ -1355,6 +1386,61 @@
     exit 2, one finding, zero uncheckable. The instructions are verified, not just written.
     11 tests.</p>
     <p class="where">github.com/automatedworkflowllc-design/canary · mission statement also live in the flatline README and both repo descriptions</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 7</div>
+  <div>
+    <p class="name">custody — a chain of custody for work done by AI
+      <span class="chip">new direction</span><span class="chip live">running, 23 tests</span></p>
+    <p class="what"><b>In plain terms:</b> every company is now letting AI do real work, and almost
+    none can answer the question a board, an auditor, an insurer or an angry customer will
+    eventually ask &mdash; <em>what did it do, and how do you know it was right?</em> This records
+    it: what the model was allowed to read, whether that data was current, what it produced, which
+    human signed it off, and whether it later turned out to be wrong.</p>
+    <p class="what"><b>The strategic read, stated plainly because it decides everything else.</b>
+    ServiceNow and Salesforce won by owning the database a company cannot leave and selling workflow
+    on top. That took decades and billions, and we will not out-platform them. But they are all
+    shipping AI agents into enterprises at speed right now, and <b>the vendors shipping the agents
+    are the last people who will build the thing that grades them.</b> That gap is the product, and
+    it is not a pivot &mdash; it is the same verification thesis this whole stack already runs on.</p>
+    <p class="proof"><b>Four rules, each of which costs something to hold, and each a test.</b>
+    <b>Stale input means the model does not run</b> &mdash; the check happens <em>before</em> the
+    call, because a staleness warning stapled to a finished draft is a note nobody reads. The
+    refusal is itself a signed receipt: the record of what we declined to do is not the one gap in
+    the chain. <b>Content is hashed, never kept</b> &mdash; a business cannot hand its prompts and
+    customer data to a vendor in order to prove its AI behaved, so a test writes a customer name and
+    a dollar figure through the wrapper and asserts neither string reaches the ledger or the report.
+    <b>Approval is recorded, never assumed</b> &mdash; a separate signed event naming a person; no
+    receipt means unapproved, counted as such rather than left blank for a reader to fill in
+    charitably. <b>It never says the AI was right</b> &mdash; it records the condition that would
+    prove it wrong, fixed before the outcome is known, and <code>summarize()</code> has no accuracy
+    field at all, with a test asserting its absence.</p>
+    <p class="proof"><b>The report is the thing you hand an outsider, and its three refusals are the
+    product.</b> No accuracy rate under ten scored runs, because a percentage over four outcomes is
+    noise wearing a lab coat and the first person to quote it in a deck would be quoting nothing.
+    No unscored run counted as a correct one &mdash; silence about the unscored majority is exactly
+    how a 3-for-3 record gets presented as perfect. And no prompts or outputs on the page, since
+    leaking what the ledger deliberately declined to keep would undo the reason it is safe to keep.
+    Refusals and unapproved runs lead; the reassuring number comes last. <b>An empty ledger is not
+    allowed to read as a clean bill of health:</b> zero refusals is only good news if the gate is
+    switched on, and an agent that declares no inputs can never be refused.</p>
+    <p class="proof"><b>Demonstrated end to end rather than asserted.</b> Three agents at a fictional
+    company: a grounded invoice summary that ran and was approved by name; a price update whose
+    source was two months old, <b>refused before the model was called</b> &mdash; with
+    <code>SHOULD NEVER BE WRITTEN</code> in the body to prove it never executed; and an ungrounded
+    churn forecast nobody approved, later resolved <em>wrong</em> against a falsifier fixed in
+    advance. 2 runs, 1 refused, 1 unapproved, 1 scored, 1 wrong. attest verifies the mixed chain:
+    5 receipts, intact, all signatures valid.
+    <b>The chain and the business-day staleness arithmetic are attest's, imported rather than
+    rewritten</b> &mdash; two copies of a trust primitive that disagree are worse than one, and this
+    project has watched that happen twice. Two tests hold that boundary in both directions.
+    <b>Personalisation reuses the pattern that proved itself hours earlier:</b> canary became usable
+    because one plain text file let its owner state what only they could know, and
+    <code>custody.toml</code> does the same for staleness limits and which agents may never run
+    unreviewed. A malformed policy raises rather than silently evaluating to &ldquo;no rules&rdquo;,
+    which is the most dangerous way for a typo to behave.</p>
+    <p class="where">2e155b5 + 99de7aa · dev/custody/ · question: what did the AI do and was it right · blind spot: it cannot see inside the model, only what was declared and what changed on disk</p>
   </div>
 </div>
 
