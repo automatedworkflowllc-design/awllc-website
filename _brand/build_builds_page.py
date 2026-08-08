@@ -128,11 +128,15 @@ DEMOS = [
      "Carries an honesty ledger that opens by stating there are zero paying clients, and status "
      "chips that say RUNNING (on my own business) rather than LIVE, because no customer is on it yet.",
      ["Read first", "The method"]),
-    ("Live KPI Dashboard", "/demo/",
-     "A real, self-updating Google Sheets dashboard on sample data &mdash; revenue, jobs, overdue "
-     "invoices. Click the tabs, tap the chart. No login, no signup.",
-     "This is the $650 Automated Dashboard, running &mdash; not a screenshot of one.",
-     ["Live demo", "Interactive"]),
+    ("Live KPI Dashboard  &middot;  or drop your own file", "/demo/",
+     "A real dashboard on sample data &mdash; revenue, receivables, weekly reports. Hover the chart, "
+     "open any week's report, or press <strong>Draft chase</strong> on an overdue invoice and watch it "
+     "write the email and then stop. <strong>Or drop your own Excel file or CSV on it</strong> and it "
+     "rebuilds on your numbers.",
+     "Your file is read <strong>in your browser</strong> &mdash; .xlsx works as-is, nothing uploads, and "
+     "the page makes zero network requests while it parses. On real data it drops every illustrative "
+     "figure rather than inventing a finding about your business.",
+     ["Live demo", "Interactive", "Nothing uploads"]),
     ("AI Business Pulse", "/ai-business-pulse/",
      "The flagship retainer: every Monday an AI reads your live numbers, writes a plain-English "
      "summary, and drafts chase emails for money you're owed.",
@@ -262,7 +266,8 @@ USE = {
     "/free-sales-cleanup-template/":      ("anyone with a messy sales export", "a Google account to copy it", "no email, no signup"),
     "/free-staffing-commission-tracker/": ("recruiters and staffing agencies", "nothing &mdash; it downloads", "no email, no signup"),
     "/workflow-automation/":         ("owners weighing whether to automate at all", "nothing &mdash; it is a read", "about five minutes"),
-    "/demo/":                        ("seeing the $650 build before buying", "nothing &mdash; no login", "click the tabs"),
+    "/demo/":                        ("seeing the $650 build before buying, on your own numbers if you like",
+                                      "nothing &mdash; or one export, read in your browser", "seconds"),
     "/automation-monitoring/":       ("anyone already running automations", "the reports you already receive", "$99/mo, weekly evidence"),
     "/proof/notarize/":              ("proving a file has not changed", "the file itself", "seconds, on your device"),
     "/flatline/":                    ("engineers with silent scheduled jobs", "your own stack", "MIT, read the repo"),
