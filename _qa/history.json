@@ -1,136 +1,5 @@
 [
  {
-  "when": "2026-08-06 21:21",
-  "mode": "full",
-  "score": 1,
-  "by_area": {
-   "page": 1
-  }
- },
- {
-  "when": "2026-08-06 21:22",
-  "mode": "fast",
-  "score": 1,
-  "by_area": {
-   "page": 1
-  }
- },
- {
-  "when": "2026-08-06 21:23",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 21:23",
-  "mode": "full",
-  "score": 2,
-  "by_area": {
-   "page": 1,
-   "live": 1
-  }
- },
- {
-  "when": "2026-08-06 21:24",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 21:24",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 21:38",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 21:39",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 21:40",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 21:51",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 21:51",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 21:54",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 21:54",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 21:56",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 21:59",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 21:59",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 22:24",
-  "mode": "full",
-  "score": 1,
-  "by_area": {
-   "page": 1
-  }
- },
- {
-  "when": "2026-08-06 22:26",
-  "mode": "full",
-  "score": 1,
-  "by_area": {
-   "page": 1
-  }
- },
- {
-  "when": "2026-08-06 22:27",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-06 22:27",
-  "mode": "full",
-  "score": 0,
-  "by_area": {}
- },
- {
   "when": "2026-08-06 22:27",
   "mode": "full",
   "score": 0,
@@ -375,6 +244,128 @@
  {
   "when": "2026-08-07 14:30",
   "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 14:31",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 20:41",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 20:42",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 20:43",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 22:47",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 22:47",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 22:48",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 22:49",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 22:49",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 22:51",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 22:51",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 23:44",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-07 23:44",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-08 04:41",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-08 04:41",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-08 10:09",
+  "mode": "full",
+  "score": 3,
+  "by_area": {
+   "live": 3
+  }
+ },
+ {
+  "when": "2026-08-08 10:11",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-08 10:14",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-08 10:14",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-08 10:17",
+  "mode": "full",
   "score": 0,
   "by_area": {}
  }
