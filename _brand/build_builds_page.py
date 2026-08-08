@@ -186,6 +186,34 @@ TEMPLATES = [
      ["Free", "No signup", "Google Sheets"]),
 ]
 
+# Published 2026-08-08. These three workbooks were built in July and sat in a
+# local folder; a LinkedIn post said they were "all on my site" while three of
+# the four 404'd. They are worked examples of the paid $650 build, not tools --
+# every card here says the numbers are invented, because they are.
+WORKED = [
+    ("Job Costing  &middot;  which jobs lost money", "/job-costing/",
+     "A contractor logs quoted price against real labour and materials, and every job shows its "
+     "margin with the losers flagged. Read the finding, then take the workbook.",
+     "On invented sample data: <strong>$44,600 booked, $5,550 kept &mdash; and two jobs "
+     "underwater by $1,100</strong>. Every figure on the page is stated as invented, and the "
+     "workbook recomputes them by formula.",
+     ["Worked example", "Sample data", "Download"]),
+    ("Owner Statements  &middot;  before the owner calls", "/owner-statements/",
+     "Rent in, expenses out, management fee, net payout per owner &mdash; with a flag and a "
+     "unit-level reason on any owner whose cheque dropped.",
+     "On invented sample data: four of five owners down, and one <strong>negative because a "
+     "$3,200 roof repair landed on a $1,750 unit</strong>. The page states plainly that the "
+     "reason field assumes a single culprit, which is its real limit.",
+     ["Worked example", "Sample data", "Download"]),
+    ("The Reconciler  &middot;  delivered vs billed", "/reconciler/",
+     "Two systems that should agree &mdash; the schedule and the invoices &mdash; matched row by "
+     "row so only the disagreements show. Silence means everything matched.",
+     "On invented sample data: <strong>$165 in one week</strong> delivered and never invoiced, "
+     "plus one invoice charged against a booking that does not exist. Matches on exact ID only "
+     "and says so.",
+     ["Worked example", "Sample data", "Download"]),
+]
+
 ENGINEERING = [
     ("Automation Monitoring", "/automation-monitoring/",
      "The recurring service: we watch your automations weekly and send an evidence report. "
@@ -265,6 +293,9 @@ USE = {
     "/free-expense-tracker-template/":    ("sole traders and small teams", "a Google account to copy it", "no email, no signup"),
     "/free-sales-cleanup-template/":      ("anyone with a messy sales export", "a Google account to copy it", "no email, no signup"),
     "/free-staffing-commission-tracker/": ("recruiters and staffing agencies", "nothing &mdash; it downloads", "no email, no signup"),
+    "/job-costing/":                 ("trades that quote per job", "nothing to read it; a job list to use it", "a read, plus a free .xlsx"),
+    "/owner-statements/":            ("property managers issuing monthly statements", "nothing to read it; a rent roll to use it", "a read, plus a free .xlsx"),
+    "/reconciler/":                  ("anyone whose schedule and invoices live in two systems", "one week of each, to use it", "a read, plus a free .xlsx"),
     "/workflow-automation/":         ("owners weighing whether to automate at all", "nothing &mdash; it is a read", "about five minutes"),
     "/demo/":                        ("seeing the $650 build before buying, on your own numbers if you like",
                                       "nothing &mdash; or one export, read in your browser", "seconds"),
@@ -325,6 +356,13 @@ def build_main() -> str:
 
   <div class="bd-sec">The paid work &mdash; see it running first</div>
   {grid(DEMOS)}
+
+  <div class="bd-sec">Worked examples &mdash; the $650 build, on invented data</div>
+  <p class="bd-lede" style="margin-bottom:.9rem;font-size:.9rem">Three finished builds you can read
+  and then download as a working .xlsx. <strong>Every number in them is invented</strong> &mdash;
+  they show the shape of the output, not a client and not a result. Each page says so above its
+  figures rather than in a footnote.</p>
+  {grid(WORKED)}
 
   <div class="bd-sec">Engineering</div>
   {grid(ENGINEERING)}
