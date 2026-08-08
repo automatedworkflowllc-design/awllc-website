@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Canary — Catch a Broken Export Before Anyone Else Sees It</title>
-<meta name="description" content="Free tool that checks every export the moment you save it: constant columns, empty fields, reports that stopped changing. Runs locally, nothing uploads.">
-<link rel="canonical" href="https://automatedworkflowllc.com/canary/">
+<title>How Canary and Flatline Work: The Whole Pipeline, End to End</title>
+<meta name="description" content="Exactly what happens between saving a file and reading the report: what flatline checks, how canary reaches it, the ignore file, and every exit code.">
+<link rel="canonical" href="https://automatedworkflowllc.com/canary/how-it-works/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Canary — Catch a Broken Export Before Anyone Else Sees It">
-<meta property="og:description" content="Free tool that checks every export the moment you save it: constant columns, empty fields, reports that stopped changing. Runs locally, nothing uploads.">
-<meta property="og:url" content="https://automatedworkflowllc.com/canary/">
+<meta property="og:title" content="How Canary and Flatline Work: The Whole Pipeline, End to End">
+<meta property="og:description" content="Exactly what happens between saving a file and reading the report: what flatline checks, how canary reaches it, the ignore file, and every exit code.">
+<meta property="og:url" content="https://automatedworkflowllc.com/canary/how-it-works/">
 <meta property="og:image" content="https://automatedworkflowllc.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 
@@ -172,49 +172,46 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
 <link rel="manifest" href="/site.webmanifest?v=1">
 <style>
-/* ---- canary page ---- */
-.cy-lede{font-size:1.08rem;max-width:40rem;color:var(--ink-soft)}
-.cy-clock{display:grid;grid-template-columns:auto 1fr;gap:.5rem 1rem;margin:1.6rem 0;
-max-width:42rem;align-items:baseline}
-.cy-clock dt{font-family:var(--mono);font-size:.95rem;font-weight:600;color:var(--green,#1E7A47);
-white-space:nowrap}
-.cy-clock dd{margin:0;color:var(--ink-soft)}
-.cy-sample{border:1px solid var(--line);border-radius:.7rem;overflow:hidden;margin:1.2rem 0 .4rem;
+/* ---- how-it-works ---- */
+.hw-lede{font-size:1.08rem;max-width:42rem;color:var(--ink-soft)}
+.hw-split{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));
+margin:1.5rem 0 .5rem}
+.hw-half{border:1px solid var(--line);border-radius:.7rem;padding:1rem 1.1rem;background:var(--bg-soft)}
+.hw-half b{font-family:var(--mono);font-size:.95rem;display:block;margin-bottom:.35rem}
+.hw-half .q{font-size:.88rem;color:var(--ink);margin:0 0 .5rem}
+.hw-half .w{font-size:.85rem;color:var(--ink-soft);margin:0}
+.hw-steps{counter-reset:hw;list-style:none;padding:0;margin:1.3rem 0 0;max-width:44rem}
+.hw-steps li{counter-increment:hw;position:relative;padding:0 0 1.15rem 2.6rem;
+border-left:1px solid var(--line);margin-left:.85rem}
+.hw-steps li:last-child{border-left-color:transparent;padding-bottom:.2rem}
+.hw-steps li::before{content:counter(hw);position:absolute;left:-.85rem;top:-.1rem;
+width:1.7rem;height:1.7rem;border-radius:50%;background:var(--card);
+border:1px solid var(--line);font-family:var(--mono);font-size:.8rem;font-weight:600;
+display:flex;align-items:center;justify-content:center;color:var(--green,#1E7A47)}
+.hw-steps b{display:block;font-size:.97rem;margin-bottom:.2rem}
+.hw-steps span{font-size:.9rem;color:var(--ink-soft)}
+.hw-tbl{border-collapse:collapse;width:100%;font-size:.89rem;margin:1rem 0 .3rem;
+max-width:44rem}
+.hw-tbl th{text-align:left;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;
+color:var(--ink-soft);border-bottom:1px solid var(--line);padding:0 .9rem .45rem 0;font-weight:600}
+.hw-tbl td{border-top:1px solid var(--line);padding:.5rem .9rem .5rem 0;vertical-align:top}
+.hw-tbl td:first-child{font-family:var(--mono);font-size:.83rem;font-weight:600;white-space:nowrap}
+.hw-wrap{overflow-x:auto}
+.hw-code{font-family:var(--mono);font-size:.84rem;background:var(--card);
+border:1px solid var(--line);border-radius:.5rem;padding:.85rem 1.05rem;overflow-x:auto;
+margin:.9rem 0;max-width:44rem;line-height:1.55}
+.hw-code .c{color:var(--ink-soft)}
+.hw-note{border-left:4px solid var(--green,#1E7A47);background:var(--bg-soft);
+border-radius:.6rem;padding:.9rem 1.1rem;margin:1.2rem 0;max-width:44rem;font-size:.9rem}
+.hw-note b{display:block;margin-bottom:.25rem}
+.hw-warn{border-left:4px solid #8A6A16}
+.hw-cant{margin:1rem 0 0;padding:0;list-style:none;max-width:44rem}
+.hw-cant li{padding:.5rem 0 .5rem 1.4rem;border-top:1px solid var(--line);font-size:.9rem;
+color:var(--ink-soft);position:relative}
+.hw-cant li::before{content:"\2014";position:absolute;left:0;color:var(--ink-soft)}
+.hw-more{margin-top:2rem;padding:1.4rem;border:1px solid var(--line);border-radius:12px;
 background:var(--card)}
-.cy-sample .bar{background:var(--bg-soft);border-bottom:1px solid var(--line);padding:.55rem .9rem;
-font-family:var(--mono);font-size:.78rem;color:var(--ink-soft)}
-.cy-sample table{border-collapse:collapse;width:100%;font-size:.86rem}
-.cy-sample td{border-top:1px solid var(--line);padding:.5rem .9rem;vertical-align:top}
-.cy-sample tr:first-child td{border-top:none}
-.cy-sample .st{font-family:var(--mono);font-size:.76rem;font-weight:600;white-space:nowrap}
-.cy-sample .bad .st{color:#B4452C}
-.cy-sample .err .st{color:#8A6A16}
-.cy-sample .ok .st{color:#1E7A47}
-.cy-sample .fn{font-family:var(--mono);font-size:.8rem}
-.cy-cap{font-size:.82rem;color:var(--ink-soft);margin:0 0 1.4rem;max-width:42rem}
-.cy-cards{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));margin:1.2rem 0 0}
-.cy-card{border:1px solid var(--line);border-radius:.6rem;padding:.8rem 1rem;background:var(--bg-soft)}
-.cy-card b{font-family:var(--mono);font-size:.9rem;display:block;margin-bottom:.2rem}
-.cy-card span{font-size:.88rem;color:var(--ink-soft)}
-.cy-get{border:1px solid var(--line);border-radius:12px;background:var(--bg-soft);
-padding:1.3rem;margin:1.8rem 0 0}
-.cy-get pre{font-family:var(--mono);font-size:.85rem;background:var(--card);border:1px solid var(--line);
-border-radius:.5rem;padding:.8rem 1rem;overflow-x:auto;margin:.7rem 0}
-.cy-dl{display:flex;flex-wrap:wrap;gap:.5rem;margin:.9rem 0 .2rem}
-.cy-dl a{display:inline-block;border:1px solid var(--line);border-radius:.5rem;
-padding:.45rem .8rem;font-family:var(--mono);font-size:.8rem;text-decoration:none;background:var(--card)}
-.cy-dl a:hover{border-color:var(--green,#1E7A47)}
-.cy-dl a.primary{background:var(--green,#1E7A47);color:#fff;border-color:var(--green,#1E7A47);
-font-size:.9rem;padding:.6rem 1.1rem}
-.cy-dl a.primary:hover{filter:brightness(1.08)}
-.cy-warn{border-left:4px solid #8A6A16;background:var(--card);border-radius:.6rem;
-padding:.9rem 1.1rem;margin:1.2rem 0;max-width:42rem;font-size:.9rem}
-.cy-codes{border-collapse:collapse;margin:1rem 0 0;font-size:.9rem}
-.cy-codes td{border-top:1px solid var(--line);padding:.45rem .9rem .45rem 0;vertical-align:top}
-.cy-codes td:first-child{font-family:var(--mono);font-weight:600;white-space:nowrap}
-.cy-pair{margin-top:2rem;padding:1.4rem;border:1px solid var(--line);border-radius:12px;
-background:var(--card)}
-.cy-pair p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
+.hw-more p{margin:.2rem 0 .9rem;color:var(--ink-soft)}
 
 .pe{border:1px solid var(--line);border-left:4px solid var(--accent,var(--green,#1E7A47));
 border-radius:.7rem;
@@ -255,148 +252,223 @@ padding-top:.1rem}
   </div>
 </header>
 <main id="main" class="wrap" style="padding-top:2.2rem;padding-bottom:3rem;max-width:52rem">
-  <h1 style="margin-bottom:.4rem">You saved the export at 2:14.<br>At 2:15 you know what is wrong with it.</h1>
+  <p style="font-family:var(--mono);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;
+     color:var(--ink-soft);margin:0 0 .5rem"><a href="/canary/" style="color:inherit">Canary</a>
+     &nbsp;/&nbsp; How it works</p>
+  <h1 style="margin-bottom:.4rem">The whole pipeline, end to end</h1>
+  <p class="hw-lede">What happens between the moment a file lands in a watched folder and the
+  moment a report says something about it &mdash; including the one setting that decides whether
+  you are still reading the report a month from now.</p>
 
 <div class="pe">
-  <h2>In plain English</h2>
-  <dl>
-    <dt>What it does</dt><dd>Watches the folder where your spreadsheets and exports already get
-      saved. Every time a file changes it checks it and tells you what looks broken &mdash; a column
-      that is the same value all the way down, a field that is empty on every row, a report that
-      stopped changing weeks ago.</dd>
-    <dt>Why it helps</dt><dd>Every tool like this waits for you to bring it a file, which means you
-      have to already suspect something is wrong. <b>The people who most need the check are the ones
-      who never think to run it.</b> This one runs itself.</dd>
-    <dt>What you need</dt><dd>A folder where files land, and someone technical for about ten minutes
-      to install it. It only reads &mdash; it changes nothing, and sends nothing anywhere.</dd>
-    <dt>How long</dt><dd>Minutes to set up, then never again. It runs on a schedule or watches
-      continuously.</dd>
-  </dl>
+  <h2>Two tools, because they answer different questions</h2>
+  <p>They are shipped separately and either one runs without the other. That is a deliberate
+  cost: it means two repositories, two release processes, and this page. The reason it is worth
+  paying is that the questions do not collapse into one.</p>
+
+  <div class="hw-split">
+    <div class="hw-half">
+      <b>flatline</b>
+      <p class="q">&ldquo;Is this column still carrying information?&rdquo;</p>
+      <p class="w">Give it a table, it scores every column and answers. It has no opinion about
+      when to run &mdash; it waits to be asked. That is what makes it usable inside someone
+      else&rsquo;s script, build pipeline, or nightly job that has nothing to do with us.</p>
+    </div>
+    <div class="hw-half">
+      <b>canary</b>
+      <p class="q">&ldquo;What is wrong in the file that just landed?&rdquo;</p>
+      <p class="w">Watches folders, decides when to ask, remembers the last answer, and reports
+      what changed. It does none of the analysis itself &mdash; it calls flatline. Two copies of
+      the same analysis diverge the first time only one of them gets fixed.</p>
+    </div>
+  </div>
 </div>
 
-  <p class="cy-lede">Nobody checks the export before it goes out, because checking it is a chore and
-  it has been fine for a year. The one time it is not fine, it looks exactly the same.</p>
+<div class="pe">
+  <h2>What actually happens, in order</h2>
+  <p>This is a real sequence &mdash; each step depends on the one above it, and step 2 exists
+  specifically so that the rest cannot quietly be skipped.</p>
 
-  <dl class="cy-clock">
-    <dt>2:14pm</dt><dd>Your system writes <code>invoices-august.csv</code> to the usual folder.</dd>
-    <dt>2:15pm</dt><dd>canary has already read it: <b>the <code>status</code> column is
-      &ldquo;OPEN&rdquo; on all 412 rows</b>, and <code>paid_date</code> is empty on every one.</dd>
-    <dt>2:16pm</dt><dd>You discover the billing sync stopped writing three weeks ago &mdash; instead
-      of discovering it when a client asks why they were never invoiced.</dd>
-  </dl>
+  <ol class="hw-steps">
+    <li><b>A file changes in a watched folder</b>
+      <span>Canary is pointed at the folders where your exports already get saved. It compares
+      each file against what it recorded last time &mdash; size, modification time, content
+      fingerprint &mdash; so an untouched file is not re-analysed just because the clock
+      moved.</span></li>
+    <li><b>Canary checks it can reach flatline &mdash; before analysing anything</b>
+      <span>Availability is settled up front rather than discovered halfway through. If flatline
+      cannot be reached, that is an <b>ERROR</b> and a non-zero exit, never a quiet
+      &ldquo;nothing found&rdquo;. A checker that reports clean because it never ran is the
+      exact failure these tools exist to catch.</span></li>
+    <li><b>Flatline reads the table and scores every column</b>
+      <span>It normalises values, counts how they are distributed, and computes how much
+      information each column is actually carrying. Verdicts and severities below.</span></li>
+    <li><b>Canary compares the answer against the last look</b>
+      <span>It keeps the previous result per file, so it can tell you what is <i>new</i> rather
+      than re-reading the same twenty findings at you every night.</span></li>
+    <li><b>Columns you have marked as expected-constant are set aside</b>
+      <span>Named and counted in the report, not deleted from it. This is the step most people
+      need and the one that was undocumented until now &mdash; see below.</span></li>
+    <li><b>The report is written and the exit code is set</b>
+      <span>Human-readable HTML for you; an exit code for whatever scheduler is running it. The
+      exit code reports news, not inventory.</span></li>
+  </ol>
+</div>
 
-  <h2 style="margin-top:2.2rem">What the report looks like</h2>
-  <div class="cy-sample">
-    <div class="bar">What is in your files right now &middot; 3 files checked &middot; 1 with findings &middot; 1 could not be checked</div>
-    <table>
-      <tr class="bad"><td class="fn">invoices-august.csv</td><td class="st">FINDINGS</td>
-        <td>status: CONSTANT &mdash; identical value &lsquo;OPEN&rsquo; on all 412 rows<br>paid_date: empty on every row</td></tr>
-      <tr class="err"><td class="fn">payroll-q3.csv</td><td class="st">COULD NOT CHECK</td>
-        <td>file locked by another process &mdash; this is <b>not</b> a pass</td></tr>
-      <tr class="ok"><td class="fn">crew-hours.csv</td><td class="st">CLEAN</td>
-        <td>nothing to report</td></tr>
-    </table>
-  </div>
-  <p class="cy-cap">An illustration of the real output format. The middle row is the entire point of
-  the tool: a file it could not read is reported as a failure to read it, never quietly counted as
-  fine.</p>
+<div class="pe">
+  <h2>What flatline looks for</h2>
+  <p>The core check is information content: a column whose value never changes cannot be
+  affecting any decision downstream, whatever the report built on top of it implies.</p>
 
-  <h2 style="margin-top:2.2rem">Three decisions that decide whether you keep reading it</h2>
-  <div class="cy-cards">
-    <div class="cy-card"><b>content, not timestamps</b><span>Files are compared by hash. A file
-      re-saved with identical bytes has not changed in any way you care about, and re-reporting it
-      every night is how a tool teaches you to ignore it.</span></div>
-    <div class="cy-card"><b>news, not inventory</b><span>It raises the alarm for findings in files
-      it actually re-checked. Everything known stays in the report, but a known-bad file sitting
-      untouched is not an alarm &mdash; a guard that shouts nightly gets muted.</span></div>
-    <div class="cy-card"><b>never a false all-clear</b><span>A check that could not run is reported
-      as a failure to check. The report says so in plain words, because a tool that says &ldquo;no
-      findings&rdquo; when it never looked is the exact failure this exists to catch.</span></div>
-  </div>
-
-  <h2 style="margin-top:2.2rem">The setting you will want on day two</h2>
-  <p style="color:var(--ink-soft);max-width:42rem">Some columns are constant <em>on purpose</em>
-  &mdash; a version number, a region code, a format tag. Nothing in your data can tell canary
-  which ones those are, so on a real folder they can account for most of every night&rsquo;s
-  findings. List them once in a plain text file called <code>canary-ignore.txt</code>, one name
-  per line, and they move out of your way. They are still counted and named in the report rather
-  than deleted from it &mdash; a checker that quietly stops mentioning things is the exact
-  failure this tool is pointed at.</p>
-  <p style="margin:.7rem 0 0"><a href="/canary/how-it-works/"><b>How canary and flatline work,
-  end to end &rarr;</b></a><br><span style="color:var(--ink-soft);font-size:.9rem">The full
-  pipeline: what flatline checks, how canary reaches it, the ignore file, and every exit
-  code.</span></p>
-
-  <div class="cy-get">
-    <h2 style="margin-top:0">Get it</h2>
-    <p style="color:var(--ink-soft);margin-top:.3rem">Free, MIT licensed, runs on your machine.
-    canary calls <a href="/flatline/">flatline</a> for the analysis rather than reimplementing it,
-    so you install both &mdash; two files, no account, no service.</p>
-
-    <p style="margin:.2rem 0 0"><b>If you just want to use it &mdash; Windows, one file, nothing to
-    install:</b></p>
-    <div class="cy-dl">
-      <a class="primary" href="https://github.com/automatedworkflowllc-design/canary/releases/download/v0.1.0/canary.exe">&darr; canary.exe &mdash; 13 MB, no Python needed</a>
-    </div>
-    <p style="color:var(--ink-soft);font-size:.88rem;margin:.5rem 0 0">Double-click it, pick your
-    folder, and the report opens in your browser. Everything happens on your machine.</p>
-
-    <div class="cy-warn"><strong>Windows will warn you the first time.</strong> This download is not
-    code-signed &mdash; a certificate costs a few hundred dollars a year and we have not bought one
-    &mdash; so SmartScreen shows &ldquo;Windows protected your PC&rdquo;. That warning means
-    <em>unrecognized</em>, not <em>unsafe</em>. Click <b>More info &rarr; Run anyway</b>, or skip the
-    app entirely and install from source below &mdash; it is the same code you can read on GitHub.</div>
-
-    <p style="margin:1.2rem 0 0"><b>If you are technical, or not on Windows:</b></p>
-    <div class="cy-dl">
-      <a href="https://github.com/automatedworkflowllc-design/canary/releases/download/v0.1.0/awllc_canary-0.1.0-py3-none-any.whl">&darr; canary 0.1.0 (wheel)</a>
-      <a href="https://github.com/automatedworkflowllc-design/canary/releases/download/v0.1.0/awllc_canary-0.1.0.tar.gz">&darr; canary 0.1.0 (source)</a>
-      <a href="https://github.com/automatedworkflowllc-design/flatline/releases/download/v0.2.1/awllc_flatline-0.2.1-py3-none-any.whl">&darr; flatline 0.2.1 (wheel)</a>
-      <a href="https://github.com/automatedworkflowllc-design/flatline/releases/download/v0.2.1/awllc_flatline-0.2.1.tar.gz">&darr; flatline 0.2.1 (source)</a>
-    </div>
-
-    <pre>pip install awllc_flatline-0.2.1-py3-none-any.whl
-pip install awllc_canary-0.1.0-py3-none-any.whl
-
-canary ~/Downloads --report canary.html</pre>
-
-    <div class="cy-warn"><strong>Install from these files, not by name.</strong> The names
-    <code>canary</code> and <code>flatline</code> on PyPI belong to unrelated projects, so
-    <code>pip install canary</code> would fetch someone else&rsquo;s tool. Ours publish as
-    <code>awllc-canary</code> and <code>awllc-flatline</code>. canary checks for this too &mdash; if
-    the wrong package is installed it says so, rather than blaming your data for a packaging
-    mistake.</div>
-
-    <p style="margin:.6rem 0 0"><a href="https://github.com/automatedworkflowllc-design/canary">Source, tests and documentation on GitHub &rarr;</a></p>
-  </div>
-
-  <h2 style="margin-top:2.2rem">Running it on a schedule</h2>
-  <p style="color:var(--ink-soft);max-width:42rem">Give it <code>--fail-on-findings</code> so it has
-  something to say, and let your scheduler read the exit code. Watching the report file instead
-  would prove nothing: it carries a timestamp, so it changes every run whether or not anything
-  happened.</p>
-  <table class="cy-codes">
-    <tr><td>0</td><td>every re-examined file came back clean</td></tr>
-    <tr><td>1</td><td>a file could not be checked &mdash; worse than a finding, because it hides an
-      unknown number of them</td></tr>
-    <tr><td>2</td><td>new findings</td></tr>
+  <div class="hw-wrap">
+  <table class="hw-tbl">
+    <tr><th>Verdict</th><th>Meaning</th><th>Severity</th></tr>
+    <tr><td>CONSTANT</td><td>Every row carries the same value. The column is decoration.</td>
+      <td>HIGH if the column name looks like a decision signal, otherwise INFO</td></tr>
+    <tr><td>NEAR_CONSTANT</td><td>Nearly every row is the same value &mdash; a signal that has
+      mostly stopped moving.</td>
+      <td>MEDIUM if it looks like a decision signal, otherwise INFO</td></tr>
   </table>
-
-  <h2 style="margin-top:2.2rem">What it does not see</h2>
-  <p style="color:var(--ink-soft);max-width:42rem">Only files that change on disk. It knows nothing
-  about whether a scheduled job ran at all, or whether an output went stale between runs &mdash;
-  different questions, different tools. Saying so is the point: a tool that implies it covers more
-  than it does is how coverage comes to be assumed instead of checked.</p>
-
-  <div class="cy-pair">
-    <h2 style="margin-top:0">The other half: flatline</h2>
-    <p><strong>Software fails loudly. Data fails quietly.</strong> flatline is the judgment &mdash;
-    it decides whether a signal still carries information. canary is the trigger. <strong>Neither
-    tool will ever call a file clean that it failed to read:</strong> a check that could not run is
-    reported as a failure to check, never as a pass &mdash; in code, and with a test, in both.</p>
-    <p style="margin-bottom:0"><a class="btn" href="/flatline/">See flatline</a>
-    &nbsp; <a href="/automation-monitoring/">Or have us watch your stack &rarr;</a></p>
   </div>
+
+  <div class="hw-note">
+    <b>Why the name changes the severity</b>
+    A constant column called <span style="font-family:var(--mono)">export_format</span> is
+    fine &mdash; it is supposed to be constant. A constant column called
+    <span style="font-family:var(--mono)">risk_flag</span> or
+    <span style="font-family:var(--mono)">approved</span> means something that was meant to
+    vary has stopped varying. Flatline reads the column name to decide which of those it is
+    looking at, and only raises the severity for the second kind.
+  </div>
+
+  <div class="hw-note">
+    <b>Files with no header row</b>
+    If the first row is data rather than names, flatline says
+    <span style="font-family:var(--mono)">column 4 (file has no header row)</span> instead of
+    inventing a column called <span style="font-family:var(--mono)">2026-07-30</span>. This was
+    a real defect: treating the first data row as headers both produced nonsense findings and
+    silently swallowed a row of actual data.
+  </div>
+</div>
+
+<div class="pe">
+  <h2>How canary reaches flatline</h2>
+  <p>Three paths, because the tool ships in two very different shapes and the third case must
+  not be silent.</p>
+
+  <div class="hw-wrap">
+  <table class="hw-tbl">
+    <tr><th>Situation</th><th>What canary does</th></tr>
+    <tr><td>installed</td>
+      <td>Runs <span style="font-family:var(--mono)">python -m flatline scan &lt;file&gt;</span>
+      as a subprocess and reads what it prints.</td></tr>
+    <tr><td>frozen .exe</td>
+      <td>Calls flatline&rsquo;s own <span style="font-family:var(--mono)">cli.main</span>
+      in-process. In a bundled application a subprocess would relaunch the application itself,
+      not flatline.</td></tr>
+    <tr><td>not found</td>
+      <td><b>ERROR</b> and a non-zero exit. Never a clean report.</td></tr>
+  </table>
+  </div>
+
+  <div class="hw-note hw-warn">
+    <b>It verifies the flatline it found is ours</b>
+    Asking Python whether a module named <span style="font-family:var(--mono)">flatline</span>
+    exists is not enough: the name <span style="font-family:var(--mono)">flatline</span> on PyPI
+    belongs to an unrelated project, and so do
+    <span style="font-family:var(--mono)">attest</span>,
+    <span style="font-family:var(--mono)">canary</span>,
+    <span style="font-family:var(--mono)">watchpost</span> and
+    <span style="font-family:var(--mono)">custody</span>. So canary confirms the package it found
+    contains the files it expects before trusting it, and it does that by looking at the
+    filesystem rather than by importing a stranger&rsquo;s code to ask. Our distributions publish
+    under <span style="font-family:var(--mono)">awllc-</span> names for the same reason.
+  </div>
+</div>
+
+<div class="pe">
+  <h2>canary-ignore.txt &mdash; the setting that decides whether you keep reading</h2>
+  <p>Without this, canary is correct and unusable. On the first real folder we pointed it at, two
+  columns &mdash; a ruleset version and a regime code &mdash; produced two thirds of every
+  finding, every night. Both are constant <i>by design</i>. Nothing in the data can tell canary
+  that. Only the person who owns the file knows, so they say it once, in a plain text file they
+  can open and read.</p>
+
+  <div class="hw-code">
+<span class="c"># canary-ignore.txt &mdash; columns that are supposed to be constant</span>
+<span class="c"># one per line; everything after a # is a comment</span>
+
+ruleset_version   <span class="c"># pinned on purpose, changes only on release</span>
+regime_code       <span class="c"># single-regime export</span>
+export_format
+</div>
+
+  <p>It lives beside canary&rsquo;s state file, and the report tells you the exact path it looked
+  at. The same list can be passed on the command line with
+  <span style="font-family:var(--mono)">--ignore</span>.</p>
+
+  <div class="hw-note">
+    <b>Set aside, not hidden</b>
+    Ignored findings are counted and named in the report &mdash; a file whose findings are all
+    ignored reads as clean but still says what was set aside and why. A checker that quietly
+    stops mentioning things is the precise failure this tool is pointed at, and it would be a
+    strange thing to build into the tool itself.
+  </div>
+</div>
+
+<div class="pe">
+  <h2>Exit codes</h2>
+  <p>For whatever is running canary on a schedule. Two rules in here are deliberate and worth
+  knowing, because both look wrong at first glance.</p>
+
+  <div class="hw-wrap">
+  <table class="hw-tbl">
+    <tr><th>Code</th><th>Meaning</th></tr>
+    <tr><td>0</td><td>Every re-examined file came back clean.</td></tr>
+    <tr><td>1</td><td>A file <b>could not be checked</b>.</td></tr>
+    <tr><td>2</td><td>New findings &mdash; only with
+      <span style="font-family:var(--mono)">--fail-on-findings</span>.</td></tr>
+  </table>
+  </div>
+
+  <div class="hw-note">
+    <b>1 outranks 2 on purpose</b>
+    A finding is one known problem. A file that could not be checked hides an unknown number of
+    them. The louder signal belongs to the case you know least about.
+  </div>
+
+  <div class="hw-note">
+    <b>The exit code reports news, not inventory</b>
+    It is raised for files actually re-examined on this run. A known-bad file sitting unchanged
+    on disk does not re-raise it every night forever. This was a real defect: canary cried wolf
+    on the same twenty-one stable findings on every single run, which is how a monitoring tool
+    teaches you to ignore it.
+  </div>
+</div>
+
+<div class="pe">
+  <h2>What the pair cannot see</h2>
+  <ul class="hw-cant">
+    <li>Whether a number is <i>correct</i>. A column full of varied, confidently wrong values
+      looks healthy to flatline.</li>
+    <li>Whether the job that was supposed to write the file ran at all. Canary sees files, not
+      work &mdash; a job that dies before writing produces no event to react to.</li>
+    <li>Anything in a folder it was not pointed at.</li>
+    <li>Whether a constant column is <i>supposed</i> to be constant. That is what the ignore file
+      is for, and why it is yours to write rather than something we guess.</li>
+  </ul>
+  <p style="margin-top:1rem;font-size:.9rem;color:var(--ink-soft)">The first two are covered by
+  other tools in the set, which is the whole reason there is more than one.</p>
+</div>
+
+<div class="hw-more">
+  <h2 style="margin-top:0">Read the source</h2>
+  <p>Every claim on this page is a few lines of readable Python away. Both are MIT.</p>
+  <p style="margin-bottom:0"><a href="https://github.com/automatedworkflowllc-design/canary">canary on GitHub</a> &nbsp;&middot;&nbsp;
+  <a href="https://github.com/automatedworkflowllc-design/flatline">flatline on GitHub</a> &nbsp;&middot;&nbsp;
+  <a href="/canary/">back to Canary</a> &nbsp;&middot;&nbsp;
+  <a href="/flatline/">Flatline</a></p>
+</div>
 </main>
 <footer class="site-footer">
   <div class="wrap footer-in">
@@ -418,19 +490,12 @@ canary ~/Downloads --report canary.html</pre>
   </div>
 </footer>
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "Canary",
-  "url": "https://automatedworkflowllc.com/canary/",
-  "codeRepository": "https://github.com/automatedworkflowllc-design/canary",
-  "applicationCategory": "BusinessApplication",
-  "operatingSystem": "Any",
-  "softwareVersion": "0.1.0",
-  "license": "https://opensource.org/licenses/MIT",
-  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-  "description": "Open-source watcher that checks each export the moment it is saved: constant columns, empty fields, files that stopped changing. Local only; nothing uploads."
-}
+{"@context":"https://schema.org","@type":"TechArticle",
+"headline":"How Canary and Flatline Work: The Whole Pipeline, End to End",
+"url":"https://automatedworkflowllc.com/canary/how-it-works/",
+"about":["data quality monitoring","spreadsheet validation"],
+"publisher":{"@type":"Organization","name":"Automated Workflow LLC",
+"url":"https://automatedworkflowllc.com"}}
 </script>
 
 </body>

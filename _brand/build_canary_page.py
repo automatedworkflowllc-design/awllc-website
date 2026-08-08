@@ -147,6 +147,19 @@ MAIN = """
       findings&rdquo; when it never looked is the exact failure this exists to catch.</span></div>
   </div>
 
+  <h2 style="margin-top:2.2rem">The setting you will want on day two</h2>
+  <p style="color:var(--ink-soft);max-width:42rem">Some columns are constant <em>on purpose</em>
+  &mdash; a version number, a region code, a format tag. Nothing in your data can tell canary
+  which ones those are, so on a real folder they can account for most of every night&rsquo;s
+  findings. List them once in a plain text file called <code>canary-ignore.txt</code>, one name
+  per line, and they move out of your way. They are still counted and named in the report rather
+  than deleted from it &mdash; a checker that quietly stops mentioning things is the exact
+  failure this tool is pointed at.</p>
+  <p style="margin:.7rem 0 0"><a href="/canary/how-it-works/"><b>How canary and flatline work,
+  end to end &rarr;</b></a><br><span style="color:var(--ink-soft);font-size:.9rem">The full
+  pipeline: what flatline checks, how canary reaches it, the ignore file, and every exit
+  code.</span></p>
+
   <div class="cy-get">
     <h2 style="margin-top:0">Get it</h2>
     <p style="color:var(--ink-soft);margin-top:.3rem">Free, MIT licensed, runs on your machine.
