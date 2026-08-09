@@ -99,6 +99,13 @@ def main() -> None:
 
     page = head + main_html + footer + '\n</body>\n</html>\n'
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
+    # The head is copied from the shared template, which carries the managed analytics
+    # block -- so a regeneration reproduces it at the TEMPLATE's position while
+    # apply_analytics puts it just before </head>. Those two positions differ, so the
+    # pre-push freshness gate saw an endless diff. Re-applying here settles it.
+    import subprocess as _sp, sys as _sys, os as _os
+    _sp.run([_sys.executable, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+             'apply_analytics.py')], capture_output=True, check=True)
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')
 
 

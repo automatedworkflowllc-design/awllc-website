@@ -102,6 +102,19 @@ def main() -> int:
             if 'googletagmanager' in s:
                 problems.append(f'{rel}: still references googletagmanager after strip')
             want = s
+        elif original.count(MARK) == 2 and GA_ID in original:
+            # ALREADY CORRECT -- leave it exactly where it is.
+            #
+            # This branch is the whole fix for a push loop that cost several failed
+            # pushes on 2026-08-09. Generated pages copy their <head> from the shared
+            # template, so a regeneration reproduces the block at the TEMPLATE's
+            # position (before <style>). Unconditionally stripping and re-inserting
+            # moved it to just before </head> -- a different position, byte-different
+            # output, so the pre-push freshness gates for /log/ and /proof/ai/ saw a
+            # diff every single run and blocked forever.
+            #
+            # Position never mattered; presence did. Never relocate a correct block.
+            want = original
         else:
             if '</head>' not in s:
                 problems.append(f'{rel}: no </head> to insert before')
