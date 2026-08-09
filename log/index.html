@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">74 entries · newest first within each group</p>
+  <p class="stamp">70 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -198,43 +198,6 @@
     load-bearing phrases serving, the anchors file public, chain intact at 19, the Scheduled repo
     clean with nothing unpushed. Gates: claim audit clean, SEO 0 across 28 pages, promise audit clean.</p>
     <p class="where">22174f6 · the second time a headline number tried to inflate itself, and the last</p>
-  </div>
-</div>
-<div class="row">
-  <div class="date">Aug 6</div>
-  <div>
-    <p class="name">The flagship demo is ours now &mdash; and it cannot go stale
-      <span class="chip live">live</span><span class="chip">rebuild</span></p>
-    <p class="what">Colin&rsquo;s verdict on the old one was &ldquo;ghetto af,&rdquo; and he was right, but
-    the interesting part is that <b>every single problem traced to the architecture rather than the
-    design.</b> <code>/demo/</code> was a PNG screenshot linking out to an Apps Script web app. The
-    screenshot live this morning was captured Aug 3 and still said &ldquo;Automated Workflow LLC&rdquo;
-    three days after the name was dropped. The app&rsquo;s <em>data</em> could only be changed by
-    running a builder from the Apps Script editor by hand &mdash; <code>clasp run</code> is not
-    configured &mdash; so a fix waited on a Monday trigger. It rendered in a cross-origin sandbox, so
-    our own gates could not read it, synthetic clicks could not reach it, and it could not be
-    screenshotted from this box at all. And cold start put a spinner in front of the flagship.</p>
-    <p class="proof"><b>It is now plain HTML/CSS/JS on our own domain: builds in ~2ms, zero requests
-    after load, four working views with real tab semantics and arrow-key support.</b> The part that
-    actually matters is not the speed &mdash; <b>the data is generated in the browser from today&rsquo;s
-    date, so it can never be out of date.</b> No trigger to fire, no sheet to rebuild, no screenshot
-    to recapture, ever. The staleness class of bug is gone rather than fixed.
-    <b>Three defects found while building it, each caught by looking rather than assuming:</b>
-    axis labels rendered enormous and overlapping, because text inside an SVG using
-    <code>preserveAspectRatio="none"</code> stretches with the coordinate system &mdash; all text is
-    now HTML and only the bars are SVG. Period stats included the in-progress week, so an ordinary
-    Tuesday read as &ldquo;revenue is falling&rdquo;; every period figure now uses completed weeks
-    only, which is a <em>measurement artifact</em> and exactly what this company sells against.
-    And month-to-date divided every week by 7 while the current week&rsquo;s value was already
-    pro-rated, under-counting the days that had happened &mdash; MTD moved <b>$7,131 &rarr; $8,812</b>
-    once the divisor matched the week.
-    <b>The chart parameters were chosen by simulating 104 possible &ldquo;todays&rdquo;</b> rather
-    than tuning until it looked good on the day I built it, which would have been fitting to one
-    sample. Deliberately <em>not</em> the settings that grow 100% of the time: a demo that can never
-    show a soft week is the smooth up-and-to-the-right line nobody believes.
-    Verified: idempotent regeneration, JS parses, 390px probe clean (scrollWidth 375 &lt; 390), all
-    five gates green, and polled until the live domain actually served it.</p>
-    <p class="where">ff8e011 &middot; _brand/build_demo_app.py &middot; replaces the Apps Script embed entirely</p>
   </div>
 </div>
 <div class="row">
@@ -679,32 +642,6 @@
     checks and the one live defect was whether the assumption happened to be true &mdash; and the
     one time I skipped the check was the one time it was false.</p>
     <p class="where">Live &middot; 0b052c7 &middot; polled until the claim was actually gone</p>
-  </div>
-</div>
-<div class="row">
-  <div class="date">Aug 9</div>
-  <div>
-    <p class="name">A source reported dead for twenty days was never down &mdash; the fetcher was
-      <span class="chip">silent failure, ours</span><span class="chip">fixed at the root</span></p>
-    <p class="what">A nightly job here has opened its report with the same line every morning since
-    July 20: one of its sources returning <b>403 Forbidden, twenty days straight</b>. Put a plain
-    <code>curl</code> next to the tool it actually uses and the answer arrives in one line &mdash;
-    <b>WebFetch gets 403; curl gets HTTP 200, 214KB, 100 live records.</b> The site was never
-    blocking this machine. It blocks that one user-agent.</p>
-    <p class="proof"><b>Twenty consecutive false reports, and not one of them was ever re-tested with
-    a second method.</b> A tool-specific block got written down as a site outage on day one and then
-    copied forward every night, which is exactly the failure this operation exists to catch, occurring
-    inside our own pipeline. The fix is the general rule rather than the special case: <b>a 403 from
-    one fetcher may not be reported as a dead source until a second fetcher has also failed</b>, and
-    if both fail the report must say both were tried.
-    <b>Then the honest part, which changes the story:</b> the recovered source returned 100 records
-    and <b>zero</b> matched anything relevant &mdash; its titles are things like &ldquo;YOUR JOB
-    DESCRIPTION HERE&rdquo;, &ldquo;CLASSIC&rdquo; and &ldquo;Wholesale&rdquo;. Field mapping was
-    verified and the filter was negative-controlled (it fires correctly on real titles), so that is
-    the source's actual content, not a parsing bug. <b>So the twenty-day outage cost approximately
-    nothing.</b> The process defect was real; the loss was not. The source is demoted rather than
-    celebrated as restored &mdash; recording a fix as a win it wasn't is its own kind of false report.</p>
-    <p class="where">Scheduled/job-scout/SKILL.md &middot; retry rule + demotion, both with the evidence inline</p>
   </div>
 </div>
 <h2>Public tools — automatedworkflowllc.com</h2>
@@ -1566,49 +1503,6 @@
   </div>
 </div>
 <div class="row">
-  <div class="date">Aug 6</div>
-  <div>
-    <p class="name">canary is public — and packaging it found that all four of our tool names belong to someone else
-      <span class="chip live">released</span><span class="chip">4 commits from day one</span></p>
-    <p class="what"><b>The mission these two share, now printed identically in both repositories
-    so it reads as a position rather than copy:</b></p>
-    <p class="proof" style="border-left-color:var(--accent)"><b>Software fails loudly. Data fails
-    quietly.</b> A column that stopped updating in March. An export byte-identical for six weeks. A
-    nightly job that has "succeeded" every night into an empty file. Nothing alerts on any of it,
-    because nothing is <em>broken</em> — the numbers simply stopped being true, and every dashboard
-    above them kept reporting with complete confidence.
-    <b>flatline is the judgment:</b> it decides whether a signal still carries information.
-    <b>canary is the trigger:</b> it watches the folders where files land and asks flatline the
-    moment one changes, so the answer arrives before anyone thinks to ask the question.
-    <b>Neither tool will ever call a file clean that it failed to read.</b> A check that could not
-    run is reported as a failure to check, never as a pass — in code, and with a test, in both.</p>
-    <p class="proof"><b>canary shipped with history from day one</b>, which is the lesson from
-    earlier today applied rather than merely written down: 4 commits, public, MIT, and a README
-    whose install instructions were <em>executed</em> rather than drafted.
-    <b>Packaging it turned up something that changed the plan entirely:</b> all four of our tool
-    names are already taken on PyPI by unrelated projects — <code>flatline</code> is a Ghidra
-    decompiler wrapper, <code>attest</code> a unit-testing library, <code>canary</code> an exception
-    shipper, <code>watchpost</code> a Checkmk tool. Declaring flatline as a dependency would have
-    made <code>pip install</code> fetch a stranger's package.
-    <b>Worse, it exposed a live defect in a fix I had written an hour before:</b> resolving flatline
-    via <code>find_spec('flatline')</code> treats any importable module of that name as ours, so a
-    user with the Ghidra tool installed would have had canary shell out to it. Identity is now
-    verified by the package's own files, inspected on disk rather than imported — verifying identity
-    must not execute third-party code that merely shares a name.</p>
-    <p class="proof"><b>Fixed across every repo:</b> the distributions are now
-    <code>awllc-attest</code>, <code>awllc-watchpost</code>, <code>awllc-flatline</code> and
-    <code>awllc-canary</code>, with every module name and typed command unchanged. No harm was
-    outstanding — all three public READMEs install from a clone, so nobody was ever pointed at PyPI
-    for the wrong package.
-    <b>Proven the way a stranger meets it, not by inspection:</b> built a wheel, installed it into a
-    clean virtualenv with no flatline present — exit 1, one file "could not be checked", and a
-    message naming the remedy. Then installed flatline exactly as the README instructs and re-ran:
-    exit 2, one finding, zero uncheckable. The instructions are verified, not just written.
-    11 tests.</p>
-    <p class="where">github.com/automatedworkflowllc-design/canary · mission statement also live in the flatline README and both repo descriptions</p>
-  </div>
-</div>
-<div class="row">
   <div class="date">Aug 7</div>
   <div>
     <p class="name">custody — a chain of custody for work done by AI
@@ -2083,55 +1977,6 @@
     /canary/ itself, so it is reachable without finding this page · <b>not yet on GitHub:</b> the
     public repos are one-commit snapshots with no local clone, so the README fix is local until
     someone pushes it</p>
-  </div>
-</div>
-<div class="row">
-  <div class="date">Aug 7–8</div>
-  <div>
-    <p class="name">Five tools, one set: published, cross-linked, and each naming its own blind spot
-      <span class="chip live">all 5 public</span><span class="chip">all 5 downloadable</span></p>
-    <p class="what"><b>In plain terms:</b> the tools existed but did not add up to anything. A
-    stranger who found one had no way to discover the rest, two of the five had nothing you could
-    download, and the newest was invisible on our own site. They are now a set you can walk
-    through from any entry point.</p>
-    <p class="proof"><b>The cross-linking was measured, not assumed.</b> attest &mdash; the
-    primitive the other four are built on &mdash; <em>linked to nothing at all</em>; flatline and
-    watchpost linked to one sibling each; only canary carried a real map. Four repos, four dead
-    ends. Every README now ends with the same table in the same words, listing the four others and
-    never itself, <b>with the blind spots beside the capabilities</b> &mdash; a set of tools that
-    only advertised what each covers is how a reader comes to believe the set covers everything.
-    Checked mechanically rather than by eye: four rows each, zero self-references, zero duplicate
-    link definitions.
-    <b>The best writing in the project was private.</b> The page explaining <em>why</em> there are
-    several rather than one &mdash; the rule each had to pass to exist, name your question and
-    your blind spot in one line or you are a feature of something that already exists &mdash; sat
-    in a local file nobody could read. It is public now, and it publishes the overlap that is
-    <em>real</em> before it is resolved: <code>flatline jobs</code> is largely redundant, condition
-    one of its retirement is met, condition two is a pre-registered prediction resolving
-    <b>2026-09-04</b>. Announcing a deprecation date we can be held to beats deleting the tool
-    later and saying nothing.</p>
-    <p class="proof"><b>Publishing it caught the page arguing about staleness being stale.</b> It
-    warned its own numbers could drift "exactly the way /proof/ did" &mdash; they had, and
-    <b>two of its four re-derivation commands were wrong</b>. One counted <em>directories</em>
-    rather than registered tasks, the precise mistake <code>_qa/fleet.py</code> exists to end. The
-    other counted every non-test file as a gate and returned 7 where the hook that actually blocks
-    runs 5 &mdash; right number, wrong method. The correction is left visible rather than quietly
-    overwritten. The public version deliberately carries <em>no</em> fleet figures at all: they are
-    operational detail about one machine, useless to a reader, and they are exactly what went
-    stale.
-    <b>custody and watchpost shipped.</b> custody with 8 commits of history from day one and every
-    commit swept before anything left the machine; watchpost with the release it never had, proven
-    on a file written today containing 2019 data &mdash; 1983 business days behind, the check
-    nothing else does. Both installed into empty virtualenvs and run before publishing, because
-    install instructions nobody executed are a promise nobody checked.</p>
-    <p class="proof"><b>Three false alarms tonight, all mine, none the code's.</b> A missing
-    <code>strings</code> command "proved" tkinter was absent from a bundle. A mismatched
-    <code>ATTEST_HOME</code> made every signature look forged and turned 32 lost receipts into a
-    reported 64 problems. And <code>$?</code> read through a pipe nearly had me report that
-    watchpost exits 0 on failure &mdash; it exits 2, exactly as documented. <b>Every false alarm
-    came from my instrumentation.</b> Worth writing down: the measurement is as likely to be
-    broken as the thing measured, and it fails in the direction that makes you look busy.</p>
-    <p class="where">5 public repos · attest v0.1.1 · flatline v0.2.1 · canary v0.1.0 + .exe · watchpost v0.1.0 · custody v0.1.0 · WHY-SEVERAL-TOOLS.md</p>
   </div>
 </div>
 
