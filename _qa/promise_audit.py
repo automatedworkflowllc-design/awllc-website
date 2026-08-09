@@ -34,6 +34,7 @@ import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+SITE = 'https://automatedworkflowllc.com'     # generated pages use absolute self-links
 
 # Language that tells a visitor they are about to receive an artifact.
 PROMISE = re.compile(
@@ -110,8 +111,15 @@ def audit() -> list[tuple[str, str]]:
             findings.append((rel, 'offers %s but that file does not exist' % href))
 
         if not (local or sheets or generates):
+            # Both URL forms. /log/ is generated with ABSOLUTE self-links, so a
+            # root-relative-only test concluded it linked to nothing and reported
+            # a broken promise on a page that is describing history, not offering
+            # anything. This is not a softening -- the target must still be a page
+            # that genuinely delivers; it just has to be recognised when written
+            # out in full.
             links_to_delivery = any(
-                ('href="%s"' % d) in html for d in delivering)
+                ('href="%s"' % d) in html or ('href="%s%s"' % (SITE, d)) in html
+                for d in delivering)
             if not links_to_delivery:
                 findings.append((
                     rel,
