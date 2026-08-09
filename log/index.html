@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">70 entries · newest first within each group</p>
+  <p class="stamp">72 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -1587,6 +1587,77 @@
     unreviewed. A malformed policy raises rather than silently evaluating to &ldquo;no rules&rdquo;,
     which is the most dangerous way for a typo to behave.</p>
     <p class="where">2e155b5 + 99de7aa · dev/custody/ · question: what did the AI do and was it right · blind spot: it cannot see inside the model, only what was declared and what changed on disk</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 9</div>
+  <div>
+    <p class="name">docket — the first product built to be used daily rather than consulted
+      <span class="chip">20 tests</span><span class="chip staged">built, not released</span></p>
+    <p class="what"><b>In plain terms:</b> asked for product ideas, I offered three and Colin
+    asked the right question &mdash; would a company rely on this <em>daily</em> and get glued to
+    it? All three failed. They were evidence products, and evidence gets consulted, not used.
+    Nobody is glued to insurance. <b>docket is the design that survives that question:</b> it owns
+    the loop a firm runs for every recurring deliverable &mdash; what is due, what it is built
+    from, is that data current, does the output look wrong, who signed it off, what went out.</p>
+    <p class="proof"><b>The one rule, proved rather than asserted.</b> A deliverable built on
+    stale inputs is not produced at all &mdash; the build step is <em>never launched</em>. The
+    test uses a sentinel file rather than trusting a status string, and <b>ships with a companion
+    proving the same build step DOES run on fresh input.</b> Without that, a malformed build
+    command would make the strongest test in the suite vacuous: a sentinel that could never appear
+    proves nothing either way. That companion exists because of the negative-control rule written
+    into CLAUDE.md this morning, applied to my own test this time.
+    Verified end to end on a worked example: a 2019 general ledger refused at <b>1918 business
+    days</b> behind, using attest's arithmetic rather than a second copy of it.</p>
+    <p class="proof"><b>Every guardrail is a test.</b> An approval must name a person. A refused
+    deliverable cannot be approved &mdash; there is nothing to approve. Only an approved one can
+    be sent. Re-running the batch does not discard a human's sign-off. A format it cannot read is
+    <em>reported</em>, never passed as clean. A corrupt state file is preserved beside a fresh one
+    rather than read as &ldquo;nothing ever ran&rdquo;.
+    <b>Two defects found while testing, both mine.</b> The missing-output message blamed a build
+    step that does not exist for hand-made deliverables, which would send someone hunting a script
+    they never wrote. And the board promised &ldquo;worst first, always&rdquo; while the sort lived
+    in its <em>caller</em> &mdash; a promise enforced only by the caller is not enforced, so the
+    ordering now lives in one place and the renderer sorts defensively.</p>
+    <p class="proof"><b>The board is built as a UI, not a document:</b> worst first, the count of
+    things needing a person as the one big number, semantic colour kept deliberately separate from
+    the accent (a page where the brand colour also means &ldquo;fine&rdquo; cannot show you
+    anything), state encoded in a stripe and a step bar as well as a word, both themes with the
+    toggle beating the OS preference, no JavaScript, and no cached numbers &mdash; each is counted
+    when the page is written.
+    <b>Stated plainly:</b> nothing is released. No public repo, and the name has not been checked
+    against the package index &mdash; every short name we wanted last time was already taken, and
+    guessing again would repeat that.</p>
+    <p class="where">cac8771 · dev/docket/ · design in dev/DELIVERABLE-DESK-SPEC.md · six of the eight loop steps were already built; this is the loop they live inside</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 9</div>
+  <div>
+    <p class="name">Made all six gates prove they can fail — one could not
+      <span class="chip">6/6 negative-controlled</span><span class="chip live">1 real hole closed</span></p>
+    <p class="what"><b>In plain terms:</b> six automatic checks block a push to the site, and
+    every one of them had spent its life being observed only when it passed. A check nobody has
+    seen go red is not evidence of anything. So each was made to fail on purpose, then restored.</p>
+    <p class="proof"><b>Five were sound.</b> <code>claim_audit</code> caught a page number changed
+    to 999 against a re-derived 114. <code>last_mile_audit</code> caught a mailto missing
+    &ldquo;llc&rdquo; from the domain. <code>seo_audit</code> caught a stripped canonical tag.
+    <code>promise_audit</code> caught a page promising a free template with nothing to hand over
+    &mdash; the exact 2026-07-11 defect it was written for. <code>autoqa</code> already had a
+    symmetric test and passes it. Every perturbation was reverted and each gate confirmed green
+    again with zero dirty files.
+    <b>One was broken:</b> the secret scanner, which could not match an Anthropic key. Fixed and
+    gated separately.</p>
+    <p class="proof"><b>I predicted at least one more would be broken. I was wrong</b> &mdash; the
+    scanner was the only one, and saying so matters more than the prediction did. <b>What did go
+    wrong twice was my own probing.</b> Against <code>promise_audit</code> I first planted a
+    broken download link, then stripped sheet links from a real page &mdash; both reported clean,
+    and both times the gate was right and my probe was outside its scope. It asks a narrow
+    question: <em>does a page using giveaway language carry at least one artifact?</em> Not
+    &ldquo;is every link valid&rdquo;. Reading the check's stated intent before calling it broken
+    is what separated a real hole from two false accusations, and it is the same discipline that
+    found the real one.</p>
+    <p class="where">verified 2026-08-09 · perturb, observe red, restore, observe green · every control isolated to a generated page or a throwaway file, never a source file</p>
   </div>
 </div>
 <div class="row">
