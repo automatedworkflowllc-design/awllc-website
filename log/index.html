@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">69 entries · newest first within each group</p>
+  <p class="stamp">70 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -1587,6 +1587,46 @@
     unreviewed. A malformed policy raises rather than silently evaluating to &ldquo;no rules&rdquo;,
     which is the most dangerous way for a typo to behave.</p>
     <p class="where">2e155b5 + 99de7aa · dev/custody/ · question: what did the AI do and was it right · blind spot: it cannot see inside the model, only what was declared and what changed on disk</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 9</div>
+  <div>
+    <p class="name">The secret scanner could not see an Anthropic key
+      <span class="chip live">fixed &amp; gated</span><span class="chip">found by negative control</span></p>
+    <p class="what"><b>In plain terms:</b> the gate that checks nothing secret reaches the public
+    site had, for its entire life, been incapable of detecting the one credential this shop is
+    likeliest to leak. Its pattern was <code>sk-[A-Za-z0-9]{20,}</code>, which <em>cannot</em>
+    match <code>sk-ant-api03-…</code> because the hyphen after &ldquo;ant&rdquo; ends the
+    character run. An Anthropic key could sit in a tracked file while the gate printed CLEAN and
+    exited 0.</p>
+    <p class="proof"><b>Nobody knew because it had only ever been seen passing.</b> That is the
+    lesson of the day, now written into CLAUDE.md as the second hard rule: <em>before believing a
+    check found nothing, prove it can find something.</em> Seven times in one session a
+    &ldquo;problem&rdquo; turned out to be the test rather than the thing tested &mdash; a grep
+    defeated by JSON spacing, a string spanning two source lines, an <code>HTTP 200</code> served
+    by the stale page. The dangerous half is the inverse: a green result whose check could never
+    have gone red.
+    <b>Found by planting one.</b> The sweep scanned 111 files including the probe and said clean.
+    Fixed by allowing hyphens and underscores after <code>sk-</code>, plus a pattern for an
+    <code>AWS_SECRET_ACCESS_KEY</code> assignment.</p>
+    <p class="proof"><b>Then the gate caught its own test, and the tempting fix was the wrong
+    one.</b> Written literally, the seven synthetic fixtures made the test file itself trip the
+    scanner &mdash; six exposures, push blocked, working exactly as designed. The obvious move was
+    to allowlist that path, which is precisely how a scanner rots: one exemption, then another,
+    until it is scanning nothing that matters. The fixtures are assembled by concatenation
+    instead, so the repository holds no credential-shaped literal while the assembled strings
+    still exercise every pattern.
+    <b>The test's duty is symmetrical</b> &mdash; seven planted keys must be caught <em>and</em>
+    six real sentences of our own page copy must not trip it, because a gate that cries wolf gets
+    switched off. It runs in the pre-push hook <em>before</em> the sweep, so the scanner has to
+    prove it can still fail before it is trusted to say the tree is clean. And the test was itself
+    negative-controlled: revert the pattern and it goes red.
+    <b>Two more of my own errors, caught by the same discipline:</b> I read <code>exit=0</code>
+    off a pipe, which was <code>tail</code>'s status and not the sweep's, and my first GitHub-token
+    fixture was 35 characters where the pattern needs 36 &mdash; the fixture was wrong, not the
+    scanner. Counted by machine after eyeballing it wrong.</p>
+    <p class="where">22d173f · _qa/security_sweep.py + _qa/test_security_sweep.py + pre-push · 111 files clean, 7 caught, 6 ignored</p>
   </div>
 </div>
 <div class="row">
