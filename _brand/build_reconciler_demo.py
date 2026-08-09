@@ -76,6 +76,11 @@ bookings = [
     ("B-213", dt.date(2026,7,12), "Bay 1", 2, 45, "OK"),
     ("B-214", dt.date(2026,7,12), "Bay 2", 5, 45, "OK"),
 ]
+
+# Build-time gate: this data is served publicly, so it may not name a real
+# business from the outreach tracker. See awllc_brand.assert_no_real_contacts.
+from awllc_brand import assert_no_real_contacts
+assert_no_real_contacts(bookings, 'the reconciler demo')
 BK_FIRST = 4
 for i, (bid, d, bay, hrs, rate, _st) in enumerate(bookings):
     r = BK_FIRST + i

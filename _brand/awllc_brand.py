@@ -51,3 +51,41 @@ WORDMARK = INK_FAINT
 GREENBG  = GREEN_BG
 REDBG    = RED_BG
 AMBERBG  = AMBER_BG
+
+
+# --- sample-data safety -----------------------------------------------------
+# Two demo workbooks were seeded in July from the real Gainesville outreach
+# tracker, and one of them stated that two named real companies lost money on a
+# job -- against invented figures. Harmless in a private sales file, and not
+# publishable the moment the same file is served on a public URL. Found on
+# 2026-08-08, one step before publishing.
+#
+# The trap is that nothing about those files was wrong; they were correct for
+# the job they were built for. Only their destination changed, and nobody
+# re-reads a finished artifact when the only change is where it lives. So the
+# check cannot live in anyone's memory -- it runs at build time, every time.
+REAL_CONTACTS = (
+    'Wilson Exterior', 'Premier Lawn Care', 'Tindale Pest', 'Getter Done Fence',
+    'Kind Touch Cleaning', 'Loblolly Landscaping', 'Paynes Prairie Landscaping',
+    'Gainesville Lawnscaping', 'Buckman Hardware', 'Rocky Point Storage',
+    'Hawthorne Trail Cycles', 'Osprey Point Cafe', 'Crossroads Realty',
+    'Invictus Property', 'Haile Village Realty', 'Millhopper Vet Supply',
+    'Santa Fe Print Shop', 'Scharnagl', 'Ocala Central Vet', 'Cross Keys',
+    'Pattison', 'ABC Waste', 'Riley Welding', 'CC Restoration',
+    'Georgia Janitorial',
+)
+
+
+def assert_no_real_contacts(rows, where: str) -> None:
+    """Refuse to build a public sample containing a real business name.
+
+    `rows` is any nested structure of sample data; it is stringified whole, so
+    a name buried in a note or an address column is still caught.
+    """
+    blob = str(rows)
+    hits = sorted({n for n in REAL_CONTACTS if n.lower() in blob.lower()})
+    if hits:
+        raise SystemExit(
+            f'REFUSING TO BUILD {where}: sample data contains real business '
+            f'name(s) from the outreach tracker: {", ".join(hits)}. '
+            'Replace with fictional names before publishing.')

@@ -59,6 +59,11 @@ jobs=[
     ("J-11","Trailhead Cycles",     "Deck build",         3100,1600,1200,"In Progress","THIN MARGIN"),
     ("J-12","Keystone Cafe",          "Patio install",      5200,2400,1900,"In Progress","HEALTHY"),
 ]
+
+# Build-time gate: this data is served publicly, so it may not name a real
+# business from the outreach tracker. See awllc_brand.assert_no_real_contacts.
+from awllc_brand import assert_no_real_contacts
+assert_no_real_contacts(jobs, 'the job costing demo')
 JB_FIRST=4
 for i,(jid,client,typ,quoted,labor,mat,status,flag) in enumerate(jobs):
     r=JB_FIRST+i

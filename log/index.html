@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">67 entries · newest first within each group</p>
+  <p class="stamp">68 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -1587,6 +1587,38 @@
     unreviewed. A malformed policy raises rather than silently evaluating to &ldquo;no rules&rdquo;,
     which is the most dangerous way for a typo to behave.</p>
     <p class="where">2e155b5 + 99de7aa · dev/custody/ · question: what did the AI do and was it right · blind spot: it cannot see inside the model, only what was declared and what changed on disk</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 8</div>
+  <div>
+    <p class="name">flatline's sixth use case, and it is not a spreadsheet
+      <span class="chip live">live</span><span class="chip">verified on a fixture first</span></p>
+    <p class="what"><b>In plain terms:</b> a developer publicly described 28 UI hover states that
+    had stopped doing anything, because one colour token had been aliased to another. The types
+    checked. Every component was correct in isolation. A screenshot of any single button looked
+    right. <b>The only symptom was that the interface felt dead.</b> That is this tool's entire
+    thesis, in a domain its page had never mentioned.</p>
+    <p class="proof"><b>Verified before it was claimed.</b> Built a 28-row fixture of resolved
+    values and ran the real scanner: <code>hover_color: CONSTANT, identical value on all 28 rows,
+    carries 0.00 bits</code> &mdash; while correctly leaving the <code>base_color</code> column
+    alone, because that one genuinely varies. <b>And the honest limit is on the record:</b> it
+    grades INFO rather than HIGH, because <code>hover_color</code> is not a recognised
+    decision-signal name. It finds the problem; it does not shout about it. The page claims only
+    what that run actually showed.
+    <b>Placed under &ldquo;How you would use this&rdquo;, not &ldquo;What it has actually
+    caught&rdquo;.</b> We did not catch this one &mdash; somebody else described it &mdash; and
+    those two sections mean different things. Filing a stranger's incident under our own catches
+    would be the cheapest kind of lie available on that page.
+    <b>The page said &ldquo;Five shapes&rdquo; and now lists six,</b> so the count moved with it;
+    a page contradicting its own number has bitten this project before.</p>
+    <p class="proof"><b>Why this is worth more than a use case.</b> The argument it sharpened is
+    the one the tool did not previously make out loud: <em>nothing else in a normal toolchain is
+    looking for sameness.</em> A linter checks shape, a type checker checks types, a snapshot test
+    checks that today matches yesterday &mdash; and yesterday was already broken. That is the
+    reason this tool has a niche, and it now appears on the site and in the README instead of
+    being implicit.</p>
+    <p class="where">a5bef9b · /flatline/ verified live · README updated in dev · no code change: a set of identical resolved values already graded CONSTANT</p>
   </div>
 </div>
 <div class="row">

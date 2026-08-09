@@ -61,6 +61,11 @@ units=[
     ("402","Ironwood Commercial","4502 Ironwood Blvd",     1950,1950, 180,1450,"","STABLE"),
     ("501","Redbrick Partners","1120 Redbrick Way",      1750,1750,3200,1585,"Roof leak repair","DROPPED"),
 ]
+
+# Build-time gate: this data is served publicly, so it may not name a real
+# business from the outreach tracker. See awllc_brand.assert_no_real_contacts.
+from awllc_brand import assert_no_real_contacts
+assert_no_real_contacts(units, 'the owner statement demo')
 RR_FIRST=4
 for i,(unit,owner,addr,due,coll,exp,lastnet,notes,flag) in enumerate(units):
     r=RR_FIRST+i
