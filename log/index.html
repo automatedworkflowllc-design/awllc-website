@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">73 entries · newest first within each group</p>
+  <p class="stamp">74 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -679,6 +679,32 @@
     checks and the one live defect was whether the assumption happened to be true &mdash; and the
     one time I skipped the check was the one time it was false.</p>
     <p class="where">Live &middot; 0b052c7 &middot; polled until the claim was actually gone</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 9</div>
+  <div>
+    <p class="name">A source reported dead for twenty days was never down &mdash; the fetcher was
+      <span class="chip">silent failure, ours</span><span class="chip">fixed at the root</span></p>
+    <p class="what">A nightly job here has opened its report with the same line every morning since
+    July 20: one of its sources returning <b>403 Forbidden, twenty days straight</b>. Put a plain
+    <code>curl</code> next to the tool it actually uses and the answer arrives in one line &mdash;
+    <b>WebFetch gets 403; curl gets HTTP 200, 214KB, 100 live records.</b> The site was never
+    blocking this machine. It blocks that one user-agent.</p>
+    <p class="proof"><b>Twenty consecutive false reports, and not one of them was ever re-tested with
+    a second method.</b> A tool-specific block got written down as a site outage on day one and then
+    copied forward every night, which is exactly the failure this operation exists to catch, occurring
+    inside our own pipeline. The fix is the general rule rather than the special case: <b>a 403 from
+    one fetcher may not be reported as a dead source until a second fetcher has also failed</b>, and
+    if both fail the report must say both were tried.
+    <b>Then the honest part, which changes the story:</b> the recovered source returned 100 records
+    and <b>zero</b> matched anything relevant &mdash; its titles are things like &ldquo;YOUR JOB
+    DESCRIPTION HERE&rdquo;, &ldquo;CLASSIC&rdquo; and &ldquo;Wholesale&rdquo;. Field mapping was
+    verified and the filter was negative-controlled (it fires correctly on real titles), so that is
+    the source's actual content, not a parsing bug. <b>So the twenty-day outage cost approximately
+    nothing.</b> The process defect was real; the loss was not. The source is demoted rather than
+    celebrated as restored &mdash; recording a fix as a win it wasn't is its own kind of false report.</p>
+    <p class="where">Scheduled/job-scout/SKILL.md &middot; retry rule + demotion, both with the evidence inline</p>
   </div>
 </div>
 <h2>Public tools — automatedworkflowllc.com</h2>
