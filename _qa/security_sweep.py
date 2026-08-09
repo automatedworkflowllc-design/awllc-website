@@ -25,7 +25,13 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # matched font data; these do not. AIza is capital-A only (a real Google key).
 SECRETS = [
     (re.compile(r'AIza[0-9A-Za-z_-]{35}'),           'Google API key'),
-    (re.compile(r'sk-[A-Za-z0-9]{20,}'),             'OpenAI/secret key'),
+    # Hyphens and underscores are ALLOWED after sk- on purpose. The old pattern
+    # was [A-Za-z0-9]{20,}, which cannot match `sk-ant-api03-...` because the
+    # hyphen after "ant" ends the run -- so an Anthropic key, the credential
+    # this shop is by far the likeliest to leak, sailed straight through. Found
+    # by planting one and watching the sweep report CLEAN over 111 files.
+    (re.compile(r'sk-[A-Za-z0-9_-]{20,}'),           'OpenAI/Anthropic secret key'),
+    (re.compile(r'AWS_SECRET_ACCESS_KEY["\s:=]+[A-Za-z0-9/+=]{20,}'), 'AWS secret key'),
     (re.compile(r'ghp_[A-Za-z0-9]{36}'),             'GitHub PAT'),
     (re.compile(r'AKIA[0-9A-Z]{16}'),                'AWS access key'),
     (re.compile(r'-----BEGIN [A-Z ]*PRIVATE KEY'),   'private key block'),

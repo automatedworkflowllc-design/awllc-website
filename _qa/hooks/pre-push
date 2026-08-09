@@ -17,6 +17,18 @@
 # Note that seo_audit and autoqa are REGRESSION gates -- they fail when the
 # defect count rises above the recorded baseline, not when it is merely
 # non-zero. Both baselines are currently 0, so any new defect blocks.
+# The sweep runs on every push and had, until 2026-08-09, never been observed
+# failing -- which turned out to hide a hole: its key pattern could not match
+# `sk-ant-...`, so an Anthropic key was invisible to it. A gate nobody has seen
+# go red is not evidence. This proves it can still catch a planted key AND still
+# ignores ordinary page copy, before it is trusted to judge the real tree.
+echo "Security sweep: proving the gate can still fail..."
+python _qa/test_security_sweep.py || {
+  echo ""
+  echo "PUSH BLOCKED — the secret scanner can no longer catch a planted key,"
+  echo "or has started flagging ordinary copy. Fix the patterns, not the test."
+  exit 1
+}
 echo "Security sweep: scanning public surface for secrets..."
 python _qa/security_sweep.py || {
   echo ""
