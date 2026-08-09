@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">51 entries · newest first within each group</p>
+  <p class="stamp">52 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -752,6 +752,33 @@
   </div>
 </div>
 <h2>Reliability &amp; discipline tooling</h2>
+<div class="row">
+  <div class="date">Aug 9</div>
+  <div>
+    <p class="name">A hyphen walked through the privacy filter
+      <span class="chip">our defect</span><span class="chip live">closed, and not indexed</span></p>
+    <p class="what">The filter that decides what may appear on this page holds a list of terms that
+    must never be published. One of them was listed with a space between the words. The thing it was
+    meant to catch was written <b>with a hyphen</b> &mdash; so the filter read it as a different
+    string entirely, and a line that should never have been public went live on this site.</p>
+    <p class="proof"><b>Caught by the leak check, not by review.</b> The builder refuses to write the
+    page when a blocked term survives, and that guard did exactly what it was designed to do &mdash;
+    for every term it knew. It cannot refuse what it was never told to look for, which is the whole
+    lesson: <b>a blocked term is only blocked in the spellings you listed.</b> Both separators are now
+    covered, along with three further terms that were only ever going to be found the same painful way.
+    <b>Verified on the live domain, not the local file</b> &mdash; the same build had already taught
+    that a green check against a local copy says nothing about what a server is actually serving.
+    Live page re-fetched: clean, and the checker was negative-controlled first so a silent pass could
+    not be mistaken for a real one.
+    <b>Then the question that actually mattered:</b> whether a search engine had crawled it during the
+    window it was up. It had not &mdash; the index returns nothing for the leaked string, and the one
+    apparent hit on a broader sweep was an ordinary product page matching a normal English word.
+    <b>The exposure was minutes and left no trace.</b> The failure is recorded anyway, because a leak
+    that happened to be caught in time is still a leak, and this page would be worth less if it only
+    contained the ones that ended well.</p>
+    <p class="where">Live &middot; both separators blocked &middot; index checked, nothing cached</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 3</div>
   <div>
