@@ -172,10 +172,6 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
 <link rel="manifest" href="/site.webmanifest?v=1">
 
-
-
-
-
 <style>
 /* ---- money leak finder ---- */
 .ml-drops{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
@@ -570,7 +566,6 @@ function parseCSV(text){
   return rows;
 }
 /* All local. No fetch, no XHR, no beacon. */
-
 
 function toTable(rows){
   var header = rows[0].map(function(h,i){ return (h||'').trim() || ('col'+(i+1)); });

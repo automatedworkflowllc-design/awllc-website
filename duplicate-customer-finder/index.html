@@ -172,10 +172,6 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
 <link rel="manifest" href="/site.webmanifest?v=1">
 
-
-
-
-
 <style>
 /* ---- duplicate finder ---- */
 .dc-drop{border:2px dashed var(--line-strong);border-radius:16px;background:var(--card);
@@ -548,7 +544,6 @@ function parseCSV(text){
 }
 /* All local. No fetch, no XHR, no beacon. */
 
-
 /* Legal-form suffixes and punctuation are the usual difference between two
    spellings of one company. Stripping them is the FIRST pass; anything caught
    here is reported as an exact normalized match, not a fuzzy guess. */
@@ -648,7 +643,6 @@ function findGroups(values){
   groups.sort(function(a,b){ return b.rows - a.rows; });
   return groups;
 }
-
 
 var current = null;   // { name, header, body }
 
