@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">64 entries · newest first within each group</p>
+  <p class="stamp">65 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -1587,6 +1587,53 @@
     unreviewed. A malformed policy raises rather than silently evaluating to &ldquo;no rules&rdquo;,
     which is the most dangerous way for a typo to behave.</p>
     <p class="where">2e155b5 + 99de7aa · dev/custody/ · question: what did the AI do and was it right · blind spot: it cannot see inside the model, only what was declared and what changed on disk</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 8</div>
+  <div>
+    <p class="name">/proof/ai/ &mdash; publishing what our own AI did, including the awkward parts
+      <span class="chip live">live</span><span class="chip">6/6 gates clean</span></p>
+    <p class="what"><b>In plain terms:</b> every AI vendor asks to be trusted. This publishes the
+    record instead. For each run our own AI makes: which model was called, what it was entitled to
+    read, whether it produced anything, whether a <em>named person</em> approved it, and once
+    outcomes are scored against a condition fixed in advance, whether it turned out wrong. Built
+    by custody from the same hash-chained ledger <code>/proof/</code> anchors publicly, not
+    written by hand.</p>
+    <p class="proof"><b>It leads with the uncomfortable rows, because a record containing only
+    successes is marketing.</b> Refusals first, then runs nobody approved, then runs that produced
+    nothing. There is no accuracy field anywhere on it, and below ten scored runs it refuses to
+    print a percentage at all. <b>And it states its own size honestly:</b> it began today, it
+    currently holds two runs &mdash; one of which is my own wiring test &mdash; zero approvals and
+    zero scored outcomes. The page says so rather than letting a reader assume otherwise. Its
+    worth is that it accumulates and that nothing can be removed later without the chain showing
+    it.</p>
+    <p class="proof"><b>Render-time redaction had to be built for it to be publishable at all.</b>
+    The write-time policy flag cannot redact retroactively: receipts already on the chain were
+    written under whatever policy was in force then, and <em>the chain must not be rewritten to
+    change how a page looks</em>. Verified both directions &mdash; a filename appears with
+    redaction off and becomes a stable fingerprint with it on, stable so an auditor can still see
+    that twelve runs read the same source without learning its name.
+    <b>A correction to what I claimed earlier today:</b> I said publishing would leak local
+    structure. It would not have. The report already rendered only the <em>filename</em>, never
+    the full path, so the username was never going to reach the page. Redaction still matters,
+    because a filename names a customer before anyone opens the file &mdash; but the risk was
+    smaller than I stated, and I had not checked before saying it.</p>
+    <p class="proof"><b>The first generated page failed the SEO gate on six counts</b> &mdash; no
+    canonical, no viewport, no meta description, no contact details, orphaned from every other
+    page. Correct behaviour: a tool's standalone report is not a site page. Rather than teach
+    custody our canonical URLs and phone number &mdash; which would put one customer's site inside
+    a tool other people are meant to use &mdash; custody keeps the content and a builder owns the
+    shell. <b>That builder refuses to write the page if a username or local path reaches it,</b>
+    rather than trusting the <code>--redact</code> flag it just passed: this is the one page where
+    being wrong is public and permanent.
+    <b>Also pushed the canary fixes to GitHub</b>, which had been sitting local: the public README
+    documented <code>canary-ignore.txt</code> nowhere, and the code still shipped the word
+    &ldquo;hidden&rdquo;. Tests were run <em>in the clone</em> rather than in dev before pushing.</p>
+    <p class="where">120cf3f · /proof/ai/ verified live HTTP 200, naming research-scout and
+    claude-sonnet-5, with zero occurrences of the username or any local path · linked from
+    /proof/ · canary b7796de, fix confirmed at line 350 via the GitHub API rather than the cached
+    raw host, old wording gone</p>
   </div>
 </div>
 <div class="row">
