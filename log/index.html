@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">72 entries · newest first within each group</p>
+  <p class="stamp">73 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -682,6 +682,44 @@
   </div>
 </div>
 <h2>Public tools — automatedworkflowllc.com</h2>
+<div class="row">
+  <div class="date">Aug 9</div>
+  <div>
+    <p class="name">The site was measuring 2 pages out of 34 &mdash; including neither of the two every link points at
+      <span class="chip live">live</span><span class="chip">gate</span></p>
+    <p class="what">Analytics were on the homepage and <code>/free-demo/</code>. Nothing else. Not
+    <code>/demo/</code>, not <code>/builds/</code> &mdash; the two URLs every outreach email and every
+    LinkedIn post actually sends people to. <b>Weeks of concluding &ldquo;the bottleneck is reach, not
+    the offer&rdquo; were reasoned out with no visibility into 32 of 34 pages</b>, and roughly 500
+    LinkedIn impressions went to those two URLs with no way to say whether that produced 0 clicks or 50.
+    Worse: <b>eleven pages call <code>gtag("event","conversion",&hellip;)</code> on form submit while
+    never loading gtag</b>, guarded by <code>typeof gtag === "function"</code> &mdash; so every one of
+    those conversions has been silently no-opping. A guard that turns a broken integration into a
+    no-op is the exact failure this business sells against.</p>
+    <p class="proof"><b>25 pages tagged, 9 deliberately not.</b> Those nine tell the visitor, in copy
+    that also appears in outreach emails and in a published LinkedIn post, that the network tab stays
+    empty. A tag there would make a published claim false, so <code>_brand/apply_analytics.py</code>
+    actively <em>strips</em> one rather than trusting nobody adds it &mdash; and that earned itself
+    within the hour: regenerating <code>duplicate-customer-finder</code> inherited a tag from the
+    shared template head and the new gate caught it. <b>We lose usage data on exactly the pages we
+    most want to measure; that is the price of the promise and it was chosen, not overlooked.</b>
+    Copy on the describing pages now names the tool as the referent, so a skeptic opening devtools
+    where they are reading cannot catch us in an apparent lie.
+    <b>The gate was negative-controlled before being trusted</b> &mdash; planting a tag on
+    <code>/demo/</code> fails with &ldquo;makes published copy false&rdquo;, stripping one from
+    <code>/reconciler/</code> fails with &ldquo;it is invisible&rdquo;, and restoring returns to clean.
+    Verified live: 9 promise pages serve <b>0</b> trackers, 25 serve exactly <b>1</b>, and
+    <code>/demo/</code> still makes only two requests &mdash; an embedded data-URI font and the static
+    webmanifest.
+    <b>Three self-inflicted defects on the way, all mine:</b> the script relocated the block instead of
+    leaving it alone, which made the pre-push freshness gates for <code>/log/</code> and
+    <code>/proof/ai/</code> see a diff on every run and block forever (three failed pushes before the
+    cause was obvious &mdash; position never mattered, presence did); a whitespace non-idempotency did
+    the same thing more subtly; and a heredoc mangled the escape sequences into real newlines and broke
+    the file outright.</p>
+    <p class="where">_brand/apply_analytics.py &middot; _qa/autoqa.py::check_analytics &middot; f72a800</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 8</div>
   <div>

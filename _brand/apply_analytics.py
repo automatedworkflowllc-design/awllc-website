@@ -8,7 +8,7 @@ reach, not the offer" were reasoned out with no visibility into 32 of 34 pages; 
 LinkedIn impressions went to those two URLs and nobody can say whether that produced
 0 clicks or 50.
 
-Worse: twelve pages CALL `gtag("event", "conversion", ...)` on form submit while never
+Worse: eleven pages CALL `gtag("event", "conversion", ...)` on form submit while never
 LOADING gtag, and the call sites are guarded with `typeof gtag === "function"`. So every
 one of those conversions has been silently no-opping. A guard that turns a broken
 integration into a no-op is the exact "reports success while doing nothing" failure this
@@ -22,6 +22,13 @@ change cannot quietly add one -- which it already tried to do: regenerating
 duplicate-customer-finder inherited a tag from the shared template head within an hour
 of this being written, and the QA gate caught it. We lose usage data on exactly the
 pages we would most like to measure; that is the price of the promise and it was chosen.
+
+KNOWN AND ACCEPTED CONSEQUENCE. /demo/ carries a conversion band that calls
+gtag("event","conversion",...) on submit, and /demo/ is in NO_ANALYTICS -- so that call
+will never fire a Google Ads conversion. The lead itself is NOT lost: the form still
+POSTs to Formspree and still reaches the inbox. What is lost is ad attribution from the
+single most-linked page on the site. That is a real cost of the promise, and it is
+written here so nobody "fixes" it by quietly tagging the page.
 
 Idempotent -- see the whitespace note in strip(), which is load-bearing. Run after any
 page builder. `_qa/autoqa.py::check_analytics` asserts the invariant in both directions
