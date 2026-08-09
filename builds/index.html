@@ -171,6 +171,7 @@
 <link rel="icon" href="/favicon.ico?v=1" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
 <link rel="manifest" href="/site.webmanifest?v=1">
+
 <style>
 /* ---- builds index ---- */
 .bd-lede{max-width:42rem;color:var(--ink-soft)}
@@ -221,6 +222,24 @@ box-shadow:0 0 0 3px rgba(30,122,71,.14)}
 .bd-form .bd-privacy{margin:.1rem 0 0;font-size:.82rem;color:var(--ink-soft)}
 #bd-sent{margin:0;font-size:.95rem;color:var(--ink);display:none}
 </style>
+
+
+
+
+
+
+
+
+<!-- aw-analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K2B3YTCPJY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-K2B3YTCPJY');
+  gtag('config', 'AW-18312491430');
+</script>
+<!-- aw-analytics -->
 </head>
 <body>
 
@@ -254,8 +273,10 @@ box-shadow:0 0 0 3px rgba(30,122,71,.14)}
 
   <div class="bd-sec">Free tools &mdash; press them, nothing uploads</div>
   <p class="bd-lede" style="margin-bottom:.9rem;font-size:.9rem">Each one runs entirely in your
-  browser. There is no server to send your file to &mdash; open the network tab and watch: after the
-  page loads, zero requests. That is architecture, not a privacy policy.</p>
+  browser. There is no server to send your file to &mdash; open the network tab <em>on any of
+  them</em> and watch: after that tool loads, zero requests. That is architecture, not a privacy
+  policy. (This index page carries ordinary web analytics; the tools themselves carry none, which
+  is why the claim is about them and not about here.)</p>
   <div class="bd-grid"><article class="bd-card"><h3><a href="/starter/">Job &amp; Invoice Tracker  ·  no file needed</a></h3><p class="bd-what">Every other tool here asks you to upload something first. This one asks for nothing &mdash; press a button and it builds you a working Excel tracker where unbilled jobs and invoices past 60 days flag themselves.</p><dl class="bd-use"><dt>For</dt><dd>anyone starting without a system</dd><dt>Needs</dt><dd>nothing at all</dd><dt>Takes</dt><dd>one click</dd></dl><p class="bd-proof">A real .xlsx assembled in your browser with no library and no upload &mdash; verified to open with formulas intact and amounts stored as numbers, not text.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/check/">Business File Check  ·  start here</a></h3><p class="bd-what">One drop zone for any business export &mdash; <strong>Excel (.xlsx) works directly</strong>, no save-as-CSV step. It works out what the file is from its columns, runs every check that applies, and reconciles two files against each other if you drop a pair. The Excel file is parsed in your browser with no library and no upload &mdash; nobody else does that.</p><dl class="bd-use"><dt>For</dt><dd>any export you are unsure about</dd><dt>Needs</dt><dd>one file &mdash; or two to reconcile</dd><dt>Takes</dt><dd>about a minute</dd></dl><p class="bd-proof">On its sample pair it returns 8 findings with zero configuration and puts a number on the damage: <strong>$1,240 of finished work that was never invoiced</strong>. <a href="/check/example/">See a real report</a> before uploading anything.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/spreadsheet-health-check/">Spreadsheet Health Check</a></h3><p class="bd-what">Drop any CSV and get an honest report: columns that carry no information, status fields that never vary, mixed date formats, duplicate rows. Then download the file with the judgment-free problems already fixed.</p><dl class="bd-use"><dt>For</dt><dd>a messy sheet you inherited</dd><dt>Needs</dt><dd>one CSV or Excel file</dd><dt>Takes</dt><dd>about a minute</dd></dl><p class="bd-proof">On its sample: 6 findings down to 2 after the automatic fix &mdash; and the two that remain are exactly the ones a script must not touch.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/money-leak-finder/">Money Leak Finder</a></h3><p class="bd-what">Two exports every business already has &mdash; the work log and the invoices &mdash; lined up so only the mismatches show: finished jobs nobody billed, invoices sitting unpaid past 60 days.</p><dl class="bd-use"><dt>For</dt><dd>service businesses that invoice per job</dd><dt>Needs</dt><dd>a work log + an invoice export</dd><dt>Takes</dt><dd>about two minutes</dd></dl><p class="bd-proof">Matches on exact ID only, and says so on the report. Nothing fuzzy, nothing guessed.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/duplicate-customer-finder/">Duplicate Customer Finder</a></h3><p class="bd-what">Acme Roofing. Acme Roofing LLC. acme roofing inc. Three rows, one customer &mdash; inflating your count, splitting revenue history, and sending the mail merge three times.</p><dl class="bd-use"><dt>For</dt><dd>a customer list that grew by hand</dd><dt>Needs</dt><dd>your customer list</dd><dt>Takes</dt><dd>under a minute</dd></dl><p class="bd-proof">Every group states why it grouped: identical after ignoring case, punctuation and legal suffixes, or a near-miss typo worth a human glance.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article><article class="bd-card"><h3><a href="/shift-coverage-check/">Shift Coverage Check</a></h3><p class="bd-what">For anyone who runs on a roster &mdash; senior living, clinics, restaurants, facilities. Finds days a role is uncovered, staff crossing 40 hours, roles only one person can fill, and turnarounds too short to be safe.</p><dl class="bd-use"><dt>For</dt><dd>anyone who runs on a roster</dd><dt>Needs</dt><dd>a schedule export</dd><dt>Takes</dt><dd>about a minute</dd></dl><p class="bd-proof">Reads the columns itself and shows which ones it used. Deliberately never proposes who should work when &mdash; that is the manager's call, not a CSV's.</p><div class="bd-tags"><span class="bd-tag live">Live</span><span class="bd-tag">Nothing uploads</span><span class="bd-tag">Free</span></div></article></div>
 
   <div class="bd-sec">Free templates &mdash; copy them, no email</div>

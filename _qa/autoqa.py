@@ -247,11 +247,45 @@ def check_live():
             defect('live', '%s returns %s' % (u, out))
 
 # ---------------------------------------------------------------- main
+def check_analytics():
+    """The measurement split must hold in both directions.
+
+    Two failures are possible and both are silent. A page that promises an empty
+    network tab and quietly gains a tag turns published copy -- in emails and in
+    LinkedIn posts -- into a false statement. A page that loses its tag goes dark
+    without anyone noticing, which is how 32 of 34 pages ended up unmeasured for
+    weeks while we argued about whether the problem was reach.
+
+    Source of truth is _brand/apply_analytics.py; this asserts the result.
+    """
+    sys.path.insert(0, os.path.join(ROOT, '_brand'))
+    from apply_analytics import NO_ANALYTICS, pages, GA_ID
+    for rel in pages():
+        path = os.path.join(ROOT, rel)
+        try:
+            html = io.open(path, encoding='utf-8').read()
+        except Exception as e:
+            defect('analytics', '%s unreadable: %s' % (rel, e)); continue
+        n = html.count('googletagmanager')
+        if rel in NO_ANALYTICS:
+            if n:
+                defect('analytics',
+                       '%s promises an empty network tab but loads a tag -- that '
+                       'makes published copy false' % rel)
+        elif n == 0:
+            defect('analytics', '%s has no analytics tag -- it is invisible' % rel)
+        elif n > 1:
+            defect('analytics', '%s loads the tag %d times' % (rel, n))
+        elif GA_ID not in html:
+            defect('analytics', '%s loads a tag but not %s' % (rel, GA_ID))
+
+
+
 def main():
     # --fast skips the network sweep. Used by the pre-push hook, where the live
     # site is still the OLD build and so tells you nothing about what you're
     # about to ship.
-    checks = [check_workbooks, check_pages, check_staleness]
+    checks = [check_workbooks, check_pages, check_staleness, check_analytics]
     if '--fast' not in sys.argv:
         checks.append(check_live)
     for fn in checks:

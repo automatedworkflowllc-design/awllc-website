@@ -370,8 +370,10 @@ def build_main() -> str:
 
   <div class="bd-sec">Free tools &mdash; press them, nothing uploads</div>
   <p class="bd-lede" style="margin-bottom:.9rem;font-size:.9rem">Each one runs entirely in your
-  browser. There is no server to send your file to &mdash; open the network tab and watch: after the
-  page loads, zero requests. That is architecture, not a privacy policy.</p>
+  browser. There is no server to send your file to &mdash; open the network tab <em>on any of
+  them</em> and watch: after that tool loads, zero requests. That is architecture, not a privacy
+  policy. (This index page carries ordinary web analytics; the tools themselves carry none, which
+  is why the claim is about them and not about here.)</p>
   {grid(TOOLS)}
 
   <div class="bd-sec">Free templates &mdash; copy them, no email</div>

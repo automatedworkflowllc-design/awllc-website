@@ -159,7 +159,15 @@ def build():
     if not os.path.isdir(OUT_DIR):
         os.makedirs(OUT_DIR)
     io.open(OUT, "w", encoding="utf-8").write(page)
-    print("wrote %s" % OUT)
+    # /log/ is regenerated nightly from the private log, which would otherwise strip
+    # its analytics tag every run and leave the most-linked engineering page dark.
+    # apply_analytics owns the tagged/untagged split for the whole site; calling it
+    # here means a regeneration is already correct rather than correct-until-rebuilt.
+    import subprocess as _sp, sys as _sys
+    _sp.run([_sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                           "apply_analytics.py")],
+            capture_output=True, check=True)
+    print("wrote %s (analytics re-applied)" % OUT)
     print("  kept %d entries, dropped %d (job lane, other projects, people)" % (total_kept, dropped))
     print("  PUBLISHED page: indexable, in sitemap. Privacy filter is the only thing making that safe.")
 

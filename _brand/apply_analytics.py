@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+"""Put the analytics tag on every page that is allowed to have one -- and off every page that is not.
+
+WHY THIS EXISTS (found 2026-08-09). The tag was on **2 of 34 pages**: the homepage and
+/free-demo/. Everything else was dark, including the two pages every email and every
+LinkedIn post actually points at -- /demo/ and /builds/. Weeks of "the bottleneck is
+reach, not the offer" were reasoned out with no visibility into 32 of 34 pages; ~500
+LinkedIn impressions went to those two URLs and nobody can say whether that produced
+0 clicks or 50.
+
+Worse: twelve pages CALL `gtag("event", "conversion", ...)` on form submit while never
+LOADING gtag, and the call sites are guarded with `typeof gtag === "function"`. So every
+one of those conversions has been silently no-opping. A guard that turns a broken
+integration into a no-op is the exact "reports success while doing nothing" failure this
+business sells against.
+
+THE ONE HARD CONSTRAINT. Eight pages promise, in published copy that also appears in
+outreach emails and LinkedIn posts, that you can open the network tab and watch it stay
+empty. A tag on those pages would make a published claim false. They are listed in
+NO_ANALYTICS below and this script actively STRIPS the tag from them, so a future
+template change cannot quietly add one. We lose usage data on exactly the pages we would
+most like to measure; that is the price of the promise and it was chosen deliberately.
+
+Idempotent. Run after any page builder. `_qa/autoqa.py` asserts the invariant so the
+split cannot drift silently.
+"""
+from __future__ import annotations
+
+import pathlib
+import re
+import subprocess
+import sys
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+
+GA_ID = 'G-K2B3YTCPJY'
+ADS_ID = 'AW-18312491430'
+
+SNIPPET = f"""<script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
+  gtag('config', '{GA_ID}');
+  gtag('config', '{ADS_ID}');
+</script>"""
+
+# Pages that tell the visitor the network tab will be empty. The claim is about THIS
+# page, so THIS page cannot carry a tag. Do not add to this list without checking the
+# page's own copy; do not remove from it without changing that copy first.
+NO_ANALYTICS = {
+    'demo/index.html',
+    'check/index.html',
+    'check/example/index.html',
+    'spreadsheet-health-check/index.html',
+    'money-leak-finder/index.html',
+    'duplicate-customer-finder/index.html',
+    'shift-coverage-check/index.html',
+    'starter/index.html',
+    'proof/notarize/index.html',
+}
+
+MARK = '<!-- aw-analytics -->'
+
+
+def pages() -> list[str]:
+    out = subprocess.run(['git', 'ls-files', '*/index.html', 'index.html'],
+                         cwd=ROOT, capture_output=True, text=True, check=True)
+    return sorted(p for p in out.stdout.split('\n') if p.strip())
+
+
+def strip(s: str) -> str:
+    """Remove any analytics block we manage, plus a pre-existing hand-placed one."""
+    s = re.sub(re.escape(MARK) + r'.*?' + re.escape(MARK), '', s, flags=re.S)
+    # the original hand-written block on index.html / free-demo, so those two converge
+    # on the managed form instead of quietly keeping a second copy
+    s = re.sub(r'<script async src="https://www\.googletagmanager\.com/gtag/js\?id='
+               + re.escape(GA_ID) + r'"></script>\s*<script>.*?</script>', '', s, flags=re.S)
+    return s
+
+
+def main() -> int:
+    added = removed = unchanged = 0
+    problems = []
+    for rel in pages():
+        p = ROOT / rel
+        original = p.read_text(encoding='utf-8')
+        s = strip(original)
+
+        if rel in NO_ANALYTICS:
+            # A page that promises an empty network tab must not even reference the tag.
+            if 'googletagmanager' in s:
+                problems.append(f'{rel}: still references googletagmanager after strip')
+            want = s
+        else:
+            if '</head>' not in s:
+                problems.append(f'{rel}: no </head> to insert before')
+                continue
+            block = f'{MARK}\n{SNIPPET}\n{MARK}\n'
+            want = s.replace('</head>', block + '</head>', 1)
+
+        if want != original:
+            p.write_text(want, encoding='utf-8')
+            if rel in NO_ANALYTICS:
+                removed += 1
+                print(f'  stripped  {rel}')
+            else:
+                added += 1
+                print(f'  tagged    {rel}')
+        else:
+            unchanged += 1
+
+    print(f'\nANALYTICS  --  {added} tagged, {removed} stripped, {unchanged} already correct')
+    print(f'  {len(NO_ANALYTICS)} page(s) deliberately untagged to keep the '
+          f'"empty network tab" promise true')
+    if problems:
+        for x in problems:
+            print('  PROBLEM:', x)
+        return 1
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
