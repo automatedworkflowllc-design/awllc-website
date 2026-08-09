@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">68 entries · newest first within each group</p>
+  <p class="stamp">69 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -1587,6 +1587,40 @@
     unreviewed. A malformed policy raises rather than silently evaluating to &ldquo;no rules&rdquo;,
     which is the most dangerous way for a typo to behave.</p>
     <p class="where">2e155b5 + 99de7aa · dev/custody/ · question: what did the AI do and was it right · blind spot: it cannot see inside the model, only what was declared and what changed on disk</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 9</div>
+  <div>
+    <p class="name">Shipped custody's best feature undocumented, then caught myself doing it again
+      <span class="chip live">public repo synced</span><span class="chip">35 tests</span></p>
+    <p class="what"><b>In plain terms:</b> hours after fixing exactly this defect in canary, I had
+    done it again. <code>custody wrap</code> &mdash; the thing that lets the tool observe any real
+    AI job &mdash; appeared <b>zero times</b> in its README. Anyone reading the front door would
+    conclude the Python library was the only way in, which would rule the tool out for most of the
+    work it is built for.</p>
+    <p class="proof"><b>Three separate untruths on that page, all mine.</b> The feature was
+    missing entirely. The sentence &ldquo;the library is for your program; these are the things a
+    <em>person</em> does afterwards&rdquo; stopped being true the moment a machine-facing
+    subcommand joined the CLI. And the page claimed <b>29 tests</b> while the suite runs
+    <b>35</b> &mdash; I added six that morning and never moved the number. Both figures are now
+    counted rather than recalled, and the &ldquo;six of them cover wrap&rdquo; claim was checked
+    against the actual test names.
+    <b>The example was executed before it was written down,</b> which is this README's standing
+    rule: the exact documented flag shape &mdash; agent, model, <code>--in</code> with a lag
+    limit, <code>--out-dir</code>, falsifier, then the command &mdash; run for real, exit 0,
+    receipt be87ed6fd7047f14.</p>
+    <p class="proof"><b>The catch that stopped a lie shipping.</b> Before pushing the README I
+    checked whether the <em>public</em> repo actually had <code>wrap</code>. It did not &mdash; the
+    code was written that morning and only ever existed locally. Publishing the documentation
+    alone would have produced a front door describing a feature nobody could use. Code, tests and
+    docs went together instead.
+    <b>And a false alarm worth recording:</b> the synced clone failed all 35 tests with
+    <code>ModuleNotFoundError</code>. That looked like a broken repo and was my own directory
+    naming &mdash; the suite resolves attest as a <em>sibling</em> checkout, which is exactly what
+    the README's install instructions produce. Re-run in that documented layout: 35 pass. The test
+    was wrong, not the repo, which is now the seventh time today.</p>
+    <p class="where">custody d65b5a7 · public repo verified to contain wrap after the push · dev in step</p>
   </div>
 </div>
 <div class="row">
