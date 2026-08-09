@@ -171,6 +171,15 @@ MAIN = """
   anyone can verify it without trusting us, without an account, and without uploading a byte. Drop
   the file back in later &mdash; changed or not &mdash; and it will tell you which.</p>
 
+  <h2 style="margin-top:2.4rem">And what the AI did</h2>
+  <p style="color:var(--ink-soft);max-width:42rem">The receipts above answer &ldquo;did the job
+  run and produce what it claimed&rdquo;. There is a harder question about the jobs that call a
+  model, and it is the one every business deploying AI is about to be asked:
+  <a href="/proof/ai/"><b>what did the AI do, and how do you know it was right?</b></a> That page
+  is built from this same chain &mdash; which model was called, what it was entitled to read,
+  whether a named person approved it, and whether it later turned out wrong. It leads with the
+  refusals and the runs nobody approved, and it never claims the AI was right.</p>
+
   <h2 style="margin-top:2.4rem">What this does not prove</h2>
   <ul class="pf-limits">
     <li><b>The signatures are not third-party-verifiable yet.</b> Receipts are signed with a local
