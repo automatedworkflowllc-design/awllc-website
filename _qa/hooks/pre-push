@@ -78,3 +78,31 @@ if ! git diff --quiet -- log/index.html; then
   echo "(or commit it separately) and push again."
   exit 1
 fi
+
+# /proof/ai/ is GENERATED from the attest ledger, which grows every time a
+# scheduled AI job runs. A published record of what our AI did, silently frozen
+# at the day it was created while presenting itself as current, would be a
+# worse version of the exact failure it exists to expose — and it would be our
+# own tool lying about our own tools. Same treatment as /log/.
+echo "AI record: checking /proof/ai/ is in step with the ledger..."
+python _brand/build_proof_ai_page.py >/dev/null || {
+  echo ""
+  echo "PUSH BLOCKED — the /proof/ai/ builder refused to write."
+  echo "It fails closed if a username or local path reached the page."
+  exit 1
+}
+# The page stamps its own generation time, so a naive diff reports drift on
+# EVERY rebuild and the guard blocks every push forever. A guard that always
+# fires is one somebody deletes — the same muted-guard failure watchpost and
+# canary each hit. So compare substance, and ignore the clock.
+ai_drift=$(git diff -U0 -- proof/ai/index.html \
+           | grep '^[+-]' | grep -v '^[+-][+-]' | grep -vc 'Generated 20' || true)
+if [ "${ai_drift:-0}" -gt 0 ]; then
+  echo ""
+  echo "PUSH BLOCKED — /proof/ai/ was stale and has just been regenerated."
+  echo "Review the diff, then: git add proof/ai/index.html && git commit --amend --no-edit"
+  echo "(or commit it separately) and push again."
+  exit 1
+fi
+# Only the timestamp moved: discard that churn rather than committing noise.
+git checkout -- proof/ai/index.html 2>/dev/null || true
