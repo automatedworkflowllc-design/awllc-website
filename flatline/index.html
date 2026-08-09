@@ -264,10 +264,23 @@ padding-top:.1rem}
   </div>
 
   <h2>How you would use this</h2>
-  <p style="color:var(--ink-soft);max-width:40rem">Five shapes of the same problem. If any of these
+  <p style="color:var(--ink-soft);max-width:40rem">Six shapes of the same problem. If any of these
   sounds familiar, it is worth twenty minutes.</p>
 
   <div class="fl-uses">
+    <div class="fl-use">
+      <h3>The interface that quietly went dead</h3>
+      <p class="sym">Twenty-eight hover states that no longer change anything, because one colour
+      token got aliased to another. The types check. Every component is correct on its own. A
+      screenshot of any single button looks right. The only symptom is that the UI feels dead.</p>
+      <p class="fix"><b>scan</b> &mdash; point it at the resolved values rather than the source.
+      Twenty-eight states that all compute to the same colour is a constant wearing twenty-eight
+      names, and that is the one thing this tool is built to see. Nothing else in a front-end
+      toolchain is looking for <em>sameness</em>: a linter checks shape, a type checker checks
+      types, a snapshot test checks that today matches yesterday &mdash; and yesterday was already
+      broken.</p>
+    </div>
+
     <div class="fl-use">
       <h3>The backup that backs up nothing</h3>
       <p class="sym">It has succeeded every night for eight months. Nobody has opened the file.</p>
