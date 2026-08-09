@@ -72,7 +72,11 @@ BLOCKED = [
     # the job lane
     "applicat", "recruit", "resume", "cover letter", "greenhouse", "workday",
     "gitlab", "pandadoc", "hologram", "entravision", "oasis security", "upwork",
-    "job-engine", "job scout", "job lane", "hiring", "interview",
+    "job-engine", "job scout", "job-scout", "job lane", "hiring", "interview",
+    # 2026-08-09: "job scout" (space) was blocked but "job-scout" (hyphen) was NOT, and a
+    # build-log entry naming Scheduled/job-scout/SKILL.md published to the live page before the
+    # leak check caught it. Blocked terms must cover BOTH separators — a hyphen is not a filter.
+    "tracker.csv", "applicant", "ats ",
     # personal finance / other projects
     "gex", "option bot", "thedesk", "portfolio-desk", "portfolio desk", "roth",
     "trading", "robinhood", "hearth",
