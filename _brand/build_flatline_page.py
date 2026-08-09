@@ -178,7 +178,7 @@ MAIN = """
 
   <div class="fl-run">
     <h2 style="margin-top:0">Run it yourself</h2>
-    <p style="color:var(--ink-soft);margin-top:.3rem">Free, MIT licensed, 114 tests. It reads; it
+    <p style="color:var(--ink-soft);margin-top:.3rem">Free, MIT licensed, 122 tests. It reads; it
     does not change anything it looks at.</p>
     <pre>git clone https://github.com/automatedworkflowllc-design/flatline
 pip install ./flatline
