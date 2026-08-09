@@ -66,7 +66,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">61 entries · newest first within each group</p>
+  <p class="stamp">64 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -1587,6 +1587,133 @@
     unreviewed. A malformed policy raises rather than silently evaluating to &ldquo;no rules&rdquo;,
     which is the most dangerous way for a typo to behave.</p>
     <p class="where">2e155b5 + 99de7aa · dev/custody/ · question: what did the AI do and was it right · blind spot: it cannot see inside the model, only what was declared and what changed on disk</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 8</div>
+  <div>
+    <p class="name">custody could not touch a single one of our real AI jobs
+      <span class="chip">35 tests</span><span class="chip live">observing a real model run</span></p>
+    <p class="what"><b>In plain terms:</b> custody exists to answer &ldquo;what did the AI do, and
+    how do you know it was right&rdquo;. Checking whether it had ever been used on AI work, the
+    answer was no &mdash; and it <em>could not be</em>. Its only interface assumes you own the
+    program that calls the model. Every real AI job here is a scheduled command invoking a model
+    CLI, which the tool had no way to observe.</p>
+    <p class="proof"><b>Found by trying to use it on the real jobs rather than on its own README
+    example.</b> Two of the nine scheduled jobs genuinely invoke a model; neither is a Python
+    program. So <code>custody wrap</code> now observes work that is a <em>command</em> &mdash;
+    calling <code>observe()</code> rather than reimplementing the four rules, for the same reason
+    custody imports attest instead of copying its hash chain. Exit codes match attest so a
+    scheduler needs one vocabulary: <b>4</b> refused and the command never ran, <b>3</b> claimed
+    success and produced nothing it declared, otherwise the command's own code passes through.
+    <b>Rule 2 was the interesting part:</b> these jobs pass the prompt inline with <code>-p</code>,
+    so a receipt storing the command line would store the prompt &mdash; the rule broken by the
+    feature built to demonstrate it. The command is hashed; only the program name is kept in
+    clear.</p>
+    <p class="proof"><b>Three defects while testing, all mine, and one is the exact failure this
+    stack exists to catch.</b> <code>_finish()</code> builds its receipt from fixed fields and
+    never read the command field I had set &mdash; so <code>wrap</code> would have looked like it
+    worked and <b>silently recorded nothing</b>, a no-op inside the tool built to catch no-ops.
+    <code>subprocess</code> was never imported, so it would have died on first use. And a command
+    that genuinely <em>failed</em> was being relabelled exit 3, printing &ldquo;exited 0 and
+    produced nothing&rdquo; about a command that exited 1 &mdash; a false statement from the tool
+    whose only product is true statements.
+    <b>Proven on a scratch ledger, not argued:</b> a stale input exits 4 with the sentinel file
+    <em>absent</em>, meaning the process was never spawned; exit-0-with-no-output returns 3; a
+    failing command passes 9 through untouched; neither command text nor output text appears
+    anywhere in the ledger; the chain verifies across 5 receipts. 33 tests, up from 29.</p>
+    <p class="proof"><b>Wiring it to the first real job found the next thing it could not do.</b>
+    research-scout writes <code>YYYY-MM-DD-&lt;topic&gt;.md</code>, so there is no fixed
+    <code>--out</code> to declare; attest already carried <code>--out-dir</code> for exactly this
+    and custody did not, which meant it still could not observe the job. Added, reusing attest's
+    directory snapshot rather than writing a second one that would disagree with it later.
+    <b>Content hashes, not mtimes:</b> a job that rewrites yesterday's brief byte for byte has
+    honestly produced nothing, and mtime would call that success &mdash; verified that a new file
+    exits 0, an untouched directory exits 3, and a byte-identical rewrite exits 3.
+    <b>It now runs on a live job.</b> Nested inside attest so attest's receipt is unchanged; the
+    two answer different questions about the same run. <code>--in</code> is deliberately not
+    declared: this agent's real input is the live web, which carries no date custody could check,
+    and declaring a source it cannot verify would be the lie the tool exists to prevent.</p>
+    <p class="proof"><b>Three of my own errors on the way, worth recording because two nearly
+    became false reports.</b> The first two launches of the job <em>silently did not run</em>
+    &mdash; exit 1, Git Bash could not invoke the batch file &mdash; and the reassuring
+    <code>[attest CLEAN]</code> line in the log was from an <em>earlier, pre-custody</em> run. The
+    tell was the absent <code>[custody]</code> line. Then, having finally run it, a grep for
+    <code>"kind": "ai-run"</code> returned zero and I nearly reported failure a third time: the
+    ledger is written as compact JSON without that space, so <b>the test was wrong, not the
+    result</b>. Separately I "fixed" the launcher's line endings to CRLF before checking the
+    backup &mdash; the original was bare-LF all along and had been running nightly &mdash; and
+    reverted rather than leave an unnecessary change on a working job.</p>
+    <p class="where">6048398 + 821baaa · dev/custody/ · <b>verified on the real chain:</b> receipt
+    73a3a148b010fe59, agent research-scout, model claude-sonnet-5, produced_output true, approved
+    <em>false</em> because nobody has approved it · the command is stored hashed with only the
+    program name in clear, and no prompt text appears anywhere in the ledger · 52 receipts, chain
+    intact, all signatures valid · rollback: run_research_scout.cmd.bak-2026-08-08</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 8</div>
+  <div>
+    <p class="name">canary said &ldquo;hidden&rdquo; about the findings it was displaying
+      <span class="chip live">fixed</span></p>
+    <p class="what"><b>In plain terms:</b> having published a page describing how canary works, the
+    next job was to check the page against the tool rather than against my memory of the code.
+    Every substantive claim held. One word did not.</p>
+    <p class="proof"><b>What held, verified on a real 12-row file:</b> the ignore list is read from
+    beside the state file, the <code>--ignore</code> flag works, a file whose findings are all
+    ignored reads clean while still naming what was set aside, and the report prints the exact
+    path of the file you would edit. Checked across cached and fresh analysis, and with one of two
+    findings ignored so the remaining one still had to raise the alarm.
+    <b>The defect:</b> the per-file row said <code>N finding(s) hidden as expected-constant</code>
+    while the footer of the same report said &ldquo;already being set aside&rdquo;. The columns are
+    printed on the very line calling them hidden. For a tool whose whole argument is that it never
+    quietly stops mentioning things, that is the one word it cannot use &mdash; and it contradicted
+    both its own footer and the page published an hour earlier. The test now pins the new wording
+    <em>and</em> asserts the old string is absent, so it cannot drift back. 24 pass, and the fix
+    was confirmed in a real generated report rather than only in tests.</p>
+    <p class="where">725bef6 · dev/canary/ · the page was right and the product was wrong, which is the less comfortable of the two outcomes</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 8</div>
+  <div>
+    <p class="name">The tools were documented; how they work together was not
+      <span class="chip live">live</span><span class="chip">6/6 gates clean</span></p>
+    <p class="what"><b>In plain terms:</b> asked whether anything fully explained the current
+    canary+flatline build, the honest answer was no. Three pages existed and each described one
+    tool. Nothing described the <em>pipeline</em> &mdash; and the single setting that decides
+    whether a person is still reading the nightly report a month later was implemented in code and
+    written down nowhere.</p>
+    <p class="proof"><b>The gap was found by grepping the page, not by remembering.</b>
+    <code>canary-ignore.txt</code> and the <code>--ignore</code> flag exist in
+    <code>canary.py</code> at four call sites. The live <code>/canary/</code> page mentioned them
+    <b>zero times</b>; so did the README. That is the knob that stops a real folder producing the
+    same findings every night &mdash; on the first one we pointed canary at, two columns that are
+    constant <em>by design</em> accounted for two thirds of every finding. A tool whose most
+    important setting is undiscoverable is a tool that gets muted in a week, so this was the
+    documentation gap most likely to quietly kill the thing.
+    <b>Every claim on the new page was read out of the source before it was written down</b>
+    &mdash; verdict names from <code>signals.py</code>, exit codes and their precedence from the
+    README, the three ways canary reaches flatline from <code>canary.py</code>. Including the
+    unflattering ones: that a constant column's <em>name</em> is what raises its severity, that
+    &ldquo;could not be checked&rdquo; outranks &ldquo;found a problem&rdquo;, and that the exit
+    code reports news rather than inventory because canary once cried wolf on the same twenty-one
+    stable findings every single run.</p>
+    <p class="proof"><b>A broken link I caught in my own builder before it ever ran.</b> The
+    placeholder <code>FL_REPO_URL</code> contains <code>REPO_URL</code> as a substring, so
+    substituting in the obvious order rewrote the flatline link to <code>FL_&lt;canary url&gt;</code>
+    &mdash; and the guard I had written to catch exactly this could not see it, because neither
+    token survived to be detected. Ordered the substitution and added a second guard for the
+    mangled form. <b>Then the gates caught what I missed:</b> the SEO audit rejected a 61-character
+    title against a 50&ndash;60 budget, and flagged the page missing from <code>llms.txt</code>
+    while the sitemap already referenced it. Fixed to 60 characters exactly and 34/34 parity.
+    All six gates now clean, and the page is reachable from both <code>/canary/</code> and
+    <code>/flatline/</code> rather than only findable if you already knew it existed.</p>
+    <p class="where">7336f08 + 26aea3c · /canary/how-it-works/ · verified live HTTP 200 with all six
+    section markers present · the ignore file is also now in the canary README and summarised on
+    /canary/ itself, so it is reachable without finding this page · <b>not yet on GitHub:</b> the
+    public repos are one-commit snapshots with no local clone, so the README fix is local until
+    someone pushes it</p>
   </div>
 </div>
 <div class="row">
