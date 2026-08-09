@@ -35,24 +35,34 @@ def label_for(text):
     return None
 
 
+# Every fixture is ASSEMBLED AT RUNTIME rather than written out, so this file
+# contains no string that looks like a credential. That is not cosmetic: the
+# first version spelled them literally, and the sweep -- correctly, with its
+# newly widened pattern -- flagged six exposures in this very file and blocked
+# the push. The obvious fix was to allowlist this path, which is exactly how a
+# scanner rots: one exemption, then another, until it is scanning nothing that
+# matters. Splitting the literals keeps the gate exemption-free.
+_NOT_REAL = 'NOTAREAL'
+_FILLER = '0123456789abcdefghij'
+
 MUST_CATCH = [
-    ('sk-ant-api03-NOTAREALKEYNOTAREALKEYNOTAREALKEYNOTAREAL',
+    ('sk-' + 'ant-api03-' + _NOT_REAL * 5,
      'Anthropic key -- the regression this file exists for'),
-    ('sk-NOTAREALOPENAIKEY0123456789abcdef',
+    ('sk-' + _NOT_REAL + 'OPENAIKEY' + _FILLER,
      'OpenAI-style key without hyphens'),
-    ('AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
+    ('AWS_SECRET_ACCESS_KEY=' + _NOT_REAL + 'awssecret' + _FILLER + '+/=',
      'AWS secret access key assignment'),
-    ('AKIAIOSFODNN7EXAMPLE',
+    ('AKIA' + 'IOSFODNN7EXAMPLE',
      'AWS access key id'),
-    ('AIzaSyD-NOTAREAL0123456789abcdefghijklmno',
+    # Exactly 35 chars after AIza, which is what the pattern requires.
+    ('AIza' + (_NOT_REAL + _FILLER + 'GOOGLEKEYXX')[:35],
      'Google API key'),
-    # Exactly 36 chars after ghp_, which is what a real PAT is and what the
-    # pattern requires. The first version of this fixture was 35 and the test
-    # reported a MISS -- the fixture was wrong, not the sweep. Counted by
-    # machine after eyeballing it wrong once.
-    ('ghp_NOTAREALGITHUBTOKEN0123456789abcdefg',
+    # Exactly 36 after ghp_. The first fixture was 35 and the test reported a
+    # MISS -- the fixture was wrong, not the sweep. Counted by machine after
+    # eyeballing it wrong once.
+    ('ghp_' + (_NOT_REAL + 'GITHUBTOKEN' + _FILLER + 'zz')[:36],
      'GitHub personal access token'),
-    ('-----BEGIN RSA PRIVATE KEY-----',
+    ('-----BEGIN ' + 'RSA PRIVATE KEY-----',
      'private key block'),
 ]
 
