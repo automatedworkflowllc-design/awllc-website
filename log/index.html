@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">79 entries · newest first within each group</p>
+  <p class="stamp">80 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,42 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">The public log had been hiding a third of the work, and one number was doing the hiding
+      <span class="chip live">54 &rarr; 79 live</span><span class="chip">my first fix was wrong</span></p>
+    <p class="what"><b>In plain terms:</b> every new entry lands in a staging section called
+    &ldquo;What&rsquo;s new&rdquo;, and that section was not on the publisher&rsquo;s whitelist. So
+    the public page showed only what somebody had remembered to file into a group by hand. Nobody
+    had, for weeks. <b>25 entries &mdash; a third of the publishable work &mdash; were never on the
+    page</b>, including the tool shipped an hour earlier.</p>
+    <p class="proof"><b>Why nobody noticed:</b> the builder printed one number,
+    <code>dropped 96</code>, for two completely different reasons &mdash; <em>this is private</em>
+    and <em>nobody filed this yet</em>. The first is correct and permanent; the second is a backlog.
+    Conflated, it reads as &ldquo;96 private entries&rdquo; and the backlog is invisible. That is the
+    exact shape of failure this company sells against, running inside its own publisher: a job
+    reporting a clean number while quietly doing less than you think.
+    <b>Then my fix was wrong in the dangerous direction.</b> Splitting the counter, I tested whether
+    each <em>entry body</em> contained a blocked term &mdash; and the new report announced 32 entries
+    sitting under two headings that are excluded on purpose &mdash; one for a separate
+    product, one for work that is not this business &mdash; as
+    <em>publishable, merely unfiled</em>. <b>The section is the privacy decision, not the words
+    inside one entry.</b> Those headings are excluded deliberately; the entries under them simply
+    do not happen to repeat the keyword. Publishing on that advice would have put a deliberately private lane
+    on an indexed page. Section titles are checked too now, negative-controlled in both directions:
+    a blocked title can never be listed as unfiled, a clean one can.</p>
+    <p class="proof"><b>Fixed structurally rather than paid down.</b> Hand-filing 25 entries clears
+    the backlog and leaves the trap set for the next 25, so the staging section is allowed and
+    filtered per entry like every other. Of the 36 staged, <b>11 were withheld and 25 published</b>.
+    Verified before enabling that <b>zero headlines are duplicated</b> between staging and the groups
+    below, so nothing appears twice; verified after that the written page carries <b>no blocked
+    term</b> and the &ldquo;withheld publishable&rdquo; warning now prints nothing, because nothing
+    is stranded. The counter fix and the page change were committed separately, and the first commit
+    left <code>/log/</code> byte-identical &mdash; proof it was diagnosis, not a content edit.</p>
+    <p class="where">45f866f + f6de712 &middot; awllc-website/_brand/build_log_page.py &middot; /log/ 54 &rarr; 79 entries</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
