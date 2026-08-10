@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">90 entries · newest first within each group</p>
+  <p class="stamp">91 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,40 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">The gates could be talked out of a failure by asking twice
+      <span class="chip live">fixed</span><span class="chip">proven before and after</span></p>
+    <p class="what"><b>In plain terms:</b> the two audits that block a deploy compare today&rsquo;s
+    defect count against a stored baseline &mdash; and both wrote that baseline on <em>every</em>
+    run. So the gate could be argued down. Run it, get a regression, exit 1. Run it again with
+    <b>nothing fixed</b>, and the first run&rsquo;s count is now the baseline, so the identical
+    defect exits 0 and the push is allowed.</p>
+    <p class="proof"><b>Proven before it was fixed</b>, with a deliberately broken page title:
+    run 1 &mdash; <code>defects 1 (previous 0) exit 1</code>. Run 2, same unfixed defect still
+    printed on screen &mdash; <code>defects 1 (previous 1) exit 0</code>. The gate reported the
+    problem and approved the push in the same breath.
+    <b>And it required nobody to do anything wrong.</b> The nightly public-log job runs both gates,
+    so any defect introduced during a day was absorbed into the baseline by morning and could never
+    be caught as a regression again. Not a loophole someone had to find &mdash; a ratchet with no
+    pawl, quietly resetting itself every night.</p>
+    <p class="proof"><b>The fix is about who is allowed to say &ldquo;this is normal now&rdquo;.</b>
+    The baseline moves only when passed <code>--record</code>, and never on a regressed run. The
+    pre-push hook passes it, because a push is the one moment where somebody is actually making that
+    claim. Every other invocation &mdash; a person checking their work, or the nightly job &mdash;
+    is a read-only diagnostic.
+    <b>Negative-controlled in both directions afterwards</b>, which is the only reason to believe
+    it: the same broken title now fails the real hook three times running (was fail, pass, pass);
+    the repaired page passes and <code>--record</code> moves the baseline; and a clean run without
+    <code>--record</code> passes while leaving the baseline untouched. The versioned hook and the
+    installed copy were byte-identical and both updated, because fixing only the one in
+    <code>.git</code> would have been a fix that no other machine ever receives.
+    <b>Found by reading the gates rather than by any failure</b> &mdash; they had been reporting
+    clean, which is exactly the condition under which this kind of defect survives.</p>
+    <p class="where">9a7f707 &middot; _qa/autoqa.py + _qa/seo_audit.py + _qa/hooks/pre-push</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
