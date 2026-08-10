@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">80 entries · newest first within each group</p>
+  <p class="stamp">81 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,46 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">Two of our own guards were unverifiable, and the missing piece was a word attest could not say
+      <span class="chip live">41 tests</span><span class="chip">caught its own false green</span></p>
+    <p class="what"><b>In plain terms:</b> the map built this morning found three nightly jobs that
+    <em>declare no output</em> &mdash; meaning nothing checked they produced anything, so each could
+    exit 0 having done nothing and the receipt would look identical. That is the founding failure of
+    this whole stack, running inside its own guard rail.</p>
+    <p class="proof"><b>Reading their launchers showed it was not neglect.</b> All three are
+    <em>idempotent</em>: a verifier whose correct answer on a quiet night is byte-for-byte
+    yesterday&rsquo;s. <code>--out</code> demands NEW bytes, so declaring one would have cried wolf
+    nightly until somebody muted it. A previous session had reached exactly that conclusion and
+    written it down &mdash; and had <b>refused the tempting fix</b>, stamping a timestamp to force
+    the bytes to change, on the grounds that it is precisely the &ldquo;fresh timestamp over stale
+    data&rdquo; lie this system exists to catch. That was right. The tool simply had no way to say
+    <em>the job rewrote it, and the content may legitimately be the same</em>.
+    <b>So attest learned the word:</b> <code>--out-written</code>. Question: did the command
+    actually touch this file during this run? Blind spot, stated in the code: it proves the
+    <em>writer</em> ran, not that the content is right.</p>
+    <p class="proof"><b>The negative control caught my own false green on the first try.</b> The
+    first implementation compared the file&rsquo;s timestamp to the moment the command started, with
+    two seconds of slack for coarse filesystems. A do-nothing job launched right after a real one
+    landed inside that window and <b>passed</b> &mdash; a guard reporting success while nothing
+    happened, which is worse than no guard at all. The clock is gone; the file is now judged against
+    its own prior timestamp and hash, which has no window to fall inside. A test pins that exact
+    case so it cannot come back.
+    <b>Every declaration was measured, not assumed</b>, and measuring changed two answers. A first
+    check called canary&rsquo;s report deterministic &mdash; wrong: two runs had simply landed in the
+    same second, and its report does carry a per-run stamp, so <b>canary was deliberately left
+    alone</b>. A second check read the audit&rsquo;s history file as unchanging and would have
+    withheld the fix &mdash; its bytes are identical but it <em>is</em> rewritten every run, which is
+    the whole point of the new flag. The claim-audit launcher was then run end to end
+    (<b>exit 0, receipt records rewritten=true</b>) and the public-log flags parse-checked against
+    the real paths with a do-nothing command (<b>exit 3 on both</b>, as they should).
+    <b>The map was taught to read the new flag too</b> &mdash; otherwise the tool that prompted the
+    fix would report those jobs unguarded forever, which is a check that can never go green.</p>
+    <p class="where">202f9d1 + 885594a &middot; attest 41 tests &middot; jobs declaring nothing: 3 &rarr; 1, and the last one on purpose</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
