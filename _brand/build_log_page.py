@@ -87,13 +87,31 @@ BLOCKED = [
     # 2026-08-09: "job scout" (space) was blocked but "job-scout" (hyphen) was NOT, and a
     # build-log entry naming Scheduled/job-scout/SKILL.md published to the live page before the
     # leak check caught it. Blocked terms must cover BOTH separators — a hyphen is not a filter.
-    "tracker.csv", "applicant", "ats ",
+    "tracker.csv", "applicant",
     # personal finance / other projects
-    "gex", "option bot", "thedesk", "portfolio-desk", "portfolio desk", "roth",
-    "trading", "robinhood", "hearth",
+    "option bot", "thedesk", "portfolio-desk", "portfolio desk",
+    "robinhood",
     # people/prospects
     "oak hammock", "colin mccarthy",
 ]
+
+# 2026-08-10: SHORT NAMES MUST MATCH AS WORDS, NOT AS SUBSTRINGS.
+# These were in BLOCKED above and each one is a real word inside other words:
+# "gex" fires on REGEX, "ats " on BEATS/STATS/TREATS/FORMATS, "roth" on GROWTH,
+# "trading" on UPGRADING. Measured on the source log the day this was found:
+# 11 of 155 entries were being withheld from the public page for no reason but
+# this -- including the skeleton write-up, which is one of the better entries and
+# had never appeared publicly. Nobody noticed, because a filter that withholds too
+# much looks exactly like a filter working.
+#
+# This makes the filter MORE precise, never weaker: "\bgex\b" still blocks GEX and
+# "\bats\b" still blocks a bare ATS. Anything genuinely ambiguous -- "recruit",
+# "applicat", "resume" -- deliberately stays a substring above, because for a
+# privacy filter over-blocking is the safe direction and under-blocking is not.
+BLOCKED_WORDS = ["gex", "ats", "roth", "trading", "hearth"]
+BLOCKED_WORD_RE = re.compile(
+    r"\b(?:%s)\b" % "|".join(re.escape(w) for w in BLOCKED_WORDS), re.I
+)
 
 ROW_RE = re.compile(r'<div class="row">.*?</div>\s*</div>', re.S)
 
@@ -104,7 +122,9 @@ def entries_from(block):
 
 def blocked_terms_in(text):
     low = re.sub(r"<[^>]+>", " ", text).lower()
-    return sorted({t for t in BLOCKED if t in low})
+    hits = {t for t in BLOCKED if t in low}
+    hits |= {m.group(0).lower() for m in BLOCKED_WORD_RE.finditer(low)}
+    return sorted(hits)
 
 
 def build():
@@ -117,9 +137,16 @@ def build():
     # Two reasons an entry can be withheld, and they are NOT the same reason.
     # Reporting them as one number ("dropped 96") reads as "96 private entries" and
     # hides that publishable work never reached the page -- which is this company's
-    # own failure mode running inside its own publisher. A new entry lands in
-    # "What's new", which is not on the whitelist, so it is invisible here until a
-    # human files it into a group. That lag is now printed instead of inferred.
+    # own failure mode running inside its own publisher.
+    # NOTE 2026-08-10: this comment used to say "What's new" was not on the whitelist,
+    # and that was TRUE when written -- it is what stranded 25 entries. Another session
+    # fixed it the same day (45f866f + f6de712) by whitelisting the staging section and
+    # filtering it per entry like every other, taking /log/ from 54 to 79. So the line
+    # is kept here as history, not as a rule: a new entry in "What's new" now publishes
+    # immediately, and the sections genuinely off the whitelist are the job lane and
+    # Hearth. Two sessions read the stale version and acted on it, one of them moving an
+    # entry that never needed moving. When several chats edit one file, a comment that
+    # states a fact should say the date it was true.
     withheld_private = 0        # contains a blocked term: correct, and permanent
     withheld_ungrouped = []     # clean, but in a section not on the whitelist:
                                 # [(section_title, count)] -- fixed by filing it
