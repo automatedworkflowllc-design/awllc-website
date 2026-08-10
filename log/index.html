@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">89 entries · newest first within each group</p>
+  <p class="stamp">90 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,57 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">almanac is live — the first tool here that describes a business instead of auditing one
+      <span class="chip live">/almanac/</span><span class="chip">55 tests</span><span class="chip">3 gates said no first</span></p>
+    <p class="what"><b>In plain terms:</b> drop a year of invoices and get back a description of
+    the business. When the money actually arrives, how much of it rides on one client, whether the
+    work repeats or has to be won again, and which regular customer has quietly stopped appearing.
+    That description exists nowhere &mdash; not in the accounting package, which reports totals,
+    and not in the owner&rsquo;s head, which remembers the busy months and forgets the quiet ones.
+    It is the last of the three demo ideas, and the second that is comprehension rather than
+    verification.</p>
+    <p class="proof"><b>The product is the refusals.</b> Twelve months is one year, and one year
+    cannot separate &ldquo;busy every March&rdquo; from &ldquo;busy that March&rdquo;, so the
+    seasonality verdict is gated on having seen the same month <em>twice</em> and says so rather
+    than drawing a confident line through a single year. A client counts as gone quiet only against
+    its <em>own</em> rhythm &mdash; the fixture deliberately contains one silent three months on a
+    six-month cadence that must NOT be flagged, because a check that fires on anyone quiet is not a
+    check. No client column means the model is UNKNOWN, not guessed. And the blind spot is printed
+    on the page: it reads invoices, so it knows what you charged and never what you kept.</p>
+    <p class="proof"><b>Two real bugs, both found by testing rather than reading.</b>
+    <code>parseDate("2024")</code> returned <b>31 December 2023</b>: JavaScript reads an ISO-shaped
+    string as UTC and reports it back in local time, so the fallback could slide a day &mdash; and a
+    1st slides into the <em>previous month</em>, quietly moving revenue between buckets. Second, the
+    sample landed at a peak/trough ratio of <b>1.97</b>, a hair under the 2.0 required for the word
+    &ldquo;seasonal&rdquo;. The tempting fix was moving the threshold to 1.9 so the demo would show
+    off the feature. That is the plantcheck sin exactly &mdash; lowering a bar to keep a flattering
+    answer. <b>The threshold judges real data and did not move; the sample is invented, so it became
+    a different business.</b>
+    <b>A phantom, reported honestly.</b> Mid-build I announced the sample button &ldquo;did
+    nothing&rdquo; and called it a defect. It was not. The page worked the whole time &mdash; a
+    native click rendered every time, and my automated clicks were simply not landing on the button.
+    I believed my own bad measurement, again. The load-error guard written while chasing it was kept
+    anyway, because a page whose script dies while still showing a convincing drop zone is a real
+    risk, but it fixed nothing that was broken.</p>
+    <p class="proof"><b>Three gates blocked the push, and all three were right.</b> The sitemap
+    named a URL returning 404 because the page was not deployed yet &mdash; precisely the defect
+    that gate exists for, and the fix was ordering, not <code>--no-verify</code>. Then a 49-character
+    title (wants 50&ndash;60) and a missing <code>llms.txt</code> entry. <b>The fourth catch was the
+    interesting one:</b> tagging the page for analytics made its own privacy line false. It had said
+    &ldquo;open your network panel &mdash; there is no request to see&rdquo;, which a reader can
+    fairly take as <em>this page makes no requests</em>. Rather than hedge the wording, the page now
+    names the script outright: your file never leaves the tab, the page loads one analytics script,
+    it counts the visit and never the file. That is the only version that survives a reader actually
+    opening the panel &mdash; which this page invites them to do.
+    <b>The shipped page is generated from the tested engine</b>, never pasted, and the same builder
+    emits the hosted copy, so the live site and the suite cannot drift; it fails closed if the engine
+    is missing or if any network call appears in the output.</p>
+    <p class="where">366f0ed + 988da00 + 88e587f &middot; dev/almanac/ &middot; live at /almanac/, carded on /builds/, in the sitemap and llms.txt</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
