@@ -230,8 +230,28 @@ function detectDate(t, prefer){
   return bestFrac > 0.6 ? best : -1;
 }
 function detectPaid(t){
-  for(var i=0;i<t.header.length;i++) if(/paid/i.test(t.header[i]) && !/unpaid/i.test(t.header[i])) return i;
+  /* Only a header containing "paid" used to match, so a column called STATUS --
+     what QuickBooks, Xero and Jobber all emit -- was invisible, and the tool's
+     second headline promise ("invoices unpaid past 60 days") silently did
+     nothing on the most common export there is. Found 2026-08-09 by running the
+     tool on a realistic file instead of its own sample. /demo/ already looked
+     for status|state|settled; the tool did not, so the demo was more capable
+     than the product it demonstrates. */
+  for(var i=0;i<t.header.length;i++) if(/paid|status|state|settled/i.test(t.header[i]) && !/unpaid/i.test(t.header[i])) return i;
   return -1;
+}
+/* Widening the header match ALONE would have been worse than the bug. The old
+   value rule was "anything non-empty means paid", which is right for a Date
+   Paid column and catastrophically wrong for a Status column: "Open" would
+   read as PAID and the tool would UNDERSTATE what you are owed -- a confident
+   wrong answer in the direction that costs money. So a value counts as settled
+   only if it is a recognised settled word, or a real date (a Date Paid column
+   carrying a date means exactly that). Everything else -- Open, Sent, Overdue,
+   Partial, Due, blank -- is unpaid. */
+function looksSettled(v, parseDateFn){
+  if(v === '') return false;
+  if(/^(paid|yes|y|true|settled|complete|completed|closed|1)$/i.test(v)) return true;
+  return parseDateFn(v) !== null;
 }
 function detectClient(t){
   for(var i=0;i<t.header.length;i++) if(/client|customer|account|company|payer/i.test(t.header[i])) return i;
@@ -334,8 +354,7 @@ function reconcile(work, inv, asOf){
   if(paidCol >= 0){
     inv.body.forEach(function(r){
       var paidVal = (r[paidCol]||'').trim();
-      var isPaid = paidVal !== '' && !/^(no|n|false|unpaid|0)$/i.test(paidVal);
-      if(isPaid) return;
+      if(looksSettled(paidVal, parseDate)) return;
       var amt = iAmt >= 0 ? money(r[iAmt]) : null;
       if(amt !== null) unpaidTotal += amt;
       var days = null;
