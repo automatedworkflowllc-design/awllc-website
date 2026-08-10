@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>almanac — what your invoices say your business is</title>
+<title>almanac — what your invoices say your business actually is</title>
 <link rel="canonical" href="https://automatedworkflowllc.com/almanac/">
 <meta property="og:title" content="almanac — what your invoices say your business is">
 <meta property="og:description" content="Drop a year of invoices and get a description of the business: when the money arrives, who it comes from, and what it refuses to guess. Nothing is uploaded.">
@@ -184,6 +184,16 @@ footer b{color:var(--mut);font-weight:600}
   .st:nth-child(even){border-left:1px solid var(--line)}
 }
 </style>
+<!-- aw-analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K2B3YTCPJY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-K2B3YTCPJY');
+  gtag('config', 'AW-18312491430');
+</script>
+<!-- aw-analytics -->
 </head>
 <body>
 <div class="wrap">
@@ -206,8 +216,9 @@ season.</p>
     <button class="btn" id="pick" type="button">Choose a file</button>
     <button class="btn ghost" id="sample" type="button">See it on a sample</button>
   </div>
-  <p class="privacy"><b>Nothing is uploaded.</b> The file is read inside this tab and never
-  leaves it. Open your network panel before you drop it — there is no request to see.</p>
+  <p class="privacy"><b>Your file never leaves this tab.</b> It is read here and nothing is
+  sent — drop it with your network panel open and watch. The page itself loads one analytics
+  script, which is disclosed rather than hidden: it counts the visit, never the file.</p>
 </div>
 
 <div id="out"></div>
@@ -626,8 +637,6 @@ function analyse(invoices) {
            byMonth: byMonth, seasonality: seasonality, customers: customers,
            concentration: concentration, repeat: repeat, model: model, findings: findings };
 }
-
-
 
 /* ------------------------------------------------------------------ render */
 var $ = function (s) { return document.querySelector(s); };
