@@ -103,14 +103,22 @@ def build():
 
     parts = re.split(r"<h2>(.*?)</h2>", src)
     kept = []          # list of (section_title_or_None, [entry_html, ...])
-    dropped = 0
+    # Two reasons an entry can be withheld, and they are NOT the same reason.
+    # Reporting them as one number ("dropped 96") reads as "96 private entries" and
+    # hides that publishable work never reached the page -- which is this company's
+    # own failure mode running inside its own publisher. A new entry lands in
+    # "What's new", which is not on the whitelist, so it is invisible here until a
+    # human files it into a group. That lag is now printed instead of inferred.
+    withheld_private = 0        # contains a blocked term: correct, and permanent
+    withheld_ungrouped = []     # clean, but in a section not on the whitelist:
+                                # [(section_title, count)] -- fixed by filing it
 
     # entries above the first <h2> are the "latest" band — allowed, still filtered
     latest = [e for e in entries_from(parts[0])]
     keep_latest = []
     for e in latest:
         if blocked_terms_in(e):
-            dropped += 1
+            withheld_private += 1
         else:
             keep_latest.append(e)
     if keep_latest:
@@ -120,12 +128,26 @@ def build():
         title = parts[i]
         body = parts[i + 1] if i + 1 < len(parts) else ""
         if title not in ALLOWED_SECTIONS:
-            dropped += len(entries_from(body))
+            rows = entries_from(body)
+            # The SECTION is the privacy decision, not merely the words inside an
+            # entry. An innocuous-looking entry filed under "...the job lane" or
+            # "Hearth..." is excluded because of WHERE IT SITS. The first version of
+            # this report checked only entry bodies, so it announced 32 such entries
+            # as "publishable, just unfiled" -- which is advice to publish the job
+            # lane. Only a section whose own title is clean can be holding work that
+            # is genuinely just waiting to be filed.
+            if blocked_terms_in(title):
+                withheld_private += len(rows)
+                continue
+            clean = [e for e in rows if not blocked_terms_in(e)]
+            withheld_private += len(rows) - len(clean)
+            if clean:
+                withheld_ungrouped.append((title, len(clean)))
             continue
         keep = []
         for e in entries_from(body):
             if blocked_terms_in(e):
-                dropped += 1
+                withheld_private += 1
             else:
                 keep.append(e)
         if keep:
@@ -172,7 +194,18 @@ def build():
                                            "apply_analytics.py")],
             capture_output=True, check=True)
     print("wrote %s (analytics re-applied)" % OUT)
-    print("  kept %d entries, dropped %d (job lane, other projects, people)" % (total_kept, dropped))
+    print("  kept %d entries" % total_kept)
+    print("  withheld %d for privacy (job lane, other projects, people) - correct, permanent"
+          % withheld_private)
+    if withheld_ungrouped:
+        n = sum(c for _, c in withheld_ungrouped)
+        print("  WITHHELD %d PUBLISHABLE entries only because their section is not on the "
+              "whitelist:" % n)
+        for title, c in withheld_ungrouped:
+            print("      %-40s %d entr%s" % (re.sub(r"<[^>]+>", "", title),
+                                             c, "y" if c == 1 else "ies"))
+        print("      ^ these contain nothing private. File them into an allowed section and "
+              "they publish.")
     print("  PUBLISHED page: indexable, in sitemap. Privacy filter is the only thing making that safe.")
 
 
