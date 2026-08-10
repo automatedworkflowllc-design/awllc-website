@@ -594,30 +594,34 @@
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
-    <p class="name">The scheduled job fired for the first time, unwatched, and got the number right
-      <span class="chip live">verified on the real run</span><span class="chip">first full cycle</span></p>
-    <p class="what">A weekly job had been published for a week without ever completing a real cycle
-    &mdash; it runs Mondays and was shipped on a Monday, so every &ldquo;it&rsquo;s live&rdquo; claim
-    until now rested on a manual test, not on the thing actually happening by itself. <b>That gap was
-    put on the calendar rather than assumed away</b>, precisely because <em>hasn&rsquo;t run yet</em>
-    and <em>will never run</em> look identical from a dashboard.</p>
-    <p class="proof"><b>It fired at 07:02 and produced a correct draft.</b> Eight overdue invoices,
-    sorted into three tiers by age &mdash; three at 60+ days written seriously, two at 30 days firmer,
-    three at 15 days friendly &mdash; and a closing summary stating the total outstanding.
-    <b>The check that matters is not that it ran but that the number agrees with itself.</b> The
-    narrative claims a total; the eight line items are listed individually; summing them by hand gives
-    exactly the same figure. That is the whole design rule holding under its first unsupervised run:
-    <b>the arithmetic is computed before the model sees it, and the model quotes rather than
-    calculates.</b> If the model had been doing the maths, that is precisely where a plausible wrong
-    total would have appeared, and it would have looked completely fine.
-    <b>Every draft is still a draft.</b> Nothing sent, nothing addressed to anyone real &mdash; all
-    recipients are reserved example domains &mdash; and the header says so in the first line. The
-    human approval gate is the product, not a limitation of it.
-    <b>A second job behaved better than asked on the same morning:</b> handed a submission that was an
-    internal pipeline test rather than a customer, it declined to draft a reply at all and said why.
-    Drafting a warm customer response to your own test would have been the easy failure; refusing was
-    the correct one.</p>
-    <p class="where">Live &middot; first unattended full cycle &middot; totals reconciled line-by-line against the narrative</p>
+    <p class="name">The weekly job fired with nobody watching, and its numbers still tie out
+      <span class="chip live">first unattended run</span><span class="chip">1 defect, left alone on purpose</span></p>
+    <p class="what">W1 had never once run without someone standing over it. Its &ldquo;last run&rdquo;
+    column had been empty since publication, and <b>&ldquo;not due yet&rdquo; and &ldquo;will never
+    run&rdquo; look identical from that screen</b> &mdash; which is the whole failure this business
+    sells against, so it was worth waiting for rather than assuming either way. It fired at
+    <b>07:02Z</b>.</p>
+    <p class="proof"><b>Checked against the builder's own asserts, not eyeballed.</b> 8 invoices,
+    <b>$10,605</b>, tiers 3 serious / 2 firmer / 3 friendly, every recipient a <code>.example</code>
+    address, drafted to Colin and <b>not sent</b>. Those totals matching
+    <code>build_nudge_template.py</code> exactly is the proof that <b>the model quoted the sheet
+    rather than doing the arithmetic</b> &mdash; the founding product rule holding on the first run
+    nobody supervised.
+    <b>One real defect, and it is being left alone deliberately.</b> The AI writes thousands with a
+    space after the comma &mdash; &ldquo;$1, 450&rdquo; &mdash; in five of the eight client-facing
+    drafts, while getting the summary line right. The source is clean (the sheet stores
+    <code>1450</code> as an integer), so it is the model's formatting &mdash; and the split is
+    exactly diagnostic. <b>Every amount the model retypes carries the space; the one figure injected
+    into the prompt pre-formatted, the total, is clean.</b> The defect and the thing that works have
+    the same root cause, which means the fix is the technique already proven inside this same email
+    rather than a prompt experiment that would take a week to grade.
+    <b>Not fixed today, because W1 is weekly.</b> A botched prompt edit costs a full week before the
+    next natural verification; the defect is cosmetic; every recipient is fictional; and the
+    drafts-only design means a human reads each one before sending, so the approval gate already
+    catches it. Fixing it now earns almost nothing and risks the one thing that just proved itself.
+    Queued to ride along the next time W1 is opened for another reason, with the exact prompt line
+    and the three numbers to re-check afterwards.</p>
+    <p class="where">W1 375030986 &middot; nothing edited &middot; W2 also confirmed, last run 11h (the /reconciler/ chain test)</p>
   </div>
 </div>
 <div class="row">
