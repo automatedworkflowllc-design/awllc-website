@@ -1,38 +1,5 @@
 [
  {
-  "when": "2026-08-08 21:05",
-  "score": 6,
-  "pages": 35,
-  "by_area": {
-   "orphan-page": 1,
-   "title": 1,
-   "viewport": 1,
-   "meta-description": 1,
-   "canonical": 1,
-   "nap": 1
-  }
- },
- {
-  "when": "2026-08-08 21:06",
-  "score": 1,
-  "pages": 35,
-  "by_area": {
-   "orphan-page": 1
-  }
- },
- {
-  "when": "2026-08-08 21:07",
-  "score": 0,
-  "pages": 35,
-  "by_area": {}
- },
- {
-  "when": "2026-08-08 21:08",
-  "score": 0,
-  "pages": 35,
-  "by_area": {}
- },
- {
   "when": "2026-08-08 21:08",
   "score": 0,
   "pages": 35,
@@ -367,5 +334,36 @@
   "score": 0,
   "pages": 35,
   "by_area": {}
+ },
+ {
+  "when": "2026-08-10 00:44",
+  "score": 0,
+  "pages": 35,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 00:59",
+  "score": 1,
+  "pages": 35,
+  "by_area": {
+   "sitemap-coverage": 1
+  }
+ },
+ {
+  "when": "2026-08-10 01:00",
+  "score": 1,
+  "pages": 35,
+  "by_area": {
+   "sitemap-coverage": 1
+  }
+ },
+ {
+  "when": "2026-08-10 01:01",
+  "score": 2,
+  "pages": 36,
+  "by_area": {
+   "meta-description": 1,
+   "orphan-page": 1
+  }
  }
 ]

@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="See how any spreadsheet actually works: which cells feed which, how deep the chains run, and which totals are numbers somebody typed. Runs in your browser, nothing uploads.">
+<link rel="canonical" href="https://automatedworkflowllc.com/skeleton/">
+<meta property="og:title" content="Skeleton — See How Your Spreadsheet Actually Works">
+<meta property="og:description" content="See how any spreadsheet actually works: which cells feed which, how deep the chains run, and which totals are numbers somebody typed. Runs in your browser, nothing uploads.">
+<meta property="og:url" content="https://automatedworkflowllc.com/skeleton/">
+<meta property="og:type" content="website">
+<title>Skeleton — see how your spreadsheet actually works</title>
+<!--
+  Skeleton -- drop a workbook, see its structure.
+
+  WHY THIS IS NOT ANOTHER CHECKER. Everything else in this workspace watches for
+  something that failed silently and reports it. A refusal is invisible by
+  design, which makes it impossible to demo. This inverts that: it SHOWS you the
+  thing you built, and the defects fall out of the picture as a consequence
+  rather than being the point.
+
+  Excel traces precedents one cell at a time, in a dialog, with arrows. Nobody
+  shows you the whole workbook at once. That is the gap.
+
+  Everything happens in this page. The file is unzipped with DecompressionStream
+  and parsed here -- there is no endpoint to upload to, and you can watch the
+  network tab stay empty while dropping a workbook that runs your business.
+-->
+<style>
+:root{
+  --ground:#F4F6F9; --panel:#FFFFFF; --ink:#0E1A2B; --mut:#5A6A80;
+  --line:#D8DEE7; --line-2:#B8C2D0;
+  --trace:#1B4D8F; --trace-dim:#9DB4D4;
+  --warn:#B0741E; --bad:#A8324A; --ok:#2E6B4F;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ground:#0A121E; --panel:#0E1A2B; --ink:#DCE6F2; --mut:#8CA0BA;
+    --line:#1B2A3D; --line-2:#2C4056; --trace:#6FB3F5; --trace-dim:#2E4B6B;
+    --warn:#E3A94A; --bad:#E8798F; --ok:#5FBF92;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0A121E; --panel:#0E1A2B; --ink:#DCE6F2; --mut:#8CA0BA;
+  --line:#1B2A3D; --line-2:#2C4056; --trace:#6FB3F5; --trace-dim:#2E4B6B;
+  --warn:#E3A94A; --bad:#E8798F; --ok:#5FBF92;
+}
+:root[data-theme="light"]{
+  --ground:#F4F6F9; --panel:#FFFFFF; --ink:#0E1A2B; --mut:#5A6A80;
+  --line:#D8DEE7; --line-2:#B8C2D0; --trace:#1B4D8F; --trace-dim:#9DB4D4;
+  --warn:#B0741E; --bad:#A8324A; --ok:#2E6B4F;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font:15px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:80rem;margin:0 auto;padding:2rem 1.2rem 4rem}
+h1{font-size:1.5rem;letter-spacing:-.025em;margin:0 0 .25rem;text-wrap:balance}
+.sub{color:var(--mut);margin:0 0 1.4rem;max-width:44rem;text-wrap:pretty}
+
+#drop{display:block;border:1.5px dashed var(--line-2);border-radius:.8rem;
+  background:var(--panel);padding:2.6rem 1.5rem;text-align:center;cursor:pointer;
+  transition:border-color .12s}
+#drop:hover,#drop.over{border-color:var(--trace)}
+#drop b{display:block;font-size:1.05rem;margin-bottom:.3rem}
+#drop span{color:var(--mut);font-size:.9rem}
+#drop input{display:none}
+
+.cols{display:grid;grid-template-columns:1fr 20rem;gap:1rem;margin-top:1.2rem;
+  align-items:start}   /* each panel sizes to ITS content; stretching made the
+                          graph panel as tall as the findings list beside it */
+@media(max-width:900px){.cols{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:.8rem;overflow:hidden}
+.phead{padding:.6rem .9rem;border-bottom:1px solid var(--line);font-size:.78rem;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--mut);display:flex;
+  justify-content:space-between;gap:.5rem}
+.phead b{font-family:var(--mono);color:var(--ink);font-variant-numeric:tabular-nums}
+#vizbox{overflow:auto;max-height:34rem}
+#viz{width:100%;display:block}
+#viz text{font-family:var(--mono);fill:var(--mut)}
+
+.stats{display:flex;gap:.4rem;flex-wrap:wrap;margin:1rem 0 0}
+.stat{border:1px solid var(--line);border-radius:.5rem;background:var(--panel);
+  padding:.4rem .7rem;font-size:.76rem;color:var(--mut);display:flex;gap:.4rem;align-items:baseline}
+.stat b{font-family:var(--mono);font-size:1rem;color:var(--ink);font-variant-numeric:tabular-nums}
+
+#finds{max-height:34rem;overflow:auto}
+.find{padding:.6rem .9rem;border-bottom:1px solid var(--line);font-size:.85rem}
+.find b{display:block;font-family:var(--mono);font-size:.78rem;margin-bottom:.15rem}
+.find.bad b{color:var(--bad)} .find.warn b{color:var(--warn)} .find.info b{color:var(--mut)}
+.find p{margin:0;color:var(--mut)}
+.empty{padding:1.6rem .9rem;color:var(--mut);font-size:.88rem;text-align:center;text-wrap:pretty}
+.note{margin-top:1.2rem;font-size:.82rem;color:var(--mut);max-width:46rem;text-wrap:pretty}
+.err{color:var(--bad)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head><body>
+<div class="wrap">
+  <h1>See how your spreadsheet actually works</h1>
+  <p class="sub">Drop a workbook and watch its skeleton appear: which cells feed which, how deep
+  the chains run, and which &ldquo;totals&rdquo; are numbers somebody typed. Nothing is uploaded
+  &mdash; open your network tab and watch it stay empty.</p>
+
+  <label id="drop" for="file">
+    <b>Drop an .xlsx here</b>
+    <span>or click to choose &mdash; it never leaves this page</span>
+    <input id="file" type="file" accept=".xlsx">
+  </label>
+
+  <div class="stats" id="stats" hidden></div>
+
+  <div class="cols" id="cols" hidden>
+    <div class="panel">
+      <div class="phead"><span>Structure</span><b id="vizmeta"></b></div>
+      <div id="vizbox"><svg id="viz" role="img" aria-label="Dependency map of the workbook"></svg></div>
+    </div>
+    <div class="panel">
+      <div class="phead"><span>What stands out</span><b id="findcount"></b></div>
+      <div id="finds"></div>
+    </div>
+  </div>
+
+  <p class="note" id="note"></p>
+</div>
+
+<script>
+'use strict';
+
+/* ---------- zip: just enough to read an xlsx, no library ---------- */
+async function unzip(buf){
+  const dv = new DataView(buf), out = {};
+  let eocd = -1;
+  for (let i = buf.byteLength - 22; i >= 0 && i > buf.byteLength - 66000; i--){
+    if (dv.getUint32(i, true) === 0x06054b50){ eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error('not a zip file');
+  const count = dv.getUint16(eocd + 10, true);
+  let p = dv.getUint32(eocd + 16, true);
+
+  for (let n = 0; n < count; n++){
+    if (p + 46 > buf.byteLength || dv.getUint32(p, true) !== 0x02014b50) break;
+    const method  = dv.getUint16(p + 10, true);
+    const csize   = dv.getUint32(p + 20, true);
+    const nameLen = dv.getUint16(p + 28, true);
+    const extra   = dv.getUint16(p + 30, true);
+    const cmt     = dv.getUint16(p + 32, true);
+    const lho     = dv.getUint32(p + 42, true);
+    const name    = new TextDecoder().decode(new Uint8Array(buf, p + 46, nameLen));
+    p += 46 + nameLen + extra + cmt;
+    if (!/\.(xml|rels)$/i.test(name)) continue;          // only the parts we read
+
+    const lnl = dv.getUint16(lho + 26, true), lel = dv.getUint16(lho + 28, true);
+    const start = lho + 30 + lnl + lel;
+    const raw = new Uint8Array(buf, start, csize);
+    if (method === 0){ out[name] = new TextDecoder().decode(raw); continue; }
+    const ds = new DecompressionStream('deflate-raw');
+    const ab = await new Response(new Blob([raw]).stream().pipeThrough(ds)).arrayBuffer();
+    out[name] = new TextDecoder().decode(ab);
+  }
+  return out;
+}
+
+/* ---------- xlsx: sheets, cells, formulas ---------- */
+const A1 = /(?:'([^']+)'!|([A-Za-z_][A-Za-z0-9_.]*)!)?\$?([A-Z]{1,3})\$?([0-9]{1,7})/g;
+
+function parseWorkbook(files){
+  const wb = files['xl/workbook.xml'] || '';
+  const rels = files['xl/_rels/workbook.xml.rels'] || '';
+  // Attribute ORDER is not guaranteed. openpyxl writes Target= before Id=, and a
+  // regex demanding Id first silently produced empty paths and zero formulas --
+  // a parser that finds nothing looks identical to a workbook with nothing in it.
+  const relMap = {};
+  for (const rel of rels.matchAll(/<Relationship\b[^>]*\/?>/g)){
+    const s = rel[0];
+    const id = (s.match(/\bId="([^"]+)"/) || [])[1];
+    const tgt = (s.match(/\bTarget="([^"]+)"/) || [])[1];
+    if (id && tgt) relMap[id] = tgt;
+  }
+
+  // Targets come as "worksheets/sheet1.xml" OR "/xl/worksheets/sheet1.xml".
+  // Normalise the leading slash BEFORE testing the prefix, or the absolute form
+  // gets "xl/" glued on front of a path that already had it.
+  const norm = t => {
+    if (!t) return '';
+    t = t.replace(/^\/+/, '');
+    return t.startsWith('xl/') ? t : 'xl/' + t;
+  };
+
+  const sheets = [];
+  for (const m of wb.matchAll(/<sheet\b[^>]*?name="([^"]+)"[^>]*?r:id="([^"]+)"/g))
+    sheets.push({ name: m[1].replace(/&amp;/g, '&'), path: norm(relMap[m[2]]) });
+  if (!sheets.length){
+    let i = 1;
+    for (const m of wb.matchAll(/<sheet[^>]*?name="([^"]+)"/g))
+      sheets.push({ name: m[1].replace(/&amp;/g,'&'), path: `xl/worksheets/sheet${i++}.xml` });
+  }
+  return sheets;
+}
+
+function parseStrings(xml){
+  // Cell text lives in a shared table; a text cell's <v> is an INDEX into it.
+  // Without this, every label reads as a bare number and no heuristic that
+  // depends on what a column is called can work at all.
+  const out = [];
+  for (const si of (xml || '').matchAll(/<si[^>]*>([\s\S]*?)<\/si>/g)){
+    let t = '';
+    for (const m of si[1].matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)) t += m[1];
+    out.push(t.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>'));
+  }
+  return out;
+}
+
+function parseSheet(xml, sheetName, strings){
+  const cells = new Map();
+  for (const m of xml.matchAll(/<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)){
+    const attrs = m[1] || '', body = m[2] || '';
+    const ref = (attrs.match(/r="([A-Z]+[0-9]+)"/) || [])[1];
+    if (!ref) continue;
+    const fm = body.match(/<f[^>]*>([\s\S]*?)<\/f>/);
+    const vm = body.match(/<v[^>]*>([\s\S]*?)<\/v>/);
+    const im = body.match(/<is>[\s\S]*?<t[^>]*>([\s\S]*?)<\/t>[\s\S]*?<\/is>/);
+    cells.set(ref, {
+      ref, sheet: sheetName,
+      f: fm ? fm[1].replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>') : null,
+      v: vm ? vm[1] : null,
+      isText: /t="(s|str|inlineStr)"/.test(attrs) || !!im,
+      // Three places text can live, and a parser that knows only one of them
+      // reads every label as empty: the shared table, an inline <is><t>, or a
+      // plain <v> for t="str". This workbook had NO sharedStrings part at all.
+      text: im ? im[1]
+           : (/t="s"/.test(attrs) && vm ? (strings[+vm[1]] || '')
+           : (vm ? vm[1] : ''))
+    });
+  }
+  return cells;
+}
+
+/* ---------- graph ---------- */
+function build(sheets){
+  const nodes = new Map();
+  const key = (s, r) => `${s}!${r}`;
+  const node = (s, r) => {
+    const k = key(s, r);
+    if (!nodes.has(k)) nodes.set(k, { k, sheet:s, ref:r, f:null, v:null,
+                                      deps:new Set(), used:0, depth:0 });
+    return nodes.get(k);
+  };
+
+  for (const sh of sheets)
+    for (const c of sh.cells.values()){
+      const n = node(sh.name, c.ref); n.f = c.f; n.v = c.v; n.isText = c.isText;
+    }
+
+  for (const sh of sheets)
+    for (const c of sh.cells.values()){
+      if (!c.f) continue;
+      const n = node(sh.name, c.ref);
+      A1.lastIndex = 0;
+      let m;
+      while ((m = A1.exec(c.f))){
+        const target = m[1] || m[2] || sh.name;
+        const ref = m[3] + m[4];
+        if (target === sh.name && ref === c.ref) continue;
+        const dep = node(target, ref);
+        n.deps.add(dep.k); dep.used++;
+      }
+    }
+
+  // Longest-path depth. The seen-set makes a circular reference terminate and
+  // get flagged instead of hanging the page.
+  const depthOf = (n, seen) => {
+    if (n._d !== undefined) return n._d;
+    if (seen.has(n.k)){ n.cyclic = true; return 0; }
+    seen.add(n.k);
+    let d = 0;
+    for (const k of n.deps){ const p = nodes.get(k); if (p) d = Math.max(d, depthOf(p, seen) + 1); }
+    seen.delete(n.k);
+    return (n._d = d);
+  };
+  for (const n of nodes.values()) depthOf(n, new Set());
+  for (const n of nodes.values()) n.depth = n._d || 0;
+  return nodes;
+}
+
+/* ---------- what stands out ---------- */
+function findings(nodes, sheets){
+  const out = [];
+  const sheetOf = name => sheets.find(s => s.name === name);
+
+  // A label to the left is not enough. The first version asked only "is there
+  // text beside this number", which fires on row 1 of essentially every
+  // spreadsheet -- it flagged an ordinary input as a hardcoded total. The label
+  // has to actually CLAIM to be a total, which means reading sharedStrings.
+  const TOTALISH = /\b(total|totals|sum|subtotal|net|gross|balance|grand)\b/i;
+  const labelLeftSays = (sheetName, ref) => {
+    const sh = sheetOf(sheetName); if (!sh) return false;
+    const col = ref.match(/^[A-Z]+/)[0], row = ref.match(/[0-9]+$/)[0];
+    for (const c of sh.cells.values()){
+      if (!c.isText) continue;
+      if (c.ref.match(/[0-9]+$/)[0] !== row) continue;
+      const ccol = c.ref.match(/^[A-Z]+/)[0];
+      if (ccol.length > col.length || (ccol.length === col.length && ccol >= col)) continue;
+      if (TOTALISH.test(c.text || '')) return true;
+    }
+    return false;
+  };
+
+  for (const n of nodes.values()){
+    if (n.cyclic)
+      out.push({ cls:'bad', t:n.k, m:'is part of a circular reference — its value depends on itself' });
+    if (n.f)
+      for (const k of n.deps){
+        const d = nodes.get(k);
+        if (d && d.f === null && d.v === null)
+          out.push({ cls:'warn', t:n.k, m:`points at ${k}, which is empty — this formula is reading a blank` });
+      }
+    if (n.depth >= 6)
+      out.push({ cls:'info', t:n.k, m:`sits ${n.depth} steps down a chain — one edit near the top moves this` });
+  }
+
+  for (const sh of sheets){
+    const formulaCount = [...sh.cells.values()].filter(c => c.f).length;
+    if (formulaCount <= 3) continue;
+    for (const c of sh.cells.values()){
+      if (c.f || c.isText || c.v === null) continue;
+      if (Number(c.v) > 0 && labelLeftSays(sh.name, c.ref)){
+        out.push({ cls:'warn', t:`${sh.name}!${c.ref}`,
+                   m:'is a typed number sitting among formulas — if the rows above change, this will not' });
+        break;                    // one per sheet is signal; a list of them is noise
+      }
+    }
+  }
+  return out.slice(0, 60);
+}
+
+/* ---------- draw ---------- */
+function draw(nodes){
+  const svg = document.getElementById('viz');
+  svg.innerHTML = '';
+  const shown = [...nodes.values()].filter(n => n.f || n.used);
+  if (!shown.length) return 0;
+
+  const maxD = Math.max(...shown.map(n => n.depth));
+  const cols = [];
+  for (let d = 0; d <= maxD; d++) cols.push(shown.filter(n => n.depth === d));
+  const tallest = Math.max(...cols.map(c => c.length), 1);
+
+  const W = Math.max(560, svg.clientWidth || 760);
+  const rowH = Math.max(10, Math.min(26, 520 / tallest));
+  // Fit the content. A forced minimum left a small workbook floating in ~400px
+  // of empty navy, which reads as a prototype rather than a finished view.
+  const H = Math.max(120, tallest * rowH + 56);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('height', H);
+
+  const colW = W / (maxD + 1), pos = new Map();
+  cols.forEach((col, d) => col.forEach((n, i) =>
+    pos.set(n.k, { x: colW * d + colW / 2, y: 34 + i * rowH + rowH / 2 })));
+
+  const ns = 'http://www.w3.org/2000/svg';
+  const add = (t, a, parent) => { const e = document.createElementNS(ns, t);
+    for (const k in a) e.setAttribute(k, a[k]); (parent || svg).appendChild(e); return e; };
+
+  cols.forEach((col, d) => {
+    const t = add('text', { x: colW*d + colW/2, y: 18, 'text-anchor':'middle', 'font-size':'10' });
+    t.textContent = (d === 0 ? 'inputs' : 'step ' + d) + ` (${col.length})`;
+  });
+
+  for (const n of shown){
+    const a = pos.get(n.k); if (!a) continue;
+    for (const k of n.deps){
+      const b = pos.get(k); if (!b) continue;
+      add('path', { d:`M${b.x},${b.y} C${(b.x+a.x)/2},${b.y} ${(b.x+a.x)/2},${a.y} ${a.x},${a.y}`,
+        fill:'none', stroke:'var(--trace-dim)', 'stroke-width':'1', opacity:'.7' });
+    }
+  }
+  for (const n of shown){
+    const p = pos.get(n.k); if (!p) continue;
+    const fill = n.cyclic ? 'var(--bad)' : (n.f ? 'var(--trace)' : 'var(--trace-dim)');
+    const r = add('rect', { x:p.x-15, y:p.y-4, width:30, height:8, rx:4, fill });
+    add('title', {}, r).textContent = n.k + (n.f ? ' = ' + n.f.slice(0, 90) : '');
+  }
+  return shown.length;
+}
+
+/* ---------- wiring ---------- */
+const drop = document.getElementById('drop');
+const input = document.getElementById('file');
+const note = document.getElementById('note');
+
+['dragenter','dragover'].forEach(e => drop.addEventListener(e, ev => {
+  ev.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(e => drop.addEventListener(e, () => drop.classList.remove('over')));
+drop.addEventListener('drop', ev => { ev.preventDefault();
+  if (ev.dataTransfer.files[0]) handle(ev.dataTransfer.files[0]); });
+input.addEventListener('change', () => { if (input.files[0]) handle(input.files[0]); });
+
+async function handle(file){
+  note.className = 'note';
+  note.textContent = 'Reading ' + file.name + '…';
+  try{
+    const t0 = performance.now();
+    const files = await unzip(await file.arrayBuffer());
+    const sheets = parseWorkbook(files);
+    if (!sheets.length) throw new Error('no worksheets found — is this really an .xlsx?');
+    const strings = parseStrings(files['xl/sharedStrings.xml']);
+    for (const sh of sheets) sh.cells = parseSheet(files[sh.path] || '', sh.name, strings);
+
+    const nodes = build(sheets);
+    const drawn = draw(nodes);
+    const fs = findings(nodes, sheets);
+    const formulas = [...nodes.values()].filter(n => n.f).length;
+    const deepest = Math.max(0, ...[...nodes.values()].map(n => n.depth));
+    const ms = Math.round(performance.now() - t0);
+
+    document.getElementById('stats').hidden = false;
+    document.getElementById('cols').hidden = false;
+    document.getElementById('stats').innerHTML =
+      [[sheets.length,'sheets'],[formulas,'formulas'],[deepest,'deepest chain'],
+       [fs.length,'things to look at'],[ms + 'ms','to read it']]
+      .map(([a,b]) => `<span class="stat"><b>${a}</b> ${b}</span>`).join('');
+    document.getElementById('vizmeta').textContent = drawn + ' cells';
+    document.getElementById('findcount').textContent = fs.length;
+
+    document.getElementById('finds').innerHTML = fs.length
+      ? fs.map(f => `<div class="find ${f.cls}"><b>${f.t}</b><p>${f.m}</p></div>`).join('')
+      : '<div class="empty">Nothing stood out. Every formula points at something real, no chain '
+        + 'is unusually deep, and there are no circular references.</div>';
+
+    note.textContent = formulas === 0
+      ? 'This workbook has no formulas at all — it is a table of typed values, so there is no structure to draw.'
+      : `Read entirely in this page. ${file.name} was never uploaded.`;
+  } catch (err){
+    note.className = 'note err';
+    note.textContent = 'Could not read that file: ' + err.message;
+  }
+}
+</script>
+
+<footer style="max-width:80rem;margin:2rem auto 0;padding:1.2rem;border-top:1px solid var(--line);
+  font-size:.82rem;color:var(--mut)">
+  Built by <a href="/" style="color:inherit">Automated Workflow LLC</a> — Gainesville, VA ·
+  <a href="mailto:colin@automatedworkflowllc.com" style="color:inherit">colin@automatedworkflowllc.com</a> ·
+  <a href="tel:+17039391174" style="color:inherit">(703) 939-1174</a> ·
+  <a href="/builds/" style="color:inherit">more free tools</a>
+</footer>
+</body></html>
