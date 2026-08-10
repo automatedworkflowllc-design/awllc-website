@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">51 entries · newest first within each group</p>
+  <p class="stamp">52 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -714,6 +714,33 @@
   </div>
 </div>
 <h2>Reliability &amp; discipline tooling</h2>
+<div class="row">
+  <div class="date">Aug 9</div>
+  <div>
+    <p class="name">Ten sends, three of which silently didn&rsquo;t happen
+      <span class="chip">verified against the source</span></p>
+    <p class="what">A batch of ten one-click actions, each with a confirmation dialog. The obvious way
+    to drive it is to click the button where it was last time. <b>That is wrong three times out of
+    ten</b>, and the failure is completely silent &mdash; no error, no warning, the page looks
+    identical afterwards.</p>
+    <p class="proof"><b>The dialog moves.</b> Its confirm button sits ~19px lower when the name in the
+    prompt wraps to three lines instead of two. A fixed coordinate lands on empty space, the dialog
+    closes, and nothing is sent. Nothing anywhere says so.
+    <b>The check I reached for first was also wrong.</b> Reading the page afterwards for the word that
+    indicates success gave false negatives &mdash; the state renders late, so a correct send looked
+    like a failure and would have been &ldquo;fixed&rdquo; by doing it twice. Duplicates would have
+    been the actual outcome of trusting it.
+    <b>What worked was refusing to infer from the page at all</b> and reading the platform's own
+    record of what it had accepted. Count the list, compare to the intended number, chase the
+    difference. Three misses surfaced immediately; all three were redone and re-verified against the
+    same list rather than against the screen.
+    <b>The generalisation, which is the only durable part:</b> when a system keeps its own ledger of
+    what it accepted, that ledger is the check &mdash; not the UI that was supposed to update, and
+    certainly not the absence of an error message. Ten intended, eleven pending, one of which
+    pre-dated the batch. That subtraction is the whole verification.</p>
+    <p class="where">Verified against the platform&rsquo;s own sent-items list, not page state</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 9</div>
   <div>
