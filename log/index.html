@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">87 entries · newest first within each group</p>
+  <p class="stamp">88 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,65 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">Held our own automation up to a list of AI failures &mdash; and it was on the list
+      <span class="chip">19 tests, both directions</span><span class="chip live">tool built &amp; fixed</span></p>
+    <p class="what"><b>In plain terms:</b> Colin sent a diagram of nine ways AI agents go wrong. The
+    useful move was not to read it, it was to <b>check our own workflows against it</b>. One of ours
+    failed. Every AI step in a business automation glues two things into one piece of text: the rules
+    you wrote, and words somebody else did &mdash; a contact-form message, an inbound email, a review.
+    The model reads one piece of text. <b>Whether the stranger&rsquo;s half can be read as
+    <em>orders</em> is decided by how the template is built</b>, and it can be checked before the job
+    ever runs.</p>
+    <p class="proof"><b>The one that failed is ours.</b> Our lead-triage workflow reads a submission
+    from the public contact form, hands it to a model, and drafts a reply <em>back to the same
+    stranger who wrote it</em>. Their text went into open prose &mdash; no marker saying it came from
+    outside, nothing fencing where it ends, and sitting <em>before</em> the sentence that tells the
+    model what it is. The only thing standing between a crafted message and a drafted reply was that
+    a human reads every draft. That gate is real and it is why nothing went wrong. It was also the
+    <em>only</em> control, which is a thin place to be standing.
+    <b>Verified rather than assumed:</b> the chain was read off the live workflow &mdash; form email
+    in, model in the middle, draft addressed to the sender &mdash; not inferred from a design note.</p>
+    <p class="proof"><b>So the check became a tool.</b> <code>airlock</code> reads a prompt template,
+    takes the list of slots carrying outsider text, and reports the routes by which those words could
+    be read as instructions: unlabelled, unfenced, fenced with something the sender can simply type,
+    landing before the role, or with nothing of yours following them.
+    <b>It refuses rather than passing.</b> If the slot name you declared does not appear in the
+    template, the answer is REFUSED, not clean &mdash; a typo is the likeliest way to misuse it, and a
+    green light from a check that examined nothing is the exact failure this company exists to catch.
+    <b>And it states its own limit in every report:</b> it read the template, not a run, so HARDENED
+    means the known routes are closed, never that an injection would fail. It is the only tool here
+    that acts <em>before</em> anything has happened &mdash; the others all wait for a run and judge it
+    &mdash; which is a genuinely different question and also the weakest evidence in the set.
+    <b>Two bugs, both found by running it instead of reading it</b>, and both now pinned as tests: the
+    delimiter pattern did not recognise <em>the exact delimiter shape the tool recommends</em>, so a
+    correctly-hardened template came back EXPOSED; and the instruction check was anchored to the start
+    of a line, so an instruction that happened to begin mid-sentence in a wrapped paragraph was
+    invisible. Every one of the six checks now has a template that trips it <b>and</b> one that clears
+    it, because a check only ever seen passing is a check nobody has proven can fail.</p>
+    <p class="proof"><b>Then the same idea caught something in our own publisher, which was the real
+    prize.</b> The privacy filter that decides what reaches the public version of this page keeps a
+    list of words that must never appear here &mdash; other projects, private finance, people&rsquo;s
+    names &mdash; and it matched them as <em>substrings</em>. Several are three or four letters long
+    and live inside perfectly ordinary English. One sits inside the word <b>regex</b>. Another sits
+    inside <b>beats</b>, <b>stats</b> and <b>treats</b>. A third sits inside <b>growth</b>.
+    <b>Measured, not estimated: 11 of 155 entries were being withheld from the public page for no
+    reason but this</b> &mdash; including the write-up of our newest tool, which had never once
+    appeared publicly. Nobody noticed for weeks, because <b>a filter that hides too much looks exactly
+    like a filter that is working.</b> Short names now match as whole words, which makes the filter
+    strictly more precise rather than weaker, and it was proven in both directions before shipping:
+    every real project and finance term is still blocked on its own, while regex, stats, beats, treats
+    and growth now pass. Genuinely ambiguous stems were deliberately left over-blocking, because for a
+    privacy filter that is the safe direction.
+    <b>One last joke at my expense, kept because it is the lesson:</b> the first version of this very
+    entry was itself withheld. I had underlined the offending letters inside each word, and stripping
+    the markup turned those fragments into standalone words &mdash; so the paragraph explaining the
+    bug was caught by the fix for the bug. The filter was right both times.</p>
+    <p class="where">ccc0149 &middot; dev/airlock/ &middot; 19 tests &middot; the fix to our own workflow is designed and written down, not yet applied to the live one &mdash; that change is verifiable within 15 minutes and is the next thing</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
