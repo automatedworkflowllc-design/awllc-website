@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">52 entries · newest first within each group</p>
+  <p class="stamp">53 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -591,6 +591,38 @@
   </div>
 </div>
 <h2>Client workflow engine — Zapier</h2>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">Proved the lead chain still works &mdash; 52 seconds &mdash; and found where it would embarrass us
+      <span class="chip live">verified</span><span class="chip staged">one fix deferred</span></p>
+    <p class="what">W2 had been idle five days. From the outside <b>&ldquo;no leads have arrived&rdquo;
+    and &ldquo;the trigger is broken&rdquo; look identical</b> &mdash; the exact silent failure this
+    business sells against, sitting on our own stack. So it got tested rather than assumed, using the
+    live form on <code>/reconciler/</code>, one of the three pages published two days ago whose form
+    <em>nobody had ever submitted</em>.</p>
+    <p class="proof"><b>Site form &rarr; Formspree &rarr; Gmail 04:08:45Z &rarr; W2 draft 04:09:37Z.</b>
+    Fifty-two seconds, end to end, both Zaps confirmed ON. The Formspree body carries
+    <code>lead_source reconciler</code>, which is the documented compensation for W2 not capturing
+    that field structurally &mdash; so the information is not lost, only unstructured.
+    <b>W2 also did something right that is worth naming:</b> it recognised the submission was not a
+    genuine enquiry and <em>refused to draft a sales reply</em>, writing a note to Colin instead. The
+    rule against inventing a customer need held.
+    <b>And that is where the gap is.</b> It writes that note &mdash; addressed to Colin &mdash; into
+    the body of a draft <b>addressed to the lead</b>. That is precisely the failure W2's original
+    design rule exists to prevent: an internal note in an email addressed to a prospect is one click
+    from being sent. The refusal behaviour is correct and worth keeping; the placement is not.
+    <b>Deliberately not fixed on the spot.</b> The fix is one line &mdash; require the subject to
+    begin <code>[INTERNAL &mdash; DO NOT SEND]</code> in that case &mdash; but the risk needs two
+    independent failures, while editing W2 means republishing the pitch centrepiece that has never
+    yet fired on a real lead. Breaking a just-proven chain at 00:15 to guard a two-failure scenario
+    is a bad trade. Written down with the exact edit and the retest to run after it.
+    <b>Separately, and stated because the opposite reading is the trap:</b> W1's &ldquo;last run&rdquo;
+    column is empty and that is <em>correct</em> &mdash; it was published the evening of 8/3, after
+    its 07:00 slot, so its first scheduled fire is this morning.</p>
+    <p class="where">W1 375030986 &middot; W2 375068469 &middot; both ON &middot; nothing edited</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 8</div>
   <div>
