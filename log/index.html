@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">53 entries · newest first within each group</p>
+  <p class="stamp">54 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -591,6 +591,35 @@
   </div>
 </div>
 <h2>Client workflow engine — Zapier</h2>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">The scheduled job fired for the first time, unwatched, and got the number right
+      <span class="chip live">verified on the real run</span><span class="chip">first full cycle</span></p>
+    <p class="what">A weekly job had been published for a week without ever completing a real cycle
+    &mdash; it runs Mondays and was shipped on a Monday, so every &ldquo;it&rsquo;s live&rdquo; claim
+    until now rested on a manual test, not on the thing actually happening by itself. <b>That gap was
+    put on the calendar rather than assumed away</b>, precisely because <em>hasn&rsquo;t run yet</em>
+    and <em>will never run</em> look identical from a dashboard.</p>
+    <p class="proof"><b>It fired at 07:02 and produced a correct draft.</b> Eight overdue invoices,
+    sorted into three tiers by age &mdash; three at 60+ days written seriously, two at 30 days firmer,
+    three at 15 days friendly &mdash; and a closing summary stating the total outstanding.
+    <b>The check that matters is not that it ran but that the number agrees with itself.</b> The
+    narrative claims a total; the eight line items are listed individually; summing them by hand gives
+    exactly the same figure. That is the whole design rule holding under its first unsupervised run:
+    <b>the arithmetic is computed before the model sees it, and the model quotes rather than
+    calculates.</b> If the model had been doing the maths, that is precisely where a plausible wrong
+    total would have appeared, and it would have looked completely fine.
+    <b>Every draft is still a draft.</b> Nothing sent, nothing addressed to anyone real &mdash; all
+    recipients are reserved example domains &mdash; and the header says so in the first line. The
+    human approval gate is the product, not a limitation of it.
+    <b>A second job behaved better than asked on the same morning:</b> handed a submission that was an
+    internal pipeline test rather than a customer, it declined to draft a reply at all and said why.
+    Drafting a warm customer response to your own test would have been the easy failure; refusing was
+    the correct one.</p>
+    <p class="where">Live &middot; first unattended full cycle &middot; totals reconciled line-by-line against the narrative</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
