@@ -1,17 +1,5 @@
 [
  {
-  "when": "2026-08-08 21:08",
-  "score": 0,
-  "pages": 35,
-  "by_area": {}
- },
- {
-  "when": "2026-08-08 21:36",
-  "score": 0,
-  "pages": 35,
-  "by_area": {}
- },
- {
   "when": "2026-08-08 21:36",
   "score": 0,
   "pages": 35,
@@ -365,5 +353,20 @@
    "meta-description": 1,
    "orphan-page": 1
   }
+ },
+ {
+  "when": "2026-08-10 01:01",
+  "score": 2,
+  "pages": 36,
+  "by_area": {
+   "meta-description": 1,
+   "orphan-page": 1
+  }
+ },
+ {
+  "when": "2026-08-10 01:04",
+  "score": 0,
+  "pages": 36,
+  "by_area": {}
  }
 ]

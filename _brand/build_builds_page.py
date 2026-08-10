@@ -222,6 +222,14 @@ ENGINEERING = [
      "Sold on a true story: our own trading digest served Friday's data under Monday's timestamp "
      "the day the service page was built. The embedded report is that catch, verbatim.",
      ["Service", "$99/mo"]),
+    ("skeleton", "/skeleton/",
+     "Drop any Excel file and see how the workbook actually works: a map of which cells feed "
+     "which, laid out by depth so raw inputs sit on the left and the deepest formulas on the "
+     "right, with a plain-English note on anything that stands out.",
+     "The only tool here that shows you what you built rather than what is broken &mdash; the "
+     "defects fall out of the picture as a consequence. Reads the file in your browser with no "
+     "library and no upload; a two-sheet workbook maps in about 8ms.",
+     ["Free", "Nothing uploads"]),
     ("flatline", "/flatline/",
      "An open-source reliability tool that finds signals carrying no information and jobs producing "
      "nothing: a check that fires on 100% of rows, a scheduled task that reports success while "
