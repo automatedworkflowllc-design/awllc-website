@@ -36,13 +36,18 @@ python _qa/security_sweep.py || {
   exit 1
 }
 echo "AutoQA: checking artifacts before push..."
-python _qa/autoqa.py --fast || {
+# --record: the push is the ONLY moment allowed to move the baseline, and only
+# when the gate passes. Without it these audits wrote history on every run, so
+# running one twice with nothing fixed turned the defect into the new normal and
+# the second run exited 0. Any other invocation -- yours, or the nightly job --
+# is a read-only diagnostic now.
+python _qa/autoqa.py --fast --record || {
   echo ""
   echo "PUSH BLOCKED — defect count regressed. Fix, or push with --no-verify."
   exit 1
 }
 echo "SEO audit: checking metadata/schema/sitemap/NAP before push..."
-python _qa/seo_audit.py || {
+python _qa/seo_audit.py --record || {
   echo ""
   echo "PUSH BLOCKED — SEO defect count regressed. Fix, or push with --no-verify."
   exit 1

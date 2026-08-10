@@ -305,11 +305,20 @@ def main():
     same = [h for h in hist if h.get('mode', 'full') == mode]
     prev = same[-1]['score'] if same else None
     stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
-    hist.append({'when': stamp, 'mode': mode, 'score': score,
-                 'by_area': {a: sum(1 for d in defects if d['area'] == a)
-                             for a in {d['area'] for d in defects}}})
-    os.makedirs(os.path.dirname(HIST), exist_ok=True)
-    io.open(HIST, 'w', encoding='utf-8').write(json.dumps(hist[-60:], indent=1))
+    # THE BASELINE MOVES ONLY WHEN ASKED, AND ONLY DOWNWARD-OR-FLAT.
+    # Same defect and same fix as seo_audit.py -- see the long note there. In
+    # short: writing unconditionally let the gate launder its own failures, because
+    # running it twice with nothing fixed turned the first run's defect count into
+    # the baseline and the second run exited 0. The nightly public-log job runs
+    # this, so it happened by itself. --record is now required to move the
+    # baseline, and a regressed run never records.
+    regressed = prev is not None and score > prev
+    if '--record' in sys.argv and not regressed:
+        hist.append({'when': stamp, 'mode': mode, 'score': score,
+                     'by_area': {a: sum(1 for d in defects if d['area'] == a)
+                                 for a in {d['area'] for d in defects}}})
+        os.makedirs(os.path.dirname(HIST), exist_ok=True)
+        io.open(HIST, 'w', encoding='utf-8').write(json.dumps(hist[-60:], indent=1))
 
     if '--json' in sys.argv:
         print(json.dumps({'score': score, 'prev': prev, 'defects': defects}, indent=1))

@@ -303,10 +303,28 @@ def main():
         except Exception: hist = []
     prev = hist[-1]['score'] if hist else None
     stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
-    hist.append({'when': stamp, 'score': score, 'pages': len(pages),
-                 'by_area': {a: sum(1 for d in defects if d['area'] == a) for a in {d['area'] for d in defects}}})
-    os.makedirs(os.path.dirname(HIST), exist_ok=True)
-    io.open(HIST, 'w', encoding='utf-8').write(json.dumps(hist[-60:], indent=1))
+    # THE BASELINE MOVES ONLY WHEN ASKED, AND ONLY DOWNWARD-OR-FLAT.
+    #
+    # This used to write unconditionally, which made the gate launder its own
+    # failures: run it, get a regression and exit 1; run it AGAIN with nothing
+    # fixed, and the first run's count is now the baseline, so the same defect
+    # exits 0 and the push sails through. Demonstrated on 2026-08-10 with a
+    # deliberately broken title -- run 2 printed the identical unfixed defect and
+    # returned success. Worse, it needed nobody to do anything wrong:
+    # refresh_public_log runs this nightly, so a defect introduced during the day
+    # was absorbed into the baseline by morning.
+    #
+    # A ratchet with no pawl is not a ratchet. Recording now requires --record
+    # (the pre-push hook passes it; every other run is a read-only diagnostic),
+    # and a regressed run never records at all -- so a defect cannot become the
+    # new normal just by being looked at twice.
+    regressed = prev is not None and score > prev
+    if '--record' in sys.argv and not regressed:
+        hist.append({'when': stamp, 'score': score, 'pages': len(pages),
+                     'by_area': {a: sum(1 for d in defects if d['area'] == a)
+                                 for a in {d['area'] for d in defects}}})
+        os.makedirs(os.path.dirname(HIST), exist_ok=True)
+        io.open(HIST, 'w', encoding='utf-8').write(json.dumps(hist[-60:], indent=1))
 
     if '--json' in sys.argv:
         print(json.dumps({'score': score, 'prev': prev, 'defects': defects}, indent=1))
