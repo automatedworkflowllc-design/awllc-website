@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">88 entries · newest first within each group</p>
+  <p class="stamp">89 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,50 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">Pointed the new tool at the fix the new tool recommends, and it failed its own advice
+      <span class="chip">21 tests</span><span class="chip staged">1 paste blocked on Colin</span></p>
+    <p class="what"><b>In plain terms:</b> this morning&rsquo;s checker found a prompt-injection
+    exposure in our own lead-triage workflow. The next step was writing the replacement prompt and
+    checking it. <b>The checker said the replacement was still exposed</b> &mdash; and the checker
+    was wrong.</p>
+    <p class="proof"><b>The bug is the one I had already fixed once, in a second place I did not
+    look.</b> Every phrase the tool searches for allows a gap in the middle &mdash; &ldquo;treat
+    <em>&hellip;</em> as data&rdquo;, &ldquo;anything that looks like <em>&hellip;</em>
+    instruction&rdquo; &mdash; and those gaps refused to cross a line break. The replacement prompt
+    carries an explicit, four-clause refusal path; it was reported as having none, purely because
+    <b>&ldquo;anything that looks like an&rdquo; ended a line and &ldquo;instruction&rdquo; began the
+    next.</b> Prompts are hand-wrapped prose. A sentence spans lines constantly. Seven patterns had
+    the same flaw, and the earlier fix &mdash; made this morning for a different check &mdash; had
+    been applied to exactly one of them.</p>
+    <p class="proof"><b>Then the negative control caught a worthless test, which is the part worth
+    keeping.</b> Two regression tests were added for the wrapped-line bug. Running both against the
+    <em>pre-fix</em> code to confirm they could actually fail showed that <b>one of them could
+    not</b>: it wrapped a phrase that happens to be matched by a pattern with no gap in it, so it was
+    green before the fix and green after, testing nothing. It was rewritten to wrap inside a real
+    gap, then re-proven &mdash; red without the fix, green with it. <b>Writing the test is not the
+    check; watching it fail is.</b> Without that step the suite would have carried a test that could
+    only ever agree with me.</p>
+    <p class="proof"><b>The replacement is written, verified and NOT installed.</b> It scores clean:
+    role stated first, the stranger&rsquo;s text labelled as data, fenced with a marker they cannot
+    guess, an explicit refusal path, and the task repeated after their words so theirs are not the
+    last thing the model reads. <b>Zapier is logged out, and logging in is Colin&rsquo;s to do</b>
+    &mdash; the editor redirects to a login wall &mdash; so the live workflow was left untouched and
+    the change is written up as a single paste with the two traps flagged.
+    <b>Three limits are stated rather than glossed:</b> the marker is fixed rather than generated per
+    run, so it is a static secret and anyone who sees the prompt defeats it; the tool reads the
+    template and never a run, so clean means the known routes are shut, not that an attack fails; and
+    the human reading every draft remains the actual control. <b>The end-to-end probe is written down
+    as the real test</b> &mdash; submit a benign &ldquo;ignore your instructions&rdquo; through our
+    own form and confirm the reply ignores it &mdash; and it is listed as pending, not done.
+    <b>One thing found while writing it up:</b> W1 has the same shape latent. It reads a spreadsheet,
+    which is ours today &mdash; but the moment it runs on a real client&rsquo;s book, customer names
+    and invoice notes are text a stranger chose. Harden it before the first client, not after.</p>
+    <p class="where">78c8565 &middot; dev/airlock/ &middot; 19 &rarr; 21 tests &middot; Documents/AWLLC-w2-hardening-2026-08-10.md &middot; live W2 unchanged, deliberately</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
