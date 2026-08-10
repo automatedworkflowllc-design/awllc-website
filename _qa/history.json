@@ -1,91 +1,5 @@
 [
  {
-  "when": "2026-08-09 14:51",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-09 14:52",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-09 15:12",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-09 15:13",
-  "mode": "fast",
-  "score": 1,
-  "by_area": {
-   "analytics": 1
-  }
- },
- {
-  "when": "2026-08-09 15:13",
-  "mode": "fast",
-  "score": 1,
-  "by_area": {
-   "analytics": 1
-  }
- },
- {
-  "when": "2026-08-09 15:13",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-09 15:13",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-09 15:14",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-09 15:15",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-09 15:16",
-  "mode": "fast",
-  "score": 1,
-  "by_area": {
-   "analytics": 1
-  }
- },
- {
-  "when": "2026-08-09 15:16",
-  "mode": "fast",
-  "score": 1,
-  "by_area": {
-   "analytics": 1
-  }
- },
- {
-  "when": "2026-08-09 15:16",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
-  "when": "2026-08-09 15:17",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
   "when": "2026-08-09 15:17",
   "mode": "fast",
   "score": 0,
@@ -372,6 +286,84 @@
  {
   "when": "2026-08-10 11:10",
   "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 11:14",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 11:19",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 11:19",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 12:53",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 12:57",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 13:38",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 13:56",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 13:56",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 13:58",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 13:58",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 14:01",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 15:40",
+  "mode": "full",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-10 15:41",
+  "mode": "full",
   "score": 0,
   "by_area": {}
  }
