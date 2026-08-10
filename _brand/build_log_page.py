@@ -59,7 +59,18 @@ OUT_DIR = os.path.join(SITE, "log")
 OUT = os.path.join(OUT_DIR, "index.html")
 
 # Only these sections may appear publicly. Anything not listed is dropped whole.
+#
+# "What's new" is the staging band every new entry lands in. It was NOT on this
+# list, so the public page silently lagged the private log by however long it took
+# a human to remember to file something -- 25 entries by the time anyone measured
+# it, a third of the publishable work. Filing them by hand would have cleared the
+# backlog and left the trap in place for the next 25. It is allowed here instead,
+# and filtered per entry exactly like every other section: of the 36 staged when
+# this changed, 11 carrying job-lane / other-project terms were withheld and 25
+# published. Verified before enabling: zero headlines are duplicated between this
+# section and the groups below, so nothing appears twice.
 ALLOWED_SECTIONS = {
+    "What&rsquo;s new",
     "Public tools — automatedworkflowllc.com",
     "Client workflow engine — Zapier",
     "Reliability &amp; discipline tooling",
