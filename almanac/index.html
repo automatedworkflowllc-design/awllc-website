@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>almanac — what your invoices say your business is</title>
+<link rel="canonical" href="https://automatedworkflowllc.com/almanac/">
+<meta property="og:title" content="almanac — what your invoices say your business is">
+<meta property="og:description" content="Drop a year of invoices and get a description of the business: when the money arrives, who it comes from, and what it refuses to guess. Nothing is uploaded.">
+<meta property="og:url" content="https://automatedworkflowllc.com/almanac/">
+<meta property="og:type" content="website">
+<meta name="description" content="Drop a year of invoices and get a description of the business: when the money arrives, who it comes from, and what it refuses to guess. Nothing is uploaded.">
+<style>
+:root{
+  /* Warm-biased neutrals, so the greys read as chosen rather than inherited. */
+  --bg:#F5F3ED; --panel:#FFFDF8; --well:#EAE6DA; --sunk:#E2DDCE;
+  --ink:#191713; --ink-2:#3D3934; --mut:#6B6459; --faint:#938A7B;
+  --line:#DDD8CA; --rule:#C2BAA7;
+  --brass:#8A6413; --brass-2:#B99334; --brass-wash:#EFE4C6;
+  --ok:#2A6A4F; --warn:#95610F; --bad:#98283C;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#12100C; --panel:#1A1712; --well:#221E17; --sunk:#2A251C;
+    --ink:#F0EBE0; --ink-2:#D3CCBD; --mut:#9A9184; --faint:#6E675C;
+    --line:#2B261E; --rule:#443D31;
+    --brass:#E3BE6A; --brass-2:#A5813A; --brass-wash:#332A18;
+    --ok:#63BC96; --warn:#DFA544; --bad:#E4798D;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12100C; --panel:#1A1712; --well:#221E17; --sunk:#2A251C;
+  --ink:#F0EBE0; --ink-2:#D3CCBD; --mut:#9A9184; --faint:#6E675C;
+  --line:#2B261E; --rule:#443D31;
+  --brass:#E3BE6A; --brass-2:#A5813A; --brass-wash:#332A18;
+  --ok:#63BC96; --warn:#DFA544; --bad:#E4798D;
+}
+:root[data-theme="light"]{
+  --bg:#F5F3ED; --panel:#FFFDF8; --well:#EAE6DA; --sunk:#E2DDCE;
+  --ink:#191713; --ink-2:#3D3934; --mut:#6B6459; --faint:#938A7B;
+  --line:#DDD8CA; --rule:#C2BAA7;
+  --brass:#8A6413; --brass-2:#B99334; --brass-wash:#EFE4C6;
+  --ok:#2A6A4F; --warn:#95610F; --bad:#98283C;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--sans);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.wrap{max-width:60rem;margin:0 auto;padding:2.2rem 1.4rem 5rem}
+
+.mast{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;
+  padding-bottom:.7rem;border-bottom:1px solid var(--rule);margin-bottom:1.9rem}
+.mark{font-family:var(--mono);font-size:1.02rem;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
+.mark::before{content:"";display:inline-block;width:.5rem;height:.5rem;margin-right:.5rem;
+  background:var(--brass);border-radius:1px;transform:rotate(45deg)}
+.def{font-size:.79rem;color:var(--faint);font-style:italic}
+
+h1{font-size:clamp(1.55rem,3.4vw,2.1rem);line-height:1.14;letter-spacing:-.028em;
+  font-weight:680;margin:0 0 .55rem;text-wrap:balance;max-width:20ch}
+h1 .n{color:var(--brass)}
+.lede{color:var(--mut);margin:0 0 1.7rem;max-width:56ch;font-size:1.01rem;text-wrap:pretty}
+
+#drop{border:1px dashed var(--rule);border-radius:.7rem;background:var(--panel);
+  padding:2.1rem 1.4rem;text-align:center;transition:border-color .16s ease,background .16s ease}
+#drop.over{border-color:var(--brass);background:var(--brass-wash);border-style:solid}
+#drop p{margin:.25rem 0;color:var(--mut);font-size:.88rem}
+#drop .big{color:var(--ink);font-size:1.05rem;font-weight:620;letter-spacing:-.012em;margin-bottom:.15rem}
+.spec{font-family:var(--mono);font-size:.73rem;color:var(--faint);letter-spacing:-.01em}
+.acts{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:1rem}
+.btn{font:inherit;font-size:.87rem;font-weight:600;letter-spacing:-.008em;color:var(--bg);
+  background:var(--ink);border:1px solid var(--ink);border-radius:.42rem;padding:.5rem 1.05rem;
+  cursor:pointer;transition:opacity .14s ease}
+.btn:hover{opacity:.86}
+.btn.ghost{background:transparent;color:var(--ink-2);border-color:var(--rule);font-weight:500}
+.btn.ghost:hover{border-color:var(--brass);color:var(--brass)}
+.btn:focus-visible,#drop:focus-visible,summary:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+.privacy{margin-top:1.1rem;font-size:.78rem;color:var(--faint);max-width:46ch;margin-left:auto;margin-right:auto}
+.privacy b{color:var(--ink-2);font-weight:600}
+
+#out{margin-top:1.7rem}
+.hero{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--brass);
+  border-radius:.6rem;padding:1.25rem 1.4rem 1.35rem}
+.kicker{font-family:var(--mono);font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--faint);margin:0 0 .45rem}
+.verdict{font-size:clamp(1.2rem,2.6vw,1.55rem);font-weight:660;letter-spacing:-.022em;
+  line-height:1.2;margin:0 0 .45rem;text-wrap:balance}
+.hero p.sub{margin:0;color:var(--mut);font-size:.92rem;max-width:62ch;text-wrap:pretty}
+
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));
+  background:var(--panel);border:1px solid var(--line);border-radius:.6rem;margin:.75rem 0 1.1rem;overflow:hidden}
+.st{padding:.75rem .95rem;border-left:1px solid var(--line)}
+.st:first-child{border-left:0}
+.st b{display:block;font-family:var(--mono);font-size:1.16rem;line-height:1.25;font-weight:600;
+  font-variant-numeric:tabular-nums;letter-spacing:-.028em;color:var(--ink)}
+.st span{display:block;font-size:.65rem;color:var(--faint);text-transform:uppercase;
+  letter-spacing:.09em;margin-top:.15rem}
+.st small{display:block;margin-top:.22rem;font-size:.72rem;color:var(--mut);line-height:1.4}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:.6rem;
+  padding:1.05rem 1.2rem 1.15rem;margin-bottom:.85rem}
+.phead{display:flex;align-items:baseline;justify-content:space-between;gap:.6rem;
+  flex-wrap:wrap;margin-bottom:.1rem}
+.panel h2{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--faint);margin:0;font-weight:600}
+.say{margin:.3rem 0 1rem;font-size:.96rem;color:var(--ink-2);max-width:64ch;text-wrap:pretty;line-height:1.55}
+
+.chip{font-family:var(--mono);font-size:.6rem;letter-spacing:.09em;text-transform:uppercase;
+  border:1px solid var(--rule);border-radius:.22rem;padding:.14rem .42rem;color:var(--mut);
+  white-space:nowrap;font-weight:600}
+.chip.on{border-color:var(--brass);color:var(--brass);background:var(--brass-wash)}
+.chip.warn{border-color:var(--warn);color:var(--warn)}
+.chip.bad{border-color:var(--bad);color:var(--bad)}
+
+.chartbox{overflow-x:auto;margin:0 -.3rem}
+svg{display:block;max-width:100%;min-width:34rem}
+.gl{stroke:var(--line);stroke-width:1}
+.gl.base{stroke:var(--rule)}
+.ysep{stroke:var(--rule);stroke-dasharray:2 3;opacity:.75}
+.bar{fill:var(--brass-2);transition:fill .12s ease}
+.bar.peak{fill:var(--brass)}
+.bar:hover{fill:var(--brass)}
+.axis{fill:var(--faint);font-family:var(--mono);font-size:9.5px}
+.axis.yr{fill:var(--mut);font-size:10px;font-weight:600;letter-spacing:.06em}
+.note-pk{fill:var(--brass);font-family:var(--mono);font-size:9.5px;font-weight:600}
+
+.tbox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.87rem;min-width:32rem}
+th{text-align:left;font-family:var(--mono);font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);font-weight:600;padding:.3rem .55rem .45rem;border-bottom:1px solid var(--rule)}
+td{padding:.42rem .55rem;border-top:1px solid var(--line);vertical-align:middle;color:var(--ink-2)}
+tbody tr:hover td{background:var(--well)}
+td.nm{color:var(--ink);font-weight:500}
+td.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.share{position:relative;height:.5rem;background:var(--sunk);border-radius:.25rem;min-width:4rem}
+.share i{position:absolute;top:0;bottom:0;left:0;background:var(--brass-2);border-radius:.25rem}
+tr.top td.nm{font-weight:650}
+tr.top .share i{background:var(--brass)}
+tr.quiet td.nm::after{content:"quiet";font-family:var(--mono);font-size:.58rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--warn);border:1px solid var(--warn);
+  border-radius:.2rem;padding:.02rem .28rem;margin-left:.45rem;vertical-align:.09em}
+
+ul.finds{list-style:none;margin:0;padding:0}
+ul.finds li{padding:.05rem 0 .05rem .85rem;border-left:2px solid var(--rule);margin-bottom:.85rem;
+  font-size:.89rem;color:var(--mut);max-width:70ch;text-wrap:pretty;line-height:1.55}
+ul.finds li:last-child{margin-bottom:0}
+ul.finds li b{display:block;color:var(--ink);font-size:.95rem;font-weight:620;
+  letter-spacing:-.012em;margin-bottom:.18rem}
+li.warn{border-left-color:var(--warn)} li.bad{border-left-color:var(--bad)}
+
+details.prov{margin:.2rem 0 1rem;font-size:.8rem;color:var(--mut)}
+details.prov summary{cursor:pointer;font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--faint);list-style:none}
+details.prov summary::-webkit-details-marker{display:none}
+details.prov summary::before{content:"▸ ";color:var(--rule)}
+details.prov[open] summary::before{content:"▾ "}
+details.prov .body{padding:.6rem 0 .1rem;line-height:1.6}
+details.prov code{font-family:var(--mono);font-size:.94em;background:var(--well);
+  border-radius:.2rem;padding:.05rem .3rem;color:var(--ink-2)}
+
+.blind{margin-top:1.3rem;padding:.95rem 1.15rem;border:1px solid var(--line);
+  border-left:3px solid var(--warn);background:var(--panel);border-radius:.5rem;
+  font-size:.84rem;color:var(--mut);max-width:74ch;text-wrap:pretty;line-height:1.6}
+.blind b{color:var(--ink)}
+.err{border-left-color:var(--bad)}
+
+footer{margin-top:2.6rem;padding-top:1.1rem;border-top:1px solid var(--line);
+  font-size:.79rem;color:var(--faint);text-wrap:pretty}
+footer b{color:var(--mut);font-weight:600}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{
+  body{background:#fff;color:#000} .wrap{max-width:none;padding:0}
+  #drop,footer{display:none} .panel,.hero,.strip{break-inside:avoid;border-color:#bbb}
+  svg{min-width:0}
+}
+@media (max-width:640px){
+  .wrap{padding:1.5rem 1rem 3.5rem}
+  .strip{grid-template-columns:1fr 1fr}
+  .st{border-left:0;border-top:1px solid var(--line)}
+  .st:nth-child(-n+2){border-top:0}
+  .st:nth-child(even){border-left:1px solid var(--line)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="mast">
+  <span class="mark">almanac</span>
+  <span class="def">a record of one year, read back to you</span>
+</div>
+
+<h1>What your invoices say your business <span class="n">actually is</span></h1>
+<p class="lede">One row per invoice, a date and an amount. You get back a description of the
+business: when the money arrives, how much of it rides on one client, and whether the work repeats
+or has to be won again. It says what it cannot know, and it refuses to call twelve months a
+season.</p>
+
+<div id="drop" tabindex="0" role="button" aria-label="Drop a CSV of invoices, or press to choose a file">
+  <p class="big">Drop a CSV of invoices</p>
+  <p class="spec">date + amount required &nbsp;·&nbsp; client column unlocks concentration &amp; repeat business</p>
+  <div class="acts">
+    <button class="btn" id="pick" type="button">Choose a file</button>
+    <button class="btn ghost" id="sample" type="button">See it on a sample</button>
+  </div>
+  <p class="privacy"><b>Nothing is uploaded.</b> The file is read inside this tab and never
+  leaves it. Open your network panel before you drop it — there is no request to see.</p>
+</div>
+
+<div id="out"></div>
+
+<script>
+/* A dead script must not look like a working page.
+ *
+ * A tool whose whole subject is software that reports success while doing
+ * nothing does not get to fail that way itself. If the main script below throws
+ * at load, no listener is attached, and the page still renders a perfectly
+ * convincing drop zone that silently ignores every file. Function declarations
+ * hoist, so even poking at it from a console can suggest all is well.
+ *
+ * Registered BEFORE the main script so it is already listening when that runs.
+ */
+window.addEventListener('error', function (e) {
+  var out = document.getElementById('out');
+  if (!out || out.getAttribute('data-dead')) return;
+  out.setAttribute('data-dead', '1');
+  out.innerHTML = '<div class="blind err"><b>This page is broken, and would otherwise have '
+    + 'looked fine.</b><br>Its script failed to load, so the buttons above do nothing and '
+    + 'anything you drop will be ignored rather than read.<br><br><code>'
+    + String((e && e.message) || 'unknown error') + '</code></div>';
+});
+</script>
+
+<script>
+/* almanac -- a year of invoices in, a description of the business out.
+ *
+ * WHY. Every small business owner can tell you what they do. Almost none can
+ * tell you what their invoices say they do: when the money actually arrives,
+ * how much of it rides on one client, whether the work repeats or has to be
+ * won again every time. That description exists nowhere -- not in the
+ * accounting package, which reports totals, and not in the head of the person
+ * running it, who remembers the busy months and forgets the quiet ones.
+ *
+ *   question:   what kind of business do these invoices describe?
+ *   blind spot: it sees INVOICES. Not costs, not margin, not the unbilled work
+ *               and not the client who left before the file starts. A business
+ *               can look healthy here and be losing money on every job.
+ *
+ * The whole value is in refusing to overclaim. Twelve months is one year, and
+ * one year is a pattern, not a season -- you cannot separate "we are busy in
+ * March" from "we happened to be busy last March" without a second March. So
+ * the seasonality verdict is gated on having seen the same month twice, and
+ * says so rather than drawing a confident line through a single year.
+ *
+ * This file is the engine, kept separate from the page so it can be run under
+ * node against fixtures whose answers are known in advance.
+ */
+'use strict';
+
+/* ---------------------------------------------------------------- parsing */
+
+// RFC4180-ish: quoted fields, doubled quotes, embedded commas and newlines.
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', quoted = false;
+  text = text.replace(/^﻿/, '');
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else quoted = false;
+      } else field += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ',') { row.push(field); field = ''; }
+    else if (c === '\r') { /* handled by \n */ }
+    else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+    else field += c;
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(c => c.trim() !== ''));
+}
+
+/* ------------------------------------------------------- column detection */
+
+const DATE_HINTS = ['date', 'invoiced', 'issued', 'billed', 'created', 'when'];
+const AMOUNT_HINTS = ['amount', 'total', 'value', 'revenue', 'price', 'subtotal',
+                      'net', 'fee', 'charged', 'paid'];
+const CUSTOMER_HINTS = ['customer', 'client', 'account', 'company', 'payer',
+                        'bill to', 'billto', 'name', 'organisation', 'organization'];
+
+function parseAmount(s) {
+  if (s == null) return null;
+  let t = String(s).trim();
+  if (!t) return null;
+  const neg = /^\(.*\)$/.test(t);
+  t = t.replace(/[()]/g, '').replace(/[$£€\s]/g, '').replace(/,/g, '');
+  if (!/^-?\d*\.?\d+$/.test(t)) return null;
+  const v = parseFloat(t);
+  if (!isFinite(v)) return null;
+  return neg ? -v : v;
+}
+
+// Returns {y, m, d} or null. Accepts ISO, US and dotted forms. Deliberately
+// does NOT accept a bare year or a month name alone: a date we cannot place in
+// a month is useless here and guessing one would poison every monthly figure.
+function parseDate(s) {
+  if (s == null) return null;
+  const t = String(s).trim();
+  if (!t) return null;
+  let m = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/.exec(t);
+  if (m) return { y: +m[1], m: +m[2], d: +m[3] };
+  m = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/.exec(t);
+  if (m) {
+    // Ambiguous D/M vs M/D. Resolved across the whole column, not here.
+    return { y: +m[3], m: +m[1], d: +m[2], ambiguous: true };
+  }
+  // Fallback for written forms ("7 March 2024", "Mar 7, 2024"). Gated on the
+  // string actually naming a month, for a reason that cost a test failure:
+  // Date() treats an ISO-SHAPED string as UTC and getFullYear() reads it back
+  // in local time, so a bare "2024" came out as 31 December 2023 -- an invoice
+  // silently filed into the wrong year. Anything numeric-only has already been
+  // handled above or is not a date we are willing to guess at.
+  if (!/[A-Za-z]{3}/.test(t) || !/\d{4}/.test(t)) return null;
+  const d = new Date(t);
+  if (isNaN(d.getTime())) return null;
+  return { y: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate() };
+}
+
+function scoreColumn(values, kind) {
+  let hits = 0, seen = 0;
+  for (const v of values) {
+    if (v == null || String(v).trim() === '') continue;
+    seen++;
+    if (kind === 'date' && parseDate(v)) hits++;
+    else if (kind === 'amount' && parseAmount(v) != null) hits++;
+  }
+  return seen === 0 ? 0 : hits / seen;
+}
+
+function detectColumns(headers, rows) {
+  const lower = headers.map(h => String(h || '').trim().toLowerCase());
+  const col = i => rows.map(r => r[i]);
+  const byHint = (hints) => {
+    for (let i = 0; i < lower.length; i++) {
+      if (hints.some(h => lower[i].includes(h))) return i;
+    }
+    return -1;
+  };
+
+  // Header names first -- they are the author's own statement of intent. Then
+  // fall back to content, because plenty of real exports have no header row
+  // worth the name.
+  let date = byHint(DATE_HINTS);
+  if (date < 0 || scoreColumn(col(date), 'date') < 0.6) {
+    let best = -1, bestScore = 0.6;
+    for (let i = 0; i < headers.length; i++) {
+      const s = scoreColumn(col(i), 'date');
+      if (s > bestScore) { bestScore = s; best = i; }
+    }
+    if (best >= 0) date = best;
+  }
+
+  let amount = byHint(AMOUNT_HINTS);
+  if (amount < 0 || scoreColumn(col(amount), 'amount') < 0.6) {
+    let best = -1, bestScore = 0.6;
+    for (let i = 0; i < headers.length; i++) {
+      if (i === date) continue;
+      const s = scoreColumn(col(i), 'amount');
+      // A column of amounts should also VARY. An ID column is 100% numeric.
+      const vals = col(i).map(parseAmount).filter(v => v != null);
+      const uniq = new Set(vals).size;
+      if (s > bestScore && uniq > 2) { bestScore = s; best = i; }
+    }
+    if (best >= 0) amount = best;
+  }
+
+  let customer = byHint(CUSTOMER_HINTS);
+  if (customer < 0) {
+    // A customer column is text, repeats, and has far fewer distinct values
+    // than rows. An invoice-number column is text-ish and never repeats.
+    let best = -1, bestRatio = 1;
+    for (let i = 0; i < headers.length; i++) {
+      if (i === date || i === amount) continue;
+      const vals = col(i).map(v => String(v || '').trim()).filter(Boolean);
+      if (!vals.length) continue;
+      if (vals.filter(v => parseAmount(v) != null).length / vals.length > 0.8) continue;
+      const ratio = new Set(vals).size / vals.length;
+      if (ratio < 0.9 && ratio < bestRatio) { bestRatio = ratio; best = i; }
+    }
+    if (best >= 0) customer = best;
+  }
+  return { date, amount, customer };
+}
+
+/* -------------------------------------------------------------- utilities */
+
+const MONTH = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July',
+               'August', 'September', 'October', 'November', 'December'];
+
+function median(a) {
+  if (!a.length) return null;
+  const s = [...a].sort((x, y) => x - y);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+function fmtMoney(v) {
+  const n = Math.round(v);
+  const neg = n < 0;
+  const s = String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return (neg ? '-$' : '$') + s;
+}
+
+function ym(d) { return d.y * 12 + (d.m - 1); }
+function ymLabel(v) { return MONTH[(v % 12) + 1].slice(0, 3) + ' ' + Math.floor(v / 12); }
+
+/* ---------------------------------------------------------------- reading */
+
+function readRows(rows) {
+  if (rows.length < 2) return { error: 'The file has no data rows.' };
+  const headers = rows[0];
+  const body = rows.slice(1);
+  const cols = detectColumns(headers, body);
+
+  const missing = [];
+  if (cols.date < 0) missing.push('a date');
+  if (cols.amount < 0) missing.push('an amount');
+  if (missing.length) {
+    return {
+      error: 'Cannot read this as invoices: no column looks like ' + missing.join(' or ') + '.',
+      hint: 'almanac needs one row per invoice with a date and an amount. A customer '
+          + 'column unlocks the concentration and repeat-business findings.',
+      headers,
+    };
+  }
+
+  // Resolve D/M vs M/D across the whole column rather than per row. If any row
+  // has a first part above 12 the format is unambiguous for the entire file.
+  let dayFirst = false;
+  for (const r of body) {
+    const raw = String(r[cols.date] || '').trim();
+    const m = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/.exec(raw);
+    if (m && +m[1] > 12) { dayFirst = true; break; }
+  }
+
+  const invoices = [];
+  let skipped = 0;
+  for (const r of body) {
+    const d = parseDate(r[cols.date]);
+    const a = parseAmount(r[cols.amount]);
+    if (!d || a == null) { skipped++; continue; }
+    if (d.ambiguous && dayFirst) { const t = d.m; d.m = d.d; d.d = t; }
+    if (d.m < 1 || d.m > 12) { skipped++; continue; }
+    invoices.push({
+      date: d,
+      amount: a,
+      customer: cols.customer >= 0
+        ? (String(r[cols.customer] || '').trim() || '(unnamed)') : null,
+    });
+  }
+  if (!invoices.length) return { error: 'No row had both a readable date and a readable amount.' };
+  return { invoices, cols, headers, skipped, dayFirst };
+}
+
+/* --------------------------------------------------------------- analysis */
+
+function analyse(invoices) {
+  const months = invoices.map(i => ym(i.date));
+  const first = Math.min.apply(null, months), last = Math.max.apply(null, months);
+  const span = last - first + 1;
+  const total = invoices.reduce((s, i) => s + i.amount, 0);
+
+  // Every month in the range, including the empty ones. Dropping a zero month
+  // would quietly turn a gap in the business into a gap in the chart.
+  const byMonth = [];
+  for (let v = first; v <= last; v++) byMonth.push({ v, label: ymLabel(v), total: 0, count: 0 });
+  for (const i of invoices) {
+    const b = byMonth[ym(i.date) - first];
+    b.total += i.amount; b.count++;
+  }
+
+  const findings = [];
+
+  /* -- seasonality ------------------------------------------------------- */
+  // A month only counts as seasonal evidence once it has been observed twice.
+  const perCalendarMonth = {};
+  for (const b of byMonth) {
+    const cm = (b.v % 12) + 1;
+    (perCalendarMonth[cm] = perCalendarMonth[cm] || []).push(b.total);
+  }
+  const repeatedMonths = Object.keys(perCalendarMonth)
+    .filter(k => perCalendarMonth[k].length > 1).length;
+  const seasonality = { monthsCovered: span, repeatedMonths, months: perCalendarMonth };
+  if (span < 12) {
+    seasonality.verdict = 'NOT ENOUGH DATA';
+    seasonality.says = span + ' month' + (span === 1 ? '' : 's')
+      + ' of invoices. A season needs a year.';
+  } else if (repeatedMonths < 6) {
+    // One year exactly: a shape, but nothing to distinguish "every March" from
+    // "that March". Saying so is the whole point of this tool.
+    const sorted = byMonth.slice().sort((a, b) => b.total - a.total);
+    seasonality.verdict = 'ONE YEAR ONLY';
+    seasonality.peak = sorted[0]; seasonality.trough = sorted[sorted.length - 1];
+    seasonality.says = 'One year of invoices shows a shape, not yet a season. '
+      + sorted[0].label + ' was the biggest month and ' + sorted[sorted.length - 1].label
+      + ' the smallest, but with each month seen once there is no way to tell a pattern '
+      + 'from a one-off. A second year answers it.';
+  } else {
+    const avg = {};
+    Object.keys(perCalendarMonth).forEach(cm => {
+      const vals = perCalendarMonth[cm];
+      avg[cm] = vals.reduce((a, b) => a + b, 0) / vals.length;
+    });
+    const entries = Object.keys(avg).map(k => [k, avg[k]]).sort((a, b) => b[1] - a[1]);
+    const hi = entries[0], lo = entries[entries.length - 1];
+    const ratio = lo[1] > 0 ? hi[1] / lo[1] : Infinity;
+    seasonality.peakMonth = MONTH[+hi[0]]; seasonality.troughMonth = MONTH[+lo[0]];
+    seasonality.ratio = ratio;
+    seasonality.verdict = ratio >= 2 ? 'SEASONAL' : 'FAIRLY EVEN';
+    seasonality.says = ratio >= 2
+      ? MONTH[+hi[0]] + ' brings about ' + ratio.toFixed(1) + 'x what ' + MONTH[+lo[0]]
+        + ' does, across ' + repeatedMonths + ' months seen more than once.'
+      : 'The busiest and quietest months differ by ' + ratio.toFixed(1) + 'x. '
+        + 'That is a business with fairly even demand.';
+    if (ratio >= 2) {
+      findings.push({ cls: 'warn', t: 'Cash arrives unevenly',
+        m: MONTH[+lo[0]] + ' runs at roughly ' + (100 / ratio).toFixed(0) + '% of '
+         + MONTH[+hi[0]] + '. The bill schedule is flat even when revenue is not, which is '
+         + 'what makes a quiet month feel like a crisis rather than a Tuesday.' });
+    }
+  }
+
+  /* -- customers, concentration, repeat ---------------------------------- */
+  let customers = null, concentration = null, repeat = null;
+  if (invoices[0].customer !== null) {
+    const map = new Map();
+    for (const i of invoices) {
+      const c = map.get(i.customer) || { name: i.customer, revenue: 0, invoices: 0,
+                                         firstM: Infinity, lastM: -Infinity };
+      c.revenue += i.amount; c.invoices++;
+      c.firstM = Math.min(c.firstM, ym(i.date)); c.lastM = Math.max(c.lastM, ym(i.date));
+      map.set(i.customer, c);
+    }
+    customers = Array.from(map.values()).sort((a, b) => b.revenue - a.revenue);
+    const shares = customers.map(c => c.revenue / total);
+    const hhi = shares.reduce((s, x) => s + x * x, 0);
+    const top1 = shares[0] || 0;
+    const top3 = shares.slice(0, 3).reduce((a, b) => a + b, 0);
+    concentration = { hhi: hhi, top1: top1, top3: top3, n: customers.length };
+    concentration.verdict = top1 >= 0.3 ? 'CONCENTRATED'
+                          : top3 >= 0.6 ? 'MODERATELY CONCENTRATED' : 'SPREAD';
+    concentration.says = top1 >= 0.3
+      ? customers[0].name + ' is ' + (top1 * 100).toFixed(0) + '% of everything invoiced.'
+      : top3 >= 0.6
+        ? 'The top three are ' + (top3 * 100).toFixed(0) + '% between them.'
+        : 'No client is more than ' + (top1 * 100).toFixed(0) + '% of revenue, across '
+          + customers.length + ' of them.';
+    if (top1 >= 0.3) {
+      findings.push({ cls: 'bad', t: 'One client is a single point of failure',
+        m: 'Losing ' + customers[0].name + ' removes ' + (top1 * 100).toFixed(0)
+         + '% of invoiced revenue (' + fmtMoney(customers[0].revenue) + '). That is not a '
+         + 'client, it is an employer — and the pricing conversation goes differently '
+         + 'once you notice.' });
+    }
+
+    const repeaters = customers.filter(c => c.invoices > 1);
+    const repeatRev = repeaters.reduce((s, c) => s + c.revenue, 0);
+    repeat = {
+      repeatCustomers: repeaters.length, oneTime: customers.length - repeaters.length,
+      revenueShare: total ? repeatRev / total : 0,
+    };
+
+    // Dormant: a repeat client whose gap since its last invoice is well past
+    // its own usual rhythm. Judged per client, because "quiet for two months"
+    // means nothing without knowing that client invoices monthly.
+    const dormant = [];
+    for (const c of repeaters) {
+      const cadence = (c.lastM - c.firstM) / (c.invoices - 1);
+      const silent = last - c.lastM;
+      if (cadence > 0 && silent > Math.max(2, cadence * 2.5)) {
+        dormant.push({ name: c.name, silent: silent, cadence: cadence, revenue: c.revenue });
+      }
+    }
+    if (dormant.length) {
+      dormant.sort((a, b) => b.revenue - a.revenue);
+      const d = dormant[0];
+      findings.push({ cls: 'warn',
+        t: dormant.length + ' repeat client' + (dormant.length > 1 ? 's have' : ' has') + ' gone quiet',
+        m: d.name + ' invoiced every ' + d.cadence.toFixed(1) + ' months and has been silent for '
+         + d.silent + ' month' + (d.silent === 1 ? '' : 's') + '. Worth ' + fmtMoney(d.revenue)
+         + ' so far. Nobody gets an alert when a customer simply stops appearing.' });
+    }
+    concentration.dormant = dormant;
+  }
+
+  /* -- what kind of business is this ------------------------------------- */
+  const sizes = invoices.map(i => i.amount).filter(a => a > 0);
+  const med = median(sizes);
+  const model = { medianInvoice: med, invoices: invoices.length };
+  if (repeat) {
+    const rs = repeat.revenueShare;
+    if (rs >= 0.7 && repeat.repeatCustomers >= 3) {
+      model.label = 'Repeat-revenue business';
+      model.says = (rs * 100).toFixed(0) + '% of revenue comes from clients who came back. '
+        + 'The work is retained rather than won each time, which is the good problem: '
+        + 'growth compounds, and so does the damage when one leaves.';
+    } else if (rs < 0.35) {
+      model.label = 'Project business';
+      model.says = repeat.oneTime + ' of ' + customers.length + ' clients invoiced once. '
+        + 'Revenue has to be won again every month, so the pipeline is the business.';
+    } else {
+      model.label = 'Mixed: a repeat base with project work on top';
+      model.says = (rs * 100).toFixed(0) + '% of revenue is from returning clients, '
+        + 'the rest one-off.';
+    }
+  } else {
+    model.label = 'Unknown — no customer column';
+    model.says = 'Add a customer or client column and this becomes answerable.';
+  }
+
+  return { invoices: invoices.length, total: total, first: first, last: last, span: span,
+           byMonth: byMonth, seasonality: seasonality, customers: customers,
+           concentration: concentration, repeat: repeat, model: model, findings: findings };
+}
+
+
+
+/* ------------------------------------------------------------------ render */
+var $ = function (s) { return document.querySelector(s); };
+var out = $('#out');
+
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+  });
+}
+function pct(x) { return (x * 100).toFixed(0) + '%'; }
+
+/* Revenue by month. Year boundaries are drawn, because "is this the same month
+ * a year later" is exactly what the seasonality verdict turns on, and a reader
+ * should be able to check that claim against the picture rather than take it. */
+function monthChart(byMonth) {
+  var W = 880, H = 196, padL = 62, padR = 10, padB = 34, padT = 16;
+  var plotH = H - padT - padB;
+  var max = Math.max.apply(null, byMonth.map(function (b) { return b.total; }));
+  if (!(max > 0)) max = 1;
+  var n = byMonth.length;
+  var iw = (W - padL - padR) / n;
+  var bw = Math.max(2, Math.min(34, iw * 0.66));
+  var peak = byMonth.reduce(function (a, b) { return b.total > a.total ? b : a; }, byMonth[0]);
+  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Revenue by month, '
+        + esc(byMonth[0].label) + ' to ' + esc(byMonth[n - 1].label) + '">';
+
+  [1, 0.5, 0].forEach(function (f) {
+    var y = padT + plotH * (1 - f);
+    s += '<line class="gl' + (f === 0 ? ' base' : '') + '" x1="' + padL + '" y1="' + y
+       + '" x2="' + (W - padR) + '" y2="' + y + '"/>'
+       + '<text class="axis" x="' + (padL - 8) + '" y="' + (y + 3.2)
+       + '" text-anchor="end">' + esc(fmtMoney(max * f)) + '</text>';
+  });
+
+  var step = n <= 14 ? 1 : (n <= 26 ? 2 : (n <= 40 ? 3 : 6));
+  byMonth.forEach(function (b, i) {
+    var h = plotH * (b.total / max);
+    var x = padL + i * iw + (iw - bw) / 2;
+    var y = padT + plotH - h;
+
+    if (i === 0) {
+      s += '<text class="axis yr" x="' + padL + '" y="' + (padT - 6) + '">'
+         + Math.floor(b.v / 12) + '</text>';
+    } else if ((b.v % 12) === 0) {
+      // A January that is not the first bar starts a new year -- mark it.
+      var sx = padL + i * iw;
+      s += '<line class="ysep" x1="' + sx.toFixed(1) + '" y1="' + (padT - 4) + '" x2="'
+         + sx.toFixed(1) + '" y2="' + (padT + plotH) + '"/>'
+         + '<text class="axis yr" x="' + (sx + 4).toFixed(1) + '" y="' + (padT - 6)
+         + '">' + Math.floor(b.v / 12) + '</text>';
+    }
+
+    s += '<rect class="bar' + (b === peak ? ' peak' : '') + '" x="' + x.toFixed(1) + '" y="'
+       + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(0, h).toFixed(1)
+       + '" rx="1.5"><title>' + esc(b.label + ' — ' + fmtMoney(b.total) + ' from ' + b.count
+       + ' invoice' + (b.count === 1 ? '' : 's')) + '</title></rect>';
+
+    if (i % step === 0) {
+      s += '<text class="axis" x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 13)
+         + '" text-anchor="middle">' + esc(b.label.split(' ')[0]) + '</text>';
+    }
+  });
+
+  // Name the peak on the chart itself, so the sentence above has something to point at.
+  var pi = byMonth.indexOf(peak);
+  var px = padL + pi * iw + iw / 2;
+  var anchor = pi < 2 ? 'start' : (pi > n - 3 ? 'end' : 'middle');
+  s += '<text class="note-pk" x="' + px.toFixed(1) + '" y="'
+     + (padT + plotH * (1 - peak.total / max) - 5).toFixed(1) + '" text-anchor="' + anchor + '">'
+     + esc(fmtMoney(peak.total)) + '</text>';
+  return s + '</svg>';
+}
+
+function clientTable(customers, total, dormant) {
+  var quiet = {};
+  (dormant || []).forEach(function (d) { quiet[d.name] = true; });
+  var rows = customers.slice(0, 12).map(function (c, i) {
+    var share = c.revenue / total;
+    return '<tr class="' + (i === 0 ? 'top ' : '') + (quiet[c.name] ? 'quiet' : '') + '">'
+      + '<td class="nm">' + esc(c.name) + '</td>'
+      + '<td class="num">' + esc(fmtMoney(c.revenue)) + '</td>'
+      + '<td class="num">' + pct(share) + '</td>'
+      + '<td class="num">' + c.invoices + '</td>'
+      + '<td><div class="share"><i style="width:' + (share * 100).toFixed(1) + '%"></i></div></td>'
+      + '</tr>';
+  }).join('');
+  var extra = customers.length - 12;
+  return '<div class="tbox"><table><thead><tr><th>client</th>'
+       + '<th style="text-align:right">invoiced</th><th style="text-align:right">share</th>'
+       + '<th style="text-align:right">invoices</th><th style="width:30%"></th></tr></thead>'
+       + '<tbody>' + rows + '</tbody></table></div>'
+       + (extra > 0 ? '<p class="say" style="margin:.8rem 0 0;font-size:.8rem;color:var(--faint)">'
+          + extra + ' further client' + (extra === 1 ? '' : 's') + ' not shown.</p>' : '');
+}
+
+function st(big, label, small) {
+  return '<div class="st"><b>' + esc(big) + '</b><span>' + esc(label) + '</span>'
+       + (small ? '<small>' + esc(small) + '</small>' : '') + '</div>';
+}
+
+function panel(title, chipCls, chipText, say, body) {
+  return '<div class="panel"><div class="phead"><h2>' + esc(title) + '</h2>'
+       + (chipText ? '<span class="chip ' + chipCls + '">' + esc(chipText) + '</span>' : '')
+       + '</div><p class="say">' + esc(say) + '</p>' + body + '</div>';
+}
+
+/* What the tool decided to read, in the tool's own words. Column detection is a
+ * guess, and a guess the reader cannot inspect is a guess they have to trust. */
+function provenance(meta) {
+  var h = meta.headers || [];
+  var name = function (i) {
+    return (i >= 0 && h[i] != null && String(h[i]).trim())
+      ? String(h[i]).trim() : ('column ' + (i + 1));
+  };
+  var bits = ['date from <code>' + esc(name(meta.cols.date)) + '</code>',
+              'amount from <code>' + esc(name(meta.cols.amount)) + '</code>',
+              meta.cols.customer >= 0
+                ? 'client from <code>' + esc(name(meta.cols.customer)) + '</code>'
+                : 'no client column found'];
+  if (meta.dayFirst) {
+    bits.push('dates read day-first — a value above 12 in the first position proved it');
+  }
+  return '<details class="prov"><summary>what this read</summary><div class="body">'
+       + bits.join(' &nbsp;·&nbsp; ')
+       + (meta.skipped
+          ? '<br><b>' + meta.skipped + ' row' + (meta.skipped === 1 ? '' : 's')
+            + ' skipped</b> — no readable date or amount. They are in none of the figures above.'
+          : '<br>Every row was readable.')
+       + '<br>If a column was read wrong, rename its header and drop the file again.'
+       + '</div></details>';
+}
+
+function render(a, meta) {
+  var seasonChip = a.seasonality.verdict === 'SEASONAL' ? 'on'
+                 : (a.seasonality.verdict === 'FAIRLY EVEN' ? '' : 'warn');
+  var concChip = !a.concentration ? ''
+    : (a.concentration.verdict === 'SPREAD' ? 'on'
+       : (a.concentration.verdict === 'CONCENTRATED' ? 'bad' : 'warn'));
+
+  var h = '<div class="hero"><p class="kicker">what these invoices describe</p>'
+        + '<p class="verdict">' + esc(a.model.label) + '</p>'
+        + '<p class="sub">' + esc(a.model.says) + '</p></div>';
+
+  h += '<div class="strip">'
+     + st(fmtMoney(a.total), 'invoiced', a.invoices + ' invoices · ' + a.span + ' months')
+     + st(fmtMoney(a.total / a.span), 'a month', 'averaged across the whole span')
+     + st(a.model.medianInvoice == null ? '—' : fmtMoney(a.model.medianInvoice),
+          'typical invoice', 'median — one big job cannot move it')
+     + (a.concentration
+        ? st(pct(a.concentration.top1), 'largest client', 'of ' + a.concentration.n + ' clients')
+        : st('—', 'largest client', 'needs a client column'))
+     + '</div>';
+
+  h += provenance(meta);
+
+  h += panel('When the money arrives', seasonChip, a.seasonality.verdict, a.seasonality.says,
+             '<div class="chartbox">' + monthChart(a.byMonth) + '</div>');
+
+  if (a.concentration) {
+    h += panel('Where it comes from', concChip, a.concentration.verdict, a.concentration.says,
+               clientTable(a.customers, a.total, a.concentration.dormant));
+  }
+
+  if (a.findings.length) {
+    h += '<div class="panel"><div class="phead"><h2>Worth knowing</h2></div><ul class="finds">'
+       + a.findings.map(function (f) {
+           return '<li class="' + f.cls + '"><b>' + esc(f.t) + '</b>' + esc(f.m) + '</li>';
+         }).join('') + '</ul></div>';
+  }
+
+  h += '<div class="blind"><b>What this cannot see.</b> It reads invoices. Not costs, not margin,'
+     + ' not the work you did and never billed, and not the client who left before this file'
+     + ' begins. A business can look healthy on this page and lose money on every job. Everything'
+     + ' above is what you charged — never what you kept.</div>';
+
+  out.removeAttribute('data-dead');
+  out.innerHTML = h;
+  out.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function fail(msg, hint) {
+  out.removeAttribute('data-dead');
+  out.innerHTML = '<div class="blind err"><b>' + esc(msg) + '</b>'
+    + (hint ? '<br><br>' + esc(hint) : '') + '</div>';
+  out.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* -------------------------------------------------------------------- wire */
+function handleText(text) {
+  var read;
+  try { read = readRows(parseCSV(text)); }
+  catch (e) { return fail('Could not read that file.', String((e && e.message) || e)); }
+  if (read.error) return fail(read.error, read.hint);
+  var a;
+  try { a = analyse(read.invoices); }
+  catch (e) { return fail('Read the file, but could not analyse it.', String((e && e.message) || e)); }
+  render(a, read);
+}
+
+function handleFile(f) {
+  if (!f) return;
+  var r = new FileReader();
+  r.onload = function () { handleText(String(r.result)); };
+  r.onerror = function () { fail('The browser could not read that file.'); };
+  r.readAsText(f);
+}
+
+var drop = $('#drop');
+['dragenter', 'dragover'].forEach(function (ev) {
+  drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('over'); });
+});
+['dragleave', 'drop'].forEach(function (ev) {
+  drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('over'); });
+});
+drop.addEventListener('drop', function (e) {
+  handleFile(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]);
+});
+var input = document.createElement('input');
+input.type = 'file'; input.accept = '.csv,text/csv,text/plain';
+input.addEventListener('change', function () { handleFile(input.files[0]); });
+$('#pick').addEventListener('click', function () { input.click(); });
+drop.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+});
+$('#sample').addEventListener('click', function () { handleText(SAMPLE); });
+
+var SAMPLE = "Invoice,Date,Client,Amount,Notes\nINV-2040,2024-01-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2041,2024-01-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2042,2024-01-21,Kestrel Dental,\"$1,750.00\",quarterly service\nINV-2043,2024-02-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2044,2024-02-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2045,2024-02-19,Pinefield Studio,\"$2,400.00\",project\nINV-2046,2024-03-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2047,2024-03-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2048,2024-04-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2049,2024-04-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2050,2024-04-21,Kestrel Dental,\"$1,750.00\",quarterly service\nINV-2051,2024-05-03,Harbourline Grounds,\"$4,000.00\",\"grounds maintenance, billed monthly\"\nINV-2052,2024-05-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2053,2024-05-19,Ashgrove Dental,\"$1,850.00\",project\nINV-2054,2024-06-03,Harbourline Grounds,\"$9,000.00\",\"grounds maintenance, billed monthly\"\nINV-2055,2024-06-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2056,2024-07-03,Harbourline Grounds,\"$9,000.00\",\"grounds maintenance, billed monthly\"\nINV-2057,2024-07-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2058,2024-07-21,Kestrel Dental,\"$1,750.00\",quarterly service\nINV-2059,2024-08-03,Harbourline Grounds,\"$9,000.00\",\"grounds maintenance, billed monthly\"\nINV-2060,2024-08-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2061,2024-09-03,Harbourline Grounds,\"$4,000.00\",\"grounds maintenance, billed monthly\"\nINV-2062,2024-09-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2063,2024-09-19,Marlow and Sons,\"$3,100.00\",project\nINV-2064,2024-10-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2065,2024-10-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2066,2024-11-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2067,2024-11-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2068,2024-12-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2069,2024-12-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2070,2025-01-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2071,2025-01-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2072,2025-01-19,Verity Print,$900.00,project\nINV-2073,2025-02-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2074,2025-02-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2075,2025-03-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2076,2025-03-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2077,2025-04-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2078,2025-04-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2079,2025-04-19,Pinefield Studio,\"$2,750.00\",project\nINV-2080,2025-05-03,Harbourline Grounds,\"$4,000.00\",\"grounds maintenance, billed monthly\"\nINV-2081,2025-05-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2082,2025-06-03,Harbourline Grounds,\"$9,000.00\",\"grounds maintenance, billed monthly\"\nINV-2083,2025-06-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2084,2025-07-03,Harbourline Grounds,\"$9,000.00\",\"grounds maintenance, billed monthly\"\nINV-2085,2025-07-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2086,2025-07-19,Halden Group,\"$5,200.00\",project\nINV-2087,2025-08-03,Harbourline Grounds,\"$9,000.00\",\"grounds maintenance, billed monthly\"\nINV-2088,2025-08-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2089,2025-09-03,Harbourline Grounds,\"$4,000.00\",\"grounds maintenance, billed monthly\"\nINV-2090,2025-09-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2091,2025-10-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2092,2025-10-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2093,2025-11-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2094,2025-11-14,Two Rivers Cafe,$600.00,planters and window boxes\nINV-2095,2025-11-19,Orrin Bakery,\"$1,400.00\",project\nINV-2096,2025-12-03,Harbourline Grounds,\"$1,200.00\",\"grounds maintenance, billed monthly\"\nINV-2097,2025-12-14,Two Rivers Cafe,$600.00,planters and window boxes\n";
+
+</script>
+<footer style="max-width:60rem;margin:0 auto;padding:0 1.4rem 2.6rem;font-size:.79rem;color:var(--faint)">
+  Built by <a href="/" style="color:inherit">Automated Workflow LLC</a> &mdash; Gainesville, VA &middot;
+  <a href="mailto:colin@automatedworkflowllc.com" style="color:inherit">colin@automatedworkflowllc.com</a> &middot;
+  <a href="tel:+17039391174" style="color:inherit">(703) 939-1174</a> &middot;
+  <a href="/builds/" style="color:inherit">more free tools</a>
+</footer>
+</body>
+</html>

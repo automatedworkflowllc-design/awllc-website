@@ -222,6 +222,16 @@ ENGINEERING = [
      "Sold on a true story: our own trading digest served Friday's data under Monday's timestamp "
      "the day the service page was built. The embedded report is that catch, verbatim.",
      ["Service", "$99/mo"]),
+    ("almanac", "/almanac/",
+     "Drop a year of invoices and get a description of the business back: when the money "
+     "actually arrives, how much of it rides on one client, whether the work repeats or has to "
+     "be won again, and which regular customer has quietly stopped appearing.",
+     "It is built to refuse. Twelve months is one year, and one year cannot tell &ldquo;busy "
+     "every March&rdquo; from &ldquo;busy that March&rdquo;, so it will not call a single year a "
+     "season &mdash; it says so and asks for the second. A client counts as gone quiet only "
+     "against its own rhythm, never for merely being quiet. Reads the file in your browser; "
+     "nothing is uploaded.",
+     ["Free", "Nothing uploads"]),
     ("skeleton", "/skeleton/",
      "Drop any Excel file and see how the workbook actually works: a map of which cells feed "
      "which, laid out by depth so raw inputs sit on the left and the deepest formulas on the "
