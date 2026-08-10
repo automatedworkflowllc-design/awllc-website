@@ -58,6 +58,19 @@ CASES = {
         "receivables": [{"customer": "Northgate Logistics", "amount": 7200, "days": 74},
                         {"customer": "Beltline Haulage", "amount": 3150, "days": 22}],
         "spend": 1840, "activeCustomers": 7,
+        # Both optional fields present: proves the two new panels render from the
+        # seam, not only from the built-in sample.
+        "dow": [21000, 19500, 24000, 22500, 14000, 1300, 0],
+        "accounts": [{"name": "Northgate Logistics", "amount": 41000},
+                     {"name": "Beltline Haulage", "amount": 18500},
+                     {"name": "Cedar Freight", "amount": 12000},
+                     {"name": "Waypoint Movers", "amount": 9500},
+                     {"name": "Halden Transit", "amount": 7000},
+                     {"name": "Orchard Courier", "amount": 4200},
+                     {"name": "Lantern Removals", "amount": 3100},
+                     {"name": "Pinehurst Hauling", "amount": 1900},
+                     {"name": "Fenwick Vans", "amount": 900},
+                     {"name": "Marlowe Transport", "amount": 400}],
     },
     'tiny': {
         "business": "One Week Co",
@@ -74,16 +87,23 @@ CASES = {
                  "weeks": [{"start": "2026-07-06", "value": "twelve thousand"}], "receivables": []},
     'baddate': {"business": "Bad Co",
                 "weeks": [{"start": "not-a-date", "value": 100}], "receivables": []},
+    'baddow': {
+        "business": "Bad Day Split",
+        "weeks": [{"start": "2026-08-03", "value": 5000}],
+        "receivables": [],
+        "dow": [1, 2, 3],          # wrong length -- must name the field, not silently pad
+    },
     'badinvoice': {"business": "Bad Co", "weeks": [{"start": "2026-07-06", "value": 9000}],
                    "receivables": [{"customer": "X", "amount": "lots", "days": 10}]},
 }
 
 EXPECT = {
     'real':       'renders as "Riverside Fleet Services", AR = $10,350, sample chip GONE',
-    'tiny':       'renders; "no prior month to compare against yet"; "none of it is past due yet"',
+    'tiny':       'renders; "no prior month"; and BOTH new panels say they have no data rather than drawing empty',
     'allpaid':    '"Nothing is outstanding"; AR $0; NO red badge; panels say so',
     'badvalue':   'REFUSES -- names weeks[0].value',
     'baddate':    'REFUSES -- names weeks[0].start',
+    'baddow':     'REFUSES -- names dow, wrong length',
     'badinvoice': 'REFUSES -- names receivables[0].amount',
 }
 

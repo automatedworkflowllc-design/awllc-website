@@ -292,6 +292,41 @@ APP_CSS = """
 .dnote{margin:.85rem 0 0;font-size:.85rem;color:var(--d-soft);text-wrap:pretty}
 .dnote b{color:var(--d-ink)}
 
+/* Two panels side by side, stacking on narrow. */
+.dsplit{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin:.85rem 0 0;
+  align-items:start}  /* each panel its own height; stretching left one of unequal
+                         pairs leaves a dead block of empty card below the text */
+@media(max-width:820px){ .dsplit{grid-template-columns:1fr} }
+.dpanel-i{display:flex;flex-direction:column}
+/* The written takeaway sits UNDER its own panel rather than in a footnote at the
+   bottom of the page. A finding two scrolls away from the chart it describes is
+   one nobody connects to the chart. */
+.dinsight{margin:.7rem 0 0;font-size:.82rem;line-height:1.5;color:var(--d-soft);
+  border-top:1px solid var(--d-line);padding-top:.6rem;text-wrap:pretty}
+.dinsight b{color:var(--d-ink)}
+.dinsight .none{font-style:italic}
+
+/* Day-of-week columns. Height carries the value; the label carries identity. */
+.dbars{display:grid;grid-template-columns:repeat(7,1fr);gap:.3rem;align-items:end;height:104px}
+.dbar{display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:.25rem}
+.dbar i{display:block;background:var(--d-bar);border-radius:3px 3px 0 0;min-height:2px}
+.dbar.peak i{background:var(--d-ink)}
+.dbarlabels{display:grid;grid-template-columns:repeat(7,1fr);gap:.3rem;margin:.3rem 0 0}
+.dbarlabels span{font-family:var(--d-mono);font-size:.58rem;color:var(--d-soft);text-align:center}
+
+/* Account ranking: horizontal bars, because comparing lengths beats comparing
+   angles -- which is why this is not the pie chart it was modelled on. */
+.dranks{display:flex;flex-direction:column;gap:.34rem}
+.drank{display:grid;grid-template-columns:1fr auto;gap:.2rem .6rem;align-items:baseline}
+.drank-n{font-size:.78rem;color:var(--d-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drank-v{font-family:var(--d-mono);font-size:.72rem;color:var(--d-soft);font-variant-numeric:tabular-nums}
+.drank-t{grid-column:1/-1;height:5px;border-radius:3px;background:var(--d-bar);min-width:2px}
+.drank.low .drank-t{background:var(--d-line2)}
+.drank.low .drank-n{color:var(--d-soft)}
+.dranksec{font-family:var(--d-mono);font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--d-soft);margin:.75rem 0 .35rem}
+.dranksec:first-child{margin-top:0}
+
 .drep{display:flex;align-items:center;gap:.7rem;padding:.55rem 0;
   border-bottom:1px solid var(--d-line)}
 .drep:last-child{border-bottom:0}
@@ -435,6 +470,19 @@ APP_HTML = """
           <div class="dstats" id="r-stats"></div>
           <div class="dpanel"><div id="r-chart"></div></div>
           <p class="dnote" id="r-note"></p>
+
+          <div class="dsplit">
+            <div class="dpanel dpanel-i">
+              <h3 class="dph">When the work lands</h3>
+              <div id="r-dow"></div>
+              <p class="dinsight" id="r-dow-note"></p>
+            </div>
+            <div class="dpanel dpanel-i">
+              <h3 class="dph">Where the revenue comes from</h3>
+              <div id="r-acct"></div>
+              <p class="dinsight" id="r-acct-note"></p>
+            </div>
+          </div>
         </section>
 
         <section id="view-receivables" role="tabpanel" aria-labelledby="tab-receivables" tabindex="0" hidden>
@@ -590,9 +638,28 @@ __SHARED_INTAKE__
        days:null so every age comparison has to decide about it explicitly. */
     recv.push({ customer: 'Tioga Town Homes', days: null, amount: 2180 });
 
+    /* Day-of-week and per-account splits, both RECONCILED to the same total the
+       weekly chart draws. A sample whose panels quietly disagree with each other
+       is the exact defect this dashboard is sold on catching, so the shares are
+       normalised against the real total rather than typed in. */
+    var total = out.reduce(function (s, w) { return s + w.value; }, 0);
+
+    /* An exterior-cleaning book: weekday-heavy, quiet Sunday. Mon..Sun. */
+    var DOW_W = [1.00, 1.08, 1.14, 1.18, 1.05, 0.52, 0.15];
+    var dowSum = DOW_W.reduce(function (a, b) { return a + b; }, 0);
+    var dow = DOW_W.map(function (w) { return Math.round(total * w / dowSum); });
+
+    /* Deliberately uneven, because concentration is the finding worth surfacing:
+       a real small book usually has one account carrying far too much of it. */
+    var SHARE = [3.4, 2.1, 1.7, 1.35, 1.0, 0.8, 0.62, 0.45, 0.28];
+    var shareSum = SHARE.reduce(function (a, b) { return a + b; }, 0);
+    var accounts = CUSTOMERS.map(function (nm, i) {
+      return { name: nm, amount: Math.round(total * SHARE[i % SHARE.length] / shareSum) };
+    });
+
     return { business: 'Gator Shine Exterior Cleaning', sample: true, hasSpend: true, weeks: out,
              receivables: recv, spend: 226 + Math.round((1 + hash(epochWeek(CURMON))) * 140),
-             activeCustomers: CUSTOMERS.length + 3 };
+             activeCustomers: CUSTOMERS.length + 3, dow: dow, accounts: accounts };
   }
 
   /* ---- adopt: validate and normalise whatever was handed in -------------
@@ -634,6 +701,38 @@ __SHARED_INTAKE__
                amount: Math.round(amt), days: undated ? null : Math.round(days) };
     });
 
+    /* Both OPTIONAL. Absent is a legitimate state -- an export with no account
+       column genuinely cannot support a per-account split -- and the panels say
+       so rather than inventing one. Present but malformed still refuses, because
+       a wrong day-of-week profile is a confident lie about when the work lands. */
+    var dow = null;
+    if (raw.dow !== undefined && raw.dow !== null) {
+      if (!Array.isArray(raw.dow) || raw.dow.length !== 7) {
+        throw new Error('AW_DASHBOARD_DATA.dow must be an array of 7 numbers, Monday first');
+      }
+      dow = raw.dow.map(function (v, i) {
+        var n = Number(v);
+        if (!isFinite(n) || n < 0) {
+          throw new Error('dow[' + i + '] is not a non-negative number: ' + v);
+        }
+        return Math.round(n);
+      });
+    }
+
+    var accounts = null;
+    if (raw.accounts !== undefined && raw.accounts !== null) {
+      if (!Array.isArray(raw.accounts)) {
+        throw new Error('AW_DASHBOARD_DATA.accounts must be an array');
+      }
+      accounts = raw.accounts.map(function (a, i) {
+        var amt = Number(a && a.amount);
+        if (!isFinite(amt) || amt < 0) {
+          throw new Error('accounts[' + i + '].amount is not a non-negative number: ' + (a && a.amount));
+        }
+        return { name: String((a && a.name) || 'Unnamed account'), amount: Math.round(amt) };
+      });
+    }
+
     var spend = Number(raw.spend);
     var cust  = Number(raw.activeCustomers);
     return {
@@ -643,7 +742,9 @@ __SHARED_INTAKE__
       weeks: weeks,
       receivables: recv,
       spend: isFinite(spend) && spend >= 0 ? Math.round(spend) : 0,
-      activeCustomers: isFinite(cust) && cust >= 0 ? Math.round(cust) : recv.length
+      activeCustomers: isFinite(cust) && cust >= 0 ? Math.round(cust) : recv.length,
+      dow: dow,
+      accounts: accounts
     };
   }
 
@@ -1186,11 +1287,137 @@ __SHARED_INTAKE__
       stat(above + ' of ' + (vals.length - half), 'Weeks above avg');
     el('r-chart').innerHTML = lineChart(rows, { h: 210, label: 'Revenue, last thirteen weeks' });
     wireLine(el('r-chart'), rows);
+    renderDow();
+    renderAccounts();
+
     el('r-note').innerHTML = 'Best week was <b>' + bestRow.label + '</b> at ' + money(best) +
       '. The last point is the week in progress, so it dips by design rather than as a downturn — ' +
       '<b>every figure above is calculated on completed weeks only</b>, because an average that ' +
       'quietly includes a half-finished week drops every Monday and recovers by Friday, and you ' +
       'would spend months reacting to the calendar instead of the business.';
+  }
+
+  /* ---------- day-of-week pattern ---------------------------------------
+     Answers "when does the work actually land", which a weekly total cannot.
+     Both the chart and the sentence come off the same array, so they cannot
+     disagree. When the book carries no day split, the panel SAYS so -- an
+     empty chart reads as "you do no business", which is a confident lie. */
+  var DOWN = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var DOWFULL = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+  function renderDow(){
+    var d = D.dow;
+    if (!d || !d.length) {
+      el('r-dow').innerHTML = '';
+      el('r-dow-note').innerHTML = '<span class="none">No day-of-week split in this file &mdash; ' +
+        'every row would need a readable date for that, and this one does not have enough of them. ' +
+        'Nothing is estimated here.</span>';
+      return;
+    }
+    var max = Math.max.apply(null, d);
+    var total = d.reduce(function (a, b) { return a + b; }, 0);
+    if (!max || !total) {
+      el('r-dow').innerHTML = '';
+      el('r-dow-note').innerHTML = '<span class="none">Every day in this file totals zero, so there ' +
+        'is no pattern to show.</span>';
+      return;
+    }
+    var peak = d.indexOf(max);
+    el('r-dow').innerHTML =
+      '<div class="dbars" role="img" aria-label="Revenue by day of week">' +
+      d.map(function (v, i) {
+        var h = Math.round((v / max) * 78);
+        return '<span class="dbar' + (i === peak ? ' peak' : '') + '" title="' +
+               esc(DOWFULL[i]) + ': ' + money(v) + '">' +
+               '<i style="height:' + h + 'px"></i></span>';
+      }).join('') + '</div>' +
+      '<div class="dbarlabels">' + DOWN.map(function (n) {
+        return '<span>' + n + '</span>'; }).join('') + '</div>';
+
+    /* The takeaway is arithmetic, not a guess: busiest day, its share, and the
+       quietest. Weekend share is only mentioned when it is actually notable. */
+    var quiet = d.indexOf(Math.min.apply(null, d));
+    var peakShare = Math.round((max / total) * 100);
+    var wknd = Math.round(((d[5] + d[6]) / total) * 100);
+    var txt = '<b>' + DOWFULL[peak] + '</b> is the busiest day &mdash; ' + peakShare +
+              '% of everything in this file. <b>' + DOWFULL[quiet] + '</b> is the quietest.';
+    if (wknd <= 5) {
+      txt += ' Weekends are effectively empty (' + wknd + '%).';
+    } else if (wknd >= 30) {
+      txt += ' Weekends carry <b>' + wknd + '%</b>, which is a lot to have riding on two days.';
+    }
+    txt += ' <span class="none">This is the date on the row &mdash; if you invoice on a different ' +
+           'day from the one you work, this shows billing, not labour.</span>';
+    el('r-dow-note').innerHTML = txt;
+  }
+
+  /* ---------- best and worst accounts -----------------------------------
+     Modelled on a "top 5 / bottom 5" board, with the bottom kept because that
+     is the half nobody builds and the half worth money. The added finding is
+     CONCENTRATION: for a small book, one account carrying a third of revenue is
+     a bigger fact than any ranking. */
+  function renderAccounts(){
+    var a = D.accounts;
+    if (!a || !a.length) {
+      el('r-acct').innerHTML = '';
+      el('r-acct-note').innerHTML = '<span class="none">No customer column in this file, so there ' +
+        'is no way to split revenue by account. Add one and this fills in &mdash; it is not ' +
+        'guessed from anything else.</span>';
+      return;
+    }
+    var sorted = a.slice().sort(function (x, y) { return y.amount - x.amount; });
+    var total = sorted.reduce(function (s, r) { return s + r.amount; }, 0);
+    if (!total) {
+      el('r-acct').innerHTML = '';
+      el('r-acct-note').innerHTML = '<span class="none">Every account in this file totals zero.</span>';
+      return;
+    }
+    var max = sorted[0].amount;
+    var n = Math.min(5, sorted.length);
+    var top = sorted.slice(0, n);
+    /* The "smallest" half is the entire reason this panel exists -- a top-5 board
+       is a leaderboard, and the money is usually in the tail. It must never
+       OVERLAP the top, or the same account appears twice and that is a bug that
+       looks like a design. So take whatever is left after the top n, capped at n.
+       An earlier version required 2n accounts before showing it at all, which
+       meant the sample's 9 customers rendered no bottom half at all. */
+    var rest = sorted.slice(n);
+    var bottom = rest.length >= 2 ? rest.slice(-Math.min(n, rest.length)).reverse() : [];
+    /* With only a handful of accounts, a "Biggest 5" heading over a 6-account book
+       silently drops one and nothing on the panel admits it. Caught on a real
+       dropped file. Show them all instead -- a short list needs no ranking. */
+    var showAll = sorted.length <= n + 1;
+
+    function rank(r, low){
+      return '<div class="drank' + (low ? ' low' : '') + '">' +
+             '<span class="drank-n">' + esc(r.name) + '</span>' +
+             '<span class="drank-v">' + money(r.amount) + '</span>' +
+             '<span class="drank-t" style="width:' + Math.max(2, Math.round((r.amount / max) * 100)) + '%"></span>' +
+             '</div>';
+    }
+    if (showAll) { top = sorted; bottom = []; }
+    var html = '<p class="dranksec">' +
+               (showAll ? 'All ' + sorted.length + ' accounts' : 'Biggest ' + n) +
+               '</p><div class="dranks">' +
+               top.map(function (r) { return rank(r, false); }).join('') + '</div>';
+    if (bottom.length) {
+      html += '<p class="dranksec">Smallest ' + bottom.length + '</p><div class="dranks">' +
+              bottom.map(function (r) { return rank(r, true); }).join('') + '</div>';
+    }
+    el('r-acct').innerHTML = html;
+
+    var topShare = Math.round((sorted[0].amount / total) * 100);
+    var fiveShare = Math.round((top.reduce(function (s, r) { return s + r.amount; }, 0) / total) * 100);
+    var txt = '<b>' + esc(sorted[0].name) + '</b> is ' + topShare + '% of revenue in this file, and ' +
+              'the top ' + n + ' together are <b>' + fiveShare + '%</b> across ' + sorted.length +
+              ' accounts.';
+    if (topShare >= 25) {
+      txt += ' One account at a quarter or more is the risk worth naming out loud: losing them is ' +
+             'not a bad month, it is a different business.';
+    } else if (fiveShare < 50) {
+      txt += ' That is unusually even &mdash; no single account can take you out.';
+    }
+    el('r-acct-note').innerHTML = txt;
   }
 
   function renderReceivables(){
@@ -1500,10 +1727,21 @@ __SHARED_INTAKE__
     }
 
     var byWeek = {}, open = [], used = 0, skipped = 0;
+    /* Two extra splits, accumulated in the SAME pass so they cannot disagree
+       with the weekly total the chart draws. byDow is Monday-first to match the
+       weekly buckets; getDay() is Sunday-first, hence the shift. */
+    var byDow = [0, 0, 0, 0, 0, 0, 0], byAccount = {};
     rows.forEach(function (r) {
       var d = parseWhen(r[di]), n = parseNum(r[ai]);
       if (d === null || n === null) { skipped++; return; }
       used++;
+      if (n > 0) {
+        byDow[(d.getDay() + 6) % 7] += n;
+        if (ci >= 0) {
+          var who = String(r[ci] || '').trim() || 'Unnamed account';
+          byAccount[who] = (byAccount[who] || 0) + n;
+        }
+      }
       if (si >= 0 && n > 0) {
         var sv = String(r[si] || '').trim().toLowerCase();
         var settled = (sv === 'paid' || sv === 'yes' || sv === 'y' || sv === 'true' ||
@@ -1534,10 +1772,24 @@ __SHARED_INTAKE__
     var names = {}, nOpen = 0;
     open.forEach(function (o) { if (!names[o.customer]) { names[o.customer] = 1; nOpen++; } });
 
+    /* No account column in the file means no per-account split -- null, not an
+       empty list, so the panel can say "your file has no customer column"
+       rather than "your top accounts are: (nothing)". */
+    var accts = null;
+    if (ci >= 0) {
+      accts = [];
+      for (var an in byAccount) {
+        if (byAccount.hasOwnProperty(an)) { accts.push({ name: an, amount: Math.round(byAccount[an]) }); }
+      }
+      if (!accts.length) { accts = null; }
+    }
+    var dowOut = byDow.map(function (v) { return Math.round(v); });
+    if (!dowOut.reduce(function (a, b) { return a + b; }, 0)) { dowOut = null; }
+
     var label = fileName.replace(/\.[a-z0-9]+$/i, '').slice(0, 48) || 'Your business';
     return {
       book: { business: label, weeks: out, receivables: open.slice(0, 40), spend: 0,
-              hasSpend: false, activeCustomers: nOpen },
+              hasSpend: false, activeCustomers: nOpen, dow: dowOut, accounts: accts },
       map: { date: header[di], amount: header[ai],
              customer: ci >= 0 ? header[ci] : null,
              status: si >= 0 ? header[si] : null,
