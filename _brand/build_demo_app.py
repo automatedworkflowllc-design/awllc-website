@@ -582,8 +582,16 @@ __SHARED_INTAKE__
            ...
          ],
          spend: 262,                            // month-to-date, optional
-         activeCustomers: 12                    // optional
+         activeCustomers: 12,                   // optional
+         dow: [21000,19500,24000,22500,14000,1300,0],   // optional, Monday first
+         accounts: [{name:'Northgate Logistics', amount:41000}, ...]  // optional
        };
+
+     dow and accounts are OPTIONAL and their absence is a legitimate state, not
+     an error: an export with no customer column genuinely cannot support a
+     per-account split. When either is missing its panel SAYS SO rather than
+     drawing an empty chart, because an empty chart reads as "you did no
+     business" -- a confident lie. Present-but-malformed still refuses by name.
 
      The client supplies FACTS ONLY. Every derived figure -- month-to-date,
      prior-month comparison, AR total, aging buckets, the written summary --
