@@ -252,7 +252,7 @@ function analyze(header, body, picks){
   if(!shifts.length) return { error: 'No dated shift rows found in that file.' };
   shifts.sort(function(a,b){ return a.date - b.date || (a.start||0) - (b.start||0); });
 
-  var out = { shifts: shifts, ot: [], solo: [], turn: [], streak: [], gaps: [], days: [], roles: [] };
+  var out = { shifts: shifts, ot: [], solo: [], turn: [], streak: [], gaps: [], unassigned: [], days: [], roles: [] };
 
   // ---- overtime: hours per person per ISO week
   if(picks.person !== undefined && shifts.some(function(s){ return s.hours !== null; })){
@@ -323,10 +323,21 @@ function analyze(header, body, picks){
   // ---- coverage: a role staffed on most days but missing on some
   if(picks.role !== undefined){
     var dayset = Object.create(null), roleset = Object.create(null), filled = Object.create(null);
+    /* A row with a role but NOBODY NAMED ON IT is not coverage -- it is the
+       most literal possible gap, and it used to count as filled. On a roster
+       with three unassigned shifts the tool printed "No gaps found. Every
+       normally-staffed role is covered every day", which is a false CLEAN in
+       the direction that gets someone's Saturday ruined. Found 2026-08-09 by
+       running the tool on a roster built with known holes.
+       Only counted when the file HAS a person column: with no such column,
+       every row would look unassigned and the tool would cry wolf on a file it
+       simply cannot judge. */
+    var knowsPeople = picks.person !== undefined;
     shifts.forEach(function(s){
       dayset[s.day] = 1;
       if(!s.role) return;
       roleset[s.role] = 1;
+      if(knowsPeople && !s.person){ out.unassigned.push({ role: s.role, day: s.day }); return; }
       filled[s.role + '||' + s.day] = (filled[s.role + '||' + s.day] || 0) + 1;
     });
     var days = Object.keys(dayset).sort(), roles = Object.keys(roleset).sort();
@@ -368,7 +379,10 @@ function render(name, res, picks, header){
     '<div class="sc-kpi' + (res.turn.length?' k-bad':'') + '"><b>' + (res.turn.length + res.streak.length) + '</b><span>fatigue flags</span></div>';
 
   var h = '<p style="font-size:.83rem;color:var(--ink-soft)">Columns read: ' + esc(mapped) + '</p>';
-  var any = res.gaps.length || res.ot.length || res.solo.length || res.turn.length || res.streak.length;
+  /* unassigned MUST be in this test -- otherwise a roster whose only problem is
+     three empty slots still prints the green "no gaps found" banner. */
+  var any = res.gaps.length || res.ot.length || res.solo.length || res.turn.length ||
+            res.streak.length || (res.unassigned && res.unassigned.length);
 
   if(res.roles.length && res.days.length && res.days.length <= 21){
     h += '<div class="sc-sec">Coverage map</div><div class="sc-map"><table><tr><th></th>' +
@@ -390,6 +404,22 @@ function render(name, res, picks, header){
       h += '<div class="sc-card"><h4>' + esc(role) + ' — ' + byRole[role].length + ' day' +
         (byRole[role].length===1?'':'s') + ' with nobody scheduled</h4><p>' +
         esc(byRole[role].join(', ')) + '. This role is staffed on every other day in the file.</p></div>';
+    });
+  }
+  if(res.unassigned && res.unassigned.length){
+    /* Reported separately from a coverage gap on purpose: "this role has no
+       shift that day" and "this shift exists and nobody is on it" are different
+       problems with different fixes, and collapsing them would hide which one
+       you have. */
+    var byU = Object.create(null);
+    res.unassigned.forEach(function(u){ (byU[u.role] = byU[u.role] || []).push(u.day); });
+    h += '<div class="sc-sec">Shifts with nobody on them</div>';
+    Object.keys(byU).sort().forEach(function(role){
+      var ds = byU[role];
+      h += '<div class="sc-card"><h4>' + esc(role) + ' — ' + ds.length + ' shift' +
+        (ds.length===1?'':'s') + ' with no name against ' + (ds.length===1?'it':'them') + '</h4><p>' +
+        esc(ds.join(', ')) + '. The row is on the roster, the slot is empty. This is not the same ' +
+        'as the role being unscheduled &mdash; somebody planned the shift and nobody was assigned.</p></div>';
     });
   }
   if(res.ot.length){

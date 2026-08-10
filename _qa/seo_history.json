@@ -1,28 +1,5 @@
 [
  {
-  "when": "2026-08-08 12:31",
-  "score": 2,
-  "pages": 33,
-  "by_area": {
-   "llms-txt": 1,
-   "sitemap-coverage": 1
-  }
- },
- {
-  "when": "2026-08-08 12:32",
-  "score": 1,
-  "pages": 34,
-  "by_area": {
-   "title": 1
-  }
- },
- {
-  "when": "2026-08-08 12:32",
-  "score": 0,
-  "pages": 34,
-  "by_area": {}
- },
- {
   "when": "2026-08-08 12:33",
   "score": 0,
   "pages": 34,
@@ -376,6 +353,24 @@
  },
  {
   "when": "2026-08-09 20:59",
+  "score": 0,
+  "pages": 35,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-09 21:19",
+  "score": 0,
+  "pages": 35,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-09 21:35",
+  "score": 0,
+  "pages": 35,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-09 21:35",
   "score": 0,
   "pages": 35,
   "by_area": {}
