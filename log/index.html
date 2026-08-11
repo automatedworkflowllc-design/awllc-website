@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">94 entries · newest first within each group</p>
+  <p class="stamp">95 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,40 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">Swept all five reliability tools for the same bug — two had it, one is exempt for a reason
+      <span class="chip live">sweep complete</span><span class="chip">rule written down</span></p>
+    <p class="what"><b>In plain terms:</b> having found the same defect twice in one day, the
+    question stopped being &ldquo;is this one broken&rdquo; and became &ldquo;which of them are&rdquo;.
+    Every tool here that reports <em>change</em> keeps a watermark &mdash; a stored record of what it
+    saw last time &mdash; and whoever writes that watermark decides what counts as new. So all five
+    were checked against one question: <b>run it twice with nothing fixed, does the second run still
+    fail?</b></p>
+    <p class="proof"><b>Two said no</b>, and both are now fixed: the deploy gates
+    (<code>autoqa</code>, <code>seo_audit</code>) and <code>canary</code>. <b>attest is safe by
+    construction</b> &mdash; its ledger is an append-only hash chain, so there is no watermark to
+    move. <b>flatline is stateless</b>: it writes a report and keeps nothing, so it has no memory to
+    corrupt.
+    <b>watchpost is exempt, and that is a finding rather than a pass.</b> It does keep a watermark,
+    a frozen-streak counter, and any run can move it &mdash; but an extra run pushes a watch
+    <em>toward</em> raising the alarm, never away from it. Its failure direction is a false red:
+    visible, irritating, self-correcting. That is the safe direction, and it is the whole reason it
+    needed no change. One caveat found while checking and deliberately not fixed:
+    <code>frozen_after_runs</code> counts <em>runs</em>, not nights, so ad-hoc runs can reach the
+    threshold sooner than the nightly cadence intends. It errs loud, so it is written down instead
+    of built around.</p>
+    <p class="proof"><b>The output is a rule, not a sixth tool.</b> The reliability map now carries
+    the table &mdash; which tool has a watermark, who could move it, and why watchpost is exempt
+    &mdash; plus the rule itself: a tool that reports change must distinguish <em>looking</em> from
+    <em>recording</em>, and only the authoritative runner may record. Looking is free and shows
+    everything; it must never be what silences the alarm. The workspace instructions now gate a new
+    tool on that question alongside the existing two, so the next one cannot ship without answering
+    it.</p>
+    <p class="where">16851e8 &middot; dev/RELIABILITY-MAP.md + dev/CLAUDE.md &middot; 5 tools checked, 2 fixed, 1 exempt with reason, 2 safe by design</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
