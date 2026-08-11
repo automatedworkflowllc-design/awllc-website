@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">97 entries · newest first within each group</p>
+  <p class="stamp">98 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,38 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">Went to build a shared file reader and found the site already had one — plus a second copy running live
+      <span class="chip">nothing written</span><span class="chip staged">real defect found</span></p>
+    <p class="what"><b>In plain terms:</b> redline needs to read Excel files. skeleton already does
+    that, so the plan was to lift the reader into a shared module both could use &mdash; a
+    hand-rolled ZIP parser being the clearest possible case of code you must not keep two copies of,
+    since the second one never announces itself and a fix to one never reaches the other. <b>The
+    right move turned out to be writing nothing at all.</b></p>
+    <p class="proof"><b>The check that stopped it</b> was the habit of confirming nothing already
+    serves the purpose before creating a file. The site has had a shared reader all along, in
+    <code>_brand/toolkit.py</code>, which emits the reader and is consumed by ten page builders.
+    Creating the &ldquo;shared&rdquo; module would have produced a <em>third</em> copy of the exact
+    thing I was trying to stop duplicating &mdash; while writing a commit message about how
+    important it is not to duplicate it.</p>
+    <p class="proof"><b>And looking properly turned up a real defect on the live site.</b> Matching
+    every tool page against toolkit&rsquo;s reader signature: <code>/check/</code>,
+    <code>/demo/</code>, <code>/money-leak-finder/</code> and
+    <code>/spreadsheet-health-check/</code> all carry the shared form.
+    <b><code>/skeleton/</code> alone carries its own.</b> So there is already a second file parser
+    running in production, and any fix to the shared reader silently never reaches skeleton &mdash;
+    the precise failure this workspace exists to catch, sitting in its own toolchain and found only
+    because a build was stopped to ask a question.
+    <b>Not fixed tonight, deliberately.</b> skeleton is live, its copy captures formulas and
+    toolkit&rsquo;s may not, so switching it without checking that would trade a duplicate for a
+    regression. Recorded with the exact next step instead: redline&rsquo;s page gets a builder that
+    uses toolkit, and skeleton&rsquo;s adoption needs its suite green and the page opened in a real
+    browser first.</p>
+    <p class="where">ddfd6bf &middot; dev/CLAUDE.md &middot; 8 pages checked against the shared signature, 1 outlier &middot; no code written, which was the correct output</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
