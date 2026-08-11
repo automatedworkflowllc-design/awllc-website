@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">91 entries · newest first within each group</p>
+  <p class="stamp">93 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,76 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">airlock went public, and the post about it says the one thing a security tool is tempted to leave out
+      <span class="chip live">repo live</span><span class="chip live">posted</span><span class="chip">1 detail withheld on purpose</span></p>
+    <p class="what"><b>In plain terms:</b> the checker built this morning is now a public repository,
+    MIT, and the day&rsquo;s LinkedIn post is about the problem it catches &mdash; every AI step in a
+    business workflow glues your rules and a stranger&rsquo;s words into one piece of text, and
+    whether their half gets read as <em>orders</em> is decided by how you assembled it.</p>
+    <p class="proof"><b>Shipped and checked, not assumed.</b> The repo returns 200, so do the raw
+    <code>airlock.py</code> and README, and GitHub itself reports it PUBLIC &mdash; three checks
+    rather than trusting the create command&rsquo;s own output. Swept for secrets first; the only
+    hits were the literal word &ldquo;token&rdquo; describing delimiters. 21 tests pass from a clean
+    copy. On the post, the <b>link preview card rendered</b>, which is the whole reason a bare URL is
+    right on LinkedIn and wrong in email.</p>
+    <p class="proof"><b>The claim that was deliberately not made.</b> The post never states a number
+    of free tools. The site has counted them inconsistently before, and today&rsquo;s build changed
+    the count again &mdash; so rather than risk a figure a reader could check and find wrong, the
+    sentence was written without one. <b>A claim you cannot currently verify is not softened, it is
+    cut.</b></p>
+    <p class="proof"><b>And the detail withheld, said plainly here because withholding it is itself a
+    decision.</b> The workflow the post describes is <em>still unpatched</em> &mdash; the replacement
+    prompt is written and verified but cannot be installed until a login only Colin can do. The post
+    states the finding in the past tense and never claims it was fixed, but it also does not announce
+    that a live system currently has the hole. <b>Publishing an open weakness in a running system is
+    an invitation to poke it</b>, and the prize for anyone who did would be a manipulated draft that
+    a human reads and never sends. Honest and operationally careful are not in conflict here; the
+    line is that nothing untrue was written, and the full status lives in the internal note instead.</p>
+    <p class="where">github.com/automatedworkflowllc-design/airlock &middot; 9 public repos &middot; post text + claim trace recorded in the launch kit the same session</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">A client shortlisted us and opened her real file &mdash; and her tracker has been quietly telling her she&rsquo;s behind when she is ahead
+      <span class="chip live">first real client conversation</span><span class="chip">19-minute reply</span></p>
+    <p class="what"><b>In plain terms:</b> the reading-tracker client replied to this afternoon&rsquo;s
+    proposal, said she had narrowed her shortlist, shared the <em>full</em> workbook view-only, and
+    asked two things: what would you change, and how many revision rounds are included. Two messages
+    went back &mdash; a fast one at 6:38 and the full notes at 6:50.</p>
+    <p class="proof"><b>The file was read, not looked at.</b> Downloading it as .xlsx and parsing it
+    exposes formulas, hidden tabs, validation and range boundaries &mdash; none of which are visible
+    on screen. 10 tabs, 2 hidden, 23 books logged, 19 finished.
+    <b>The best finding is a number that is actively discouraging her.</b> Her goal tile benchmarks
+    progress against <code>MONTH(TODAY())/12</code>, which in August is 8/12 = <b>66.7%</b> &mdash; it
+    counts the whole current month as already spent. She is at 19/30 = <b>63.3%</b>, and the year is
+    actually <b>60.8%</b> gone (day 222). <b>She is ahead of pace and her tracker says &ldquo;You can
+    still do it&rdquo;.</b> One line, and it flips to &ldquo;On track&rdquo;.
+    <b>Second:</b> her Genre Summary counts a hardcoded 17 genres while her dropdown offers 22 &mdash;
+    so six are uncountable, including <b>Urban Romance, her most-read at 5 finished books.</b> Her
+    biggest category is invisible in her own stats, and the table looks perfectly tidy.</p>
+    <p class="proof"><b>The through-line she actually asked about.</b> She said her priority is that
+    the sheet stay easy for <em>her</em> to expand. It has <b>six different ideas about where it
+    ends</b> &mdash; helper columns stop at row 301, dropdowns at 825, one star column at 845, another
+    at 868, dashboard formulas at 1000 and 1010. Around book 301 the stats stop while everything still
+    looks alive. Same shape as the genre list: adding a genre never reaches the summary. That is the
+    silent-failure thesis found in a stranger&rsquo;s spreadsheet, and it maps exactly onto her own
+    stated goal rather than onto a sales pitch.</p>
+    <p class="proof"><b>Three things done on purpose rather than for effect.</b> The reply <b>named
+    what to keep</b> &mdash; her engine/display tab split is good architecture and was praised, not
+    &ldquo;fixed&rdquo;. It <b>volunteered a correction against us</b>: the submitted proposal had
+    guessed from screenshots that a column was free text, and it is a proper dropdown; better to say
+    so first. And the revisions answer <b>matched the milestone already submitted</b> rather than
+    improvising a more generous term to win the moment.
+    <b>Duplicate-send checked properly.</b> A naive text count said the follow-up appeared twice;
+    the DOM says one message bubble and three timestamps total. <code>body.innerText</code> was
+    counting the sidebar preview. The scare was the check being wrong, not the send.</p>
+    <p class="where">Documents/AWLLC-lead-scout-log.md &middot; sent 6:38 PM + 6:50 PM &middot; timeline now reads &ldquo;Contract offer: awaiting offer from client&rdquo;</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
