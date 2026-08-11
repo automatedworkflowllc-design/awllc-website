@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">96 entries · newest first within each group</p>
+  <p class="stamp">97 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,46 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">redline — the diff nobody can buy, and two defects that would have gutted it
+      <span class="chip">45 tests</span><span class="chip staged">engine done, page next</span></p>
+    <p class="what"><b>In plain terms:</b> drop two versions of the same spreadsheet and see what
+    actually changed. &ldquo;Can you check what they changed?&rdquo; is one of the most common and
+    most miserable jobs in an office, and Excel&rsquo;s own compare lives behind an enterprise
+    add-in &mdash; so in practice people scroll two windows side by side and hope. Second build in
+    the comprehension family rather than the verification one.</p>
+    <p class="proof"><b>The finding it exists for is on-thesis:</b> a formula replaced by a typed
+    number. Somebody pastes values over a calculation &mdash; to silence a #REF, to freeze a figure,
+    by accident with paste-special &mdash; and from that moment the cell stops tracking its inputs
+    and quietly reports last month&rsquo;s answer forever, looking perfect the whole time. That is a
+    silent failure living inside a spreadsheet. <b>It is reported even when the displayed value has
+    not moved</b>, because a frozen figure that still happens to be right is the same defect before
+    it surfaces &mdash; and the page says so, rather than waiting for the day it goes wrong.
+    <b>Row alignment is the whole game.</b> Insert one row near the top and a naive A1-against-A1
+    comparison calls every row below it changed: hundreds of false differences burying the real two.
+    Rows are matched by longest-common-subsequence first and only then compared cell by cell.</p>
+    <p class="proof"><b>Two defects the tests caught, both structural, either one gutting the
+    tool.</b> First: LCS aligns only <em>identical</em> rows, so a row whose value <em>also</em>
+    changed dropped out as a delete plus an insert and was never compared cell by cell &mdash;
+    meaning the formula-lost finding <b>could only ever fire when the value happened to stay the
+    same</b>, the easy half of the one case it exists for. Consecutive delete/insert runs are now
+    re-paired into edited rows above a similarity threshold. Second: the row-identity key joined
+    cells on an empty string, so <code>["ab","c"]</code> and <code>["a","bc"]</code> collided into
+    one identity and could silently suppress a real change &mdash; the same class of bug this
+    workspace hunts, in its own comparator. It joins on a control character now, with a separate
+    readable string kept for display, because an identity must never collide and a label must never
+    contain a control character.
+    <b>Two fixtures turned out to be wrong rather than the rule.</b> Rows where the majority of
+    cells change are deliberately <em>not</em> paired &mdash; at that point it is a different row,
+    and pairing it would invent changes instead of finding them. The first version of those tests
+    assumed otherwise; the threshold held and the fixtures were rewritten. Truncation names how many
+    it hid, and the large-file fallback announces that it changed method rather than quietly
+    producing a different kind of answer.</p>
+    <p class="where">9d115c9 &middot; dev/redline/ &middot; 45 tests, every expected answer worked out before the code ran &middot; xlsx reader and page next</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
