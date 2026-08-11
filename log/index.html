@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">93 entries · newest first within each group</p>
+  <p class="stamp">94 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,43 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 10</div>
+  <div>
+    <p class="name">Looking at a problem was silencing it — the same bug as the gates, one tool over
+      <span class="chip live">fixed</span><span class="chip">25 tests</span><span class="chip">3 broken checks of my own</span></p>
+    <p class="what"><b>In plain terms:</b> after fixing the deploy gates this morning, the obvious
+    question was whether the same shape existed elsewhere. It did, in canary. The nightly guard
+    reports <em>news</em> rather than inventory &mdash; deliberately, because a guard that shouts
+    every night about a finding you already saw gets muted. A stored watermark decides what counts
+    as new, and <b>every run used to write it</b>. So a person running canary by hand aged a
+    brand-new finding into silence, and the scheduled guard &mdash; the one on a timer, that writes
+    a signed receipt, that nobody watches &mdash; then exited 0 with the problem still in the
+    file.</p>
+    <p class="proof"><b>Measured before it was touched</b>, on a CSV with two columns dead by
+    construction, one invocation each: a human looks &rarr; <code>1 with findings (1 new)</code>,
+    <b>exit 2</b>. The guard runs next &rarr; <code>1 with findings (0 new)</code>, <b>exit 0</b>.
+    The finding was still in the file and still in the report; only the alarm was gone, and that
+    night&rsquo;s receipt would have said clean. That is not the documented intent &mdash;
+    &ldquo;do not re-alarm on a known-old finding&rdquo; is right, but &ldquo;let an unofficial run
+    age a <em>new</em> finding out of the news&rdquo; is this tool&rsquo;s own subject matter
+    wearing its clothes.
+    <b>Only <code>--record</code> advances the watermark now</b>, and the scheduled launcher passes
+    it. Ad-hoc runs still write the full report and still exit 2 &mdash; looking costs nothing and
+    shows everything; it simply cannot silence the guard. Three ad-hoc looks now return 2, 2, 2
+    where they used to return 2, 0, 0, and the guard still ages a finding exactly once.</p>
+    <p class="proof"><b>Getting there took three broken checks of my own, which is the more useful
+    half of this.</b> The first fixture was a <code>.py</code> file &mdash; canary watches
+    <code>.csv</code> and <code>.tsv</code>, so it was correctly ignored and my premise was wrong,
+    not the tool. The second used an MSYS-style path that Windows Python cannot resolve, so the
+    directory silently did not exist and the scan reported nothing. The third was worse: my harness
+    ran the command <em>twice per case</em>, once for the output and once for the exit code &mdash;
+    <b>consuming the news itself</b>, reproducing the exact bug I was testing for, and returning a
+    reassuring 0. Three times in a row the check could not have gone red. The finding only became
+    real once the harness ran each invocation once.</p>
+    <p class="where">d7ace10 + canary/canary.py &middot; 25 tests (was 24) &middot; real watermark verified untouched by every experiment</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
