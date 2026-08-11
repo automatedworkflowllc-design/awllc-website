@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">98 entries · newest first within each group</p>
+  <p class="stamp">99 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,38 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 11</div>
+  <div>
+    <p class="name">skeleton finally met real files — eight of them, and it held
+      <span class="chip live">8/8 parsed</span><span class="chip">control proved it could fail</span></p>
+    <p class="what"><b>The gap that had been open since skeleton shipped:</b> it had only ever seen
+    synthetic fixtures whose answers were known in advance. That is the right way to build a parser
+    and it is <em>not</em> evidence it survives a real book. The honest test needed a real file, and
+    it turned out not to need anyone to supply one &mdash; eight real workbooks were already on
+    disk, each produced by a different generator and none of them ever shown to skeleton.</p>
+    <p class="proof"><b>Run against the parser lifted straight out of the page</b>, not a
+    description of it, so this exercises shipped code. All eight parsed: job costing (243 cells,
+    106 formulas), owner statements (224/34), the nudge demo (162/52), money leak
+    (1,403/1,194), sales cleanup (247/20), two pulse configs (49/0 and 65/1), and the invoice chase
+    queue at <b>1,879 cells and 1,741 formulas</b>. No crashes, no sheet unread, no workbook coming
+    back empty. <b>Every sheet declared was a sheet read</b> &mdash; 2/2, 4/4, 3/3 &mdash; which is
+    the specific failure that bit this parser during its build, when a relationship-attribute
+    ordering bug made every path resolve empty and reported zero formulas for a workbook full of
+    them.</p>
+    <p class="proof"><b>Eight passes is exactly the shape of result that has been wrong all week</b>,
+    so the harness was made to fail on purpose before the passes were believed. A CSV renamed
+    through it returns <em>not a zip file</em>. A hand-built .xlsx that declares one sheet and
+    contains no cells at all returns <b>ZERO CELLS</b> rather than a cheerful nothing &mdash; which
+    matters because &ldquo;parsed an empty workbook&rdquo; and &ldquo;failed to parse a full
+    one&rdquo; look identical from the outside, and that is the whole reason this check exists.
+    Both controls fired. The passes mean something.
+    <b>One caveat stated rather than buried:</b> the single workbook returning zero formulas is a
+    metrics <em>config</em> template, which plausibly has none &mdash; that is unconfirmed, and it is
+    the one number here nobody has checked against the file itself.</p>
+    <p class="where">8 real workbooks, 4,272 cells, 3,148 formulas &middot; negative controls in both directions &middot; the parser is byte-identical across page, live page and harness, verified the same day</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 10</div>
   <div>
