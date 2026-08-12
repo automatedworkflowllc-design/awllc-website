@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">103 entries · newest first within each group</p>
+  <p class="stamp">104 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,51 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 12</div>
+  <div>
+    <p class="name">Four tools stopped throwing away the number that just scared someone
+      <span class="chip live">live</span><span class="chip">mailto, not a form &mdash; deliberately</span></p>
+    <p class="what"><b>The gap.</b> A visitor drops their own export into the money leak finder,
+    it tells them <b>$1,325 is sitting in jobs they never invoiced</b> &mdash; and the only next
+    step was a link to a blank form on another page, where they start again by re-explaining
+    themselves. The findings were discarded at the exact moment of highest intent. <b>I first
+    described this as &ldquo;no bottom to the funnel&rdquo;, and that was wrong</b>: a CTA has
+    always been there. The real gap was narrower and far more fixable &mdash; the CTA carried
+    none of the context.</p>
+    <p class="proof"><b>Why it could not be a form.</b> These pages promise <em>zero requests
+    after load</em>, and the health check says outright that the file &ldquo;never leaves your
+    computer &mdash; there is nowhere here to send it&rdquo;. A POST would make both sentences
+    false, and those sentences are quoted in outreach email and on LinkedIn. So it is a
+    <code>mailto:</code>, which issues no request at all: the visitor&rsquo;s own mail client
+    sends it, only if they press send. <b>Verified against a network log proven able to go red
+    first</b> &mdash; it caught the 4 requests the page load itself makes, then zero across the
+    entire file flow, with the flow confirmed to have actually completed rather than silently
+    doing nothing.</p>
+    <p class="proof"><b>Counts only, and what is withheld differs per tool.</b> The duplicate
+    finder sends no customer names &mdash; &ldquo;Dealership LLC vs dealership inc&rdquo; is
+    precisely what they came here not to hand over. The health check sends no finding text,
+    because findings quote real column names and cell values. The shift check sends no staff
+    name, role or shift time: a roster is personal data, and naming who is one-deep would be the
+    worst thing to put in an email. Each was checked against a fixture whose answer was worked out
+    by hand first &mdash; <b>5 spellings / 1 collision / 3 real customers</b>; seven straight days
+    for one cook producing exactly <b>1 overtime week + 1 fatigue flag</b>, and a lone server
+    producing <b>1 one-deep role</b> &mdash; and <b>0 of 6&ndash;7 identifiers leaked</b> in every
+    body. Sample data never offers it; nobody should email about Cedar Field Services, which does
+    not exist.</p>
+    <p class="proof"><b>The bug, and the blind spot it exposes in this morning&rsquo;s new gate.</b>
+    A bad patch put raw newlines inside a single-quoted JS string in the shift-coverage builder
+    &mdash; a SyntaxError that killed the entire page script, so even the sample button was dead.
+    The build succeeded. autoqa reported 0 defects. The request-surface grep was clean.
+    <b>Only loading the page found it.</b> And the reader gate added hours earlier would not have
+    caught it either: it extracts the parser <em>out</em> of the page and runs that, so a
+    SyntaxError anywhere else in the page&rsquo;s script is invisible to it. Both gates share one
+    blind spot &mdash; <b>nothing yet loads a page and runs its own script end to end.</b>
+    These builders emit JavaScript from Python, so an escaping slip on the Python side is a dead
+    page that every existing check calls clean.</p>
+    <p class="where">131ca7c, 5ebf78e &middot; money-leak-finder, duplicate-customer-finder, spreadsheet-health-check, shift-coverage-check &middot; pre-push promise audit: &ldquo;no page offers something it cannot hand over&rdquo;</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 12</div>
   <div>
