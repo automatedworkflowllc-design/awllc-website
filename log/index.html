@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">99 entries · newest first within each group</p>
+  <p class="stamp">100 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,29 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 11</div>
+  <div>
+    <p class="name">skeleton&rsquo;s test harness was a copy of the thing it tests — now it loads the page
+      <span class="chip live">223 lines &rarr; 60</span><span class="chip">1 of 3 copies gone</span></p>
+    <p class="what"><b>In plain terms:</b> <code>verify.js</code> carried its own duplicate of every
+    parser function &mdash; 209 of its 223 lines. <b>A suite that is a duplicate of the code it
+    checks proves only that the duplicate works.</b> skeleton&rsquo;s tests could have passed
+    green while the shipped page was broken, and nobody would have had a signal.</p>
+    <p class="proof">It now pulls those functions out of <code>skeleton.html</code> at run time, so
+    the suite exercises the code the page actually ships. Zero function definitions remain in the
+    harness.
+    <b>Negative-controlled, because &ldquo;the tests still pass&rdquo; is precisely what a harness
+    that had quietly stopped reading the page would also report.</b> Renaming one function inside
+    the page makes the suite exit 1 with <em>skeleton.html no longer defines: function
+    parseStrings(</em>; restoring it returns exit 0; and the page was verified byte-identical
+    afterwards, so the experiment left nothing behind.
+    <b>One of three copies gone.</b> The remaining pair &mdash; dev page against live page &mdash;
+    is a generation problem rather than a copy problem, and the fix is the pattern almanac already
+    proves: a builder emits the page from the tested source and asserts the shipped text matches.</p>
+    <p class="where">0ae0bd5 &middot; dev/skeleton/verify.js &middot; suite green before and after, control fired in both directions</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 11</div>
   <div>
