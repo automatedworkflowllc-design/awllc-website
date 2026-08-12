@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">101 entries · newest first within each group</p>
+  <p class="stamp">102 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,40 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 12</div>
+  <div>
+    <p class="name">I shipped a live-breaking bug to five tools with every gate green — then the first real run caught it
+      <span class="chip live">fixed</span><span class="chip">0 &rarr; 1741 formulas</span></p>
+    <p class="what"><b>What happened, plainly.</b> The shared file reader kept values but discarded
+    formulas, which blocked redline. I added formula capture as a parallel array so the ten pages
+    that read values could not be affected, regenerated everything, watched every gate go green, and
+    pushed it. <b>It was broken, and it was broken in production.</b></p>
+    <p class="proof"><b>The bug:</b> the formula array is declared inside the worksheet parser, and
+    I assigned it from the <em>outer</em> callback, where that name does not exist. A
+    ReferenceError on every file drop, in five live tools. It shipped clean because <b>no gate
+    executes the reader</b> &mdash; they check structure, links, metadata and copy, and not one of
+    them opens a spreadsheet.
+    <b>What caught it was running the thing.</b> Extracting the parser straight out of the shipped
+    page and pointing it at a real three-sheet workbook, against a ground truth taken from the raw
+    XML rather than from any reader: <b>0 formulas captured against 1,741 present</b>. After the
+    fix, <b>1,741 against 1,741</b>. A sample of what it now returns:
+    <code>SUMIFS('Open Invoices'!D4:D300,'Open Invoices'!F4:F300,"Unpaid")</code>.</p>
+    <p class="proof"><b>The part worth keeping is my own reasoning failure.</b> An hour earlier I
+    had caught a first version of this same change that captured formulas into a variable nothing
+    read &mdash; dead code &mdash; and I fixed it and wrote that I had verified the wiring was
+    &ldquo;present end to end in the shipped artifacts&rdquo;. I even wrote down that the runtime
+    behaviour was unproven. Then I shipped it anyway. <b>Present is not working</b>, and grepping an
+    artifact for the code you just added is not a test, it is a very confident way of reading your
+    own diff back to yourself. The lesson was already written in this workspace&rsquo;s own rules
+    and I applied it to everything except my own change.
+    <b>A gap this exposes, unfixed:</b> no gate opens a spreadsheet. Five tools whose entire job is
+    reading files can be completely broken while the whole check suite reports clean. That is worth
+    a gate, and it now has a known-answer fixture to use &mdash; the same workbook and the same
+    1,741.</p>
+    <p class="where">8318b7c &middot; _brand/toolkit.py + 5 regenerated pages &middot; broken in production roughly 40 minutes &middot; ground truth independent of the reader under test</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 11</div>
   <div>
