@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">105 entries · newest first within each group</p>
+  <p class="stamp">106 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,29 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 12</div>
+  <div>
+    <p class="name">redline stopped being a thing I described and became a thing you can run
+      <span class="chip live">CLI shipped</span><span class="chip">3 paths exercised</span></p>
+    <p class="what"><b>In plain terms:</b> <code>node redline.js old.csv new.csv</code> now
+    compares two versions of a report and says what moved. The engine had been tested for two days
+    without being runnable, and <b>a tool you cannot run is a tool you cannot check against a real
+    file</b> &mdash; which is the gap that has produced most of this week&rsquo;s findings.</p>
+    <p class="proof"><b>All three paths exercised before the commit, not alongside it:</b> two real
+    exports give 1 row added and 2 cells changed with refs <code>C4</code>/<code>D4</code> &mdash;
+    correct <em>after</em> the inserted row shifted them down, which is the alignment work visible
+    in one line of output; identical files return &ldquo;No differences&rdquo; and exit 0; a
+    missing file names the file and the reason and exits 2 rather than pretending.
+    <b>One decision saved it from being silently useless.</b> Both files are given the SAME sheet
+    name on purpose. Naming each for its own filename would leave no sheet in common, so nothing
+    would be compared &mdash; and the tool would cheerfully report <em>no differences</em>, which is
+    the worst answer a diff can give. Two lines, and it would have passed every test I had written.
+    Capped lists say how many they hid, and the blind spot prints on every run: it compares what is
+    IN the files, cannot know which version is correct, and cannot see a change made and undone.</p>
+    <p class="where">10341fe &middot; dev/redline/redline.js &middot; 61 tests green &middot; xlsx waits for the hosted page and the shared reader, rather than growing a second one here</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 12</div>
   <div>
