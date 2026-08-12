@@ -299,6 +299,10 @@ padding-top:.1rem}
       in 24&ndash;48h &mdash; or start with a <a href="/free-demo/?from=health-check">free 1-day demo on your real
       data</a>, keep it either way.</p>
       <a class="btn" href="/spreadsheet-cleanup-service/">See the cleanup service</a>
+      <!-- Filled in by render() ONLY for a visitor's own file. mailto:, never a form POST: this
+           page says the file "never leaves your computer -- there is nowhere here to send it",
+           and a POST would make that sentence false. -->
+      <div id="hc-send" hidden></div>
       <p style="margin:.9rem 0 0;font-size:.85rem">Tracking work against invoices? The
       <a href="/money-leak-finder/">Money Leak Finder</a> lines up both exports and shows only the
       mismatches &mdash; same rule, nothing uploads. Same customer entered three ways? The
@@ -805,7 +809,29 @@ var SAMPLE = 'Invoice No,Date,Customer,Amount,Status,Notes\n' +
 '1008,2026-07-11,Acme Roofing,,Paid,\n' +
 '1009,2026-07-14,Palm Realty,2350,Paid,\n';
 
-function render(name, result){
+/* Severity COUNTS only -- never a finding's text, which quotes real column names and cell
+   values straight out of the visitor's file. */
+function sendBlock(counts, rows, cols){
+  var host = document.getElementById('hc-send');
+  if(!host) return;
+  if(!(counts.high + counts.med)){ host.hidden = true; host.innerHTML = ''; return; }
+  var body = 'Hi Colin,\n\nI ran the spreadsheet health check on my own file (' + rows +
+             ' rows, ' + cols + ' columns). It found:\n\n' +
+             '- ' + counts.high + ' needing attention\n' +
+             '- ' + counts.med + ' worth checking\n' +
+             '- ' + counts.info + ' informational\n\n' +
+             'I have not sent you the file itself.\n\n[Anything you want to add]\n';
+  var href = 'mailto:colin@automatedworkflowllc.com' +
+             '?subject=' + encodeURIComponent('Spreadsheet health check - what it found on my file') +
+             '&body=' + encodeURIComponent(body);
+  host.hidden = false;
+  host.innerHTML =
+    '<p style="margin:.9rem 0 .5rem;font-size:.85rem">Or send Colin just the tally &mdash; opens your ' +
+    'own email app, already written. Your file stays in this browser; nothing is attached.</p>' +
+    '<a class="btn" id="hc-mail" href="' + href + '">Email this tally to Colin</a>';
+}
+
+function render(name, result, isSample){
   var rep = document.getElementById('hc-report');
   var SEV = {high:0, med:1, info:2};
   var LABEL = {high:'Needs attention', med:'Worth checking', info:'For information'};
@@ -817,6 +843,13 @@ function render(name, result){
     '<div class="hc-pill"><b>' + counts.high + '</b><span>needs attention</span></div>' +
     '<div class="hc-pill"><b>' + counts.med + '</b><span>worth checking</span></div>' +
     '<div class="hc-pill"><b>' + counts.info + '</b><span>informational</span></div>';
+
+  if(isSample){
+    var sh = document.getElementById('hc-send');
+    if(sh){ sh.hidden = true; sh.innerHTML = ''; }
+  } else {
+    sendBlock(counts, result.n, result.header.length);
+  }
   var out = '', lastSev = null;
   if(!fs.length){
     out = '<div class="hc-clean"><strong>Nothing found.</strong> Every column varies, dates are consistent, no duplicate rows. That is the result you want -- and it is not the same as not having looked.</div>';
@@ -852,11 +885,11 @@ function showFix(name, rows){
   panel.style.display = 'block';
 }
 
-function handleText(name, text){
+function handleText(name, text, isSample){
   try {
     var rows = parseCSV(text);
     if(!rows.length){ alert('That file appears to be empty.'); return; }
-    render(name, analyze(rows));
+    render(name, analyze(rows), isSample);
     showFix(name, rows);
   } catch(e){
     alert('Could not analyze that file. If it is an Excel workbook, save it as CSV first.');
@@ -875,7 +908,7 @@ input.addEventListener('change', function(){ handleFile(input.files[0]); });
 ['dragover','dragenter'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('is-over'); }); });
 ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('is-over'); }); });
 drop.addEventListener('drop', function(e){ handleFile(e.dataTransfer.files[0]); });
-document.getElementById('hc-sample').addEventListener('click', function(){ handleText('sample-invoices.csv', SAMPLE); });
+document.getElementById('hc-sample').addEventListener('click', function(){ handleText('sample-invoices.csv', SAMPLE, true); });
 document.getElementById('hc-download').addEventListener('click', function(){
   if(!pendingClean) return;
   // Blob + object URL: the file is assembled in the page and handed to the

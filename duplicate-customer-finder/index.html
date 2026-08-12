@@ -289,6 +289,9 @@ padding-top:.1rem}
       <a href="/spreadsheet-cleanup-service/">$300 flat cleanup</a> does, or start with a
       <a href="/free-demo/?from=duplicate-finder">free 1-day demo on your real data</a>.</p>
       <a class="btn" href="/free-demo/?from=duplicate-finder">Get it done on your real list — free</a>
+      <!-- Filled in by run() ONLY for a visitor's own file. mailto:, never a form POST: this
+           page promises the network tab stays empty, and a POST would make that false. -->
+      <div id="dc-send" hidden></div>
       <p style="margin:.9rem 0 0;font-size:.85rem">Also try the
       <a href="/spreadsheet-health-check/">Spreadsheet Health Check</a> (dead columns, mixed dates,
       exact duplicate rows) and the
@@ -682,6 +685,13 @@ function run(){
     '<div class="dc-kpi' + (collapsed ? ' k-bad' : '') + '"><b>' + realCount + '</b><span>likely real customers</span></div>' +
     '<div class="dc-kpi' + (groups.length ? ' k-bad' : '') + '"><b>' + groups.length + '</b><span>collision' + (groups.length===1?'':'s') + ' found</span></div>';
 
+  if(current.isSample){
+    var sh = document.getElementById('dc-send');
+    if(sh){ sh.hidden = true; sh.innerHTML = ''; }
+  } else {
+    sendBlock(distinctRaw, realCount, groups.length);
+  }
+
   var out = '';
   if(!groups.length){
     out = '<div class="dc-clean"><strong>No duplicates found.</strong> Every spelling in that column ' +
@@ -703,12 +713,34 @@ function run(){
   rep.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
-function load(name, text){
+/* Counts only -- never a customer name. The whole promise of this page is that the list
+   stays on the visitor's machine, and a summary naming "Dealership LLC vs dealership inc"
+   would leak exactly what they came here not to hand over. */
+function sendBlock(distinctRaw, realCount, collisions){
+  var host = document.getElementById('dc-send');
+  if(!host) return;
+  if(!collisions){ host.hidden = true; host.innerHTML = ''; return; }
+  var body = 'Hi Colin,\n\nI ran the duplicate customer finder on my own list. It found:\n\n' +
+             '- ' + distinctRaw + ' distinct spellings\n' +
+             '- ' + collisions + ' collision' + (collisions===1?'':'s') + '\n' +
+             '- ' + realCount + ' likely real customers\n\n' +
+             'I have not sent you the list itself.\n\n[Anything you want to add]\n';
+  var href = 'mailto:colin@automatedworkflowllc.com' +
+             '?subject=' + encodeURIComponent('Duplicate customer finder - what it found on my list') +
+             '&body=' + encodeURIComponent(body);
+  host.hidden = false;
+  host.innerHTML =
+    '<p style="margin:.9rem 0 .5rem;font-size:.85rem">Or send Colin just these three numbers &mdash; ' +
+    'opens your own email app, already written. Your list stays in this browser; nothing is attached.</p>' +
+    '<a class="btn" id="dc-mail" href="' + href + '">Email these numbers to Colin</a>';
+}
+
+function load(name, text, isSample){
   var rows = parseCSV(text);
   if(rows.length < 2){ alert('That file has no data rows to check.'); return; }
   var header = rows[0].map(function(h,i){ return (h||'').trim() || ('column ' + (i+1)); });
   var body = rows.slice(1).filter(function(r){ return r.join('').trim() !== ''; });
-  current = { name: name, header: header, body: body };
+  current = { name: name, header: header, body: body, isSample: !!isSample };
   var sel = document.getElementById('dc-col');
   sel.innerHTML = header.map(function(h,i){ return '<option value="' + i + '">' + esc(h) + '</option>'; }).join('');
   sel.value = String(pickColumn(header, body));
@@ -744,7 +776,7 @@ input.addEventListener('change', function(){ handleFile(input.files[0]); });
 ['dragover','dragenter'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('is-over'); }); });
 ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('is-over'); }); });
 drop.addEventListener('drop', function(e){ handleFile(e.dataTransfer.files[0]); });
-document.getElementById('dc-sample').addEventListener('click', function(){ load('sample-customers.csv', SAMPLE); });
+document.getElementById('dc-sample').addEventListener('click', function(){ load('sample-customers.csv', SAMPLE, true); });
 document.getElementById('dc-col').addEventListener('change', run);
 })();
 </script>

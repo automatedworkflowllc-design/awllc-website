@@ -294,6 +294,9 @@ padding-top:.1rem}
       <a href="/automated-reports/">Report Autopilot</a>. Or start with a
       <a href="/free-demo/?from=shift-coverage">free 1-day demo on your real roster</a>, keep it either way.</p>
       <a class="btn" href="/free-demo/?from=shift-coverage">Run it on your real schedule — free</a>
+      <!-- Filled in by render() ONLY for a visitor's own roster. mailto:, never a form POST:
+           this page promises the roster never leaves the browser. -->
+      <div id="sc-send" hidden></div>
       <p style="margin:.9rem 0 0;font-size:.85rem">Also free, same rule &mdash; nothing uploads:
       <a href="/spreadsheet-health-check/">Spreadsheet Health Check</a>,
       <a href="/money-leak-finder/">Money Leak Finder</a>,
@@ -435,9 +438,9 @@ function xlsxToRows(buf){
       }
     }
     function parseWS(ws){
-      var rows = [], occupied = 0, rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/g, rm;
+      var rows = [], frows = [], occupied = 0, rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/g, rm;
       while((rm = rowRe.exec(ws))){
-        var cells = [], cRe = /<c\b([^>]*)(?:\/>|>([\s\S]*?)<\/c>)/g, cm;
+        var cells = [], fcells = [], cRe = /<c\b([^>]*)(?:\/>|>([\s\S]*?)<\/c>)/g, cm;
         while((cm = cRe.exec(rm[1]))){
           var attrs = cm[1], body = cm[2] || '';
           var ref = /r="([A-Z]+)\d+"/.exec(attrs);
@@ -468,8 +471,18 @@ function xlsxToRows(buf){
           }
           while(cells.length < col - 1) cells.push('');
           cells[col - 1] = val;
+          /* Formulas kept in a PARALLEL array, never folded into cells.
+             rows stays string[][] because ten generated pages index it as
+             strings; changing the cell shape would break every one. This is
+             additive by construction rather than by hope. redline needs it to
+             spot a formula replaced by a typed number, and skeleton can drop
+             its private reader copy once it reads this. */
+          var fm = /<f[^>]*>([\s\S]*?)<\/f>/.exec(body);
+          while(fcells.length < col - 1) fcells.push(null);
+          fcells[col - 1] = fm ? unesc(fm[1]) : null;
         }
         rows.push(cells);
+        frows.push(fcells);
         /* A formula cell IS data even with no cached value -- Excel computes
            it on open. Without this, a template like /starter/'s tracker (300
            formula rows, 3 typed samples) scores below its own 13-row prose
@@ -479,12 +492,20 @@ function xlsxToRows(buf){
         if(hasValue || /<f[ >]/.test(rm[1])) occupied++;
       }
       rows.occupied = occupied;
+      // Attached HERE, inside parseWS, because frows is local to it. The first
+      // version assigned it from the outer .then() callback where the name does
+      // not exist -- a ReferenceError on every file drop, in five live tools.
+      rows.formulaRows = frows;
       return rows;
     }
 
     return Promise.all(sheets.slice(0, 8).map(function(sh){
       return inflate(entries[sh.target]).then(parseWS).then(function(rows){
-        return {name: sh.name, rows: rows, score: rows.occupied};
+        // formulaRows rides ALONGSIDE rows -- same indices, null where a cell
+        // holds no formula. Consumers that only know about rows are unaffected;
+        // without this line the capture above is dead code, which is how a change
+        // passes every gate while doing nothing.
+        return {name: sh.name, rows: rows, formulaRows: rows.formulaRows, score: rows.occupied};
       }, function(){ return {name: sh.name, rows: [], score: -1}; });
     })).then(function(parsed){
       var best = parsed[0];
@@ -758,7 +779,35 @@ function analyze(header, body, picks){
   return out;
 }
 
-function render(name, res, picks, header){
+/* Flag COUNTS only -- never a person's name, role or shift time. A roster is staff
+   personal data; naming who is one-deep or on a fatigue streak would be the worst
+   possible thing to put in an email. */
+function sendBlock(res){
+  var host = document.getElementById('sc-send');
+  if(!host) return;
+  var fatigue = res.turn.length + res.streak.length;
+  if(!(res.gaps.length || res.ot.length || res.solo.length || fatigue)){
+    host.hidden = true; host.innerHTML = ''; return;
+  }
+  var body = 'Hi Colin,\n\nI ran the shift coverage check on my own roster (' +
+             res.shifts.length + ' shifts across ' + res.days.length + ' days). It flagged:\n\n' +
+             '- ' + res.gaps.length + ' coverage gap' + (res.gaps.length===1?'':'s') + '\n' +
+             '- ' + res.ot.length + ' overtime week' + (res.ot.length===1?'':'s') + '\n' +
+             '- ' + res.solo.length + ' one-deep role' + (res.solo.length===1?'':'s') + '\n' +
+             '- ' + fatigue + ' fatigue flag' + (fatigue===1?'':'s') + '\n\n' +
+             'I have not sent you the roster itself, and no staff names are in this email.\n\n' +
+             '[Anything you want to add]\n';
+  var href = 'mailto:colin@automatedworkflowllc.com' +
+             '?subject=' + encodeURIComponent('Shift coverage check - what it flagged on my roster') +
+             '&body=' + encodeURIComponent(body);
+  host.hidden = false;
+  host.innerHTML =
+    '<p style="margin:.9rem 0 .5rem;font-size:.85rem">Or send Colin just these counts &mdash; opens ' +
+    'your own email app, already written. No staff names, no roster attached.</p>' +
+    '<a class="btn" id="sc-mail" href="' + href + '">Email these counts to Colin</a>';
+}
+
+function render(name, res, picks, header, isSample){
   var rep = document.getElementById('sc-report');
   if(res.error){
     document.getElementById('sc-title').textContent = 'Could not read ' + name;
@@ -778,6 +827,13 @@ function render(name, res, picks, header){
     '<div class="sc-kpi' + (res.ot.length?' k-bad':'') + '"><b>' + res.ot.length + '</b><span>overtime weeks</span></div>' +
     '<div class="sc-kpi' + (res.solo.length?' k-bad':'') + '"><b>' + res.solo.length + '</b><span>one-deep roles</span></div>' +
     '<div class="sc-kpi' + (res.turn.length?' k-bad':'') + '"><b>' + (res.turn.length + res.streak.length) + '</b><span>fatigue flags</span></div>';
+
+  if(isSample){
+    var sh = document.getElementById('sc-send');
+    if(sh){ sh.hidden = true; sh.innerHTML = ''; }
+  } else {
+    sendBlock(res);
+  }
 
   var h = '<p style="font-size:.83rem;color:var(--ink-soft)">Columns read: ' + esc(mapped) + '</p>';
   /* unassigned MUST be in this test -- otherwise a roster whose only problem is
@@ -894,13 +950,13 @@ var SAMPLE = [
 ].join('\n');
 
 var current = null;
-function load(name, text){
+function load(name, text, isSample){
   var rows = parseCSV(text);
   if(rows.length < 2){ alert('That file has no shift rows.'); return; }
   var header = rows[0].map(function(h,i){ return (h||'').trim() || ('column ' + (i+1)); });
   var body = rows.slice(1).filter(function(r){ return r.join('').trim() !== ''; });
   var picks = detect(header, body);
-  render(name, analyze(header, body, picks), picks, header);
+  render(name, analyze(header, body, picks), picks, header, isSample);
 }
 
 var drop = document.getElementById('sc-drop');
@@ -918,7 +974,7 @@ input.addEventListener('change', function(){ handleFile(input.files[0]); });
 ['dragover','dragenter'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('is-over'); }); });
 ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('is-over'); }); });
 drop.addEventListener('drop', function(e){ handleFile(e.dataTransfer.files[0]); });
-document.getElementById('sc-sample').addEventListener('click', function(){ load('sample-roster.csv', SAMPLE); });
+document.getElementById('sc-sample').addEventListener('click', function(){ load('sample-roster.csv', SAMPLE, true); });
 })();
 </script>
 
