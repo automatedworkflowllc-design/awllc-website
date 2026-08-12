@@ -517,9 +517,9 @@ function xlsxToRows(buf){
       }
     }
     function parseWS(ws){
-      var rows = [], occupied = 0, rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/g, rm;
+      var rows = [], frows = [], occupied = 0, rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/g, rm;
       while((rm = rowRe.exec(ws))){
-        var cells = [], cRe = /<c\b([^>]*)(?:\/>|>([\s\S]*?)<\/c>)/g, cm;
+        var cells = [], fcells = [], cRe = /<c\b([^>]*)(?:\/>|>([\s\S]*?)<\/c>)/g, cm;
         while((cm = cRe.exec(rm[1]))){
           var attrs = cm[1], body = cm[2] || '';
           var ref = /r="([A-Z]+)\d+"/.exec(attrs);
@@ -550,8 +550,18 @@ function xlsxToRows(buf){
           }
           while(cells.length < col - 1) cells.push('');
           cells[col - 1] = val;
+          /* Formulas kept in a PARALLEL array, never folded into cells.
+             rows stays string[][] because ten generated pages index it as
+             strings; changing the cell shape would break every one. This is
+             additive by construction rather than by hope. redline needs it to
+             spot a formula replaced by a typed number, and skeleton can drop
+             its private reader copy once it reads this. */
+          var fm = /<f[^>]*>([\s\S]*?)<\/f>/.exec(body);
+          while(fcells.length < col - 1) fcells.push(null);
+          fcells[col - 1] = fm ? unesc(fm[1]) : null;
         }
         rows.push(cells);
+        frows.push(fcells);
         /* A formula cell IS data even with no cached value -- Excel computes
            it on open. Without this, a template like /starter/'s tracker (300
            formula rows, 3 typed samples) scores below its own 13-row prose
@@ -566,7 +576,12 @@ function xlsxToRows(buf){
 
     return Promise.all(sheets.slice(0, 8).map(function(sh){
       return inflate(entries[sh.target]).then(parseWS).then(function(rows){
-        return {name: sh.name, rows: rows, score: rows.occupied};
+        // formulaRows rides ALONGSIDE rows -- same indices, null where a cell
+        // holds no formula. Consumers that only know about rows are unaffected;
+        // without this line the capture above is dead code, which is how a change
+        // passes every gate while doing nothing.
+        rows.formulaRows = frows;
+        return {name: sh.name, rows: rows, formulaRows: frows, score: rows.occupied};
       }, function(){ return {name: sh.name, rows: [], score: -1}; });
     })).then(function(parsed){
       var best = parsed[0];
