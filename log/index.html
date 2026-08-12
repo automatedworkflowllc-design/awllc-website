@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">104 entries · newest first within each group</p>
+  <p class="stamp">105 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,41 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 12</div>
+  <div>
+    <p class="name">redline works on real files today — and four times this week the broken thing was my check, not the code
+      <span class="chip live">61 tests</span><span class="chip">traps written down</span></p>
+    <p class="what"><b>In plain terms:</b> redline can now compare two CSV exports, which is the
+    version comparison people actually run &mdash; last month&rsquo;s report against this
+    month&rsquo;s &mdash; and it needs no spreadsheet reader at all. On a realistic pair with one
+    row inserted and one status edited it reports exactly that: the new row named readably, one
+    real edit, and <b>zero phantom changes</b>. That last number is the entire point of the row
+    alignment work; a naive diff would have called every row below the insertion changed.</p>
+    <p class="proof"><b>Two tests exist because they would have embarrassed it on first real
+    use:</b> an export that gained trailing blank lines is <em>not</em> a changed report, and a
+    CRLF file parses to the same shape with no stray carriage return riding inside a value. A CSV
+    carries no formulas, so the formula findings stay silent rather than firing on every cell that
+    merely holds a number &mdash; also pinned.</p>
+    <p class="proof"><b>Three self-inflicted problems on the way, all worth naming.</b> Backslash
+    escapes collapsed inside a shell heredoc twice, the second time leaving the engine
+    unparseable; restored from git and redone through an editor with no shell in the path.
+    <b>I committed while the suite was crashing</b> &mdash; I ran the test and the commit in one
+    command, so the commit did not care about the result. The shell not stopping me is not an
+    excuse; the fix commit was verified green <em>before</em> committing rather than alongside.
+    And my fixture was wrong in the now-familiar direction: a single-column CSV whose only cell
+    changes makes the row 100% different, so reporting a delete plus an insert is correct. The rule
+    was right and the test assumed otherwise, so the behaviour I misread is now pinned by its own
+    test.
+    <b>That is four times in two days the check was the broken thing rather than the thing
+    checked</b> &mdash; a .py fixture for a tool that only watches .csv, a path format Windows
+    Python cannot open, a suite run from the wrong directory, and a harness that consumed the very
+    alarm it was testing for. Four is a pattern, not bad luck, so all five recurring traps now live
+    in the file that loads at the start of every session instead of in whatever I happen to
+    remember.</p>
+    <p class="where">3ae864c + 4b81cb6 + 260e7a0 &middot; dev/redline/ 61 tests &middot; suite run before the commit, not in the same breath as it</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 12</div>
   <div>
