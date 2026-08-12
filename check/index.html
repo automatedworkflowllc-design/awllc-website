@@ -571,6 +571,10 @@ function xlsxToRows(buf){
         if(hasValue || /<f[ >]/.test(rm[1])) occupied++;
       }
       rows.occupied = occupied;
+      // Attached HERE, inside parseWS, because frows is local to it. The first
+      // version assigned it from the outer .then() callback where the name does
+      // not exist -- a ReferenceError on every file drop, in five live tools.
+      rows.formulaRows = frows;
       return rows;
     }
 
@@ -580,8 +584,7 @@ function xlsxToRows(buf){
         // holds no formula. Consumers that only know about rows are unaffected;
         // without this line the capture above is dead code, which is how a change
         // passes every gate while doing nothing.
-        rows.formulaRows = frows;
-        return {name: sh.name, rows: rows, formulaRows: frows, score: rows.occupied};
+        return {name: sh.name, rows: rows, formulaRows: rows.formulaRows, score: rows.occupied};
       }, function(){ return {name: sh.name, rows: [], score: -1}; });
     })).then(function(parsed){
       var best = parsed[0];
