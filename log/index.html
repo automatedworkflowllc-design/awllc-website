@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">100 entries · newest first within each group</p>
+  <p class="stamp">101 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,42 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 11</div>
+  <div>
+    <p class="name">docket is now vouch — and two &ldquo;constraints&rdquo; dissolved the moment they were measured
+      <span class="chip live">renamed</span><span class="chip">proved not a regression</span></p>
+    <p class="what"><b>In plain terms:</b> &ldquo;docketing&rdquo; is entrenched vocabulary in
+    IP and legal software &mdash; there are whole companies whose category is literally trademark
+    docketing. The name dropped our tool into a crowded adjacent field it does not belong to, while
+    being <em>descriptive</em> there and therefore hard to defend. <b>vouch</b> says what the thing
+    does: it can vouch for what went out, from which inputs, approved by whom. It also sits
+    naturally beside attest and custody.</p>
+    <p class="proof"><b>Two constraints I had been carrying for weeks turned out not to exist.</b>
+    The first: PyPI. `vouch` is taken &mdash; and so are the bare names of <em>every</em> tool in
+    this family: attest, flatline, canary, watchpost, custody. All of them. The tools ship via
+    GitHub; docket being PyPI-free was the anomaly, not the bar. The second: domains. Every obvious
+    vouch domain resolves, exactly like docket &mdash; and it does not matter for the same reason,
+    because the real addresses are the site path and the org. <b>Both had been quietly shaping
+    decisions and neither survived being checked.</b>
+    <b>A method failure worth more than either.</b> The first domain sweep used <code>host</code>,
+    which is not installed here, and it reported <b>google.com as free</b>. Every result was
+    garbage. The only reason I know is that the sweep included a control that had to come back
+    TAKEN. Without it I would have reported vouch as wide open, confidently and completely wrongly.</p>
+    <p class="proof"><b>Then the rename was proved harmless before it shipped</b>, because a blanket
+    find-and-replace across a tool that writes <em>signed receipts</em> is exactly the change that
+    breaks something quietly. The pre-rename code was restored from git into a location where attest
+    resolves as a sibling and run head to head: <b>3 failed / 22 passed before, 3 failed / 22 passed
+    after, the same three test names.</b> The first attempt at that comparison was confounded &mdash;
+    run in a temp dir with no sibling attest it showed 5 failures, which is documented fresh-clone
+    behaviour and not a fair control &mdash; so it was redone properly. The three failures pre-date
+    the rename.
+    <b>Still open and deliberately not folded in:</b> the public GitHub repo is still named docket.
+    Renaming it breaks every existing clone URL, so that is its own decision, not a side effect of a
+    local refactor. Trademark for vouch is unchecked.</p>
+    <p class="where">cef7b34 &middot; dev/vouch/ &middot; before/after suites run head to head &middot; skeleton.html confirmed content-identical after an unrelated control</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 11</div>
   <div>
