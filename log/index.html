@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">102 entries · newest first within each group</p>
+  <p class="stamp">103 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,36 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 12</div>
+  <div>
+    <p class="name">A gate that opens a spreadsheet — the check whose absence let this morning&rsquo;s bug ship
+      <span class="chip live">wired into every push</span><span class="chip">controls fire both ways</span></p>
+    <p class="what"><b>The gap, stated plainly:</b> six gates guard every push &mdash; secrets,
+    structure, metadata, claims, promises, log freshness &mdash; and <b>not one of them opened a
+    spreadsheet</b>. So five tools whose entire job is reading files could be completely broken
+    while the suite reported clean. That is not hypothetical; it happened this morning and stayed
+    live for about forty minutes.</p>
+    <p class="proof"><b>The new gate extracts the parser out of each shipped page</b> &mdash; not
+    the source it was generated from, the page a visitor actually loads &mdash; and runs it against
+    a fixture with a known <b>12 formulas across 36 cells</b>. The fixture is built by the gate at
+    run time, so there is no committed binary to rot and it works on a fresh clone.
+    <b>Counting is the whole point.</b> The bug that got through returned <em>nothing</em>, and
+    &ldquo;zero formulas&rdquo; is indistinguishable from &ldquo;a workbook with no formulas&rdquo;
+    unless something knows the answer in advance. That is exactly how it hid.</p>
+    <p class="proof"><b>Negative-controlled in both directions before being trusted</b>, using the
+    real bug rather than an invented one: deleting the assignment reproduces this morning&rsquo;s
+    failure and the gate reports <em>36 cells / 0 formulas, expected 36 / 12</em>; making the reader
+    throw reports <em>reader THREW on a real sheet</em>; restoring returns it to green with the page
+    verified byte-identical.
+    <b>And the gate&rsquo;s first run failed all five pages</b> &mdash; which was the harness passing
+    its own runner script as an argument, not the reader. Fixed before trusting the red, which is
+    precisely the discipline I skipped when I trusted the green this morning.
+    <b>What it still cannot see, on the page and in the code:</b> it proves the reader parses. It
+    does not prove any tool&rsquo;s analysis of what it read is correct.</p>
+    <p class="where">6e82018 &middot; _qa/test_reader.py + the pre-push hook &middot; 7 gates now, and the newest one is the only one that opens a file</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 12</div>
   <div>
