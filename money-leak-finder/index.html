@@ -312,6 +312,12 @@ padding-top:.1rem}
       <a href="/spreadsheet-cleanup-service/">$300 cleanup</a> and the
       <a href="/free-demo/?from=money-leak">free 1-day demo</a> deliver. Messy files are fine &mdash; that's the point.</p>
       <a class="btn" href="/free-demo/?from=money-leak">Get it on your real data — free</a>
+      <!-- Filled in by render() ONLY for a visitor's own file, never for the sample: a mailto:
+           carrying the totals this page just computed, so a prospect who has seen a number does
+           not have to restate it on a blank form. mailto: issues NO network request, so the
+           page's "zero requests after load" promise and "there is nowhere here to send it"
+           survive intact -- the visitor's own mail client sends it, and only if they press send. -->
+      <div id="ml-send" hidden></div>
       <p style="margin:.9rem 0 0;font-size:.85rem">Want the broader once-over first? The
       <a href="/spreadsheet-health-check/">Spreadsheet Health Check</a> reads any single export for
       dead columns, mixed dates and duplicates &mdash; same rule, nothing uploads. Same customer entered three ways? The
@@ -799,9 +805,60 @@ function reconcile(work, inv, asOf){
   };
 }
 
-function render(names, r, asOfLabel){
+/* Build the "send me these numbers" action. TOTALS AND COUNTS ONLY -- never a customer
+   name, an invoice line or a file name. The promise on this page is that the file stays
+   here, and a summary that leaked client names would violate the spirit of it even though
+   the file itself never moved. Sample data never reaches this: nobody should email Colin
+   about Cedar Field Services, which does not exist. */
+function sendBlock(r){
+  var host = document.getElementById('ml-send');
+  if(!host) return;
+  var lines = [];
+  if(r.never.length){
+    lines.push('- ' + fmt(r.neverTotal) + ' across ' + r.never.length + ' job' +
+               (r.never.length===1?'':'s') + ' completed but never invoiced');
+  }
+  if(r.paidDetected){
+    if(r.unpaid.length){
+      lines.push('- ' + fmt(r.unpaidTotal) + ' across ' + r.unpaid.length + ' unpaid invoice' +
+                 (r.unpaid.length===1?'':'s'));
+    }
+    if(r.aged.length){
+      lines.push('- ' + fmt(r.agedTotal) + ' of that is past 60 days');
+    }
+  }
+  if(!lines.length){ host.hidden = true; host.innerHTML = ''; return; }
+
+  var body = 'Hi Colin,\n\nI ran the money leak finder on my own exports. It found:\n\n' +
+             lines.join('\n') +
+             '\n\nI have not sent you the files themselves.\n\n' +
+             '[Anything you want to add about your setup]\n';
+  var href = 'mailto:colin@automatedworkflowllc.com' +
+             '?subject=' + encodeURIComponent('Money leak finder - what it found on my books') +
+             '&body=' + encodeURIComponent(body);
+
+  host.hidden = false;
+  host.innerHTML =
+    '<p class="ml-note" style="margin:.9rem 0 .5rem">Or send Colin just these figures &mdash; ' +
+    'this opens your own email app with the totals above already written in. ' +
+    'Your files stay in this browser; nothing is attached.</p>' +
+    '<a class="btn" id="ml-mail" href="' + href + '">Email these numbers to Colin</a> ' +
+    '<button type="button" class="ml-copy" id="ml-copysum">Copy the summary instead</button>';
+
+  var cp = document.getElementById('ml-copysum');
+  cp.addEventListener('click', function(){
+    var done = function(){ cp.textContent = 'Copied'; setTimeout(function(){ cp.textContent = 'Copy the summary instead'; }, 1600); };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(body).then(done, done);
+    } else { done(); }
+  });
+}
+
+function render(names, r, asOfLabel, isReal){
   var rep = document.getElementById('ml-report');
   document.getElementById('ml-title').textContent = 'Leak report: ' + names + (asOfLabel ? ' (as of ' + asOfLabel + ')' : '');
+  var sendHost = document.getElementById('ml-send');
+  if(sendHost){ sendHost.hidden = true; sendHost.innerHTML = ''; }
   if(r.error){
     document.getElementById('ml-kpis').innerHTML = '';
     document.getElementById('ml-sections').innerHTML = '<p class="ml-note">' + esc(r.error) + '</p>';
@@ -889,7 +946,12 @@ function render(names, r, asOfLabel){
 
   document.getElementById('ml-sections').innerHTML = out;
 
+  if(isReal){ sendBlock(r); }
+
   Array.prototype.forEach.call(document.querySelectorAll('.ml-copy'), function(btn){
+    /* The summary button in #ml-send shares this class for styling but carries no data-i
+       and wires its own handler. Without this guard it would throw on click. */
+    if(btn.getAttribute('data-i') === null) return;
     btn.addEventListener('click', function(){
       var i = btn.getAttribute('data-i');
       var sub = document.getElementById('ml-sub-' + i);
@@ -959,7 +1021,7 @@ function maybeRun(){
   if(!files.work || !files.inv) return;
   try {
     var r = reconcile(toTable(parseCSV(files.work.text)), toTable(parseCSV(files.inv.text)), new Date());
-    render(files.work.name + ' vs ' + files.inv.name, r, 'today');
+    render(files.work.name + ' vs ' + files.inv.name, r, 'today', true);
   } catch(e){
     alert('Could not reconcile those files. If they are Excel workbooks, save as CSV first.');
   }
@@ -967,7 +1029,7 @@ function maybeRun(){
 wire('ml-work','work'); wire('ml-inv','inv');
 document.getElementById('ml-sample').addEventListener('click', function(){
   var r = reconcile(toTable(parseCSV(SAMPLE_WORK)), toTable(parseCSV(SAMPLE_INV)), new Date(2026, 6, 28));
-  render('Cedar Field Services (invented sample)', r, '2026-07-28, frozen');
+  render('Cedar Field Services (invented sample)', r, '2026-07-28, frozen', false);
 });
 })();
 </script>
