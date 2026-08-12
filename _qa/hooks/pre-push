@@ -46,6 +46,16 @@ python _qa/autoqa.py --fast --record || {
   echo "PUSH BLOCKED — defect count regressed. Fix, or push with --no-verify."
   exit 1
 }
+# A tool that cannot read a file is broken no matter how clean the rest of the
+# site looks. On 2026-08-12 a scope bug in the shared reader shipped to five live
+# tools -- a ReferenceError on every file drop -- and every gate here stayed
+# green, because not one of them opened a spreadsheet. This one does.
+echo "Reader gate: checking the shipped pages can still read a spreadsheet..."
+python _qa/test_reader.py || {
+  echo ""
+  echo "PUSH BLOCKED - the shipped xlsx reader is broken. Fix, or push with --no-verify."
+  exit 1
+}
 echo "SEO audit: checking metadata/schema/sitemap/NAP before push..."
 python _qa/seo_audit.py --record || {
   echo ""
