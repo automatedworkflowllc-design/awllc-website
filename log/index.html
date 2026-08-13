@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">109 entries · newest first within each group</p>
+  <p class="stamp">110 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,53 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 12</div>
+  <div>
+    <p class="name">The flagship now says what your file <em>cannot</em> answer &mdash; because the only reply we got said dashboards are a commodity
+      <span class="chip live">live</span><span class="chip">1 reply in 25 sends</span></p>
+    <p class="what"><b>The market spoke once and it was worth more than the silence.</b> Twenty-five
+    cold emails and ten follow-ups over two weeks produced exactly one reply:
+    <em>&ldquo;Appreciate the offer but we already have all the dashboards built we need at the
+    moment.&rdquo;</em> One data point, unprompted, and it says the quiet part &mdash; every
+    accounting package ships a dashboard. Competing on <em>nicer chart</em> is competing in the most
+    crowded square on the board against software that is already installed.</p>
+    <p class="proof"><b>So the flagship stopped competing there.</b> After a real file loads,
+    <code>/demo/</code> now states, directly under the KPI tiles it just filled in, what those tiles
+    cannot support: <em>&ldquo;No cost column, so nothing here is profit &mdash; a month can be a
+    record month and still lose money, and this file cannot tell you which&rdquo;</em>;
+    <em>&ldquo;2 rows could not be read, so the shortfall is unknown rather than zero&rdquo;</em>.
+    Also covers undated invoices, a missing paid/status column and a missing customer column.
+    <b>Every item is derived from something already measured during ingest</b> &mdash; the map object
+    already carried skipped/status/customer, the derived state already carried undated and hasSpend.
+    Nothing is guessed and nothing new is computed.
+    <b>An empty list renders NOTHING</b>, never a reassuring &ldquo;no issues found&rdquo;, because on
+    this site &ldquo;we found nothing&rdquo; and &ldquo;we did not look&rdquo; must never look the same.</p>
+    <p class="proof"><b>And the page finally asks.</b> Every outreach email points at
+    <code>/demo/</code>; a visitor could drop their real book, watch it rebuild into their own
+    dashboard, and the figures died on the screen &mdash; the only route to a human was a generic
+    email bar carrying none of what they had just seen. There is now a CTA that appears
+    <em>only</em> on a real file and carries the totals the page just computed.
+    <b>mailto:, not a hidden field on the existing form</b>, and that is the whole decision: quietly
+    attaching somebody&rsquo;s financial totals to a submit would break the spirit of
+    &ldquo;nothing is uploaded&rdquo; even though the click is theirs. This way they read it first.
+    Totals only &mdash; <b>0 of 6 identifiers</b> reach the mail body, verified against a fixture.
+    <b>Placement was wrong on the first pass and it mattered</b>: it sat above the KPIs, asking
+    before the visitor had seen a single one of their own numbers.</p>
+    <p class="proof"><b>Colin: &ldquo;we might have to do accounts and logins to port data off
+    Sheets.&rdquo; The premise turned out to be wrong in a useful way.</b> OAuth to Sheets runs
+    entirely client-side through Google Identity Services &mdash; no backend, no AWLLC account. What
+    it needs is a request to <code>googleapis.com</code>, and that breaks &ldquo;0 requests after
+    load&rdquo;, the one claim here a competitor cannot copy. <b>The account was never the blocker;
+    the network request is.</b> So instead: <b>select the cells in Sheets and press Ctrl+V</b>. The
+    shared parser already sniffed tab-vs-comma, so clipboard TSV needed no new parsing at all. That
+    removes the export step this site&rsquo;s own copy calls the place where prospects quietly leave.
+    <b>The guard is the part worth testing</b>, and it was: a paste aimed at the email-capture field
+    does NOT hijack the dashboard, and 2+ rows / 2+ columns are required so ordinary prose passes
+    through untouched.</p>
+    <p class="where">2cbfc9f, d2e82d4, 0c7af7d, 2006b0f &middot; plan in Documents/AWLLC-demo-app-plan &middot; verified by hand: pasted 3 invoices &rarr; AR $5,560 = 1800+2450+1310 &middot; autoqa 0 defects, reader gate 5/5</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 12</div>
   <div>
