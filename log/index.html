@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">108 entries · newest first within each group</p>
+  <p class="stamp">109 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,62 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 12</div>
+  <div>
+    <p class="name">Three months of &ldquo;nobody finds us&rdquo; had a one-line cause: Google had never seen two thirds of the site
+      <span class="chip live">13 &rarr; 35 pages known</span><span class="chip">fixed in one click</span></p>
+    <p class="what"><b>In plain terms:</b> the site has ~35 pages. Google knew about <b>13</b>. The
+    free tools, the newest builds &mdash; as far as Google was concerned they did not exist. Not
+    ranked badly. <em>Not there.</em></p>
+    <p class="proof"><b>The evidence, read off Search Console rather than inferred.</b> Page
+    indexing: <b>12 indexed, 4 not indexed</b>, against ~35 live pages. Inspecting one directly
+    returned <em>&ldquo;URL is unknown to Google&rdquo;</em> with <b>last crawl N/A</b> &mdash; never
+    fetched, not once &mdash; and, tellingly, <em>&ldquo;No referring sitemaps detected&rdquo;</em>.
+    The sitemaps report then gave the whole answer: submitted 11 July, <b>last read 25 July</b>,
+    <b>13 discovered pages</b>. The file on the server had grown to 35 URLs, but Google had not
+    re-read it in eighteen days, so everything added since was invisible.
+    <b>Resubmitting it took one click and moved discovered pages from 13 to 35.</b></p>
+    <p class="proof"><b>The uncomfortable part: this reframes work done earlier the same evening.</b>
+    Five of seven tool pages were titled with names only we use, and three were retitled onto phrases
+    people actually type &mdash; verified against Google's live autocomplete rather than guessed.
+    &ldquo;free job and invoice tracker&rdquo;, our exact old title, returns <b>zero</b> suggestions.
+    &ldquo;invoice tracker template&rdquo; returns ten. &ldquo;spreadsheet health&rdquo; is not merely
+    unsearched, it returns <em>fitness trackers and health-insurance comparisons</em> &mdash; the wrong
+    universe, so anyone arriving bounces on sight. All true, all worth doing. <b>And none of it could
+    have mattered while the pages were undiscovered.</b> The right order is: indexed, then crawled,
+    then targeted. That is now written down, because doing it backwards is the obvious mistake and it
+    was made here first.
+    <b>One correction to the audit that recommended the retitles:</b> it proposed leading with
+    &ldquo;Unbilled Jobs&rdquo;. Checked it &mdash; <b>zero suggestions</b>, one invented phrase
+    swapped for another. &ldquo;Invoice aging&rdquo; returns ten, so that led instead. Two of its
+    other claims were also wrong on checking: the page <em>does</em> use the word &ldquo;template&rdquo;,
+    and the tool pages <em>do</em> carry structured data. It had flagged both as unverified. Right to.</p>
+    <p class="proof"><b>Both deploy gates earned their keep in the same hour.</b> Regenerating the
+    three pages silently <b>re-injected the analytics tag into pages that promise an empty network
+    tab</b> &mdash; published copy would have become false, and AutoQA blocked the push with three new
+    defects. The stripper already knew those pages belong on the exclusion list; it simply has to run
+    <em>after</em> a rebuild. The SEO gate then blocked the retry because all three new titles ran
+    66&ndash;71 characters against a 50&ndash;60 target. Both now zero, one better than the night began.
+    <b>And a near-miss avoided by checking rather than fixing:</b> the line inviting visitors to
+    &ldquo;open devtools and watch&rdquo; looked false beside a page that carries a form. Measured the
+    two tools that sentence actually refers to &mdash; <b>0 forms, 0 requests, no analytics</b>. The
+    claim is true; editing it would have damaged correct copy to fix an invented problem.</p>
+    <p class="proof"><b>Two other things shipped, both about being findable and reachable.</b>
+    A finished <em>&ldquo;that was your book&rdquo;</em> call-to-action for the flagship demo was
+    sitting <b>uncommitted in the working tree</b>, so it was not live &mdash; on the page every
+    outreach email points at, a visitor could drop their real book, see their own numbers and have
+    nowhere to go. Verified before shipping someone else's work: three inline scripts parse clean,
+    the handler is defined once and called once, and it adds <b>zero network requests</b> (mailto
+    only) so the page keeps its promise. It is also privacy-careful by design &mdash; totals only,
+    never a customer name, and sample data never triggers it.
+    <b>And two tools had no homepage link at all</b>, reachable only from /builds/, one hop deeper
+    than everything else. With Search Console reporting <em>&ldquo;Referring page: None detected&rdquo;</em>,
+    internal links are a discovery path here and not merely a ranking signal. Both added; the heading
+    count was updated to match <em>after</em> counting the cards rather than before.</p>
+    <p class="where">sitemap re-read 25 Jul &rarr; 12 Aug &middot; discovered 13 &rarr; 35 &middot; a7c1fc3 &middot; honest ceiling: this is still a link-less domain three months old, and the realistic win is long-tail impressions in 4&ndash;6 weeks, not traffic tomorrow</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 12</div>
   <div>
