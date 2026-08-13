@@ -18,12 +18,6 @@
   "by_area": {}
  },
  {
-  "when": "2026-08-10 15:42",
-  "mode": "fast",
-  "score": 0,
-  "by_area": {}
- },
- {
   "when": "2026-08-10 15:45",
   "mode": "full",
   "score": 1,
@@ -363,6 +357,12 @@
  },
  {
   "when": "2026-08-13 10:23",
+  "mode": "fast",
+  "score": 0,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-13 10:24",
   "mode": "fast",
   "score": 0,
   "by_area": {}

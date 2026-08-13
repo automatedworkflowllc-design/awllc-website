@@ -313,7 +313,7 @@ LD = """
 "headline":"How Canary and Flatline Work: The Whole Pipeline, End to End",
 "url":"https://automatedworkflowllc.com/canary/how-it-works/",
 "about":["data quality monitoring","spreadsheet validation"],
-"publisher":{"@type":"Organization","name":"Automated Workflow LLC",
+"publisher":{"@type":"Organization","name":"Automated Workflow",
 "url":"https://automatedworkflowllc.com"}}
 </script>
 """

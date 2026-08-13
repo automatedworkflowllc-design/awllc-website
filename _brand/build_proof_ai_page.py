@@ -60,7 +60,7 @@ def main() -> None:
     # which is the normal state of an honest record -- not a build failure.
     proc = subprocess.run(
         [sys.executable, str(CUSTODY), 'report', '--out', str(tmp),
-         '--org', 'Automated Workflow LLC', '--redact'],
+         '--org', 'Automated Workflow', '--redact'],
         capture_output=True, text=True)
     if proc.returncode not in (0, 1) or not tmp.exists():
         raise SystemExit(f'refusing to build /proof/ai/: custody report failed\n{proc.stderr}')
