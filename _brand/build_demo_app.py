@@ -285,6 +285,23 @@ APP_CSS = """
 .ddrop-b.ghost{background:none;color:var(--d-ink);border-color:var(--d-line2)}
 .ddrop-b:focus-visible{outline:2px solid var(--d-green);outline-offset:2px}
 .ddrop input[type=file]{display:none}
+
+/* ---- the "that was your book" call to action --------------------------
+   Only ever visible after a visitor's own file has been read, so it is styled to
+   read as a conclusion the dashboard reached rather than an ad bolted underneath.
+   Accent border on one edge only: enough to separate it from the KPI cards above
+   without competing with them for attention. */
+.dcta{margin:0 0 1.15rem;padding:1.05rem 1.2rem;border:1px solid var(--d-line2);
+border-left:3px solid var(--d-green);border-radius:11px;background:var(--d-card)}
+.dcta-t{margin:0;font-size:1rem;font-weight:700;color:var(--d-ink);letter-spacing:-.01em}
+.dcta-s{margin:.3rem 0 0;font-size:.9rem;color:var(--d-soft);text-wrap:pretty;max-width:46rem}
+.dcta-n{margin:.6rem 0 .75rem;font-size:.78rem;color:var(--d-soft);text-wrap:pretty}
+.dcta-b{display:inline-block;font-size:.9rem;font-weight:600;text-decoration:none;
+padding:.5rem .95rem;border-radius:9px;background:var(--d-green);color:#fff;
+border:1px solid var(--d-green)}
+.dcta-b:hover{opacity:.9}
+.dcta-b:focus-visible{outline:2px solid var(--d-green);outline-offset:2px}
+@media(max-width:640px){.dcta{padding:.9rem 1rem}.dcta-b{display:block;text-align:center}}
 .dmap{margin:.55rem 0 0;font-family:var(--d-mono);font-size:.63rem;letter-spacing:.03em;
   color:var(--d-soft);line-height:1.7;width:100%}
 .dmap b{color:var(--d-ink)}
@@ -443,10 +460,19 @@ APP_HTML = """
             <input type="file" id="d-file" accept=".csv,.tsv,.txt,.xlsx,.xlsm,text/csv,text/plain">
           </div>
 
+
           <div class="dsum">
             <p class="dsum-h">&#10022; AI weekly summary &mdash; written by the dashboard, not by you</p>
             <p id="d-summary"></p>
           </div>
+
+          <!-- Filled in by applyBook() ONLY once a visitor's own file has been read.
+               Deliberately placed AFTER the summary: the ask has to follow the payoff, not
+               precede it. First position was above the KPIs, where it asked before the visitor
+               had seen a single one of their own numbers.
+               mailto:, never a form POST -- this page promises 0 requests after load, and a
+               visitor should read what is being sent before it is sent. -->
+          <div class="dcta" id="d-cta" hidden></div>
 
           <div class="dkpis" id="d-kpis"></div>
 
@@ -1794,7 +1820,17 @@ __SHARED_INTAKE__
     var dowOut = byDow.map(function (v) { return Math.round(v); });
     if (!dowOut.reduce(function (a, b) { return a + b; }, 0)) { dowOut = null; }
 
-    var label = fileName.replace(/\.[a-z0-9]+$/i, '').slice(0, 48) || 'Your business';
+    /* The filename becomes the masthead, so it is the visitor's own business name staring
+       back at them -- "invoices_2026_final" or "demo_book" reads like a file, not a business.
+       Separators become spaces and words get capitalised. Deliberately NOT clever: no
+       stripping of words like "invoices", because guessing wrong about someone's business
+       name is worse than showing it plainly. */
+    var label = fileName.replace(/\.[a-z0-9]+$/i, '')
+                        .replace(/[_-]+/g, ' ')
+                        .replace(/\s+/g, ' ')
+                        .trim()
+                        .replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); })
+                        .slice(0, 48) || 'Your business';
     return {
       book: { business: label, weeks: out, receivables: open.slice(0, 40), spend: 0,
               hasSpend: false, activeCustomers: nOpen, dow: dowOut, accounts: accts },
@@ -1821,6 +1857,47 @@ __SHARED_INTAKE__
     return bits.join(' &middot; ') + '<br>Read it wrong? Rename the column and drop it again.';
   }
 
+  /* TOTALS ONLY -- never a customer name or an invoice line. The page's whole promise is
+     that the file stays in the browser, and a summary carrying their client list would
+     break the spirit of that even though the file itself never moved. Sample data never
+     reaches this: nobody should email about a business the page invented this morning. */
+  function ctaBlock(){
+    var host = el('d-cta');
+    if (!host) { return; }
+    var lines = [];
+    if (arTotal) {
+      lines.push('- ' + money(arTotal) + ' outstanding across ' + receivables.length +
+                 ' invoice' + (receivables.length === 1 ? '' : 's'));
+    }
+    if (overdue.length) {
+      lines.push('- ' + money(overdueTotal) + ' of it past 30 days (' + overdue.length +
+                 ' invoice' + (overdue.length === 1 ? '' : 's') + ')');
+    }
+    if (undated.length) {
+      lines.push('- ' + undated.length + ' invoice' + (undated.length === 1 ? '' : 's') +
+                 ' with no date, so age is unknown rather than assumed');
+    }
+    if (!lines.length) {
+      host.hidden = true; host.innerHTML = ''; return;
+    }
+    var body = 'Hi Colin,\n\nI ran my own export through the dashboard on your site. ' +
+               'It found:\n\n' + lines.join('\n') +
+               '\n\nI have not sent you the file itself.\n\n' +
+               '[Anything you want to add about how you track this today]\n';
+    var href = 'mailto:colin@automatedworkflowllc.com' +
+               '?subject=' + encodeURIComponent('I ran my own numbers through your dashboard') +
+               '&body=' + encodeURIComponent(body);
+    host.hidden = false;
+    host.innerHTML =
+      '<p class="dcta-t">That is your book, not a sample.</p>' +
+      '<p class="dcta-s">This rebuilt itself from the file you just dropped. The version that ' +
+      'keeps doing it every week &mdash; on your real exports, with the chase emails drafted &mdash; ' +
+      'is what I build. Send the figures below and I will tell you honestly whether it is worth it.</p>' +
+      '<p class="dcta-n">Opens your own email app with just the totals written in. ' +
+      'Your file stays in this browser; nothing is attached.</p>' +
+      '<a class="dcta-b" id="d-mail" href="' + href + '">Email these figures to Colin</a>';
+  }
+
   function applyBook(book, mapHTML){
     deriveFrom(decorate(book));
     rendered = {};                       /* force every tab to re-render */
@@ -1832,6 +1909,7 @@ __SHARED_INTAKE__
     var bdg2 = el('d-arbadge');
     if (bdg2) { bdg2.textContent = String(overdue.length); bdg2.hidden = !overdue.length; }
     el('d-map').innerHTML = mapHTML;
+    ctaBlock();
     renderDashboard();
     show('dashboard');
   }
@@ -1900,6 +1978,9 @@ __SHARED_INTAKE__
     reset.addEventListener('click', function () {
       deriveFrom(decorate(buildSample()));
       rendered = {};
+      /* Must clear, or "Back to sample" would leave the visitor's REAL figures sitting in a
+         mailto: under invented data -- the exact confusion this page exists to avoid. */
+      var cta = el('d-cta'); if (cta) { cta.hidden = true; cta.innerHTML = ''; }
       el('d-map').innerHTML = '';
       reset.hidden = true;
       var chip2 = el('d-samplechip'); if (chip2) { chip2.hidden = false; }

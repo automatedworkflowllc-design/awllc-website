@@ -595,16 +595,18 @@ border:1px solid var(--d-green)}
             <input type="file" id="d-file" accept=".csv,.tsv,.txt,.xlsx,.xlsm,text/csv,text/plain">
           </div>
 
-          <!-- Filled in by applyBook() ONLY once a visitor's own file has been read. Until
-               2026-08-12 this page had NO route to a human at all: every outreach email points
-               here, somebody could drop their real book, see their own numbers, and have nowhere
-               to go. mailto:, never a form POST -- this page promises 0 requests after load. -->
-          <div class="dcta" id="d-cta" hidden></div>
-
           <div class="dsum">
             <p class="dsum-h">&#10022; AI weekly summary &mdash; written by the dashboard, not by you</p>
             <p id="d-summary"></p>
           </div>
+
+          <!-- Filled in by applyBook() ONLY once a visitor's own file has been read.
+               Deliberately placed AFTER the summary: the ask has to follow the payoff, not
+               precede it. First position was above the KPIs, where it asked before the visitor
+               had seen a single one of their own numbers.
+               mailto:, never a form POST -- this page promises 0 requests after load, and a
+               visitor should read what is being sent before it is sent. -->
+          <div class="dcta" id="d-cta" hidden></div>
 
           <div class="dkpis" id="d-kpis"></div>
 
@@ -2175,7 +2177,17 @@ function readAny(f, done){
     var dowOut = byDow.map(function (v) { return Math.round(v); });
     if (!dowOut.reduce(function (a, b) { return a + b; }, 0)) { dowOut = null; }
 
-    var label = fileName.replace(/\.[a-z0-9]+$/i, '').slice(0, 48) || 'Your business';
+    /* The filename becomes the masthead, so it is the visitor's own business name staring
+       back at them -- "invoices_2026_final" or "demo_book" reads like a file, not a business.
+       Separators become spaces and words get capitalised. Deliberately NOT clever: no
+       stripping of words like "invoices", because guessing wrong about someone's business
+       name is worse than showing it plainly. */
+    var label = fileName.replace(/\.[a-z0-9]+$/i, '')
+                        .replace(/[_-]+/g, ' ')
+                        .replace(/\s+/g, ' ')
+                        .trim()
+                        .replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); })
+                        .slice(0, 48) || 'Your business';
     return {
       book: { business: label, weeks: out, receivables: open.slice(0, 40), spend: 0,
               hasSpend: false, activeCustomers: nOpen, dow: dowOut, accounts: accts },
