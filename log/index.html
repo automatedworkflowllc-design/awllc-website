@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">112 entries · newest first within each group</p>
+  <p class="stamp">114 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,80 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 13</div>
+  <div>
+    <p class="name">Two pages were telling visitors the wrong state, and the gate that exists to catch that said &ldquo;clean&rdquo;
+      <span class="chip live">4 pages fixed</span><span class="chip">gate now catches it</span></p>
+    <p class="what"><b>Found while reading an unrelated diff, not by a check.</b> Four live pages
+    were still carrying an outdated form of the business name &mdash; <code>/almanac/</code>,
+    <code>/skeleton/</code>, <code>/canary/how-it-works/</code> (inside the schema.org publisher
+    block search engines read) and <code>/proof/ai/</code>, in its <code>&lt;h1&gt;</code>. The name
+    was changed weeks ago and these four were missed by that sweep; one of them was the page whose
+    entire premise is being straight about what a machine did.</p>
+    <p class="proof"><b>The worse one had nothing to do with the name.</b> <code>/almanac/</code>
+    and <code>/skeleton/</code> both said <b>&ldquo;Gainesville, VA&rdquo;</b>. We are in
+    Gainesville <b>FL</b>. The name, address and phone have to be byte-identical everywhere for
+    local search to read one business rather than several, and two pages were advertising the wrong
+    state entirely. Fixed at the generator in every case &mdash; never in the built HTML &mdash;
+    except skeleton, which is its own source under the known three-copy duplication.</p>
+    <p class="proof"><b>Why the gate said &ldquo;clean&rdquo; through all of it, which is the real
+    finding.</b> Two blind spots, both the same shape: <em>a check that could not go red on the
+    thing that was wrong.</em> The name check only inspects footers matching one specific
+    <code>&amp;copy; &lt;span id="yr"&gt;</code> markup &mdash; almanac and skeleton use
+    &ldquo;Built by &hellip;&rdquo; instead, so they <b>never entered its list at all</b>, and a
+    page it had never examined looked exactly like a page that passed. And the location check reads
+    <code>CANON_CITY = 'Gainesville'</code>, which &ldquo;Gainesville, VA&rdquo; contains &mdash; so
+    a substring test could never fail on the state. The new check reads the whole source of every
+    tracked page and reads the <em>state</em>, so a page cannot opt out by styling its footer
+    differently. <code>/log/</code> legitimately quotes the old name when describing this class of
+    bug, so only quoted occurrences are exempt.</p>
+    <p class="proof"><b>Controlled before being believed.</b> Both defects were planted back into a
+    live page: the gate named each one and exited 1; restored, it exits 0. The first reading of that
+    control was itself wrong &mdash; <code>exit=$?</code> after a pipe reports <code>tail</code>&rsquo;s
+    status, not the audit&rsquo;s &mdash; so the codes were re-measured without the pipe. Verified
+    on the live domain afterwards rather than on a local file: all five pages now serve the bare
+    name and &ldquo;Gainesville, FL&rdquo;.</p>
+    <p class="where">ab8b44a, 796565d &middot; _qa/seo_audit.py &middot; <b>still open, deliberately:</b> three xlsx demo builders write the old name into workbook footers &mdash; changing the string without rebuilding leaves source and artifact divergent, rebuilding makes the Downloads and Drive copies stale, which is what /presend check 3 exists to catch</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 13</div>
+  <div>
+    <p class="name">/demo/ stopped being a dashboard and started being a to-do list
+      <span class="chip live">live</span><span class="chip">4 findings, ranked</span></p>
+    <p class="what"><b>The reason this was built at all.</b> Two weeks of outreach produced exactly
+    one reply, and it said <em>&ldquo;we already have all the dashboards built we need.&rdquo;</em>
+    That is the only market feedback this business has ever received, and it is fatal to competing
+    on nicer charts &mdash; every accounting package ships one. A dashboard is looked at; a findings
+    list is <em>acted on</em>, and only one of those gets forwarded to a business partner.</p>
+    <p class="proof"><b>Four findings, each a claim plus the number justifying it plus the move it
+    implies, ranked by dollars at stake:</b> the oldest genuinely-overdue invoice (who to call
+    first); how much of what you are owed sits with a single account; how much of the book is
+    already past 30 days; and month-to-date pace against the <em>same day</em> of the prior month,
+    never against a whole month, which would report a fake collapse on the 3rd of every month.
+    Thresholds are printed in the text so a reader can disagree with one.</p>
+    <p class="proof"><b>The rules it lives by, since it is the most quotable thing on the page and
+    therefore the easiest place to accidentally lie.</b> Every line is arithmetic over the loaded
+    file &mdash; no estimate, multiplier, benchmark or industry rate appears anywhere in it. Nothing
+    asserts a cause: &ldquo;one account holds 62% of what you are owed&rdquo; is a fact about the
+    file, while &ldquo;you are over-reliant on them&rdquo; is a judgement a spreadsheet cannot
+    support. And an empty list renders <b>nothing</b>, never &ldquo;no issues found&rdquo;, so that
+    <em>we looked and found nothing</em> and <em>we could not look</em> are never identical on
+    screen.</p>
+    <p class="proof"><b>A green build proved nothing here last time, so it was opened.</b> The
+    sample renders two findings and the arithmetic ties to the tiles beside it &mdash;
+    $14,824 of $21,894 is 68%, four invoices, Hogtown at $4,402 and 96 days matching the written
+    summary. Then a deliberate negative control &mdash; a two-account book carrying a 73-day $8,000
+    invoice &mdash; drove all four to fire, which is the only thing that proves the two that stayed
+    quiet on the sample were genuinely below threshold rather than dead code.
+    <b>That control immediately earned its keep:</b> with exactly one overdue invoice, three of the
+    four findings were describing the same $8,000. The share-of-book finding is now suppressed at a
+    single overdue invoice, where it is the first finding restated as a percentage rather than a
+    second finding.</p>
+    <p class="where">7600f38 &middot; _brand/build_demo_app.py &middot; autoqa 0 defects, 7/7 seam fixtures, no console errors &middot; verified live at automatedworkflowllc.com/demo/</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 13</div>
   <div>
