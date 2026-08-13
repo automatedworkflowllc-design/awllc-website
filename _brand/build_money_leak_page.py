@@ -39,7 +39,7 @@ OUT_DIR = ROOT / 'money-leak-finder'
 # aging formula in excel) and "accounts receivable aging" fills all ten slots. That is
 # the searchable name for what this tool already does: unpaid past 60 days, from the
 # user's own export. Brand name kept in the H1, not the title.
-TITLE = 'Free Invoice Aging Report — Unpaid & Never-Billed Jobs, Nothing Uploads'
+TITLE = 'Free Invoice Aging Report — Find Unpaid & Unbilled Jobs'
 DESC = ('See only the mismatches between your work log and invoice export: jobs '
         'never invoiced, invoices unpaid past 60 days. Runs in your browser — '
         'nothing uploads.')

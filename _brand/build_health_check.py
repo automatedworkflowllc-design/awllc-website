@@ -34,7 +34,7 @@ OUT_DIR = ROOT / 'spreadsheet-health-check'
 # document and bounces on sight. Verified against the live suggest endpoint today.
 # What people actually type for this job: "clean up excel data" (ten suggestions,
 # including clean up excel spreadsheet / excel file), and "csv validator online free".
-TITLE = 'Clean Up Excel Data Automatically — Free Spreadsheet Error Checker'
+TITLE = 'Clean Up Excel Data Automatically — Free Error Checker'
 DESC = ('Drop any CSV and get an instant, honest report: dead columns, mixed date '
         'formats, duplicate rows. Runs in your browser — your data never leaves '
         'your machine.')

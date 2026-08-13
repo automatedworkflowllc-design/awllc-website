@@ -49,9 +49,9 @@ OUT_DIR = ROOT / 'starter'
 # impressions in three months went to /free-expense-tracker-template/, all template
 # queries. Template intent is the proven lane; this page was invisible beside it purely
 # because its title used a phrase that has no searchers.
-TITLE = 'Free Invoice Tracker Template (Excel + Google Sheets) — Built For You'
+TITLE = 'Free Invoice Tracker Template — Excel & Google Sheets'
 DESC = ('A free invoice tracker template that flags unbilled jobs and overdue invoices by '
-        'itself. Built in your browser for Excel or Google Sheets — no upload, no signup.')
+        'itself. Built in your browser for Excel or Google Sheets.')
 CANON = 'https://automatedworkflowllc.com/starter/'
 
 PAGE_CSS = """
