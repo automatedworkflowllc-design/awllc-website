@@ -276,6 +276,45 @@ def check_footer_name_consistency(pages, src_by_page):
         defect('nap-consistency', 'footer business-name inconsistent on %d page(s) (canonical: %r): %s'
                % (len(mismatched), CANON_FOOTER_NAME, ', '.join('%s=%r' % (r, n) for r, n in mismatched.items())))
 
+BANNED_ENTITY = 'Automated Workflow LLC'
+CANON_STATE = 'FL'
+
+def check_entity_and_state(pages, src_by_page):
+    """The two things the checks above could not see, both found live 2026-08-13.
+
+    check_footer_name_consistency only inspects footers matching the
+    '&copy; <span id="yr">' markup. /almanac/ and /skeleton/ use a different
+    footer ('Built by ... — Gainesville, VA'), so they never entered its `names`
+    dict at all -- and a page it never examined was indistinguishable from a page
+    that passed. Four pages carried a false entity claim and two advertised the
+    wrong state while this gate reported clean.
+
+    The city check was the same shape of mistake: CANON_CITY is 'Gainesville',
+    which "Gainesville, VA" contains, so a substring test could never fail on the
+    part that was actually wrong. This reads the STATE.
+
+    Both run over the whole source of every tracked page rather than one footer
+    pattern, so a page cannot opt out by styling its footer differently."""
+    bad_name, bad_state = [], []
+    for rel in pages:
+        src = src_by_page[rel]
+        # /log/ is a historical record and legitimately QUOTES the old name when
+        # describing this very class of bug. Only quoted occurrences are allowed;
+        # a bare one anywhere is still a defect, including on /log/.
+        unquoted = src.replace('&ldquo;' + BANNED_ENTITY + '&rdquo;', '')
+        if BANNED_ENTITY in unquoted:
+            bad_name.append(rel)
+        for m in re.finditer(r'Gainesville,\s*([A-Za-z]{2})\b', src):
+            if m.group(1).upper() != CANON_STATE:
+                bad_state.append('%s=%r' % (rel, m.group(1)))
+    if bad_name:
+        defect('entity-claim', '%r appears unquoted on %d page(s) -- the entity was '
+               'never filed, so this asserts a legal standing that does not exist: %s'
+               % (BANNED_ENTITY, len(bad_name), ', '.join(sorted(bad_name))))
+    if bad_state:
+        defect('nap-state', 'wrong state beside "Gainesville" on %d page(s) (canonical: %r): %s'
+               % (len(bad_state), CANON_STATE, ', '.join(sorted(bad_state))))
+
 # ---------------------------------------------------------------- main
 def main():
     try:
@@ -290,6 +329,7 @@ def main():
         (check_sitemap_and_orphans, (pages, src_by_page)),
         (check_llms_txt, (pages,)),
         (check_footer_name_consistency, (pages, src_by_page)),
+        (check_entity_and_state, (pages, src_by_page)),
     ]:
         try:
             fn(*fargs)
