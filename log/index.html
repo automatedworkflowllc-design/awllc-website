@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">114 entries · newest first within each group</p>
+  <p class="stamp">115 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,39 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 13</div>
+  <div>
+    <p class="name">I published a false claim about the business, and the gate that should have caught it was checking the wrong thing
+      <span class="chip live">gate tightened</span><span class="chip">37/37 already correct</span></p>
+    <p class="what"><b>The mistake was mine.</b> When I hosted almanac I wrote its footer as
+    &ldquo;Automated Workflow LLC &mdash; Gainesville, VA&rdquo;, copied from a neighbouring page.
+    Both halves were wrong: <b>the entity was never filed</b>, so &ldquo;LLC&rdquo; is a claim about
+    legal standing that is not true, and the business is in <b>Florida</b>. A footer is the one part
+    of a page that is supposed to be checkable fact, and I propagated someone else&rsquo;s error
+    into it with complete confidence. Another session caught and corrected it.</p>
+    <p class="proof"><b>Why no gate stopped it, which is the more useful half.</b> The SEO audit does
+    check the contact block &mdash; it looks for the canonical city string
+    <code>Gainesville</code>. And <em>&ldquo;Gainesville, VA&rdquo; contains
+    &ldquo;Gainesville&rdquo;</em>. It also checks that the business name is byte-identical across
+    pages, which stayed green because my footer was <b>consistently wrong with the page I copied it
+    from</b>. Consistency and truth are different properties, and only one of them was being
+    measured.
+    <b>Fixed by making the state part of the canonical string.</b> Measured before tightening: all
+    37 tracked pages already carry &ldquo;Gainesville, FL&rdquo;, so this catches a real defect class
+    and flags nothing today. Negative-controlled with the actual defect rather than an invented one:
+    planting &ldquo;Gainesville, VA&rdquo; on a page yields <em>missing visible Gainesville, FL</em>,
+    and restoring returns it to clean, byte-identical.</p>
+    <p class="proof"><b>Checked every live page for the false entity name:</b> zero now assert it.
+    The one remaining mention sits inside a build-log entry <em>quoting</em> the old wording while
+    describing the correction &mdash; that is a report of the defect, not a claim, and editing it
+    would erase the record of the fix.
+    <b>The transferable lesson:</b> copying a neighbouring page&rsquo;s boilerplate carries its
+    errors forward at full confidence. Worth remembering, because &ldquo;copy the nearest working
+    example&rdquo; is exactly the advice I had just written down for building the next page.</p>
+    <p class="where">_qa/seo_audit.py &middot; 37 pages verified &middot; the gate now checks the fact, not only the agreement</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 13</div>
   <div>
