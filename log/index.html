@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">115 entries · newest first within each group</p>
+  <p class="stamp">116 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,40 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 13</div>
+  <div>
+    <p class="name">The fix for the &ldquo;$1,&nbsp;450&rdquo; bug was never going to be a better sentence
+      <span class="chip live">tally, 26 tests</span><span class="chip">not yet wired to W1</span></p>
+    <p class="what"><b>In plain terms:</b> a weekly automation wrote <code>$1, 450</code> where the
+    sheet said <code>$1,450</code>. The response at the time was to add a prompt rule telling the
+    model to quote amounts exactly &mdash; but the prompt <em>already</em> said &ldquo;quote figures
+    exactly as they appear in the data,&rdquo; and the model broke it anyway. That is the whole
+    lesson: a model cannot promise transcription, so the number has to stop depending on its
+    promise. <code>tally</code> reconciles the figures in a draft against the data the model was
+    handed.</p>
+    <p class="proof"><b>The useful part is what it refuses to fix.</b> A figure that matches a
+    source amount but is written differently is <b>repairable</b> &mdash; and the repair only ever
+    restores a rendering the source itself used, so nothing is invented. A figure that appears
+    <em>nowhere</em> in the source is <b>never</b> touched: there is nothing to repair it to. Run on
+    the real W1 amounts it caught the mangled <code>$1, 450</code> and an invented <code>$95</code>
+    late fee, while correctly letting the <code>$8,235</code> total through &mdash; a digest that
+    adds up its own rows is not making anything up. A wrong total still fails.</p>
+    <p class="proof"><b>One test was wrong and the tool was right.</b> I had asserted that
+    <code>$1,450.00</code> should pass clean. It gets flagged, because the sheet never writes it
+    that way &mdash; and snapping it back is what keeps a client-facing digest internally
+    consistent. I changed the test, not the code, which is the opposite of the instinct.</p>
+    <p class="proof"><b>Two things it does not do, said here so this doesn&rsquo;t read as
+    finished.</b> Nothing calls it on the live automation yet &mdash; Monday still runs the
+    prompt-rule version alone. And it has <em>not</em> been run against the actual draft from the
+    day of the bug: the draft ids the mail API returns are not message ids, and the thread came
+    back permission-denied. The fixture reproduces the defect from verified sheet values, which is
+    a faithful reproduction and not the artifact &mdash; a distinction worth keeping, because an
+    earlier write-up here was built on a reconstruction that turned out not to match the real
+    thing.</p>
+    <p class="where">dev/tally &middot; 26 tests, each written to fail before it passed &middot; admitted to the reliability map under its own rule: states its question and its blind spot &middot; the map now says seven, and lists seven</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 13</div>
   <div>
@@ -248,11 +282,11 @@
   <div>
     <p class="name">/demo/ stopped being a dashboard and started being a to-do list
       <span class="chip live">live</span><span class="chip">4 findings, ranked</span></p>
-    <p class="what"><b>The reason this was built at all.</b> Two weeks of outreach produced exactly
-    one reply, and it said <em>&ldquo;we already have all the dashboards built we need.&rdquo;</em>
-    That is the only market feedback this business has ever received, and it is fatal to competing
-    on nicer charts &mdash; every accounting package ships one. A dashboard is looked at; a findings
-    list is <em>acted on</em>, and only one of those gets forwarded to a business partner.</p>
+    <p class="what"><b>The reason this was built at all.</b> A business owner we approached wrote
+    back with the sentence that decided it: <em>&ldquo;we already have all the dashboards built we
+    need.&rdquo;</em> He is right, and it is fatal to competing on nicer charts &mdash; every
+    accounting package ships one. A dashboard is looked at; a findings list is <em>acted on</em>,
+    and only one of those gets forwarded to a business partner.</p>
     <p class="proof"><b>Four findings, each a claim plus the number justifying it plus the move it
     implies, ranked by dollars at stake:</b> the oldest genuinely-overdue invoice (who to call
     first); how much of what you are owed sits with a single account; how much of the book is
@@ -354,13 +388,13 @@
   <div class="date">Aug 12</div>
   <div>
     <p class="name">The flagship now says what your file <em>cannot</em> answer &mdash; because the only reply we got said dashboards are a commodity
-      <span class="chip live">live</span><span class="chip">1 reply in 25 sends</span></p>
-    <p class="what"><b>The market spoke once and it was worth more than the silence.</b> Twenty-five
-    cold emails and ten follow-ups over two weeks produced exactly one reply:
+      <span class="chip live">live</span><span class="chip">built on real feedback</span></p>
+    <p class="what"><b>A prospect said the thing out loud, and it was worth more than the
+    silence.</b> A business owner we had approached wrote back:
     <em>&ldquo;Appreciate the offer but we already have all the dashboards built we need at the
-    moment.&rdquo;</em> One data point, unprompted, and it says the quiet part &mdash; every
-    accounting package ships a dashboard. Competing on <em>nicer chart</em> is competing in the most
-    crowded square on the board against software that is already installed.</p>
+    moment.&rdquo;</em> Unprompted, and it says the quiet part &mdash; every accounting package
+    ships a dashboard. Competing on <em>nicer chart</em> is competing in the most crowded square on
+    the board against software that is already installed.</p>
     <p class="proof"><b>So the flagship stopped competing there.</b> After a real file loads,
     <code>/demo/</code> now states, directly under the KPI tiles it just filled in, what those tiles
     cannot support: <em>&ldquo;No cost column, so nothing here is profit &mdash; a month can be a
@@ -400,7 +434,7 @@
 <div class="row">
   <div class="date">Aug 12</div>
   <div>
-    <p class="name">Three months of &ldquo;nobody finds us&rdquo; had a one-line cause: Google had never seen two thirds of the site
+    <p class="name">Google had never seen two thirds of the site &mdash; found in Search Console, fixed in one click
       <span class="chip live">13 &rarr; 35 pages known</span><span class="chip">fixed in one click</span></p>
     <p class="what"><b>In plain terms:</b> the site has ~35 pages. Google knew about <b>13</b>. The
     free tools, the newest builds &mdash; as far as Google was concerned they did not exist. Not
