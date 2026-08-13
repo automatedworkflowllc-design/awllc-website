@@ -2065,7 +2065,9 @@ __SHARED_INTAKE__
          prose on its way somewhere else and must be left alone. */
       if (rows.length < 2 || rows[0].length < 2) { return; }
       ev.preventDefault();
-      use(text, 'Pasted from your spreadsheet');
+      /* Becomes the masthead, so it has to read like a name. "Pasted from your spreadsheet"
+         title-cases into nonsense above a dashboard. */
+      use(text, 'Your spreadsheet');
     });
     reset.addEventListener('click', function () {
       deriveFrom(decorate(buildSample()));
