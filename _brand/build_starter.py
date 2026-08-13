@@ -40,9 +40,18 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'starter'
 
-TITLE = 'Free Job & Invoice Tracker — Built For You In One Click'
-DESC = ('Download a working Excel tracker that flags unbilled jobs and overdue invoices '
-        'by itself. No upload, no signup, no data required to start.')
+# 2026-08-12 retitle, and the reason is measured rather than a hunch.
+# The old title's exact phrase -- "free job and invoice tracker" -- returns ZERO Google
+# autocomplete suggestions. Nobody types it. "invoice tracker template" returns a full
+# set of ten, every one of them template-intent: template excel free, template google
+# sheets, template free. Checked against the live suggest endpoint, not assumed.
+# This also matches the ONLY demand this domain has ever caught: 24 of 45 total search
+# impressions in three months went to /free-expense-tracker-template/, all template
+# queries. Template intent is the proven lane; this page was invisible beside it purely
+# because its title used a phrase that has no searchers.
+TITLE = 'Free Invoice Tracker Template (Excel + Google Sheets) — Built For You'
+DESC = ('A free invoice tracker template that flags unbilled jobs and overdue invoices by '
+        'itself. Built in your browser for Excel or Google Sheets — no upload, no signup.')
 CANON = 'https://automatedworkflowllc.com/starter/'
 
 PAGE_CSS = """

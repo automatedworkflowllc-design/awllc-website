@@ -30,7 +30,16 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'money-leak-finder'
 
-TITLE = 'Money Leak Finder — Jobs Done vs. Billed, In Your Browser'
+# 2026-08-12 retitle. "money leak" autocompletes to money leakage meaning / money leaks
+# feng shui -- consumer personal-finance and superstition intent, not a business tool.
+# The name is ours, so it has no searchers except us.
+# ⚠ The SEO audit proposed leading with "Unbilled Jobs". CHECKED IT: "unbilled jobs"
+# returns ZERO autocomplete suggestions -- swapping one invented phrase for another.
+# "invoice aging" returns ten (invoice aging report, invoice aging calculator, invoice
+# aging formula in excel) and "accounts receivable aging" fills all ten slots. That is
+# the searchable name for what this tool already does: unpaid past 60 days, from the
+# user's own export. Brand name kept in the H1, not the title.
+TITLE = 'Free Invoice Aging Report — Unpaid & Never-Billed Jobs, Nothing Uploads'
 DESC = ('See only the mismatches between your work log and invoice export: jobs '
         'never invoiced, invoices unpaid past 60 days. Runs in your browser — '
         'nothing uploads.')

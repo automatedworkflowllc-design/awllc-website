@@ -27,7 +27,14 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / 'spreadsheet-cleanup-service' / 'index.html'
 OUT_DIR = ROOT / 'spreadsheet-health-check'
 
-TITLE = 'Free Spreadsheet Health Check — Runs In Your Browser'
+# 2026-08-12 retitle. "spreadsheet health" is not merely unsearched -- it points at the
+# WRONG UNIVERSE. Google autocomplete returns spreadsheet health tracker, health
+# spreadsheet template, healthcare spreadsheet template, spreadsheet to compare health
+# insurance plans. Anyone arriving on that phrasing wanted a fitness or insurance
+# document and bounces on sight. Verified against the live suggest endpoint today.
+# What people actually type for this job: "clean up excel data" (ten suggestions,
+# including clean up excel spreadsheet / excel file), and "csv validator online free".
+TITLE = 'Clean Up Excel Data Automatically — Free Spreadsheet Error Checker'
 DESC = ('Drop any CSV and get an instant, honest report: dead columns, mixed date '
         'formats, duplicate rows. Runs in your browser — your data never leaves '
         'your machine.')

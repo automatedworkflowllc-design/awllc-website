@@ -1,13 +1,5 @@
 [
  {
-  "when": "2026-08-10 00:59",
-  "score": 1,
-  "pages": 35,
-  "by_area": {
-   "sitemap-coverage": 1
-  }
- },
- {
   "when": "2026-08-10 01:00",
   "score": 1,
   "pages": 35,
@@ -373,6 +365,12 @@
  },
  {
   "when": "2026-08-12 21:24",
+  "score": 0,
+  "pages": 37,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-12 21:26",
   "score": 0,
   "pages": 37,
   "by_area": {}

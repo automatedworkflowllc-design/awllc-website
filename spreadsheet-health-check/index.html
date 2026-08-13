@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Free Spreadsheet Health Check — Runs In Your Browser</title>
+<title>Clean Up Excel Data Automatically — Free Spreadsheet Error Checker</title>
 <meta name="description" content="Drop any CSV and get an instant, honest report: dead columns, mixed date formats, duplicate rows. Runs in your browser — your data never leaves your machine.">
 <link rel="canonical" href="https://automatedworkflowllc.com/spreadsheet-health-check/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Free Spreadsheet Health Check — Runs In Your Browser">
+<meta property="og:title" content="Clean Up Excel Data Automatically — Free Spreadsheet Error Checker">
 <meta property="og:description" content="Drop any CSV and get an instant, honest report: dead columns, mixed date formats, duplicate rows. Runs in your browser — your data never leaves your machine.">
 <meta property="og:url" content="https://automatedworkflowllc.com/spreadsheet-health-check/">
 <meta property="og:image" content="https://automatedworkflowllc.com/og-image.png">
@@ -171,7 +171,16 @@
 <link rel="icon" href="/favicon.ico?v=1" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
 <link rel="manifest" href="/site.webmanifest?v=1">
-
+<!-- aw-analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K2B3YTCPJY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-K2B3YTCPJY');
+  gtag('config', 'AW-18312491430');
+</script>
+<!-- aw-analytics -->
 <style>
 /* ---- health check page ---- */
 .hc-drop{border:2px dashed var(--line-strong);border-radius:16px;background:var(--card);
@@ -586,6 +595,7 @@ var DATE_SHAPES = [
   [/^[A-Za-z]{3,9} \d{1,2},? \d{4}$/, 'Month D, Y']
 ];
 
+
 function dateShape(v){
   for(var k=0;k<DATE_SHAPES.length;k++) if(DATE_SHAPES[k][0].test(v)) return DATE_SHAPES[k][1];
   return null;
@@ -808,6 +818,7 @@ var SAMPLE = 'Invoice No,Date,Customer,Amount,Status,Notes\n' +
 '1007,2026-07-10,Sunrise Vet,890,Paid,\n' +
 '1008,2026-07-11,Acme Roofing,,Paid,\n' +
 '1009,2026-07-14,Palm Realty,2350,Paid,\n';
+
 
 /* Severity COUNTS only -- never a finding's text, which quotes real column names and cell
    values straight out of the visitor's file. */

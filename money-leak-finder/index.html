@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Money Leak Finder — Jobs Done vs. Billed, In Your Browser</title>
+<title>Free Invoice Aging Report — Unpaid & Never-Billed Jobs, Nothing Uploads</title>
 <meta name="description" content="See only the mismatches between your work log and invoice export: jobs never invoiced, invoices unpaid past 60 days. Runs in your browser — nothing uploads.">
 <link rel="canonical" href="https://automatedworkflowllc.com/money-leak-finder/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Money Leak Finder — Jobs Done vs. Billed, In Your Browser">
+<meta property="og:title" content="Free Invoice Aging Report — Unpaid & Never-Billed Jobs, Nothing Uploads">
 <meta property="og:description" content="See only the mismatches between your work log and invoice export: jobs never invoiced, invoices unpaid past 60 days. Runs in your browser — nothing uploads.">
 <meta property="og:url" content="https://automatedworkflowllc.com/money-leak-finder/">
 <meta property="og:image" content="https://automatedworkflowllc.com/og-image.png">
@@ -171,7 +171,16 @@
 <link rel="icon" href="/favicon.ico?v=1" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1">
 <link rel="manifest" href="/site.webmanifest?v=1">
-
+<!-- aw-analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K2B3YTCPJY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-K2B3YTCPJY');
+  gtag('config', 'AW-18312491430');
+</script>
+<!-- aw-analytics -->
 <style>
 /* ---- money leak finder ---- */
 .ml-drops{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
@@ -590,6 +599,7 @@ function parseCSV(text){
   return rows;
 }
 /* All local. No fetch, no XHR, no beacon. */
+
 
 function toTable(rows){
   var header = rows[0].map(function(h,i){ return (h||'').trim() || ('col'+(i+1)); });
