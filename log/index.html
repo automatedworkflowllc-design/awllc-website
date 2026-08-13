@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">106 entries · newest first within each group</p>
+  <p class="stamp">107 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,36 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 12</div>
+  <div>
+    <p class="name">Ten tools existed on one machine with no remote — now backed up, and the backup was restored to prove it
+      <span class="chip live">341 in, 341 out</span><span class="chip">still one drive</span></p>
+    <p class="what"><b>Found while checking something unrelated:</b> the dev workspace has <b>no git
+    remote at all</b>. Every &ldquo;push&rdquo; of workspace code this week was a no-op against
+    nothing &mdash; not an error, just silence. attest, flatline, canary, watchpost, custody, vouch,
+    skeleton, almanac, fleetmap and redline all lived in exactly one place. The website repo pushes
+    are real; the tools themselves were not going anywhere.</p>
+    <p class="proof"><b>A bundle I made by hand is not a fix</b>, because it depends on me
+    remembering &mdash; the same class of thing as a gate nobody runs, which is a lesson this week
+    has already charged for twice. So it is a script now, and the verify is not decoration: a file
+    that exists is not a backup, a file that restores is. <code>git bundle verify</code> runs every
+    time and a non-zero exit aborts. <b>The failure path was controlled rather than assumed</b>
+    &mdash; verify against a deliberately corrupt file exits 1, so the guard can actually fire.
+    <b>Proven by restoring, not by reading the word &ldquo;verify&rdquo;:</b> cloned from the bundle,
+    <b>341 commits in and 341 out</b> across all branches, all ten tools present, and two suites run
+    from the <em>restored</em> copy passed &mdash; redline 61, almanac 55. Not &ldquo;the files are
+    there&rdquo;. &ldquo;The thing works after restoration.&rdquo;</p>
+    <p class="proof"><b>What is still broken, written into the script rather than implied.</b> The
+    bundle lands on the <em>same drive</em> as the repo it protects. That is a seatbelt, not a
+    second car, and it would not survive the failure people actually mean when they say backup.
+    Off-machine durability means putting code somewhere, which is a publishing decision and
+    Colin&rsquo;s to make. It is also not scheduled yet, so it still depends on somebody running it
+    &mdash; named here because a committed script can read as &ldquo;handled&rdquo; when it is
+    not.</p>
+    <p class="where">f671b87 &middot; dev/_ops/backup.cmd &middot; restore tested, corrupt-file control fired &middot; the biggest remaining risk in the workspace is still off-machine storage</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 12</div>
   <div>
