@@ -304,7 +304,12 @@ def check_entity_and_state(pages, src_by_page):
         unquoted = src.replace('&ldquo;' + BANNED_ENTITY + '&rdquo;', '')
         if BANNED_ENTITY in unquoted:
             bad_name.append(rel)
-        for m in re.finditer(r'Gainesville,\s*([A-Za-z]{2})\b', src):
+        # Same rule for the state, and it was this check that forced it: /log/ describes this
+        # very defect and quotes the wrong state while doing so. A gate that cannot tell
+        # "this page IS wrong" from "this page QUOTES the wrong thing while explaining it"
+        # would make the log unable to record its own bugs.
+        unquoted = re.sub(r'&ldquo;Gainesville,\s*[A-Za-z]{2}&rdquo;', '', unquoted)
+        for m in re.finditer(r'Gainesville,\s*([A-Za-z]{2})\b', unquoted):
             if m.group(1).upper() != CANON_STATE:
                 bad_state.append('%s=%r' % (rel, m.group(1)))
     if bad_name:
