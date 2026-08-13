@@ -67,6 +67,13 @@ NO_ANALYTICS = {
     'duplicate-customer-finder/index.html',
     'shift-coverage-check/index.html',
     'starter/index.html',
+    # 2026-08-12: added when both were promoted onto the homepage tool row, whose lede
+    # says "open your network tab on the tool before you drop the file in and watch
+    # nothing happen". They are client-side like the rest, but they were loading the
+    # analytics tag -- which made that sentence false for two of the eight the moment
+    # they joined the row. Caught by claim-tracing the promise before posting about it.
+    'skeleton/index.html',
+    'almanac/index.html',
     'proof/notarize/index.html',
 }
 
