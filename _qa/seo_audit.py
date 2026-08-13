@@ -55,7 +55,16 @@ LIVE = 'https://automatedworkflowllc.com'
 
 CANON_EMAIL = 'colin@automatedworkflowllc.com'
 CANON_PHONE_DISPLAY = '(703) 939-1174'
-CANON_CITY = 'Gainesville'
+# The STATE is part of the canonical string, not decoration. Checking the bare
+# city let "Gainesville, VA" pass every gate -- which is exactly what happened:
+# /almanac/ shipped with the wrong state (and an "LLC" the entity never filed)
+# because its footer was copied from a neighbouring page, and "Gainesville, VA"
+# contains "Gainesville". NAP CONSISTENCY stayed green the whole time, because the
+# footer was consistently wrong with the page it was copied from -- consistency
+# and truth are different checks. Measured before tightening: all 37 tracked pages
+# already carry "Gainesville, FL", so this catches a real defect class and flags
+# nothing today.
+CANON_CITY = 'Gainesville, FL'
 CANON_FOOTER_NAME = 'Automated Workflow'   # majority usage (10/14 tracked pages); the
                                             # homepage uses this form. Check only flags
                                             # a MISMATCH across pages, not the choice itself.
