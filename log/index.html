@@ -76,7 +76,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">107 entries · newest first within each group</p>
+  <p class="stamp">108 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -91,6 +91,39 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 12</div>
+  <div>
+    <p class="name">skeleton&rsquo;s last duplicate is closed — and the builder proves itself by doing nothing
+      <span class="chip live">one parser, two pages</span><span class="chip">no-op proof</span></p>
+    <p class="what"><b>In plain terms:</b> skeleton&rsquo;s parser existed in three byte-identical
+    copies &mdash; the dev page, the live page, and its own test harness &mdash; with nothing
+    generating them from a single source. They agreed by luck. The harness copy went first, because
+    <b>a suite that is a duplicate of the code it tests can pass while the shipped page is
+    broken</b>. Today the engine was extracted to one file and both pages are generated from it.</p>
+    <p class="proof"><b>The builder&rsquo;s correctness test is that it writes nothing.</b> On a
+    known-good tree the pages already match the engine, so a correct build produces zero bytes of
+    change and reports &ldquo;in step&rdquo;. A builder that quietly reformats a live page on a
+    no-op run is wrong. It was silent: 8,321-character block, both pages in step, exit 0, and
+    neither file showed a diff afterwards.
+    <b>Negative-controlled, because a builder that always says &ldquo;in step&rdquo; looks exactly
+    like a working one.</b> Inserting a ten-character drift into the dev page produced
+    <em>OUT OF STEP (8331 &rarr; 8321 chars)</em> and exit 1, while the live page correctly still
+    read in step &mdash; so it discriminates rather than blanket-passing. Restored, and silent
+    again.</p>
+    <p class="proof"><b>It fails closed on the ways this could go wrong quietly:</b> the block must
+    land exactly once, the file may not change by more than the block&rsquo;s own length
+    difference, and a page with no recognisable parser region is refused rather than guessed at.
+    <b>Extraction was verified before and after, not assumed.</b> Before: the dev and live blocks
+    were confirmed still byte-identical, because if they had drifted, extracting would have
+    silently picked one and discarded the other&rsquo;s changes. After: the block appears verbatim
+    in both the page and the engine file, which adds only header and exports.
+    <b>Nothing was deployed, because there was nothing to deploy</b> &mdash; the pages were already
+    correct. The value is structural: editing the engine is now the only way to change that parser,
+    and the release sequence is fixed at build, test, open it in a browser, ship.</p>
+    <p class="where">d1bb3f1 + 9d6fcf1 &middot; dev/skeleton/ &middot; the last structural duplicate in the tools</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 12</div>
   <div>
