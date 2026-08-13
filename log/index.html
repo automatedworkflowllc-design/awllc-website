@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">110 entries · newest first within each group</p>
+  <p class="stamp">111 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,48 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 13</div>
+  <div>
+    <p class="name">One palette for the whole site — checked against WCAG rather than admired, and the first page is live on it
+      <span class="chip live">/log/ converted</span><span class="chip">18 pairs pass</span></p>
+    <p class="what"><b>Measured first:</b> every page declared its own colours and <b>none shared a
+    source</b>. The homepage used <code>--ink #1F1C15</code> while its own tools used
+    <code>#211D14</code> &mdash; close enough that nobody notices consciously, far enough that the
+    pages feel subtly unrelated. skeleton was blueprint navy, almanac warm brass. Three companies,
+    one domain. <b>Same defect as the duplicated parser and the three-copy harness, in the design
+    layer:</b> no single source, so agreement is luck and drift is guaranteed.</p>
+    <p class="proof"><b>The direction, and why not the obvious version.</b> Warm off-black and
+    parchment rather than neutral grey, because nearly every developer-tool site is cool grey and
+    warm reads as chosen. <b>One</b> brass accent, on interactive things and the single number you
+    are meant to look at &mdash; restraint is what makes an accent read as expensive. Semantic
+    good/warn/bad kept strictly apart from it, so a clean result and a call to action never compete.
+    No gradients, no glassmorphism, no purple-to-blue hero: those read as machine-generated now and
+    would undercut the one thing this site sells.
+    <b>Every pair checked, not eyeballed.</b> A contrast helper ships with the tokens and all 18
+    combinations pass WCAG in both themes &mdash; body text 16.1 light and 16.0 dark, brass at 4.84
+    on parchment and 10.71 on the dark ground. <b>The checker was itself controlled</b> before its
+    greens were believed: #999 on #aaa returns 1.23 and fails, black on white returns exactly 21.00.
+    A palette validator that always says fine looks identical to a good palette.</p>
+    <p class="proof"><b>First real page converted and live.</b> <code>/log/</code> now builds from
+    the shared tokens: five legacy variable names <em>renamed</em> onto them rather than aliased,
+    because an alias layer is precisely how two palettes go on quietly coexisting. 810 characters of
+    inline theme deleted, zero legacy names left, 110 entries intact, both gates clean, and verified
+    on the live page rather than assumed.
+    <b>The SEO gate caught a mistake of mine in the middle of it.</b> I had committed the rendered
+    design reference into <code>_brand</code> &mdash; inside the SERVED tree &mdash; and the audit
+    correctly called it a publishable page with no canonical, description, sitemap entry or contact
+    footer. My first instinct was to mark it noindex, which silenced two of six and was the wrong
+    move: the gate was right, that directory really is served. The file moved to the workspace
+    instead. <b>Fixing where it lived beat teaching the gate to ignore it</b>, and it is confirmed
+    404 publicly.
+    <b>And one measurement trap:</b> I first judged the deploy by counting entries, saw the number I
+    expected, and nearly called it live &mdash; but an earlier push already had that count, so the
+    check could not tell deployed from not. The token marker was the only signal that
+    discriminated.</p>
+    <p class="where">34e3b70 + 12b9c0c &middot; _brand/tokens.py &middot; 18 contrast pairs, both themes &middot; rolling the remaining builders is nearly free now that one is proven</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 12</div>
   <div>
