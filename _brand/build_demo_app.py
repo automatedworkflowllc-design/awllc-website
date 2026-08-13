@@ -465,9 +465,10 @@ APP_HTML = """
             <span class="ddrop-m">
               <p class="ddrop-t">Want to see this on your own numbers?</p>
               <p class="ddrop-s">Drop an <b>Excel file or CSV</b> of your invoices or jobs &mdash; any
-              export with a date and an amount. <b>.xlsx works as-is</b>, no save-as-CSV step. It is
-              read <b>in this browser</b>: nothing is uploaded, and you can have the network tab open
-              while you do it.</p>
+              export with a date and an amount. <b>.xlsx works as-is</b>, no save-as-CSV step.
+              <b>On Google Sheets? Just copy the cells and press Ctrl&#8209;V here</b> &mdash; no export
+              needed. It is read <b>in this browser</b>: nothing is uploaded, and you can have the
+              network tab open while you do it.</p>
               <div class="dmap" id="d-map"></div>
             </span>
             <button class="ddrop-b" type="button" id="d-pick">Choose a file</button>
@@ -2043,6 +2044,28 @@ __SHARED_INTAKE__
     zone.addEventListener('drop', function (ev) {
       var f = ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0];
       take(f);
+    });
+
+    /* Paste straight out of Google Sheets or Excel. This exists because the export step is
+       the friction: this site's own copy calls "save it as CSV first" the place where
+       prospects quietly leave, and a Sheets user has no file to drag at all -- their data
+       is in a browser tab, not on disk.
+       The shared parser already sniffs tab-vs-comma, so a clipboard TSV needs no new parsing.
+       Deliberately NOT the Sheets API: that would mean OAuth and a request to googleapis.com,
+       which breaks "0 requests after load" -- the one claim this page has that competitors
+       cannot copy. Clipboard costs nothing and keeps it true. */
+    document.addEventListener('paste', function (ev) {
+      var t = ev.target, tag = t && t.tagName;
+      /* Never hijack a paste the visitor aimed at the email capture field. */
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (t && t.isContentEditable)) { return; }
+      var text = ev.clipboardData && ev.clipboardData.getData('text/plain');
+      if (!text) { return; }
+      var rows = parseCSV(text);
+      /* A header plus at least one row, at least two columns -- otherwise this was ordinary
+         prose on its way somewhere else and must be left alone. */
+      if (rows.length < 2 || rows[0].length < 2) { return; }
+      ev.preventDefault();
+      use(text, 'Pasted from your spreadsheet');
     });
     reset.addEventListener('click', function () {
       deriveFrom(decorate(buildSample()));

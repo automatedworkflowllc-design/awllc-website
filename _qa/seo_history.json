@@ -9,15 +9,6 @@
   }
  },
  {
-  "when": "2026-08-10 01:01",
-  "score": 2,
-  "pages": 36,
-  "by_area": {
-   "meta-description": 1,
-   "orphan-page": 1
-  }
- },
- {
   "when": "2026-08-10 01:04",
   "score": 0,
   "pages": 36,
@@ -369,6 +360,12 @@
  },
  {
   "when": "2026-08-12 21:34",
+  "score": 0,
+  "pages": 37,
+  "by_area": {}
+ },
+ {
+  "when": "2026-08-12 21:56",
   "score": 0,
   "pages": 37,
   "by_area": {}
