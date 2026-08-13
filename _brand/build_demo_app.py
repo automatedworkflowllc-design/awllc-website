@@ -286,6 +286,21 @@ APP_CSS = """
 .ddrop-b:focus-visible{outline:2px solid var(--d-green);outline-offset:2px}
 .ddrop input[type=file]{display:none}
 
+/* ---- "what this file can't tell you" ----------------------------------
+   Styled as candour, NOT as an error. Amber would read as "something went wrong with
+   your upload"; this is the page being straight about the limits of the input, which is
+   the most differentiated thing it does. Quiet surface, ink-coloured headline, normal
+   body text -- it should read like a footnote written by someone competent. */
+.dlimits{margin:0 0 1.05rem;padding:.95rem 1.1rem;border:1px solid var(--d-line2);
+border-radius:11px;background:var(--d-well)}
+.dlim-h{margin:0 0 .5rem;font-size:.82rem;font-weight:700;letter-spacing:.04em;
+text-transform:uppercase;color:var(--d-ink)}
+.dlim-l{margin:0;padding-left:1.05rem;display:flex;flex-direction:column;gap:.4rem}
+.dlim-l li{font-size:.88rem;color:var(--d-soft);text-wrap:pretty}
+.dlim-l b{color:var(--d-ink);font-weight:600}
+.dlim-f{margin:.65rem 0 0;font-size:.78rem;color:var(--d-soft);text-wrap:pretty;
+border-top:1px solid var(--d-line);padding-top:.55rem}
+
 /* ---- the "that was your book" call to action --------------------------
    Only ever visible after a visitor's own file has been read, so it is styled to
    read as a conclusion the dashboard reached rather than an ad bolted underneath.
@@ -475,6 +490,13 @@ APP_HTML = """
           <div class="dcta" id="d-cta" hidden></div>
 
           <div class="dkpis" id="d-kpis"></div>
+
+          <!-- The honesty panel. Deliberately sits DIRECTLY under the KPI tiles, because its
+               whole job is to qualify the numbers the reader has just read. Every other
+               dashboard on the market states figures; almost none state what their own input
+               cannot support. Real-file only -- on the invented sample every answer is knowable
+               by construction, so the panel would be theatre. -->
+          <div class="dlimits" id="d-limits" hidden></div>
 
           <div class="dgrid">
             <div class="dpanel">
@@ -1898,7 +1920,53 @@ __SHARED_INTAKE__
       '<a class="dcta-b" id="d-mail" href="' + href + '">Email these figures to Colin</a>';
   }
 
-  function applyBook(book, mapHTML){
+  /* "What this file can't tell you." Every item is derived from something already measured
+     during ingest -- nothing here is guessed, and nothing appears unless the condition is
+     genuinely true of the file just read. An empty list renders nothing rather than a
+     reassuring "no issues", because "we found nothing" and "we did not look" must never
+     look the same on this site. */
+  function limitsPanel(m){
+    var host = el('d-limits');
+    if (!host) { return; }
+    var items = [];
+
+    if (!D.hasSpend) {
+      items.push('<b>No cost column, so nothing here is profit.</b> Every figure above is ' +
+                 'revenue. A month can be a record month and still lose money, and this file ' +
+                 'cannot tell you which.');
+    }
+    if (m && m.skipped) {
+      items.push('<b>' + m.skipped + ' row' + (m.skipped === 1 ? '' : 's') +
+                 ' could not be read</b> &mdash; the date or the amount was unusable. ' +
+                 'Whatever those rows were worth is missing from every total above, and the ' +
+                 'shortfall is unknown rather than zero.');
+    }
+    if (undated.length) {
+      items.push('<b>' + undated.length + ' invoice' + (undated.length === 1 ? '' : 's') +
+                 ' carr' + (undated.length === 1 ? 'ies' : 'y') + ' no date.</b> ' +
+                 'Counted in what you are owed, deliberately left out of the ageing &mdash; ' +
+                 'undated is unknown, not current.');
+    }
+    if (m && !m.status) {
+      items.push('<b>No paid/unpaid column was found</b>, so receivables are left empty rather ' +
+                 'than invented. Add that column and this page can tell you who to call.');
+    }
+    if (m && !m.customer) {
+      items.push('<b>No customer column was found</b>, so nothing here can be attributed to ' +
+                 'anyone. Totals are trustworthy; "who owes it" is not answerable from this file.');
+    }
+
+    if (!items.length) { host.hidden = true; host.innerHTML = ''; return; }
+    host.hidden = false;
+    host.innerHTML =
+      '<p class="dlim-h">' + items.length + ' thing' + (items.length === 1 ? '' : 's') +
+      ' this file can&rsquo;t tell you</p>' +
+      '<ul class="dlim-l"><li>' + items.join('</li><li>') + '</li></ul>' +
+      '<p class="dlim-f">Stated because a number you cannot trust is worse than one you do not ' +
+      'have. Fixing the column is usually a five-minute job at your end.</p>';
+  }
+
+  function applyBook(book, mapHTML, mapObj){
     deriveFrom(decorate(book));
     rendered = {};                       /* force every tab to re-render */
     var chip = el('d-samplechip'); if (chip) { chip.hidden = true; }
@@ -1909,6 +1977,7 @@ __SHARED_INTAKE__
     var bdg2 = el('d-arbadge');
     if (bdg2) { bdg2.textContent = String(overdue.length); bdg2.hidden = !overdue.length; }
     el('d-map').innerHTML = mapHTML;
+    limitsPanel(mapObj);
     ctaBlock();
     renderDashboard();
     show('dashboard');
@@ -1928,7 +1997,7 @@ __SHARED_INTAKE__
     function use(text, name){
       try {
         var r = bookFromCSV(text, name);
-        applyBook(r.book, mapLine(r.map));
+        applyBook(r.book, mapLine(r.map), r.map);
       } catch (e) { fail(e && e.message ? e.message : 'it could not be parsed'); }
     }
     function take(file){
@@ -1981,6 +2050,7 @@ __SHARED_INTAKE__
       /* Must clear, or "Back to sample" would leave the visitor's REAL figures sitting in a
          mailto: under invented data -- the exact confusion this page exists to avoid. */
       var cta = el('d-cta'); if (cta) { cta.hidden = true; cta.innerHTML = ''; }
+      var lim = el('d-limits'); if (lim) { lim.hidden = true; lim.innerHTML = ''; }
       el('d-map').innerHTML = '';
       reset.hidden = true;
       var chip2 = el('d-samplechip'); if (chip2) { chip2.hidden = false; }
