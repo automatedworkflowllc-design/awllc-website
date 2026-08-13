@@ -279,6 +279,7 @@
 .dkpi-why b{color:var(--d-ink)}
 @media (max-width:860px){ .dkpi-why{min-width:0} }
 
+
 .dgrid{display:grid;grid-template-columns:1.35fr 1fr;gap:.7rem}
 .dpanel{border:1px solid var(--d-line);border-radius:10px;background:var(--d-paper);
   padding:.8rem .9rem;min-width:0}
@@ -339,6 +340,7 @@
   max-width:13rem;white-space:normal}
 .dlc-peak{position:absolute;transform:translate(-50%,-118%);pointer-events:none;
   font-family:var(--d-mono);font-size:.6rem;color:var(--d-soft);white-space:nowrap}
+
 
 .drow{display:flex;align-items:flex-start;gap:.6rem;padding:.5rem 0;
   border-bottom:1px solid var(--d-line)}
@@ -436,6 +438,29 @@ text-transform:uppercase;color:var(--d-ink)}
 .dlim-l li{font-size:.88rem;color:var(--d-soft);text-wrap:pretty}
 .dlim-l b{color:var(--d-ink);font-weight:600}
 .dlim-f{margin:.65rem 0 0;font-size:.78rem;color:var(--d-soft);text-wrap:pretty;
+border-top:1px solid var(--d-line);padding-top:.55rem}
+
+/* ---- findings, ranked -------------------------------------------------
+   The difference between a dashboard and a tool: a dashboard is looked at, a findings
+   list is acted on. Every row is a claim, the number that justifies it, and the move it
+   implies -- in that order, ranked by dollars at stake, so the top row is the call to
+   make first. Numbered rather than bulleted because the ORDER is the product here.
+   Deliberately not styled as an alert: these are facts about the file, not alarms. */
+.dfind{margin:0 0 1.05rem;padding:.95rem 1.1rem;border:1px solid var(--d-line2);
+border-radius:11px;background:var(--d-card)}
+.dfind-h{margin:0 0 .6rem;font-size:.82rem;font-weight:700;letter-spacing:.04em;
+text-transform:uppercase;color:var(--d-ink)}
+.dfind-l{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:.7rem}
+.dfind-l li{display:flex;gap:.65rem;align-items:flex-start}
+.dfind-n{flex:0 0 auto;width:1.35rem;height:1.35rem;border-radius:50%;
+background:var(--d-well);border:1px solid var(--d-line2);font-family:var(--d-mono);
+font-size:.7rem;font-weight:700;color:var(--d-ink);display:flex;align-items:center;
+justify-content:center;margin-top:.05rem}
+.dfind-b{min-width:0}
+.dfind-t{margin:0;font-size:.93rem;font-weight:650;color:var(--d-ink);text-wrap:pretty;
+letter-spacing:-.005em}
+.dfind-e{margin:.15rem 0 0;font-size:.84rem;color:var(--d-soft);text-wrap:pretty}
+.dfind-f{margin:.7rem 0 0;font-size:.78rem;color:var(--d-soft);text-wrap:pretty;
 border-top:1px solid var(--d-line);padding-top:.55rem}
 
 /* ---- the "that was your book" call to action --------------------------
@@ -611,10 +636,17 @@ border:1px solid var(--d-green)}
             <input type="file" id="d-file" accept=".csv,.tsv,.txt,.xlsx,.xlsm,text/csv,text/plain">
           </div>
 
+
           <div class="dsum">
             <p class="dsum-h">&#10022; AI weekly summary &mdash; written by the dashboard, not by you</p>
             <p id="d-summary"></p>
           </div>
+
+          <!-- Ranked findings. Sits between the summary and the ask because it IS the payoff:
+               the summary says what happened, this says what to do about it and in what order.
+               Rendered by renderDashboard(), so it follows whichever book is loaded -- sample
+               or real -- and needs no separate clearing on "Back to sample". -->
+          <div class="dfind" id="d-findings" hidden></div>
 
           <!-- Filled in by applyBook() ONLY once a visitor's own file has been read.
                Deliberately placed AFTER the summary: the ask has to follow the payoff, not
@@ -1615,6 +1647,7 @@ function readAny(f, done){
     el('d-greet').textContent = h < 12 ? 'Good morning.' : (h < 18 ? 'Good afternoon.' : 'Good evening.');
     el('d-greetsub').textContent = 'Here is where the business stands as of ' + fmtLong(TODAY) + '.';
     el('d-summary').innerHTML = summary();
+    findingsPanel();
 
     var kpis = [
       { l: 'Monthly revenue', v: money(mtd),
@@ -2276,6 +2309,112 @@ function readAny(f, done){
       '<p class="dcta-n">Opens your own email app with just the totals written in. ' +
       'Your file stays in this browser; nothing is attached.</p>' +
       '<a class="dcta-b" id="d-mail" href="' + href + '">Email these figures to Colin</a>';
+  }
+
+  /* Findings, ranked by dollars at stake.
+
+     RULES THIS PANEL LIVES BY, because it is the most quotable thing on the page and
+     therefore the easiest place to accidentally lie:
+       - Every finding is arithmetic over the loaded book. Nothing is estimated, and no
+         multiplier, benchmark or industry rate appears anywhere in here. (Contrast
+         neverInvoiced, which is a sample-only fixed proportion and is gated as such.)
+       - Nothing asserts a cause. "One account holds 62% of what you are owed" is a fact
+         about the file; "you are over-reliant on them" is a judgement about their
+         business that a spreadsheet cannot support.
+       - An empty list renders NOTHING. It must never print "no issues found", because
+         "we looked and found nothing" and "we could not look" would then be identical on
+         screen -- the failure this whole site is pointed at. The limits panel states what
+         could not be checked; that is where an absence belongs.
+       - Thresholds are stated in the text itself, so a reader can disagree with one. */
+  function findingsPanel(){
+    var host = el('d-findings');
+    if (!host) { return; }
+    var f = [];
+
+    /* 1. The single oldest genuinely-overdue invoice. overdue[] is already filtered to
+          days > 30, and undated invoices are excluded from it upstream -- an undated
+          invoice is unknown, not old. */
+    var late = overdue[0];
+    if (late) {
+      f.push({ w: late.amount,
+        t: 'Call ' + esc(late.customer) + ' first.',
+        e: money(late.amount) + ' is ' + late.days + ' days past due &mdash; the oldest ' +
+           'thing you are owed. Nothing else on this list is worth more per phone call.' });
+    }
+
+    /* 2. Concentration. Only meaningful with more than one account in the book: with a
+          single customer the answer is trivially 100% and reads as a finding when it is
+          just a fact about the file's size. */
+    if (openAccounts > 1 && arTotal > 0) {
+      var byCust = {};
+      receivables.forEach(function (r) {
+        byCust[r.customer] = (byCust[r.customer] || 0) + r.amount;
+      });
+      var topName = null, topVal = 0;
+      Object.keys(byCust).forEach(function (k) {
+        if (byCust[k] > topVal) { topVal = byCust[k]; topName = k; }
+      });
+      var share = (topVal / arTotal) * 100;
+      if (topName && share >= 40) {
+        f.push({ w: topVal,
+          t: esc(topName) + ' holds ' + Math.round(share) + '% of everything you are owed.',
+          e: money(topVal) + ' of ' + money(arTotal) + ' outstanding sits with one account, ' +
+             'across ' + openAccounts + ' accounts in total. Whatever they do with their ' +
+             'payment schedule, you do too.' });
+      }
+    }
+
+    /* 3. How much of the book is already late, as distinct from finding #1, which is one
+          invoice. A portfolio can be healthy with one bad invoice in it and unhealthy
+          with none older than the rest.
+
+          Suppressed when there is exactly ONE overdue invoice, because then this is not a
+          second finding -- it is finding #1 restated as a percentage, and a list that says
+          the same thing three ways is the padding this panel exists to avoid. Caught by a
+          deliberate two-account control file, where the same $8,000 invoice generated
+          three of four rows. */
+    if (arTotal > 0 && overdueTotal > 0 && overdue.length > 1) {
+      var oShare = (overdueTotal / arTotal) * 100;
+      if (oShare >= 25) {
+        f.push({ w: overdueTotal,
+          t: Math.round(oShare) + '% of your outstanding money is already past 30 days.',
+          e: money(overdueTotal) + ' of ' + money(arTotal) + ', across ' + overdue.length +
+             ' invoice' + (overdue.length === 1 ? '' : 's') + '. Shown because it is over a ' +
+             'quarter of the book &mdash; below that it is ordinary, above it is a pattern.' });
+      }
+    }
+
+    /* 4. Pace against the SAME day of the prior month. Never against a whole prior month,
+          which would report a fake collapse on the 3rd of every month. */
+    if (pmtd > 0 && Math.abs(mtdDelta) >= 15) {
+      var down = mtdDelta < 0;
+      f.push({ w: Math.abs(mtd - pmtd),
+        t: 'This month is running ' + Math.abs(Math.round(mtdDelta)) + '% ' +
+           (down ? 'behind' : 'ahead of') + ' last month.',
+        e: money(mtd) + ' so far against ' + money(pmtd) + ' by the same day last month' +
+           (down ? '. Worth knowing now rather than at month end, while there are still ' +
+                   'days left to change it.'
+                 : '. If it holds, plan for the work rather than being surprised by it.') });
+    }
+
+    if (!f.length) { host.hidden = true; host.innerHTML = ''; return; }
+
+    f.sort(function (a, b) { return b.w - a.w; });
+
+    host.hidden = false;
+    host.innerHTML =
+      '<p class="dfind-h">What to do first &mdash; ' + f.length + ' finding' +
+      (f.length === 1 ? '' : 's') + ', biggest first</p>' +
+      '<ol class="dfind-l">' +
+      f.map(function (x, i) {
+        return '<li><span class="dfind-n">' + (i + 1) + '</span><div class="dfind-b">' +
+               '<p class="dfind-t">' + x.t + '</p>' +
+               '<p class="dfind-e">' + x.e + '</p></div></li>';
+      }).join('') +
+      '</ol>' +
+      '<p class="dfind-f">Ranked by the amount of money each one is about. Every line is ' +
+      'arithmetic on the file you loaded &mdash; no estimates, no industry averages, and ' +
+      'nothing inferred about why.</p>';
   }
 
   /* "What this file can't tell you." Every item is derived from something already measured
