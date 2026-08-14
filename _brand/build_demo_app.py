@@ -652,6 +652,49 @@ __SHARED_INTAKE__
     return s || 'Unnamed account';
   }
 
+  /* GROUPING KEY, borrowed from /duplicate-customer-finder/'s normName -- but only its
+     CONFIDENT half. That tool also merges on small edit distance ("Delta Fabrication" /
+     "Delta Fabricating") and labels those "worth a human glance". This page must not: it
+     asserts "X holds 47% of everything you are owed" naming one account, with no hedge, so a
+     wrong merge here is a false statement about a named business rather than a suggestion.
+     Exact-match-after-normalising is safe -- "ABC Electric" and "ABC Electric, Inc." are the
+     same company by any reading. Typo distance is a guess, and guesses do not belong in a
+     sentence phrased as fact. */
+  var NAME_SUFFIXES = /\b(inc|llc|ltd|co|corp|corporation|company|incorporated|pllc|pc|lp|llp|plc)\b/g;
+  var NAME_NOISE = /[.,'’"()\-_\/\\]+/g;
+  function nameKey(s){
+    var v = String(s).toLowerCase().replace(/&/g, ' and ')
+              .replace(NAME_NOISE, ' ').replace(NAME_SUFFIXES, ' ')
+              .replace(/\band\b/g, ' ').replace(/\s+/g, ' ').trim();
+    return v || String(s).toLowerCase().trim();
+  }
+
+  /* Group receivables by nameKey. Returns totals per key plus the spelling to SHOW -- the
+     one that appears most often, so the reader sees a name they recognise from their own
+     file rather than a normalised slug. Also reports whether any group merged more than one
+     spelling, which the limits panel discloses rather than silently absorbing. */
+  function groupByCustomer(){
+    var g = {}, order = [];
+    receivables.forEach(function (r) {
+      var k = nameKey(r.customer);
+      if (!g[k]) { g[k] = { total: 0, spellings: {} }; order.push(k); }
+      g[k].total += r.amount;
+      g[k].spellings[r.customer] = (g[k].spellings[r.customer] || 0) + 1;
+    });
+    var merged = 0;
+    order.forEach(function (k) {
+      var sp = g[k].spellings, best = null, bestN = -1, n = 0;
+      Object.keys(sp).forEach(function (s) {
+        n++;
+        if (sp[s] > bestN) { bestN = sp[s]; best = s; }
+      });
+      g[k].label = best;
+      g[k].variants = n;
+      if (n > 1) { merged++; }
+    });
+    return { groups: g, order: order, mergedGroups: merged };
+  }
+
   var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function fmtDay(d){ return MON[d.getMonth()] + ' ' + d.getDate(); }
   function fmtLong(d){ return MON[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear(); }
@@ -978,9 +1021,17 @@ __SHARED_INTAKE__
     netCash = mtd - spend;
   /* Distinct accounts carrying an open invoice -- a fact we actually hold,
      unlike crew counts. */
+  /* Counted on the SAME grouping key the concentration finding uses. Counting raw strings
+     here while the finding counted groups made the page contradict itself in two places at
+     once -- the tile said "5 active customers" while the finding below it said "across 3
+     accounts in total", on the same book. Found immediately after adding the grouping, by
+     looking at the rendered page rather than at the diff. */
     openAccounts = (function () {
     var seen = {}, k = 0;
-    receivables.forEach(function (r) { if (!seen[r.customer]) { seen[r.customer] = 1; k++; } });
+    receivables.forEach(function (r) {
+      var key = nameKey(r.customer);
+      if (!seen[key]) { seen[key] = 1; k++; }
+    });
     return k;
   })();
   }
@@ -1885,8 +1936,15 @@ __SHARED_INTAKE__
     }
     if (out.length > 26) { out = out.slice(-26); }
 
+    /* Same grouping key as everything else on the page. Counting raw spellings here put "5"
+       in the Active customers tile above a subtitle reading "3 with open invoices" on a book
+       that has three customers and no paid invoices at all -- implying two customers were
+       square when they did not exist. One key, one answer, everywhere. */
     var names = {}, nOpen = 0;
-    open.forEach(function (o) { if (!names[o.customer]) { names[o.customer] = 1; nOpen++; } });
+    open.forEach(function (o) {
+      var k = nameKey(o.customer);
+      if (!names[k]) { names[k] = 1; nOpen++; }
+    });
 
     /* No account column in the file means no per-account split -- null, not an
        empty list, so the panel can say "your file has no customer column"
@@ -2014,21 +2072,21 @@ __SHARED_INTAKE__
     /* 2. Concentration. Only meaningful with more than one account in the book: with a
           single customer the answer is trivially 100% and reads as a finding when it is
           just a fact about the file's size. */
-    if (openAccounts > 1 && arTotal > 0) {
-      var byCust = {};
-      receivables.forEach(function (r) {
-        byCust[r.customer] = (byCust[r.customer] || 0) + r.amount;
-      });
+    var grouped = groupByCustomer();
+    var acctCount = grouped.order.length;
+    if (acctCount > 1 && arTotal > 0) {
       var topName = null, topVal = 0;
-      Object.keys(byCust).forEach(function (k) {
-        if (byCust[k] > topVal) { topVal = byCust[k]; topName = k; }
+      grouped.order.forEach(function (k) {
+        if (grouped.groups[k].total > topVal) {
+          topVal = grouped.groups[k].total; topName = grouped.groups[k].label;
+        }
       });
       var share = (topVal / arTotal) * 100;
       if (topName && share >= 40) {
         f.push({ w: topVal,
           t: esc(topName) + ' holds ' + Math.round(share) + '% of everything you are owed.',
           e: money(topVal) + ' of ' + money(arTotal) + ' outstanding sits with one account, ' +
-             'across ' + openAccounts + ' accounts in total. Whatever they do with their ' +
+             'across ' + acctCount + ' accounts in total. Whatever they do with their ' +
              'payment schedule, you do too.' });
       }
     }
@@ -2120,6 +2178,20 @@ __SHARED_INTAKE__
     if (m && !m.customer) {
       items.push('<b>No customer column was found</b>, so nothing here can be attributed to ' +
                  'anyone. Totals are trustworthy; "who owes it" is not answerable from this file.');
+    }
+    /* Say it when names were merged. The merge is almost certainly right -- it only happens on
+       an exact match after case, punctuation and legal suffixes are ignored -- but this page
+       then makes a claim about a named account, and the reader is entitled to know the account
+       was assembled from more than one spelling. Silently absorbing it is how a total ends up
+       trusted for the wrong reason. */
+    var gm = groupByCustomer();
+    if (gm.mergedGroups) {
+      items.push('<b>' + gm.mergedGroups + ' account' + (gm.mergedGroups === 1 ? '' : 's') +
+                 ' appear' + (gm.mergedGroups === 1 ? 's' : '') + ' under more than one spelling</b> ' +
+                 '&mdash; treated as one here, matched only where the names are identical once ' +
+                 'case, punctuation and Inc/LLC are ignored. Anything looser was left alone; ' +
+                 '<a href="/duplicate-customer-finder/" style="color:inherit">the duplicate finder</a> ' +
+                 'does the harder matching and shows its reasoning.');
     }
 
     if (!items.length) { host.hidden = true; host.innerHTML = ''; return; }
