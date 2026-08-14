@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">117 entries · newest first within each group</p>
+  <p class="stamp">118 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,43 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 13</div>
+  <div>
+    <p class="name">redline is live — and it is the first tool that could not have shipped off-brand
+      <span class="chip live">/redline/</span><span class="chip">61 tests</span><span class="chip staged">CSV only for now</span></p>
+    <p class="what"><b>In plain terms:</b> drop last month&rsquo;s report and this month&rsquo;s and
+    see what actually moved &mdash; which cells changed, which rows came and went. Live, carded on
+    <code>/builds/</code>, in the sitemap and llms.txt. Verified on the <em>served</em> page rather
+    than the local build: engine present, sample wired, one canonical, correct contact block, and
+    <b>zero network calls</b>.</p>
+    <p class="proof"><b>The row matching is the whole product, and it is visible in one line.</b>
+    The sample inserts a row near the top, edits two cells <em>below</em> it, and removes a row. The
+    page reports <b>2 cells changed, 1 row added, 1 row removed</b>, naming <code>C4</code> and
+    <code>D4</code> &mdash; the right references <em>after</em> the insertion shifted them down. A
+    naive comparison would have called every row below the insert changed, which is the wall of
+    noise that makes most spreadsheet comparisons useless.
+    <b>First tool built entirely on the shared palette.</b> The live page contains exactly four
+    <code>--accent</code> definitions, all from the token block, so it declares no colours of its
+    own. That is the token source earning its keep &mdash; a new tool now <em>cannot</em> be
+    off-brand, rather than merely being unlikely to.
+    <b>And the builder refuses to ship the mistake I made last week:</b> it will not write the page
+    if the correct city-and-state string is missing or the never-filed entity name appears. The
+    footer is composed from canonical values instead of copied from a neighbouring page, which is
+    exactly how the wrong one reached almanac.</p>
+    <p class="proof"><b>Three gate findings, all fixed rather than argued with:</b> a 67-character
+    title, a 174-character description, and the analytics split. One was purely my own sequencing
+    error &mdash; the sitemap named <code>/redline/</code> before the page was git-tracked, so the
+    audit correctly reported an entry with nothing behind it.
+    <b>Two gaps stated rather than glossed.</b> I never SAW the page rendered: the screenshot tool
+    errored twice, so it was confirmed by reading the DOM, the computed styles and the output text.
+    Correct by measurement and &ldquo;looks right&rdquo; are different claims, and skeleton already
+    proved the second one finds things the first cannot. And <b>xlsx is not wired into the page
+    yet</b> &mdash; the engine handles formulas and the shared reader now captures them, but the
+    page takes CSV only, so its headline finding cannot fire there.</p>
+    <p class="where">e0ba163 &middot; /redline/ live &middot; 38 pages on the site &middot; engine &rarr; CLI &rarr; page &rarr; hosted, all from one tested source</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 13</div>
   <div>
