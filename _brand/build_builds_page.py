@@ -222,6 +222,17 @@ ENGINEERING = [
      "Sold on a true story: our own trading digest served Friday's data under Monday's timestamp "
      "the day the service page was built. The embedded report is that catch, verbatim.",
      ["Service", "$99/mo"]),
+    ("redline", "/redline/",
+     "Drop two versions of the same report &mdash; last month's export and this month's &mdash; "
+     "and see exactly what changed: which cells moved, which rows came and went, and whether a "
+     "formula was quietly replaced by a typed number.",
+     "That last one is the finding it exists for. Somebody pastes a value over a calculation and "
+     "the cell stops tracking its inputs, reporting the same answer forever while looking perfect. "
+     "It is also built to survive the thing that makes most spreadsheet comparisons useless: rows "
+     "are matched to each other BEFORE cells are compared, so inserting one row near the top does "
+     "not report every row below it as changed. Reads the files in your browser; nothing is "
+     "uploaded.",
+     ["Free", "Nothing uploads"]),
     ("almanac", "/almanac/",
      "Drop a year of invoices and get a description of the business back: when the money "
      "actually arrives, how much of it rides on one client, whether the work repeats or has to "
