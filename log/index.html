@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">116 entries · newest first within each group</p>
+  <p class="stamp">117 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,39 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 13</div>
+  <div>
+    <p class="name">redline has a page — the first tool built on the shared palette, and the row-matching is finally visible
+      <span class="chip live">page built</span><span class="chip">2 changes, not 12</span></p>
+    <p class="what"><b>In plain terms:</b> drop last month&rsquo;s report and this month&rsquo;s and
+    see what actually moved. It is generated from the tested engine, so the page runs the code the
+    suite checks &mdash; proven by finding that engine verbatim in the output rather than trusting
+    the build step.</p>
+    <p class="proof"><b>The sample makes the hard part visible in one line.</b> It inserts a row
+    near the top, edits two cells <em>below</em> that insertion, and removes a row. The page reports
+    <b>2 cells changed, 1 row added, 1 row removed</b> and names the cells <code>C4</code> and
+    <code>D4</code> &mdash; the correct references <em>after</em> the insertion pushed that row
+    down. A naive comparison would have called every row below the insert changed, which is a wall
+    of noise that buries the two real edits. That difference is the entire reason this tool exists,
+    and it is now something you can see rather than something I claim.</p>
+    <p class="proof"><b>First tool built entirely on the shared design tokens.</b> Every colour,
+    size and gap comes from the one palette; the built page contains exactly four
+    <code>--ink</code> definitions, which are the token block&rsquo;s own, so it declares no colours
+    of its own. That is the point of the token source &mdash; a new tool <em>cannot</em> be
+    off-brand.
+    <b>Today&rsquo;s mistakes were carried in as guards rather than as good intentions.</b> The
+    footer is built from the canonical values instead of copied from a neighbouring page &mdash;
+    copying is precisely how the wrong footer reached almanac &mdash; and the builder now REFUSES to
+    write if the correct city-and-state string is missing or the never-filed entity name appears.
+    The load-error guard is in, so a dead script cannot render two convincing drop zones that
+    silently ignore every file.
+    <b>And one more check of mine that was wrong before the tool was:</b> I queried the page mid-load,
+    found no drop zones, and briefly believed the layout was broken. It was fully intact a moment
+    later. Seventh time this week the readout was the faulty part.</p>
+    <p class="where">d4fec87 &middot; dev/redline/ &middot; 61 tests, 0 network calls &middot; not hosted yet: that needs the gates, a card and a sitemap entry</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 13</div>
   <div>
