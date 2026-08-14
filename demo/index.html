@@ -994,6 +994,21 @@ function readAny(f, done){
   function epochWeek(d){ return Math.floor(d.getTime() / 604800000); }
   function dayDiff(a, b){ return Math.round((a.getTime() - b.getTime()) / 86400000); }
 
+  /* A customer name is a GROUPING KEY, and untrimmed it silently stops being one.
+     Measured 2026-08-13 on a deliberately messy paste: one account appeared as both
+     "Bell Ridge HOA" and "Bell Ridge HOA " (one trailing space). That split it into two
+     customers holding 38% and 9% of the book instead of one holding 47% -- which pushed it
+     under the 40% threshold and SUPPRESSED A TRUE CONCENTRATION FINDING. The page showed
+     nothing, which is the worst failure available here, and HTML collapses the space so the
+     reader could not have seen why. It also inflated the active-customer count.
+     Trim, collapse internal runs, and strip a trailing comma; nothing else is touched, because
+     beyond this every "cleanup" starts guessing that two spellings are one business. */
+  function cleanName(v){
+    var s = String(v === null || v === undefined ? '' : v)
+              .replace(/\s+/g, ' ').replace(/[,;]+$/, '').trim();
+    return s || 'Unnamed account';
+  }
+
   var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function fmtDay(d){ return MON[d.getMonth()] + ' ' + d.getDate(); }
   function fmtLong(d){ return MON[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear(); }
@@ -1140,7 +1155,9 @@ function readAny(f, done){
       if (!undated && (!isFinite(days) || days < 0)) {
         throw new Error('receivables[' + i + '].days is not a non-negative number: ' + (r && r.days));
       }
-      return { customer: String((r && r.customer) || 'Unnamed account'),
+      /* Same normalisation as the CSV/xlsx path. This one takes AW_DASHBOARD_DATA, so a
+         client feeding real data in gets the same grouping guarantee as a pasted file. */
+      return { customer: cleanName(r && r.customer),
                amount: Math.round(amt), days: undated ? null : Math.round(days) };
     });
 
@@ -1464,12 +1481,24 @@ function readAny(f, done){
   }
 
   function rowsHTML(items, withDraft){
+    /* "Oldest open — call first" is a claim about ONE invoice, so exactly one row may carry it.
+       It used to be attached to any invoice past 90 days, which meant a book with two such
+       invoices printed "oldest open — call first" twice and disagreed with itself on screen --
+       and with the summary above, which names a single account. That is precisely the
+       self-contradiction this product is sold to find, on the page every outreach email points
+       at. Found 2026-08-13 by pasting a deliberately messy book rather than the sample.
+       `items` arrives sorted oldest-first, so the oldest overdue row is the first `late` one. */
+    var oldestIdx = -1;
+    items.forEach(function (r, i) {
+      if (oldestIdx === -1 && r.days !== null && r.days > 30) { oldestIdx = i; }
+    });
     return items.map(function (r, i) {
       var late = r.days !== null && r.days > 30;
       var note = r.days === null
         ? 'no date on this invoice — age unknown'
-        : (late ? (r.days + 'd overdue · ' + (r.days > 90 ? 'oldest open — call first'
-                   : r.days > 60 ? 'crossed 60 days' : 'due ' + fmtDay(r.due)))
+        : (late ? (r.days + 'd overdue · ' + (i === oldestIdx ? 'oldest open — call first'
+                   : r.days > 90 ? 'past 90 days' : r.days > 60 ? 'crossed 60 days'
+                   : 'due ' + fmtDay(r.due)))
                 : ('due ' + fmtDay(addDays(r.due, 30))));
       var amt = '<span class="dr-a">' + (r.days !== null && r.days > 90
                 ? '<span class="dpill">' + money(r.amount) + '</span>'
@@ -2191,7 +2220,7 @@ function readAny(f, done){
         var settled = (sv === 'paid' || sv === 'yes' || sv === 'y' || sv === 'true' ||
                        sv === 'settled' || sv === 'complete' || sv === 'closed' || sv === '1');
         if (!settled) {
-          open.push({ customer: ci >= 0 ? String(r[ci] || 'Unnamed account') : 'Unnamed account',
+          open.push({ customer: ci >= 0 ? cleanName(r[ci]) : 'Unnamed account',
                       amount: n, days: Math.max(0, dayDiff(TODAY, d)) });
         }
       }
