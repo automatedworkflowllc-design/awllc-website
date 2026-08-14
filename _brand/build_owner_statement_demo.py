@@ -1,4 +1,4 @@
-# Build "Property Owner Statement Demo - (Automated Workflow LLC)" as xlsx for Drive conversion.
+# Build "Property Owner Statement Demo - (Automated Workflow)" as xlsx for Drive conversion.
 # The product: a property manager logs rent collected + expenses per unit/owner; the
 # dashboard auto-generates a per-owner statement (income, expenses, mgmt fee, net payout)
 # and flags owners whose net payout DROPPED vs last month (the "explain this before they call" signal).
@@ -29,7 +29,7 @@ def band(ws,rng,text,size=14):
     ws.row_dimensions[minr].height=30
 
 def wordmark(ws,row):
-    ws.cell(row,1,"Built by Automated Workflow LLC  ·  automatedworkflowllc.com  ·  Owner Statement Tracker")
+    ws.cell(row,1,"Built by Automated Workflow  ·  automatedworkflowllc.com  ·  Owner Statement Tracker")
     ws.cell(row,1).font=Font(italic=True,size=9,color=WORDMARK)
 
 def headers_row(ws,r,cols):

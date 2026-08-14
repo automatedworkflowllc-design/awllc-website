@@ -1,4 +1,4 @@
-# Build "Job Costing Tracker Demo - (Automated Workflow LLC)" as xlsx for Drive conversion.
+# Build "Job Costing Tracker Demo - (Automated Workflow)" as xlsx for Drive conversion.
 # The product: a contractor logs quoted price + actual labor/materials per job; the
 # dashboard shows margin per job and flags which jobs are BLEEDING money (actual > quoted).
 # Vertical #2 (contractor job-costing) — maps to our real outreach list (lawn/fence/paint/clean/pest).
@@ -29,7 +29,7 @@ def band(ws,rng,text,size=14):
     ws.row_dimensions[minr].height=30
 
 def wordmark(ws,row):
-    ws.cell(row,1,"Built by Automated Workflow LLC  ·  automatedworkflowllc.com  ·  Job Costing Tracker")
+    ws.cell(row,1,"Built by Automated Workflow  ·  automatedworkflowllc.com  ·  Job Costing Tracker")
     ws.cell(row,1).font=Font(italic=True,size=9,color=WORDMARK)
 
 def headers_row(ws,r,cols):

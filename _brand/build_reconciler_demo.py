@@ -1,4 +1,4 @@
-# Build "Reconciler Demo - (Automated Workflow LLC)" as xlsx for Drive conversion.
+# Build "Reconciler Demo - (Automated Workflow)" as xlsx for Drive conversion.
 # The product: two systems that SHOULD match (what you booked vs. what you billed) ->
 # a Reconciliation tab that auto-surfaces ONLY the mismatches + a net-dollar gap.
 # Demo scenario: a golf-sim / bay-rental shop ("Fairway Bays"), one week of play.
@@ -39,7 +39,7 @@ def band(ws, rng, text, size=14):
     ws.row_dimensions[minr].height = 30
 
 def wordmark(ws, row):
-    ws.cell(row, 1, "Built by Automated Workflow LLC  ·  automatedworkflowllc.com  ·  the Reconciler")
+    ws.cell(row, 1, "Built by Automated Workflow  ·  automatedworkflowllc.com  ·  the Reconciler")
     ws.cell(row, 1).font = Font(italic=True, size=9, color=WORDMARK)
 
 def headers_row(ws, r, cols):
