@@ -224,19 +224,23 @@ footer{margin-top:var(--s-7);padding-top:var(--s-4);border-top:1px solid var(--l
 </div>
 
 <h1>See exactly what changed <span class="n">between two versions</span></h1>
-<p class="lede">Drop last month's report and this month's. You get the cells that moved, the rows
-that came and went, and the one thing nobody checks for: a formula quietly replaced by a typed
-number. Insert a row at the top and it still reports only what really changed.</p>
+<p class="lede">Drop last month's report and this month's &mdash; Excel or CSV. You get the cells
+that moved, the rows that came and went, and the one thing nobody checks for: a formula quietly
+replaced by a typed number. Insert a row at the top and it still reports only what really
+changed.</p>
+<p class="lede" style="margin-top:calc(var(--s-4) * -1);font-size:var(--f-sm)">The formula check
+needs <b>.xlsx</b> &mdash; a CSV cannot carry formulas, so on a CSV that finding simply never
+fires rather than reporting none found.</p>
 
 <div class="drops">
   <div class="drop" id="dropA" tabindex="0" role="button" aria-label="Choose the older file">
     <span class="role">older</span>
-    <span class="name" id="nameA">Drop a CSV here</span>
+    <span class="name" id="nameA">Drop a file here</span>
     <span class="hint">last month's version</span>
   </div>
   <div class="drop" id="dropB" tabindex="0" role="button" aria-label="Choose the newer file">
     <span class="role">newer</span>
-    <span class="name" id="nameB">Drop a CSV here</span>
+    <span class="name" id="nameB">Drop a file here</span>
     <span class="hint">the one to check</span>
   </div>
 </div>
@@ -275,6 +279,219 @@ window.addEventListener('error', function (e) {
 </script>
 
 <script>
+/* The site's SHARED xlsx reader, injected from _brand/toolkit.py. Not a
+ * second parser: ten other pages read workbooks with this exact code, and a
+ * hand-rolled ZIP reader is the clearest case of something you must not have
+ * two of. It captures formulas on rows.formulaRows, which is what makes
+ * redline's headline finding possible at all. */
+
+function xlsxToRows(buf){
+  var u8 = new Uint8Array(buf), dv = new DataView(buf);
+  function findEOCD(){
+    for(var i = u8.length - 22; i >= Math.max(0, u8.length - 65558); i--)
+      if(dv.getUint32(i, true) === 0x06054b50) return i;
+    throw new Error('not a zip');
+  }
+  var eocd = findEOCD();
+  var count = dv.getUint16(eocd + 10, true), cdOff = dv.getUint32(eocd + 16, true);
+  var entries = {}, p = cdOff;
+  for(var e = 0; e < count; e++){
+    if(dv.getUint32(p, true) !== 0x02014b50) throw new Error('bad central dir');
+    var method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+    var nlen = dv.getUint16(p + 28, true), xlen = dv.getUint16(p + 30, true),
+        clen = dv.getUint16(p + 32, true), lho = dv.getUint32(p + 42, true);
+    var name = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nlen));
+    entries[name] = {method: method, csize: csize, lho: lho};
+    p += 46 + nlen + xlen + clen;
+  }
+  function inflate(ent){
+    var q = ent.lho;
+    if(dv.getUint32(q, true) !== 0x04034b50) throw new Error('bad local header');
+    var nl = dv.getUint16(q + 26, true), xl = dv.getUint16(q + 28, true);
+    var data = u8.subarray(q + 30 + nl + xl, q + 30 + nl + xl + ent.csize);
+    if(ent.method === 0) return Promise.resolve(new TextDecoder().decode(data));
+    if(ent.method !== 8) throw new Error('unsupported compression ' + ent.method);
+    var ds = new DecompressionStream('deflate-raw');
+    return new Response(new Blob([data]).stream().pipeThrough(ds)).text();
+  }
+  function unesc(s){
+    return s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"')
+            .replace(/&apos;/g,"'").replace(/&#x([0-9a-fA-F]+);/g,
+              function(_, h){ return String.fromCodePoint(parseInt(h, 16)); })
+            .replace(/&#(\d+);/g, function(_, d){ return String.fromCodePoint(+d); })
+            .replace(/&amp;/g,'&');
+  }
+  function texts(xml){   // concat all <t> runs inside one <si>/<is> (rich text)
+    var out = '', m, re = /<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g;
+    while((m = re.exec(xml))) out += unesc(m[1]);
+    return out;
+  }
+  var BUILTIN_DATE = {14:1,15:1,16:1,17:1,18:1,19:1,20:1,21:1,22:1,45:1,46:1,47:1};
+  function isDateCode(code){
+    var bare = code.replace(/\[[^\]]*\]/g, '').replace(/"[^"]*"/g, '');
+    return /[ymdhs]/i.test(bare) && !/General/i.test(bare);
+  }
+  function serialToISO(n){
+    // Excel 1900 epoch (day 1 = 1900-01-01, with the fictitious Feb 29 1900
+    // baked in, hence the -25569 against the Unix epoch working for n >= 61;
+    // sub-61 serials are Jan/Feb 1900 -- not business data, left numeric).
+    if(n < 61 || n > 2958465) return null;
+    var d = new Date(Math.round((n - 25569) * 86400000));
+    return d.toISOString().slice(0, 10);
+  }
+  var wanted = ['xl/workbook.xml', 'xl/_rels/workbook.xml.rels',
+                'xl/sharedStrings.xml', 'xl/styles.xml'];
+  return Promise.all(wanted.map(function(n){
+    return entries[n] ? inflate(entries[n]) : Promise.resolve('');
+  })).then(function(parts){
+    var wb = parts[0], rels = parts[1], sstXml = parts[2], styles = parts[3];
+    /* Every sheet, not just the first: real workbooks often lead with a cover
+       or notes tab, and "first sheet" reads the wrong one while looking like
+       it worked. All sheets (capped at 8) are parsed and the busiest wins --
+       most rows containing data, ties to workbook order. The choice is
+       attached to the result so callers can SAY which sheet was read. */
+    var sheets = [], sm, shRe = /<sheet\b[^>]*>/g;
+    while((sm = shRe.exec(wb))){
+      var tag = sm[0];
+      var nm = /name="([^"]*)"/.exec(tag);
+      var rid = /r:id="(rId\d+)"/.exec(tag) || /\bid="(rId\d+)"/.exec(tag);
+      var tgt = null;
+      if(rid && rels){
+        var rel = new RegExp('Id="' + rid[1] + '"[^>]*Target="([^"]+)"').exec(rels) ||
+                  new RegExp('Target="([^"]+)"[^>]*Id="' + rid[1] + '"').exec(rels);
+        if(rel) tgt = 'xl/' + rel[1].replace(/^\//, '').replace(/^xl\//, '');
+      }
+      if(!tgt) tgt = 'xl/worksheets/sheet' + (sheets.length + 1) + '.xml';
+      if(entries[tgt]) sheets.push({name: nm ? unesc(nm[1]) : ('Sheet' + (sheets.length + 1)), target: tgt});
+    }
+    if(!sheets.length && entries['xl/worksheets/sheet1.xml'])
+      sheets.push({name: 'Sheet1', target: 'xl/worksheets/sheet1.xml'});
+    if(!sheets.length) throw new Error('no worksheet found');
+
+    var sst = [], m, siRe = /<si>([\s\S]*?)<\/si>/g;
+    while((m = siRe.exec(sstXml))) sst.push(texts(m[1]));
+
+    var custom = {}, fmRe = /<numFmt\s[^>]*numFmtId="(\d+)"[^>]*formatCode="([^"]*)"/g;
+    while((m = fmRe.exec(styles))) custom[+m[1]] = unesc(m[2]);
+    var dateStyle = [];
+    var xfsBlock = /<cellXfs[^>]*>([\s\S]*?)<\/cellXfs>/.exec(styles);
+    if(xfsBlock){
+      var xfRe = /<xf\b[^>]*numFmtId="(\d+)"[^>]*/g, i = 0;
+      while((m = xfRe.exec(xfsBlock[1]))){
+        var id = +m[1];
+        dateStyle[i++] = !!(BUILTIN_DATE[id] || (custom[id] && isDateCode(custom[id])));
+      }
+    }
+    function parseWS(ws){
+      var rows = [], frows = [], occupied = 0, rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/g, rm;
+      while((rm = rowRe.exec(ws))){
+        var cells = [], fcells = [], cRe = /<c\b([^>]*)(?:\/>|>([\s\S]*?)<\/c>)/g, cm;
+        while((cm = cRe.exec(rm[1]))){
+          var attrs = cm[1], body = cm[2] || '';
+          var ref = /r="([A-Z]+)\d+"/.exec(attrs);
+          var col = 0;
+          if(ref) for(var k = 0; k < ref[1].length; k++) col = col * 26 + (ref[1].charCodeAt(k) - 64);
+          else col = cells.length + 1;
+          var t = (/t="(\w+)"/.exec(attrs) || [])[1] || 'n';
+          var sIdx = (/s="(\d+)"/.exec(attrs) || [])[1];
+          var v = /<v>([\s\S]*?)<\/v>/.exec(body);
+          var val = '';
+          if(t === 'inlineStr') val = texts(body);
+          else if(!v) val = '';
+          else if(t === 's') val = sst[+v[1]] !== undefined ? sst[+v[1]] : '';
+          else if(t === 'str' || t === 'e') val = unesc(v[1]);
+          else if(t === 'b') val = v[1] === '1' ? 'TRUE' : 'FALSE';
+          else {
+            val = v[1];
+            if(sIdx !== undefined && dateStyle[+sIdx]){
+              var iso = serialToISO(parseFloat(v[1]));
+              if(iso) val = iso;
+            } else if(/^-?\d*\.\d{10,}$/.test(val)){
+              // Excel stores 99.9 as 99.90000000000001 in the XML; showing
+              // that dust in a money column reads as broken. 15 significant
+              // digits is what Excel itself displays.
+              var n = parseFloat(val);
+              if(isFinite(n)) val = String(parseFloat(n.toPrecision(15)));
+            }
+          }
+          while(cells.length < col - 1) cells.push('');
+          cells[col - 1] = val;
+          /* Formulas kept in a PARALLEL array, never folded into cells.
+             rows stays string[][] because ten generated pages index it as
+             strings; changing the cell shape would break every one. This is
+             additive by construction rather than by hope. redline needs it to
+             spot a formula replaced by a typed number, and skeleton can drop
+             its private reader copy once it reads this. */
+          var fm = /<f[^>]*>([\s\S]*?)<\/f>/.exec(body);
+          while(fcells.length < col - 1) fcells.push(null);
+          fcells[col - 1] = fm ? unesc(fm[1]) : null;
+        }
+        rows.push(cells);
+        frows.push(fcells);
+        /* A formula cell IS data even with no cached value -- Excel computes
+           it on open. Without this, a template like /starter/'s tracker (300
+           formula rows, 3 typed samples) scores below its own 13-row prose
+           guide sheet, and the "busiest" pick analyzes the instructions. */
+        var hasValue = false;
+        for(var ci = 0; ci < cells.length; ci++) if(cells[ci] !== ''){ hasValue = true; break; }
+        if(hasValue || /<f[ >]/.test(rm[1])) occupied++;
+      }
+      rows.occupied = occupied;
+      // Attached HERE, inside parseWS, because frows is local to it. The first
+      // version assigned it from the outer .then() callback where the name does
+      // not exist -- a ReferenceError on every file drop, in five live tools.
+      rows.formulaRows = frows;
+      return rows;
+    }
+
+    return Promise.all(sheets.slice(0, 8).map(function(sh){
+      return inflate(entries[sh.target]).then(parseWS).then(function(rows){
+        // formulaRows rides ALONGSIDE rows -- same indices, null where a cell
+        // holds no formula. Consumers that only know about rows are unaffected;
+        // without this line the capture above is dead code, which is how a change
+        // passes every gate while doing nothing.
+        return {name: sh.name, rows: rows, formulaRows: rows.formulaRows, score: rows.occupied};
+      }, function(){ return {name: sh.name, rows: [], score: -1}; });
+    })).then(function(parsed){
+      var best = parsed[0];
+      for(var i = 1; i < parsed.length; i++)
+        if(parsed[i].score > best.score) best = parsed[i];   // strict >: ties keep workbook order
+      if(!best || best.score < 1) throw new Error('no sheet with data');
+      var rows = best.rows;
+      rows.sheetName = best.name;
+      rows.sheetCount = sheets.length;
+      return rows;
+    });
+  });
+}
+function rowsToCSV(rows){
+  return rows.map(function(r){
+    return r.map(function(v){
+      v = String(v === undefined || v === null ? '' : v);
+      return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    }).join(',');
+  }).join('\n');
+}
+function readAny(f, done){
+  /* One intake for every tool: .xlsx parsed locally, everything else read as
+     text. Parse failures alert per-file and never call done() -- a silently
+     empty table is the lie these tools exist to end. */
+  var reader = new FileReader();
+  if(/\.(xlsx|xlsm)$/i.test(f.name)){
+    reader.onload = function(){
+      xlsxToRows(reader.result).then(function(rows){ done(rowsToCSV(rows)); })
+        .catch(function(err){
+          alert('Could not read ' + f.name + ' as an Excel workbook (' + err.message +
+                '). Save it as CSV and try again.');
+        });
+    };
+    reader.readAsArrayBuffer(f);
+  } else {
+    reader.onload = function(){ done(String(reader.result)); };
+    reader.readAsText(f);
+  }
+}
+
 /* redline -- what actually changed between two versions of a spreadsheet.
  *
  * WHY. "Can you check what they changed?" is one of the most common and most
@@ -619,6 +836,39 @@ function diff(bookA, bookB, opts) {
            findings: findings, totals: totals };
 }
 
+/* ------------------------------------------------------------------ xlsx */
+
+/* The bridge from the site's shared xlsx reader to a book.
+ *
+ * toolkit's reader returns rows as string[][] -- ten pages index it that way --
+ * with formulas carried ALONGSIDE on rows.formulaRows: same indices, null where
+ * a cell holds no formula. That parallel shape exists precisely so this tool can
+ * see formulas without breaking the ten pages that only want values.
+ *
+ * This is where redline's headline finding becomes possible at all. A CSV has no
+ * formulas, so "a formula was replaced by a typed number" can only ever fire on a
+ * real workbook; without this adapter the page can compare, but cannot catch the
+ * thing it exists to catch.
+ *
+ * Defensive on purpose: formulaRows may be absent (an older reader), shorter than
+ * rows, or ragged. Each of those degrades to "no formula here" rather than
+ * throwing -- a comparison that dies on an unexpected shape is worse than one
+ * reporting fewer kinds of change, because the value diff is still worth having.
+ */
+function bookFromRowsAndFormulas(name, rows, formulaRows) {
+  var frows = formulaRows || (rows && rows.formulaRows) || [];
+  var grid = (rows || []).map(function (row, r) {
+    var frow = frows[r] || [];
+    return (row || []).map(function (v, c) {
+      var f = frow[c] || null;
+      var text = (v === null || v === undefined) ? '' : String(v);
+      if (text === '' && !f) return null;
+      return { v: text, f: f };
+    });
+  });
+  return bookFromGrid(name, grid);
+}
+
 /* ------------------------------------------------------------------- csv */
 
 /* Two CSV exports of the same report are the most common version comparison
@@ -759,33 +1009,55 @@ function render(r) {
 
 function compare() {
   if (!files.A || !files.B) return;
-  var a, b;
-  try {
-    // Both books take the SAME sheet name on purpose. Naming each for its own
-    // file would leave no sheet in common, so nothing would be compared and the
-    // page would cheerfully report no differences -- the worst possible answer.
-    a = bookFromCSV('report', files.A.text);
-    b = bookFromCSV('report', files.B.text);
-  } catch (e) { return fail('Could not read one of those files.', String((e && e.message) || e)); }
   var r;
-  try { r = diff([a], [b]); }
+  try { r = diff([files.A.book], [files.B.book]); }
   catch (e) { return fail('Read both files, but could not compare them.',
                           String((e && e.message) || e)); }
   render(r);
 }
 
-function accept(which, name, text) {
-  files[which] = { name: name, text: text };
+// Both books take the SAME sheet name on purpose. Naming each for its own file
+// would leave no sheet in common, so nothing would be compared and the page
+// would cheerfully report no differences -- the worst answer a diff can give.
+var SHEET = 'report';
+
+function accept(which, name, book) {
+  files[which] = { name: name, book: book };
   $('#drop' + which).classList.add('has');
   $('#name' + which).textContent = name;
   compare();
 }
 
+/* Two intake paths converging on a book, so everything downstream is identical.
+ *
+ * .xlsx goes through the site's SHARED reader, which returns rows as strings with
+ * formulas alongside on rows.formulaRows -- and that parallel array is the only
+ * reason this tool can report a formula replaced by a typed number. A CSV cannot
+ * carry formulas, so on that path the finding simply never fires; the page does
+ * not pretend it looked and found none. */
 function read(which, file) {
   var r = new FileReader();
-  r.onload = function () { accept(which, file.name, String(r.result)); };
   r.onerror = function () { fail('The browser could not read ' + file.name + '.'); };
-  r.readAsText(file);
+
+  if (/\.(xlsx|xlsm)$/i.test(file.name)) {
+    r.onload = function () {
+      xlsxToRows(r.result).then(function (rows) {
+        accept(which, file.name, bookFromRowsAndFormulas(SHEET, rows));
+      }).catch(function (err) {
+        fail('Could not read ' + file.name + ' as a workbook.',
+             (err && err.message ? err.message + '. ' : '')
+             + 'If it opens in Excel, saving it again as .xlsx (not .xls) usually fixes this. '
+             + 'A CSV export works too — you just lose the formula check.');
+      });
+    };
+    r.readAsArrayBuffer(file);
+  } else {
+    r.onload = function () {
+      try { accept(which, file.name, bookFromCSV(SHEET, String(r.result))); }
+      catch (e) { fail('Could not read ' + file.name + '.', String((e && e.message) || e)); }
+    };
+    r.readAsText(file);
+  }
 }
 
 function wire(which) {
@@ -801,7 +1073,11 @@ function wire(which) {
     if (f) read(which, f);
   });
   var input = document.createElement('input');
-  input.type = 'file'; input.accept = '.csv,text/csv,text/plain';
+  // .xlsx belongs here too. Drag-and-drop ignores accept, so a workbook dropped
+  // on the zone worked while the Choose button would not even LIST one -- a gap
+  // that looks like the tool not supporting Excel at all.
+  input.type = 'file';
+  input.accept = '.csv,.xlsx,.xlsm,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
   input.addEventListener('change', function () { if (input.files[0]) read(which, input.files[0]); });
   d.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
@@ -811,8 +1087,11 @@ function wire(which) {
 
 wire('A'); wire('B');
 $('#sample').addEventListener('click', function () {
-  accept('A', 'march-report.csv', SAMPLE_OLD);
-  accept('B', 'april-report.csv', SAMPLE_NEW);
+  // accept() takes a BOOK, not text -- the two intake paths converge before it.
+  // Passing the raw sample strings here would break the one button most people
+  // press, while every file drop kept working.
+  accept('A', 'march-report.csv', bookFromCSV(SHEET, SAMPLE_OLD));
+  accept('B', 'april-report.csv', bookFromCSV(SHEET, SAMPLE_NEW));
 });
 
 var SAMPLE_OLD = "job,client,status,amount\nJ-1001,Harbourline Grounds,OPEN,4200\nJ-1002,Two Rivers Cafe,OPEN,600\nJ-1003,Kestrel Dental,CLOSED,1750\nJ-1004,Pinefield Studio,OPEN,2400\nJ-1005,Marlow and Sons,OPEN,3100\nJ-1006,Verity Print,OPEN,900\n";
