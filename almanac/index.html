@@ -290,6 +290,19 @@ function parseCSV(text) {
 const DATE_HINTS = ['date', 'invoiced', 'issued', 'billed', 'created', 'when'];
 const AMOUNT_HINTS = ['amount', 'total', 'value', 'revenue', 'price', 'subtotal',
                       'net', 'fee', 'charged', 'paid'];
+/* The word boundaries are load-bearing and were lost once already while editing this file
+   through a shell: Python read \b as a backspace byte, so the file literally contained 0x08.
+   Without \b, 'inc' matches inside Lincoln and 'and' inside Anderson, silently merging two
+   unrelated clients. Any change here re-runs verify.js. */
+const CUST_SUFFIX = /\b(inc|llc|ltd|co|corp|corporation|company|incorporated|pllc|pc|lp|llp|plc)\b/g;
+const CUST_NOISE = /[.,'’"()\-_\/\\]+/g;
+function custKey(s) {
+  const v = String(s).toLowerCase().replace(/&/g, ' and ')
+    .replace(CUST_NOISE, ' ').replace(CUST_SUFFIX, ' ')
+    .replace(/\band\b/g, ' ').replace(/\s+/g, ' ').trim();
+  return v || String(s).toLowerCase().trim();
+}
+
 const CUSTOMER_HINTS = ['customer', 'client', 'account', 'company', 'payer',
                         'bill to', 'billto', 'name', 'organisation', 'organization'];
 
@@ -540,11 +553,33 @@ function analyse(invoices) {
   if (invoices[0].customer !== null) {
     const map = new Map();
     for (const i of invoices) {
-      const c = map.get(i.customer) || { name: i.customer, revenue: 0, invoices: 0,
-                                         firstM: Infinity, lastM: -Infinity };
+      /* GROUP ON A NORMALISED KEY. Measured 2026-08-14: a book where one client appeared as
+         "Northgate Builders", "Northgate Builders LLC" and "northgate builders" was read as
+         three separate clients. That produced two false statements at once -- the concentration
+         verdict said SPREAD ("no client is more than 27%") when one client was 54%, and the
+         headline called it "project business, 8 of 9 clients invoiced once" when the largest
+         client had invoiced four times and was the anchor of the business.
+         Inverting a RISK verdict is worse than getting a number wrong, so this groups the way
+         /duplicate-customer-finder/ does -- but only its confident half: exact match after case,
+         punctuation and legal suffixes. No edit-distance matching, because this page states its
+         findings as fact and a wrong merge would be a false claim about a named client. */
+      const k = custKey(i.customer);
+      const c = map.get(k) || { name: i.customer, revenue: 0, invoices: 0, spellings: {},
+                                firstM: Infinity, lastM: -Infinity };
       c.revenue += i.amount; c.invoices++;
+      c.spellings[i.customer] = (c.spellings[i.customer] || 0) + 1;
       c.firstM = Math.min(c.firstM, ym(i.date)); c.lastM = Math.max(c.lastM, ym(i.date));
-      map.set(i.customer, c);
+      map.set(k, c);
+    }
+    /* Show the spelling the user actually used most, so the table reads like their own file
+       rather than a normalised slug. */
+    for (const c of map.values()) {
+      let best = c.name, bestN = -1;
+      for (const sp of Object.keys(c.spellings)) {
+        if (c.spellings[sp] > bestN) { bestN = c.spellings[sp]; best = sp; }
+      }
+      c.name = best;
+      c.variants = Object.keys(c.spellings).length;
     }
     customers = Array.from(map.values()).sort((a, b) => b.revenue - a.revenue);
     const shares = customers.map(c => c.revenue / total);
