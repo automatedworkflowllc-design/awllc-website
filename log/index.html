@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">121 entries · newest first within each group</p>
+  <p class="stamp">123 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,86 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 15</div>
+  <div>
+    <p class="name">The sitemap fix worked, and the numbers it produced say to stop building tools for search
+      <span class="chip live">45 &rarr; 120 impressions</span><span class="chip">position 46</span></p>
+    <p class="what"><b>Good news first, because it is real.</b> Impressions ran at essentially zero
+    from 10 July to 3 August, then climbed steeply: <b>45 on 9 August &rarr; 120 on 15 August</b>,
+    now about <b>30 a day</b>. Six days beat the previous seven weeks. The sitemap resubmission on
+    12 August &mdash; discovered pages 13 &rarr; 35 &mdash; did exactly what it was meant to.
+    Average position &ldquo;fell&rdquo; 38.9 &rarr; 46.6, which is not a decline: newly discovered
+    pages enter ranking low and drag the average down. More pages competing badly beats fewer
+    competing at all.</p>
+    <p class="proof"><b>Then the breakdown, which is the actionable half.</b> Nine of the top ten
+    queries are <em>one search phrased nine ways</em> &mdash; &ldquo;free business expense tracker
+    template&rdquo;, &ldquo;business expense sheet free&rdquo;, &ldquo;free business expense
+    spreadsheet&rdquo;. And <b>one page is 74 of 120 impressions &mdash; 62% of all visibility.</b>
+    The homepage is 14. Everything else is single digits.
+    <b>The six tools built in the last three weeks earn ~0 impressions between them.</b>
+    <code>/canary/</code> has one; the rest do not appear.</p>
+    <p class="proof"><b>And the page that does work targets a term this domain cannot win.</b>
+    Position <b>46</b> &mdash; page five &mdash; which is why those impressions have not turned
+    into visits. Being found is not being reachable. That term is contested by Vertex42, Smartsheet
+    and Intuit. <b>Second time this week the same wall appeared:</b> a payroll-template search
+    checked the day before hit the identical set of names. The problem is the category, not the
+    page.</p>
+    <p class="proof"><b>So three rules, written down because they save real effort.</b> Do not build
+    a tool for discovery reasons &mdash; nobody searches for what they are named, and they earn
+    their keep as outreach artifacts and proof, which is how they are actually used. Do not chase
+    &ldquo;free X template&rdquo; terms. Do keep the sitemap healthy: one click on 12 August
+    produced a measurable change, which is a very good return on a very small action.
+    <b>And the honest framing:</b> impressions are attention that has not arrived yet. The distance
+    between page five and page one is the entire distance between being indexed and being read.</p>
+    <p class="where">Search Console, read 8/15 &middot; Documents/AWLLC-organic-search-verdict-2026-08-15.md &middot; supersedes the 8/9 snapshot</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 14</div>
+  <div>
+    <p class="name">Four tools fed a deliberately messy book. Three were wrong, and all three for the same reason
+      <span class="chip live">all fixed</span><span class="chip">7 new tests</span></p>
+    <p class="what"><b>A synthetic fixture is clean by construction, so it is structurally
+    incapable of finding the bugs that only messy data causes.</b> Every one of these tools passed
+    its own sample every time it was ever run. Fed one nasty book &mdash; currency symbols, three
+    date formats, blank rows, negatives, status words like <code>open</code>/<code>PAID</code>, and
+    names differing by case, punctuation and legal suffix &mdash; three of four had a real defect,
+    and <em>none was findable from its own sample</em>.</p>
+    <p class="proof"><b>The worst of them was a confident all-clear.</b>
+    <code>/money-leak-finder/</code> was given three jobs, two invoices and one job genuinely never
+    invoiced. It replied: <em>&ldquo;None &mdash; every job in the work log has a matching invoice.
+    That is the result you want.&rdquo;</em> The answer was $500. Two causes compounding: the
+    join-key detection scored columns case-sensitively, so <code>JOB-1042</code> vs
+    <code>job-1042</code> pushed the ID column <em>below</em> a coincidentally matching
+    <b>Amount</b> column, which silently became the key; and nothing stopped an amount being used
+    as an identifier, so an uninvoiced $500 job matched a <em>different</em> job&rsquo;s $500
+    invoice. Now scored on normalised values and required to be &ge;90% unique &mdash; a test that
+    rejects Amount on principle rather than by guessing column names.</p>
+    <p class="proof"><b>The most embarrassing was a risk verdict pointing the wrong way.</b>
+    <code>/almanac/</code> read one client under three spellings as three clients, and therefore
+    announced <b>SPREAD &mdash; &ldquo;no client is more than 27% of revenue&rdquo;</b> when one
+    client was <b>54%</b>, and called an anchor-client business &ldquo;project work, 8 of 9 clients
+    invoiced once&rdquo; when the largest had invoiced four times. <b>Inverting a risk verdict is
+    worse than a wrong number</b>, because a number invites a second look and a verdict closes the
+    question. <code>/demo/</code> had two of its own: a badge claiming &ldquo;oldest open&rdquo; on
+    <em>every</em> invoice past 90 days, so two rows both claimed to be the oldest; and an
+    untrimmed name that split one 47% holding into 38% and 9%, silently suppressing the finding
+    entirely.</p>
+    <p class="proof"><b>One root cause under all of it: a customer name or job ID is an IDENTITY,
+    and each tool treated it as a display string.</b>
+    <code>/duplicate-customer-finder/</code> is the only one that got it right &mdash; because it
+    is the only one written while thinking about names. It passes case, punctuation,
+    <code>H.O.A.</code>, <code>&amp;</code> vs and, and typo distance, <em>and</em> correctly
+    refuses to merge Acme Roofing with Acme Plumbing. Its normalisation is now the house rule,
+    minus its edit-distance half on any page that states findings as fact about a named client.
+    <b>Seven regression tests added and negative-controlled:</b> with the fix disabled they fail
+    with exactly the values seen on the live page, which also proves the reproduction was faithful.
+    The control hook was removed before commit &mdash; shipping a flag that can silently disable a
+    correctness fix is its own defect.</p>
+    <p class="where">faec63a, 323780c, 8562ccf, 4455adb &middot; 62 tests green &middot; written up as the third hard lesson in dev/CLAUDE.md &middot; also found an untracked stale copy of almanac&rsquo;s engine still carrying the bug, marked DO NOT EDIT rather than deleted</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 15</div>
   <div>

@@ -564,8 +564,19 @@ function cellText(c) {
 // exact class of bug this workspace exists to hunt. SOH cannot occur in a value.
 var SEP = String.fromCharCode(1);
 
+/* Identity ignores surrounding whitespace, and that is not a nicety.
+ *
+ * Measured 2026-08-15 on a 12-row file where one export tool padded every cell
+ * and NOTHING else changed: raw keys matched no row at all, so it reported
+ * 12 rows added and 12 removed -- a total rewrite of a file nobody had touched.
+ * That is not noise, it is the tool being useless on a very common input.
+ * Trimming for IDENTITY fixes the alignment; the padding itself is still
+ * reported per cell as its own kind, so it is neither hidden nor mistaken for a
+ * real edit. */
+function cellKey(c) { return cellText(c).trim(); }
+
 function rowKey(row) {
-  var parts = row.map(cellText);
+  var parts = row.map(cellKey);
   while (parts.length && parts[parts.length - 1] === '') parts.pop();
   return parts.join(SEP);
 }
@@ -631,6 +642,7 @@ var KIND = {
   VALUE_CHANGED: 'value changed',
   FILLED: 'empty cell filled',
   EMPTIED: 'cell emptied',
+  WHITESPACE: 'spacing only, same value',
 };
 
 function compareRow(aRow, bRow, aIdx, bIdx, out) {
@@ -654,8 +666,13 @@ function compareRow(aRow, bRow, aIdx, bIdx, out) {
       out.push({ kind: 'FILLED', ref: ref, row: bIdx, col: c, was: '', now: B.f || bt });
     } else if (A && !B) {
       out.push({ kind: 'EMPTIED', ref: ref, row: bIdx, col: c, was: A.f || at, now: '' });
-    } else if (at !== bt) {
+    } else if (at.trim() !== bt.trim()) {
       out.push({ kind: 'VALUE_CHANGED', ref: ref, row: bIdx, col: c, was: at, now: bt });
+    } else if (at !== bt) {
+      // Same value, different surrounding whitespace. Reported, because silently
+      // discarding a difference is how a tool starts lying, but as its own kind
+      // so it never sits in a list of real edits pretending to be one.
+      out.push({ kind: 'WHITESPACE', ref: ref, row: bIdx, col: c, was: at, now: bt });
     }
   }
 }
@@ -684,7 +701,8 @@ function rowSimilarity(ra, rb) {
   if (!w) return 1;
   var same = 0, nonEmpty = 0;
   for (var i = 0; i < w; i++) {
-    var x = cellText(ra[i] || null), y = cellText(rb[i] || null);
+    // Trimmed, for the same reason rowKey is: a padded row is the same row.
+    var x = cellKey(ra[i] || null), y = cellKey(rb[i] || null);
     if (x === '' && y === '') continue;
     nonEmpty++;
     if (x === y) same++;
@@ -825,7 +843,25 @@ function diff(bookA, bookB, opts) {
        + 'files you meant.' });
   }
 
+  // Spacing-only differences are counted apart from real edits. A reader
+  // scanning "47 cells changed" would reasonably assume 47 things happened.
+  var ws = sheets.reduce(function (n, s) { return n + (s.counts.WHITESPACE || 0); }, 0);
+  if (ws) {
+    var totalCells = sheets.reduce(function (n, s) { return n + s.total; }, 0);
+    findings.push({
+      cls: 'warn',
+      t: ws + ' cell' + (ws === 1 ? '' : 's') + ' differ only in spacing',
+      m: ws === totalCells
+        ? 'Every difference between these files is leading or trailing whitespace -- the values '
+          + 'are identical. Usually this means the two files came out of different tools, or one '
+          + 'was opened and re-saved. Nothing was actually edited.'
+        : 'These hold the same value with different padding, and are listed separately so they '
+          + 'do not pad out the count of real edits.',
+    });
+  }
+
   var totals = {
+    whitespaceOnly: ws,
     changes: sheets.reduce(function (n, s) { return n + s.total; }, 0),
     rowsAdded: sheets.reduce(function (n, s) { return n + s.rowsAdded.length; }, 0),
     rowsRemoved: sheets.reduce(function (n, s) { return n + s.rowsRemoved.length; }, 0),
