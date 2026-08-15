@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">118 entries · newest first within each group</p>
+  <p class="stamp">120 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,94 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 14</div>
+  <div>
+    <p class="name">Instagram launched &mdash; and the first post shows the product&rsquo;s real output rather than a picture of it
+      <span class="chip live">avatar + bio + post</span><span class="chip">new channel</span></p>
+    <p class="what"><b>The brief was &ldquo;an infographic that doesn&rsquo;t look like AI slop&rdquo;,</b>
+    and the reliable way to clear that bar is to stop illustrating. The card in the post is three
+    findings the live <code>/demo/</code> actually computed from a pasted invoice book. Site
+    palette, one accent, no gradients, no glassmorphism, no stock photography, no emoji. Numbers
+    checked by hand before publishing &mdash; $10,035 of $13,605 is 74%, overdue $11,530 is 85%,
+    and all three match what the panel rendered.</p>
+    <p class="proof"><b>The avatar is not the app icon, deliberately.</b> Instagram renders a
+    profile picture as a <em>circle</em>, and the icon is a rounded square holding a monitor with a
+    bezel and a stand: the corners clip, and at the size it is really seen &mdash; 110px on a
+    profile, <b>32px beside a comment</b> &mdash; the monitor chrome turns to mud. So the
+    <code>{a_w}</code> glyph was taken <em>out</em> of the shipped icon rather than redrawn, and
+    rebuilt full-bleed with a phosphor bloom. Extracted as a mask, not a crop, because a crop
+    carries the source&rsquo;s own glow gradient and leaves a seam. <b>Checked at the sizes it will
+    actually appear</b> &mdash; the circular crop rendered at 320, 150, 110, 56 and 32px &mdash;
+    and it still reads as <code>{a_w}</code> at 32.</p>
+    <p class="proof"><b>The honesty control on the post.</b> The card carries a <b>SAMPLE DATA</b>
+    chip, mirroring the one the product shows itself. Without it a reader could take
+    &ldquo;Northgate Builders holds 74% of everything you are owed&rdquo; as a real client
+    engagement. There are no clients, and nothing published may imply otherwise; the caption says
+    it too.</p>
+    <p class="proof"><b>Three platform traps, measured and written down so the next post is a short
+    job.</b> The crop step defaults to <b>1:1 even for a correctly-sized 4:5 image</b> and silently
+    cut the eyebrow and the footer &mdash; caught on screen, not in code. The <b>Website field is
+    read-only on the web</b> (links are mobile-app only), so that stays open. And
+    <b>&ldquo;Add AI label&rdquo; was deliberately left off</b>: that policy targets photorealistic
+    synthetic media, and labelling a data card would be inaccurate.
+    <b>Following five accounts stopped at five</b> &mdash; the sixth had <em>no Follow button in
+    the DOM at all</em>, which is Instagram soft-limiting a new account rather than a broken
+    selector. Retrying is what turns that into a real block, so it stopped and verified the count
+    instead. <b>And handles were searched, never guessed:</b> <code>anthropicai</code> has the
+    right logo, 1,601 followers, zero posts and no badge &mdash; the real account is
+    <code>claudeai</code>, verified at 1.8M, and a third claiming to be Anthropic&rsquo;s CEO is an
+    impersonator.</p>
+    <p class="where">0f9520e, 8c0a88a &middot; _brand/build_instagram_avatar.py + _brand/social/ &middot; verified on the public profile after a fresh load, not in the settings form</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 13</div>
+  <div>
+    <p class="name">A messy book found two defects in the flagship that the sample never could &mdash; one of them silent
+      <span class="chip live">both fixed</span><span class="chip">sample was structurally blind</span></p>
+    <p class="what"><b>Every outreach email now points at the findings panel, and it had only ever
+    seen data I designed</b> &mdash; the sample, and a control written knowing the answer. So a
+    deliberately nasty book went in instead: currency symbols, three date formats, a blank row, a
+    zero, a negative, status values <code>open</code>/<code>Outstanding</code>/<code>PAID</code>,
+    an undated row, and one customer name carrying a trailing space. Most of it held up. Every date
+    format parsed, the status variants were read correctly, the undated row was skipped <em>and
+    disclosed</em>, and the ageing tied out. Two things did not.</p>
+    <p class="proof"><b>1. Two rows both claimed to be the oldest.</b> The badge read
+    &ldquo;oldest open &mdash; call first&rdquo; but its condition was <code>days &gt; 90</code>, so
+    <em>every</em> invoice past 90 days claimed it. The list contradicted itself on screen and
+    contradicted the summary above it, which names one account &mdash; precisely the
+    self-disagreement this product is sold to catch, on the flagship page.
+    <b>The sample has exactly one invoice past 90 days</b>, so this was invisible on it and always
+    would have been.</p>
+    <p class="proof"><b>2. An invisible character suppressed a true finding.</b> Customer names were
+    never trimmed, so <code>&quot;Bell Ridge HOA&quot;</code> and <code>&quot;Bell Ridge HOA &quot;</code>
+    were two accounts. That split one 47% holding into 38% and 9%, dropping it under the
+    concentration threshold &mdash; so the panel showed <b>nothing</b> where it should have named
+    the account. Silence is the worst failure available here, and HTML collapses the space, so a
+    reader could not have seen why.</p>
+    <p class="proof"><b>Then the site&rsquo;s own name-matcher was tested against the same mess, and
+    it passed everything</b> &mdash; case, trailing space, legal suffixes,
+    <code>Bell Ridge H.O.A.</code>, <code>&amp;</code> vs <code>and</code>, typo distance &mdash;
+    and correctly <em>refused</em> to merge Acme Roofing with Acme Plumbing. That is the harder
+    half: a matcher that merges everything looks perfect on duplicates and quietly destroys real
+    data. So one tool understood that a customer name is an identity and the other treated it as a
+    display string. <code>/demo/</code> now groups on the duplicate finder&rsquo;s normalisation
+    &mdash; but <b>only its confident half</b>, never its edit-distance matching, because that tool
+    hedges fuzzy merges as &ldquo;worth a human glance&rdquo; while this page asserts &ldquo;X holds
+    44% of everything you are owed&rdquo; with no hedge. It also <em>discloses</em> the merge rather
+    than absorbing it. Without the fix a real construction book &mdash; &ldquo;ABC Electric&rdquo;,
+    &ldquo;ABC Electric, Inc.&rdquo;, &ldquo;abc electric llc&rdquo; &mdash; read 22% and showed no
+    finding at all.</p>
+    <p class="proof"><b>And a contradiction introduced on the way, caught by looking at the rendered
+    page rather than the diff:</b> the tile said &ldquo;5 active customers&rdquo; above a subtitle
+    reading &ldquo;3 with open invoices&rdquo;, on a book with three customers and no paid invoices
+    &mdash; implying two settled accounts that did not exist. One key, one answer, everywhere now.
+    <b>The transferable lesson:</b> synthetic fixtures are clean by construction, so they cannot
+    find the bugs that only dirty data causes.</p>
+    <p class="where">8562ccf + 4455adb &middot; _brand/build_demo_app.py &middot; autoqa 0, seo 0 across 38 pages, reader 5/5, 7/7 seam fixtures</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 13</div>
   <div>
