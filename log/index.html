@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">120 entries · newest first within each group</p>
+  <p class="stamp">121 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,47 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 15</div>
+  <div>
+    <p class="name">redline reads Excel now — and it caught a frozen formula on two real workbooks
+      <span class="chip live">xlsx end to end</span><span class="chip">2 defects caught pre-ship</span><span class="chip staged">1 found by dirty data</span></p>
+    <p class="what"><b>The finding this tool exists for now fires on real files.</b> Two workbooks,
+    identical to look at: the old one has three formulas, the new has two, because <code>D2</code>
+    was pasted over with a typed 12. The displayed number is the same in both, so nothing looks
+    wrong &mdash; the only evidence is that the cell stopped calculating. The page&rsquo;s verdict:
+    <b>&ldquo;1 formula replaced by a typed value&rdquo;</b>, one cell changed, no rows added or
+    removed. A CSV cannot carry formulas, so this was impossible until the workbook path existed.</p>
+    <p class="proof"><b>Every link verified separately rather than end-to-end faith:</b> the shared
+    reader captures formulas (1,741 against a ground truth counted from the raw XML), a push gate
+    keeps it doing so, the bridge survives ragged and missing formula arrays, and the page branches
+    on file type. <b>The reader is the site&rsquo;s shared one, asserted verbatim</b> against
+    toolkit&rsquo;s source &mdash; redline growing its own ZIP parser would have been the exact
+    defect removed from skeleton two days earlier, committed by the person who wrote the rule.</p>
+    <p class="proof"><b>Two of my own defects caught before shipping, neither findable by the test
+    suite.</b> The intake now hands a parsed book to the renderer instead of raw text &mdash; and
+    the SAMPLE button still passed strings, so every file drop would have worked while the one
+    button most visitors press did nothing. And the file picker still filtered to CSV: drag-and-drop
+    ignores that filter, so <em>dropping</em> a workbook worked while &ldquo;Choose older&rdquo;
+    would not even list one, which reads as the tool simply not supporting Excel. Both came from
+    reading the diff and asking what a person would actually click.</p>
+    <p class="proof"><b>Then the newest workspace rule was pointed at it: clean fixtures cannot find
+    dirty-data bugs.</b> redline&rsquo;s tests are entirely synthetic, so six messy cases went
+    through it. Five behaved: a reformatted number, a blank row and a renamed client all report
+    truthfully, and <b>reordered or inserted columns produce a warning</b> &mdash; <em>these may not
+    be two versions of the same thing</em> &mdash; rather than silent nonsense, on input I had not
+    imagined when writing that refusal.
+    <b>One real defect:</b> a value gaining trailing whitespace reports as a changed cell. Nobody
+    considers <code>1200</code> and <code>1200&nbsp;</code> a change, and it is common &mdash; one
+    export tool pads, another does not, and suddenly every cell &ldquo;changed&rdquo;, burying the
+    real edits. That is the same drowning-in-noise failure the row matching exists to prevent,
+    arriving through a different door. <b>Recorded, not patched:</b> the obvious fix &mdash; trim
+    before comparing &mdash; can hide a change where whitespace genuinely matters, so the right
+    answer probably reports whitespace-only differences <em>distinctly</em>. That is a judgement
+    call, not a one-liner, and it is not something to do to a live tool at the end of a session.</p>
+    <p class="where">e423bfb &middot; /redline/ live &middot; verified on the served page &middot; 71 tests, 0 network calls &middot; whitespace noise is the one known defect</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 14</div>
   <div>
