@@ -188,14 +188,34 @@ function toTable(rows){
 function colValues(t, ci){ return t.body.map(function(r){ return (r[ci]===undefined?'':String(r[ci])).trim(); }); }
 
 /* Join key: the column PAIR whose non-blank value sets overlap most. */
+/* A join key is an IDENTIFIER. Two properties follow from that, and this function used to
+   assume neither -- which produced the worst output this tool can produce: a confident
+   "every job in the work log has a matching invoice" over a book with a real uninvoiced job.
+   Reproduced 2026-08-14 with three jobs and two invoices.
+
+   1. IT IS CASE-INSENSITIVE. Two systems exporting the same job write JOB-1042 and job-1042.
+      Matching those as different values did not merely miss one row -- it dropped the ID
+      column's hit count below a coincidentally-matching AMOUNT column, so the amount column
+      silently won and became the join key.
+
+   2. IT IS NEARLY UNIQUE. An amount is not an identifier: two jobs at $500 are ordinary. Once
+      Amount was the key, an uninvoiced $500 job matched a DIFFERENT job's $500 invoice and was
+      counted as billed. The leak the page exists to surface was reported as clean.
+
+   So candidates are now scored on normalised values and must be >=90% unique on the work side.
+   The uniqueness test is what actually rejects Amount, and it does so on principle rather than
+   by guessing at column names -- a column called "Total" or "Value" would fail it too. */
+function normKey(v){ return String(v).replace(/\s+/g,' ').trim().toLowerCase(); }
 function detectJoin(a, b){
   var best = {score: 0, ai: 0, bi: 0};
   for(var i=0;i<a.header.length;i++){
-    var av = colValues(a,i).filter(Boolean);
+    var av = colValues(a,i).filter(Boolean).map(normKey);
     if(!av.length) continue;
     var aset = {}; av.forEach(function(v){ aset[v]=1; });
+    var uniq = 0; for(var k in aset){ if(aset.hasOwnProperty(k)) uniq++; }
+    if(uniq / av.length < 0.9) continue;          /* not an identifier -- repeats too much */
     for(var j=0;j<b.header.length;j++){
-      var bv = colValues(b,j).filter(Boolean);
+      var bv = colValues(b,j).filter(Boolean).map(normKey);
       if(!bv.length) continue;
       var hits = 0; bv.forEach(function(v){ if(aset[v]) hits++; });
       var score = hits / Math.max(av.length, bv.length);
@@ -339,14 +359,16 @@ function reconcile(work, inv, asOf){
   var join = detectJoin(work, inv);
   if(!join) return { error: 'Could not find a shared reference column (a job number or ID that appears in both files). Every match here is by exact ID -- no guessing.' };
   var wAmt = detectAmount(work), iAmt = detectAmount(inv);
-  var invKeys = {}; colValues(inv, join.bi).forEach(function(v){ if(v) invKeys[v]=1; });
+  /* Keys normalised the SAME way detectJoin scored them. Choosing the right column and then
+     matching it case-sensitively would reintroduce the identical bug one step later. */
+  var invKeys = {}; colValues(inv, join.bi).forEach(function(v){ if(v) invKeys[normKey(v)]=1; });
 
   /* Map the shared job key -> client + description from the WORK log, so a chase
      draft can name the customer and the job. Invoice files often carry neither. */
   var wClient = detectClient(work), wDesc = detectDesc(work);
   var meta = {};
   work.body.forEach(function(r){
-    var k = (r[join.ai]||'').trim();
+    var k = normKey(r[join.ai]||'');
     if(!k) return;
     meta[k] = {
       client: wClient >= 0 ? (r[wClient]||'').trim() : '',
@@ -356,12 +378,15 @@ function reconcile(work, inv, asOf){
 
   var never = [], neverTotal = 0;
   work.body.forEach(function(r){
-    var k = (r[join.ai]||'').trim();
+    var k = normKey(r[join.ai]||'');
     if(!k || invKeys[k]) return;
     var amt = wAmt >= 0 ? money(r[wAmt]) : null;
     if(amt !== null) neverTotal += amt;
     var m = meta[k] || { client:'', desc:'' };
-    never.push({ key:k, row:r, amt:amt, client:m.client, desc:m.desc });
+    /* MATCH on the normalised key, but SHOW the spelling from their own file. Displaying
+       a lower-cased version of someone's own job number is a small lie about their data,
+       and this page is read as a report on that data. */
+    never.push({ key:(r[join.ai]||'').trim() || k, row:r, amt:amt, client:m.client, desc:m.desc });
   });
 
   var paidCol = detectPaid(inv), dateCol = detectDate(inv, /invoice date|inv date|date/i);
@@ -379,7 +404,7 @@ function reconcile(work, inv, asOf){
       }
       /* Display the invoice's own reference (first cell), not the join key --
          the aged table says "Invoice", so it must show INV-2210, not J-104. */
-      var jk = (r[join.bi]||'').trim();
+      var jk = normKey(r[join.bi]||'');
       var m = meta[jk] || { client:'', desc:'' };
       var rec = { key:(r[0]||r[join.bi]||'').trim(), amt:amt, days:days,
                   client:m.client, desc:m.desc };
