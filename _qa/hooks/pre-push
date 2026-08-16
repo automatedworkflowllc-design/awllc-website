@@ -74,6 +74,19 @@ python ../skeleton/build.py >/dev/null || {
   echo "PUSH BLOCKED - skeleton's engine suite failed. Fix the engine, not the test."
   exit 1
 }
+# _brand/tokens.py promises "a new tool CANNOT be off-brand, because it does not
+# declare its own colours". Measured 2026-08-16: nothing enforced that, and the
+# site was already 33 pages on a legacy palette and 3 on tokens.py. Which way to
+# unify is a design decision and NOT this gate's business; inventing a third
+# palette on the way there is. The baseline accepts today's split and blocks new
+# hand-picked colour. --record cannot move it on a run that found something.
+echo "Palette: checking no page invents a colour..."
+python _qa/palette_audit.py --record || {
+  echo ""
+  echo "PUSH BLOCKED - a page uses a colour from no known source."
+  echo "Use a token from _brand/tokens.py, or add it to the palette deliberately."
+  exit 1
+}
 echo "SEO audit: checking metadata/schema/sitemap/NAP before push..."
 python _qa/seo_audit.py --record || {
   echo ""
