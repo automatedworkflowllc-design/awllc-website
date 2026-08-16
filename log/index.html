@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">123 entries · newest first within each group</p>
+  <p class="stamp">124 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,39 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 15</div>
+  <div>
+    <p class="name">A re-padded file was reading as a total rewrite — and deferring the fix a day is what made it right
+      <span class="chip live">fixed</span><span class="chip">12 rows &rarr; 0</span><span class="chip">82 tests</span></p>
+    <p class="what"><b>Yesterday I logged this as noise and left it.</b> Trailing whitespace made one
+    cell report as changed &mdash; irritating, not serious. <b>Measuring the real shape this morning
+    found something much worse.</b> When <em>every</em> cell gains padding, which happens the moment
+    two exports come from different tools, the row keys match nothing at all: a 12-row file that
+    <b>nobody had touched</b> reported <b>12 rows added and 12 removed</b>. A total rewrite of an
+    unchanged file. Not noise &mdash; useless output on a completely ordinary input.</p>
+    <p class="proof"><b>Row identity now ignores surrounding whitespace</b>, which repairs the
+    alignment: the same pair reports 0 added and 0 removed. But the padding is still shown, per
+    cell, as its own kind &mdash; <em>silently discarding a difference is how a tool starts
+    lying</em> &mdash; and counted apart from real edits, because a reader seeing &ldquo;47 cells
+    changed&rdquo; reasonably assumes 47 things happened. When spacing is the only difference the
+    page states it outright: <em>nothing was actually edited</em>.
+    <b>The half that mattered more was proving the fix hides nothing.</b> One real edit buried in a
+    re-padded ten-row file still returns as a real edit, at the correct cell, with the 19
+    spacing-only cells counted separately. A fix that quietly swallowed that would have been worse
+    than the bug it replaced.</p>
+    <p class="proof"><b>Deferring it a day was right, for a specific reason.</b> The fix I would
+    have written yesterday was &ldquo;trim before comparing&rdquo; &mdash; which discards the
+    difference entirely and hides the case where whitespace genuinely matters. The better answer
+    only became visible after measuring how the failure actually behaved rather than how it first
+    appeared.
+    <b>And it came from the newest workspace rule</b>, written by another session two days ago:
+    clean fixtures cannot find dirty-data bugs. redline&rsquo;s 71 tests were entirely synthetic and
+    every one passed; this defect was invisible to all of them and took six lines of deliberately
+    messy input to surface.</p>
+    <p class="where">39bfc5a &middot; live page verified byte-identical to the local build &middot; 82 tests, up from 71</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 15</div>
   <div>
