@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">124 entries · newest first within each group</p>
+  <p class="stamp">128 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,185 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 16</div>
+  <div>
+    <p class="name">All nine of the worst defects closed &mdash; every one a system reporting success while delivering nothing
+      <span class="chip live">tier 0 clear</span><span class="chip">7 commits</span><span class="chip">149 tests</span><span class="chip">2 tests caught lying</span></p>
+    <p class="what"><b>A roadmap is only real if something is crossed off it</b>, so the takeover
+    roadmap went straight into execution. Tier 0 is the list of confirmed defects where the platform
+    reports success and delivers nothing &mdash; the exact failure this whole company is pointed at,
+    found inside a monitoring product. Six are now closed and each fix was proven to fail without it
+    before being committed.</p>
+    <p class="proof"><b>The worst one silently destroyed alerts.</b> Every delivery in a dispatch
+    cycle was signed with the <em>cycle-start</em> timestamp. Receivers reject stale signatures with
+    401, the dispatcher only retries 408/425/429/5xx, so a 401 went straight to
+    <code>exhausted</code> &mdash; terminal, no redelivery. Any cycle running past the receiver&rsquo;s
+    five-minute window <b>permanently discarded every alert after that mark</b>; at the configured
+    3s timeout that is about 100 slow deliveries. Signed at send time now, and the negative control
+    reports <code>signature was 10m0s stale on arrival</code>.</p>
+    <p class="proof"><b>The second was the same loss from the other end.</b> Retries were driven by
+    rescanning transitions in a window that starts at route enablement and <em>never advances</em>,
+    newest-first, capped at 5,000. Past that, older undelivered work fell out of the page forever
+    while its receipt still advertised <code>Status: retrying</code> with a next attempt in the past.
+    Retries now poll the receipt outbox, which is bounded by live work rather than by history, and a
+    full scan page is <b>counted and logged instead of silently dropping the overflow</b>. A receipt
+    whose transition is genuinely gone is marked terminal <em>with a reason</em> rather than left lying.</p>
+    <p class="proof"><b>Then two that attacked the one thing this platform is differentiated on
+    &mdash; a predictable bill.</b> Out-of-range timestamps (year 9999 parses fine, ClickHouse stops
+    at 2299) reached storage, failed there and surfaced as <code>502 query_failed</code>, and the
+    metered path then billed the tenant a query unit <em>for the platform&rsquo;s own error</em>.
+    Reproduced live at 502 before touching anything, now 400; and a 5xx releases its reservation
+    instead of accepting it. Charging per invocation for a 4xx stays &mdash; that is the documented
+    contract, and the README moved in the same commit.</p>
+    <p class="proof"><b>The last one was the product attacking its own customer.</b> The workspace
+    polled every 30s forever, ~7 metered endpoints a refresh = 20,160 units/day against a 100,000
+    default: <b>4.96 days to exhaust a tenant&rsquo;s entire monthly allowance</b>, after which
+    <code>hard_stop</code> locks them out of their own telemetry. It now stops after 15 idle minutes
+    &mdash; and <em>says so on screen</em>, because swapping a quota bug for a stale-data bug is not
+    a fix. <b>Two findings from the same agent contradicted each other here</b> (one claimed no
+    auto-refresh existed at all); reading line 1506 settled it, and the false one is recorded.</p>
+    <p class="proof"><b>The seventh one is the reason to read findings rather than apply them.</b>
+    It was filed as &ldquo;the trigger transition is persisted <em>before</em> the state&rdquo;,
+    which reads as though the order is the defect and reversing it is the cure. Reversing it would
+    have been <b>strictly worse</b>: the state machine decides whether to emit a transition by
+    comparing stored state to current state, so writing state first and losing the transition write
+    makes the next cycle compare alert to alert, emit nothing, and <b>lose the alert silently</b>.
+    The current order fails loud &mdash; the alert goes out, the state is stale. Loud is correct
+    here, so the order stays and the second write was made durable instead. The residual (a state
+    write failing <em>and</em> the condition clearing on the very next cycle leaves an incident open
+    forever) needs a schema change and is written down rather than quietly dropped.</p>
+    <p class="proof"><b>The last two were both &ldquo;a guard that cannot actually hold&rdquo;.</b>
+    An abandoned reservation &mdash; written before the work, rewritten when it settles &mdash; stayed
+    <code>reserved</code> forever if its finalizer was lost, and reserved rows count as committed, so
+    one crash held a slice of a tenant&rsquo;s monthly allowance until the month ended. Under
+    <code>hard_stop</code> that is a tenant locked out of ingest by capacity nobody holds. Rows older
+    than 15 minutes now stop being charged &mdash; but <code>uncertain</code> never expires, because
+    it means the collector <em>may</em> have taken the bytes and is held to fail safe. And incident
+    status guards compared against the incident <em>as it was read</em>, so a resolve racing an
+    acknowledge left a resolved incident acknowledged: a closed incident reopening itself.</p>
+    <p class="proof"><b>Two of my own tests were caught passing for the wrong reason, and that is
+    the part worth keeping.</b> The reservation test waited
+    <code>StaleReservationAge&nbsp;+&nbsp;1m</code> &mdash; and <em>read that constant</em>, so
+    inflating it to disable expiry moved the test&rsquo;s own clock by the same amount and it passed
+    regardless. Tautological with respect to the value it was meant to check. Then the incident race
+    test slept <em>before</em> the fake store read its slice, so the delayed reader saw fresh data,
+    the race window never opened, and <b>it passed with the lock removed</b> &mdash; it would have
+    certified the fix as unnecessary. A slow read has to snapshot early and return something stale on
+    arrival, which is what a slow read <em>is</em>. Corrected, both controls fail properly:
+    <code>monthly_limit_exceeded</code> and <code>&quot;status&quot;:&quot;acknowledged&quot;</code>.
+    <b>The second hard lesson, aimed at my own tests rather than at the code.</b></p>
+    <p class="where">observability-platform 4846f76, c9df4f9, c923369, ed684df, 3caf83c, a407bdc, c0e06d1 &middot; 149 tests, gofmt + vet + -race clean &middot; live retention/spend <code>pass=true</code> and incident routing resolved with 2 delivered receipts, zero cross-tenant &middot; 0.3 partial: only operator redelivery of an exhausted receipt remains</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 16</div>
+  <div>
+    <p class="name">Took over the Codex-built Datadog competitor &mdash; and both bugs I fixed were showing wrong data, not breaking
+      <span class="chip live">fixed</span><span class="chip">9,312 lines Go</span><span class="chip">65 findings</span><span class="chip">0 &rarr; git</span></p>
+    <p class="what"><b>A full OpenTelemetry observability platform had been built in another tool and left in a
+    dated Codex scratch folder</b> &mdash; 9,312 lines of production Go, 4,671 of tests, ClickHouse storage,
+    a pinned Collector, eleven reversible migrations and a 14-section investigation UI, running live on Docker.
+    <b>It had no version control at all.</b> Ten thousand lines where any bad edit was unrecoverable, so the
+    first act was a baseline commit of all 164 files before touching anything.</p>
+    <p class="proof"><b>The usage bars read 100&percnt; for every signal.</b> The service sets a strict
+    <code>style-src 'self'</code> CSP, but the UI injected <code>style="width:&hellip;"</code> through
+    <code>innerHTML</code>, so the browser dropped it and each bar fell back to filling its container.
+    Nothing looked broken &mdash; it looked like three signals each consuming everything. They now read
+    <b>100&percnt; / 34.0&percnt; / 28.8&percnt;</b>, matching the real 1.40&nbsp;MiB / 489.2&nbsp;KiB / 414.0&nbsp;KiB.</p>
+    <p class="proof"><b>The second one no agent found, and it is the more interesting failure.</b> Four
+    telemetry queries serialized time with <code>toString()</code>, giving
+    <code>2026-08-16 06:09:42.592000000</code>. JavaScript parses that space-separated form as <em>local</em>
+    time, so every record moved four hours into the future and out of every chart bucket &mdash; the chart was
+    permanently empty regardless of data. The other datetime columns already used
+    <code>formatDateTime(&hellip;, 'UTC')</code> and the README documents RFC&nbsp;3339, so the API was
+    contradicting its own contract in four places out of eight. <b>It would look perfectly correct to anyone
+    developing in UTC</b>, which is the environment version of the clean-fixture rule: the setup could not
+    produce the bug, so nobody could see it. Verified by the numbers afterwards &mdash; two 63px buckets
+    reading &ldquo;4 events&rdquo; against 5px baselines, exactly <code>5 + (4/4)&times;58</code>.</p>
+    <p class="proof"><b>The running stack was not running the source.</b> Rebuilding surfaced a readiness
+    failure on a table that did not exist: migration 0011 was in the repo but had never been applied, because
+    <code>migrate</code> builds its own image and only <code>api</code> had been rebuilt. The
+    &ldquo;running and verified&rdquo; stack was serving a binary older than its own migrations. The
+    independent claims audit reached the same place from the documents: README and BUILDLOG are one whole
+    subsystem behind the code and still publish &ldquo;28 objects / 10 migrations&rdquo; against an actual
+    29 and 11.</p>
+    <p class="proof"><b>23 agents, 65 findings, and the verify stage earned its keep by killing three of them.</b>
+    20 high, 35 medium, 10 low, none critical. Of 14 high findings sent to adversarial verification 11 survived
+    and <b>3 were refuted with real work</b> &mdash; one verifier built a 4,000-row scratch table and ran
+    <code>EXPLAIN indexes=1</code> to show the &ldquo;unindexed full scan&rdquo; is a single granule and the
+    proposed index prunes nothing. Tenant isolation was the one thing probed live under attack and it held:
+    forged tenant headers and query params all ignored, second key sees zero rows. Honest caveat &mdash; I
+    created the git repo mid-run, so the CI agent was looking at a repo that did not exist when the run started.</p>
+    <p class="where">observability-platform 7d10120 (baseline) + 259a7fa (both fixes) &middot; new local git repo, not yet in the dev tree &middot; verifier passes at documented values 4 / 20 / 3&frasl;s / 6&frasl;s</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 16</div>
+  <div>
+    <p class="name">The reader could not see a drag-filled formula — so redline&rsquo;s headline finding was wrong on ordinary files
+      <span class="chip live">fixed</span><span class="chip">7 live tools</span><span class="chip">2 of 3 cells wrong</span></p>
+    <p class="what"><b>Drag a formula down a column and Excel writes it once.</b> One master cell
+    carries the text; every cell beneath it is stored as a bare <code>&lt;f t="shared" si="0"/&gt;</code>
+    with no formula in it at all. Our reader required a closing tag, so it matched none of them and
+    returned <em>nothing</em> for every inherited formula in every real spreadsheet.
+    <b>&ldquo;No formula here&rdquo; is exactly what a typed number looks like</b> &mdash; and that
+    is the single difference redline uses to decide its headline finding.</p>
+    <p class="proof"><b>Measured on the shipped page, not reasoned about.</b> The same three-row
+    column saved the way Excel writes it and the way LibreOffice or Sheets writes it disagreed on
+    <b>2 of 3 cells</b>, so redline reported formulas replaced by typed values <em>on a file where
+    nothing had changed</em>. Inserting one row, which makes Excel re-anchor the shared range, did
+    the same in both directions at once. After the fix the two spellings read identically, so there
+    is no difference left to report.</p>
+    <p class="proof"><b>This is the /almanac/ failure again, and worth naming as a pattern:</b> a
+    tool stating a <em>verdict</em> as fact, inverted by data that is not messy in any exotic way
+    &mdash; just the most common thing anyone does in a spreadsheet. A wrong number invites a second
+    look; a wrong verdict closes the question.</p>
+    <p class="proof"><b>The fix had to be proven additive, because ten pages read this code.</b>
+    Values and occupancy come back byte-identical on all six value-only tools, so the change is
+    additive by diff rather than by hope. Inherited formulas are now translated to the cell that
+    inherits them &mdash; relative refs moved, <code>$</code>-anchored refs left alone, a master
+    that appears after its dependants still resolves, an orphan stays empty.
+    <b>My first version of that translation was broken and testing it is what caught it:</b>
+    <code>LOG10(</code> became <code>LOH10(</code>, because <code>LOG10</code> parses perfectly as
+    column LOG row 10. A real reference is never followed by an opening paren; now that is checked.</p>
+    <p class="proof"><b>The gate that should have caught this could not have.</b> Its fixture was
+    twelve tidy rows with every formula spelled out &mdash; structurally incapable of finding a bug
+    that only appears in files people actually make. It now carries a dirty fixture beside the clean
+    one, and that was proven both ways: restoring the pre-fix page makes it fail, the fixed page
+    passes. <b>A third thing was wrong in the checker itself</b> &mdash; its runner extracted only
+    the reader, not the reader&rsquo;s helpers, so it would have thrown and blamed the page.</p>
+    <p class="where">awllc-website 0408bf5 &middot; _brand/toolkit.py + _qa/test_reader.py + 10 regenerated pages &middot; live and verified</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 16</div>
+  <div>
+    <p class="name">skeleton&rsquo;s test suite had no assertions — it could not go red, on a page that is live
+      <span class="chip live">fixed</span><span class="chip">0 &rarr; 13 tests</span><span class="chip">8 findings &rarr; 2</span></p>
+    <p class="what"><b>I pointed a deliberately nasty workbook at skeleton</b> &mdash; one client
+    spelled three ways, a blank client, a divide-by-zero, a reference to a sheet that does not
+    exist, a typed number among formulas, an empty sheet, a thirteen-deep chain. It parsed all of
+    it correctly. <b>Reading the output rather than the exit code found two things anyway.</b></p>
+    <p class="proof"><b>A long chain filed one finding per cell.</b> The thirteen-deep chain
+    produced seven near-identical lines, so the one warning that mattered was 1 of 8. A chain is one
+    problem; it now reports only its tip &mdash; the deepest cell nothing else feeds from. Same
+    file, <b>2 findings now, both real, none lost</b>.</p>
+    <p class="proof"><b>Then the worse one: verify.js had nothing in it that could fail.</b> It
+    printed findings for a human to read and exited 0 regardless. I proved that rather than assuming
+    it &mdash; replacing the whole findings routine with &ldquo;return nothing&rdquo; still exited
+    0. The August 11 work removed the third duplicate copy of the parser and made the harness load
+    from the real page, which was right, but <em>there was never anything in it to fail</em>.
+    skeleton has been live and effectively untested this whole time.</p>
+    <p class="proof"><b>13 real assertions now, and the suite was proven in both directions:</b>
+    gutting the findings routine fails 8 of them; reverting just the chain fix reports
+    &ldquo;expected 1, got 7&rdquo;; restored, 13 pass. <b>It also ran nowhere</b> &mdash; the only
+    mention of it in the whole tree was a message telling a human to run it. It is now a push gate
+    in two parts, drift then logic, each proven to block on its own, so rebuilding to clear the
+    drift cannot launder a broken engine.</p>
+    <p class="where">dev 0922f70 &middot; skeleton/engine.js + verify.js &middot; gate in awllc-website _qa/hooks/pre-push</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 15</div>
   <div>
