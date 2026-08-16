@@ -204,6 +204,16 @@ footer{margin-top:var(--s-7);padding-top:var(--s-4);border-top:1px solid var(--l
   font-size:var(--f-sm);color:var(--faint)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
+<!-- aw-analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-K2B3YTCPJY"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-K2B3YTCPJY');
+  gtag('config', 'AW-18312491430');
+</script>
+<!-- aw-analytics -->
 </head>
 <body>
 <div class="wrap">
@@ -539,7 +549,6 @@ function readAny(f, done){
     reader.readAsText(f);
   }
 }
-
 
 /* redline -- what actually changed between two versions of a spreadsheet.
  *
@@ -1002,8 +1011,6 @@ function bookFromCSV(name, text) {
   while (rows.length && rows[rows.length - 1].every(function (c) { return c === ''; })) rows.pop();
   return bookFromGrid(name, rows);
 }
-
-
 
 var $ = function (s) { return document.querySelector(s); };
 var out = $('#out');
