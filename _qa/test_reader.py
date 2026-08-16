@@ -53,16 +53,32 @@ for (; j < page.length; j++) {
 }
 const stubs = 'var sst=[],dateStyle=[];function unesc(s){return String(s);}'
             + 'function texts(){return "";}function serialToISO(){return null;}';
+// parseWS calls out to these; extract them too or resolving a shared formula
+// throws ReferenceError and the gate blames the page instead of this runner.
+let helpers = '';
+for (const sig of ['function colName(n){', 'function shiftFormula(f, dr, dc){']) {
+  const k = page.indexOf(sig);
+  if (k < 0) continue;
+  let e = 0, s2 = false, q = k;
+  for (; q < page.length; q++) {
+    const c = page[q];
+    if (c === '{') { e++; s2 = true; }
+    else if (c === '}') { e--; if (s2 && e === 0) { q++; break; } }
+  }
+  helpers += page.slice(k, q) + '\n';
+}
 let parseWS;
-try { parseWS = new Function(stubs + page.slice(i, j) + ' return parseWS;')(); }
+try { parseWS = new Function(stubs + helpers + page.slice(i, j) + ' return parseWS;')(); }
 catch (e) { console.log(JSON.stringify({error: 'reader will not compile: ' + e.message})); process.exit(0); }
 let cells = 0, formulas = 0;
+const shared = [];
 try {
   const rows = parseWS(fs.readFileSync(process.argv[3], 'utf8'));
   for (const row of rows) cells += row.length;
-  for (const row of (rows.formulaRows || [])) for (const c of (row || [])) if (c) formulas++;
+  for (const row of (rows.formulaRows || []))
+    for (const c of (row || [])) if (c) { formulas++; shared.push(c); }
 } catch (e) { console.log(JSON.stringify({error: 'reader THREW on a real sheet: ' + e.message})); process.exit(0); }
-console.log(JSON.stringify({cells: cells, formulas: formulas}));
+console.log(JSON.stringify({cells: cells, formulas: formulas, shared: shared}));
 """
 
 
@@ -92,8 +108,43 @@ def main():
             bad += 1
         else:
             print('  [reader] %-42s %s cells, %s formulas  ok' % (rel, res['cells'], res['formulas']))
+    # The fixture above is CLEAN -- 12 tidy rows, every formula spelled out. A
+    # clean fixture cannot find the bugs that only messy files cause. What Excel
+    # actually writes for a drag-filled column is ONE master formula and then
+    # <f t="shared" si="N"/> with no text for every cell under it. Read
+    # literally that is "no formula here", which is indistinguishable from a
+    # typed number -- and redline decides its headline finding on exactly that
+    # difference. Measured 2026-08-15: every inherited formula in every real
+    # workbook was invisible to all seven pages, and the clean fixture passed
+    # the whole time.
+    dirty = os.path.join(os.path.dirname(sheet), 'shared.xml')
+    io.open(dirty, 'w', encoding='utf-8').write(
+        u'<worksheet><sheetData>'
+        u'<row r="3"><c r="C3"><f t="shared" ref="C3:C5" si="0">A3*$B$1+LOG10(A3)</f><v>1</v></c></row>'
+        u'<row r="4"><c r="C4"><f t="shared" si="0"/><v>2</v></c></row>'
+        u'<row r="5"><c r="C5"><f t="shared" si="0"/><v>3</v></c></row>'
+        u'</sheetData></worksheet>')
+    want = ['A3*$B$1+LOG10(A3)', 'A4*$B$1+LOG10(A4)', 'A5*$B$1+LOG10(A5)']
+    for rel in PAGES:
+        path = os.path.join(SITE, rel)
+        if not os.path.exists(path):
+            continue
+        try:
+            out = subprocess.run(['node', runner, path, dirty],
+                                 capture_output=True, text=True, timeout=60).stdout.strip()
+            got = json.loads(out.splitlines()[-1]).get('shared')
+        except Exception as e:
+            print('  [shared] %s could not be exercised: %s' % (rel, e)); bad += 1; continue
+        if got != want:
+            print('  [shared] %s inherited formulas wrong:' % rel)
+            print('           expected %s' % want)
+            print('           got      %s' % got)
+            bad += 1
+        else:
+            print('  [shared] %-42s drag-filled formulas resolve  ok' % rel)
+
     if bad:
-        print('\nREADER GATE FAILED on %d page(s) -- a tool that cannot read a file is broken '
+        print('\nREADER GATE FAILED on %d check(s) -- a tool that cannot read a file is broken '
               'no matter how clean the rest of the site looks.' % bad)
         return 1
     print('  reader gate: all %d page(s) read a real sheet correctly' % len(PAGES))

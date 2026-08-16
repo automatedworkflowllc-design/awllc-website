@@ -443,11 +443,53 @@ function xlsxToRows(buf){
         dateStyle[i++] = !!(BUILTIN_DATE[id] || (custom[id] && isDateCode(custom[id])));
       }
     }
+    function colName(n){
+      var s = '';
+      while(n > 0){ var r = (n - 1) % 26; s = String.fromCharCode(65 + r) + s; n = (n - r - 1) / 26; }
+      return s;
+    }
+    /* Move a formula from the cell it was written on to the cell that inherits
+       it. $ANCHORED refs stay put, which is the whole point of the $.
+       Two things that are not references and must survive untouched:
+       a ref preceded by a letter or digit (the tail of a longer name), and a
+       name FOLLOWED BY '(' -- LOG10( parses perfectly as column LOG row 10 and
+       came back as LOH10( on the first version of this. A real cell reference
+       is never immediately followed by an opening paren. */
+    function shiftFormula(f, dr, dc){
+      if(!dr && !dc) return f;
+      return f.replace(/(\$?)([A-Z]{1,3})(\$?)(\d+)/g, function(whole, ca, cl, ra, rw, off, str){
+        var prev = off > 0 ? str.charAt(off - 1) : '';
+        if(/[A-Za-z0-9_]/.test(prev)) return whole;
+        var next = str.charAt(off + whole.length);
+        if(next === '(' || /[A-Za-z0-9_]/.test(next)) return whole;
+        var col = 0;
+        for(var i = 0; i < cl.length; i++) col = col * 26 + (cl.charCodeAt(i) - 64);
+        if(!ca) col += dc;
+        var row = ra ? +rw : +rw + dr;
+        if(col < 1 || row < 1) return whole;
+        return ca + colName(col) + ra + row;
+      });
+    }
     function parseWS(ws){
-      var rows = [], frows = [], occupied = 0, rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/g, rm;
+      var rows = [], frows = [], occupied = 0, rowRe = /<row\b([^>]*)>([\s\S]*?)<\/row>/g, rm;
+      /* SHARED FORMULAS. Drag a formula down a column and Excel writes it ONCE,
+         as a master carrying t="shared" si="N" plus the text, then every cell
+         under it as a bare <f t="shared" si="N"/> with no text at all. Read
+         literally that says "this cell has no formula" -- which is exactly what
+         a typed number looks like. Measured 2026-08-15: redline decides its
+         headline finding on `A.f && !B.f`, so the same drag-filled column saved
+         by Excel (shares) and by LibreOffice/Sheets (does not) reported every
+         filled cell as "formula replaced by a typed value", and re-anchoring
+         the master by inserting one row reported a LOST and a GAINED for a
+         formula that never moved. A wrong verdict, stated as fact.
+         Children resolve after the sheet is read, so a master appearing after
+         its dependants still resolves; anything unresolvable stays null. */
+      var sharedMaster = {}, sharedPending = [];
       while((rm = rowRe.exec(ws))){
+        var rowAttrs = rm[1], rowBody = rm[2];
+        var rNum = +((/r="(\d+)"/.exec(rowAttrs) || [])[1] || (rows.length + 1));
         var cells = [], fcells = [], cRe = /<c\b([^>]*)(?:\/>|>([\s\S]*?)<\/c>)/g, cm;
-        while((cm = cRe.exec(rm[1]))){
+        while((cm = cRe.exec(rowBody))){
           var attrs = cm[1], body = cm[2] || '';
           var ref = /r="([A-Z]+)\d+"/.exec(attrs);
           var col = 0;
@@ -483,9 +525,20 @@ function xlsxToRows(buf){
              additive by construction rather than by hope. redline needs it to
              spot a formula replaced by a typed number, and skeleton can drop
              its private reader copy once it reads this. */
-          var fm = /<f[^>]*>([\s\S]*?)<\/f>/.exec(body);
+          /* Matches BOTH <f ...>text</f> and the self-closing <f .../> that a
+             shared-formula child is written as. The original pattern required a
+             closing tag, so every inherited formula in the file was invisible. */
+          var fm = /<f\b([^>]*?)(?:\/>|>([\s\S]*?)<\/f>)/.exec(body);
           while(fcells.length < col - 1) fcells.push(null);
-          fcells[col - 1] = fm ? unesc(fm[1]) : null;
+          var fTxt = fm && fm[2] ? unesc(fm[2]) : null;
+          fcells[col - 1] = fTxt;
+          if(fm){
+            var si = (/si="(\d+)"/.exec(fm[1]) || [])[1];
+            if(si !== undefined){
+              if(fTxt) sharedMaster[si] = { f: fTxt, row: rNum, col: col };
+              else sharedPending.push({ si: si, row: rNum, col: col, cells: fcells, at: col - 1 });
+            }
+          }
         }
         rows.push(cells);
         frows.push(fcells);
@@ -495,7 +548,12 @@ function xlsxToRows(buf){
            guide sheet, and the "busiest" pick analyzes the instructions. */
         var hasValue = false;
         for(var ci = 0; ci < cells.length; ci++) if(cells[ci] !== ''){ hasValue = true; break; }
-        if(hasValue || /<f[ >]/.test(rm[1])) occupied++;
+        if(hasValue || /<f[ >\/]/.test(rowBody)) occupied++;
+      }
+      /* Resolved here, not inline, so document order cannot decide the answer. */
+      for(var si = 0; si < sharedPending.length; si++){
+        var p = sharedPending[si], m = sharedMaster[p.si];
+        if(m) p.cells[p.at] = shiftFormula(m.f, p.row - m.row, p.col - m.col);
       }
       rows.occupied = occupied;
       // Attached HERE, inside parseWS, because frows is local to it. The first
