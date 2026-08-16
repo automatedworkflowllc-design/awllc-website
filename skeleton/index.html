@@ -305,6 +305,13 @@ function findings(nodes, sheets){
     return false;
   };
 
+  // A long chain is ONE problem, not one per cell in it. Report only its tip —
+  // the deepest cell nothing else feeds from — or a 13-deep chain files 7 findings
+  // and buries the warnings that matter. (Found by the dirty-data probe, 2026-08-15.)
+  const feedsSomething = new Set();
+  for (const n of nodes.values())
+    if (n.f) for (const k of n.deps) feedsSomething.add(k);
+
   for (const n of nodes.values()){
     if (n.cyclic)
       out.push({ cls:'bad', t:n.k, m:'is part of a circular reference — its value depends on itself' });
@@ -314,8 +321,8 @@ function findings(nodes, sheets){
         if (d && d.f === null && d.v === null)
           out.push({ cls:'warn', t:n.k, m:`points at ${k}, which is empty — this formula is reading a blank` });
       }
-    if (n.depth >= 6)
-      out.push({ cls:'info', t:n.k, m:`sits ${n.depth} steps down a chain — one edit near the top moves this` });
+    if (n.depth >= 6 && !feedsSomething.has(n.k))
+      out.push({ cls:'info', t:n.k, m:`sits at the end of a ${n.depth}-step chain — one edit near the top moves this` });
   }
 
   for (const sh of sheets){

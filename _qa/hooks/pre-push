@@ -56,6 +56,24 @@ python _qa/test_reader.py || {
   echo "PUSH BLOCKED - the shipped xlsx reader is broken. Fix, or push with --no-verify."
   exit 1
 }
+# The reader gate above proves the pages can OPEN a spreadsheet. It says nothing
+# about whether what skeleton concludes from one is right, and skeleton's own
+# harness could not answer that either: until 2026-08-15 it carried no assertions
+# and exited 0 even with findings() replaced by `return []` (measured, not
+# assumed). It also ran nowhere -- the only reference to it in the tree was a
+# message telling a human to run it. Both halves fixed here: drift, then logic.
+echo "Skeleton: checking the live page matches engine.js, and its logic holds..."
+python ../skeleton/build.py >/dev/null || {
+  echo ""
+  echo "PUSH BLOCKED - /skeleton/ has drifted from engine.js. Run:"
+  echo "    python ../skeleton/build.py --write"
+  exit 1
+}
+(cd ../skeleton && node verify.js) || {
+  echo ""
+  echo "PUSH BLOCKED - skeleton's engine suite failed. Fix the engine, not the test."
+  exit 1
+}
 echo "SEO audit: checking metadata/schema/sitemap/NAP before push..."
 python _qa/seo_audit.py --record || {
   echo ""

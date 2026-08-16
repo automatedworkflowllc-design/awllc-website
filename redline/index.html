@@ -860,9 +860,22 @@ function diff(bookA, bookB, opts) {
     });
   }
 
+  var allChanges = sheets.reduce(function (n, s) { return n + s.total; }, 0);
   var totals = {
     whitespaceOnly: ws,
-    changes: sheets.reduce(function (n, s) { return n + s.total; }, 0),
+    /* `changes` is EVERY cell difference, whitespace included -- unchanged, because callers and
+       tests already read it that way. `realChanges` is what a human means by "cells changed",
+       and it is what the page must display.
+
+       Measured on the live page 2026-08-15: a file with one genuine edit and three cells that
+       gained trailing spaces reported "4 CELLS CHANGED" in the headline while the panel below it
+       said the spacing cells are "listed separately so they do not pad out the count of real
+       edits". The page promised not to pad the count and then padded it -- contradicting itself
+       on one screen, which is the exact defect this tool is sold to find. The data model was
+       right; only the number on display was wrong, so this adds a total rather than redefining
+       one. */
+    realChanges: allChanges - ws,
+    changes: allChanges,
     rowsAdded: sheets.reduce(function (n, s) { return n + s.rowsAdded.length; }, 0),
     rowsRemoved: sheets.reduce(function (n, s) { return n + s.rowsRemoved.length; }, 0),
     formulasLost: lost,
@@ -995,7 +1008,7 @@ function render(r) {
   var lost = r.totals.formulasLost;
   h += '<p class="verdict">' + (lost
         ? lost + ' formula' + (lost === 1 ? '' : 's') + ' replaced by a typed value'
-        : r.totals.changes + ' cell' + (r.totals.changes === 1 ? '' : 's') + ' changed')
+        : r.totals.realChanges + ' cell' + (r.totals.realChanges === 1 ? '' : 's') + ' changed')
      + '</p><p class="sub">'
      + (lost ? 'That is the change to look at first: a cell that used to calculate now holds a '
              + 'number somebody entered, so it has stopped tracking its inputs.'
@@ -1004,7 +1017,7 @@ function render(r) {
      + '</p></div>';
 
   h += '<div class="strip">'
-     + st(r.totals.changes, 'cells changed') + st(r.totals.rowsAdded, 'rows added')
+     + st(r.totals.realChanges, 'cells changed') + st(r.totals.rowsAdded, 'rows added')
      + st(r.totals.rowsRemoved, 'rows removed') + st(lost, 'formulas lost') + '</div>';
 
   if (s.changes.length) {
