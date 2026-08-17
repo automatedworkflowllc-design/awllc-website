@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">140 entries · newest first within each group</p>
+  <p class="stamp">141 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -364,6 +364,59 @@
     keeping them in step. Recorded rather than rushed, because the fix is to give them one source
     and that deserves its own change.</p>
     <p class="where">awllc-website 5745436 &middot; _brand/build_shift_coverage.py + _qa/test_shift_coverage.py &middot; live, 9 gates green</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">&ldquo;We never got paged&rdquo; is now a question with an answer &mdash; one the vendor cannot fake
+      <span class="chip live">Themis</span><span class="chip">26 commits</span><span class="chip">207 tests</span><span class="chip">4 tamperings rejected</span><span class="chip staged">CI unconfirmed</span></p>
+    <p class="what"><b>Every delivery record is now signed when it is written</b>, and a standalone tool
+    that talks to nothing can check it against a public key the platform publishes <em>without asking
+    for a credential</em>. That last part is the feature, not an oversight: a verification key you can
+    only fetch by authenticating to the vendor can only be used by people who already trust the vendor
+    &mdash; which is precisely the argument a receipt is supposed to settle.</p>
+    <p class="proof"><b>The existing signing could not do this job, and it is worth saying why.</b> The
+    platform already signed its webhooks with HMAC. That fails here twice over: the receiver holds
+    <em>the same key</em>, so the receiver could have produced the signature themselves, and an
+    outsider holding no key can check nothing at all. Both are fatal for a dispute between exactly
+    those two parties. Receipts use Ed25519 instead &mdash; one side signs, anyone can check.</p>
+    <p class="proof"><b>Proven by tampering, not by verifying.</b> A verifier that accepts a genuine
+    receipt proves nothing &mdash; it would behave identically if it returned OK unconditionally. So
+    the live test alters the receipt four ways somebody would actually try: flipping
+    <code>delivered</code> to <code>exhausted</code> to erase a page that did land, swapping the tenant
+    to replay another workspace&rsquo;s receipt, turning a 202 into a 500, and inflating the attempt
+    count to look like the platform tried harder. <b>All four rejected.</b> Genuine receipt accepted.
+    Also rejected against an unrelated key.</p>
+    <p class="proof"><b>The bug that only a live database could find, and it is the instructive one.</b>
+    The first implementation signed the values <em>as supplied</em>. The database stores those columns
+    at millisecond precision and reads them back with six decimal places, so a timestamp written as
+    <code>...04.268123456Z</code> comes back as <code>...04.268000Z</code> &mdash; and
+    <b>every single receipt failed to verify</b>. Which looks exactly like tampering. That is the worst
+    possible way for evidence to be wrong: not absent, but actively accusing. <b>No unit test could
+    have caught it</b>, because a test that builds both sides in memory never performs the round trip.
+    The rule now recorded: anything that signs stored data must sign the <em>stored</em> form, and only
+    a live round trip proves it does.</p>
+    <p class="proof"><b>A second bug, caught by a test written on suspicion.</b> A 64-character hex key
+    is <em>also</em> valid base64 &mdash; so decoding base64 first turned it into 48 unrelated bytes and
+    a completely different key. The same secret typed two ways would have run two keys and invalidated
+    every signature ever stored. It decodes hex by its own shape first now.</p>
+    <p class="proof"><b>Then the claim was made checkable by strangers.</b> &ldquo;A third party can
+    verify this&rdquo; was only true <em>with our tool</em> &mdash; which shares code with the signer,
+    so on its own it can only show the signer agrees with itself. So the format is now published as a
+    full specification with a worked test vector, <b>every value in it asserted by a test</b> so the
+    document cannot drift from the code. A drifted spec is worse than none: an implementer follows it,
+    gets failures on genuine receipts, and concludes the receipts are forged.</p>
+    <p class="proof"><b>And a second verifier was written from that document alone, sharing no code.</b>
+    It reproduces the documented message <em>byte for byte</em>, verifies the documented signature, and
+    against the live stack <b>accepts the genuine receipt and rejects all four tamperings</b>. Two
+    independent implementations agreeing is what actually shows the published format is enough to work
+    from. The verification script now runs both, so they cannot diverge quietly.</p>
+    <p class="proof"><b>And one thing deliberately not built.</b> A signature proves a record was not
+    <em>altered</em>. It does not prove none was <em>deleted</em>, or that an older signed version was
+    not swapped back in &mdash; both need an ordered hash chain, which needs single-writer ordering the
+    system does not yet have. Recorded as a boundary rather than half-built and described as whole.</p>
+    <p class="where">themis 2c7c56d + 7d48c17 &middot; <code>GET /v1/receipts/signing-key</code> (unauthenticated) + <code>/receipt</code> per delivery &middot; cmd/verify-receipt, docs/RECEIPT-FORMAT.md, an independent Node verifier, migration 0015, 21 new tests (208 total) &middot; green locally and both live scripts pass; <b>CI result unconfirmed</b> &mdash; GitHub&rsquo;s Actions API was returning 503/404 while the repo API reported the repo healthy</p>
   </div>
 </div>
 <div class="row">
