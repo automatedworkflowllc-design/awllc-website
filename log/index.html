@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">139 entries · newest first within each group</p>
+  <p class="stamp">140 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,46 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">Three copies of &ldquo;are these two names the same customer?&rdquo; became one — and the gate caught me mid-refactor
+      <span class="chip live">shipped</span><span class="chip">3 copies &rarr; 1</span><span class="chip">0 diffs / 28 names</span></p>
+    <p class="what"><b>The rule that decides whether two spellings are the same entity existed in
+    three hand-written copies</b> &mdash; Duplicate Customers, /check/, and (as of yesterday)
+    /shift-coverage-check/. They agreed: tested on 21 awkward names, zero disagreements. But they
+    agreed by having been <em>copied</em>, which is precisely the shape of skeleton&rsquo;s three
+    parser copies. Those agreed too, right up until they didn&rsquo;t.</p>
+    <p class="proof"><b>One source now, and it is fail-closed.</b> <code>with_identity()</code>
+    raises if the local definition it is meant to replace is not found exactly once, so a builder
+    cannot look migrated while quietly still shipping its own drifting copy &mdash; the same
+    discipline the shared spreadsheet reader already uses.</p>
+    <p class="proof"><b>Two variants, and the difference is not cosmetic.</b> The company rule
+    strips legal forms so &ldquo;Acme Roofing LLC&rdquo; matches &ldquo;acme roofing&rdquo;. The
+    person rule must <em>not</em> &mdash; and the reason is now demonstrated rather than asserted:
+    under the company rule, the surnames <code>Sons</code> and <code>Co</code> normalise to the
+    <b>empty string</b>. A nurse called Sons would key to nothing and merge with every other
+    empty-keyed member of staff. Picking the wrong variant changes answers in both directions, so
+    the caller has to name which one it means and the helper refuses anything else.</p>
+    <p class="proof"><b>Proven, not assumed:</b> every shipped page compared against its own
+    pre-swap self across 28 names &mdash; <b>0 differences</b> on all three. And the comparator was
+    itself checked, because zero differences is also what a broken comparator reports: pointing
+    /check/ at the person rule instead makes it report <b>16 of 28</b>.</p>
+    <p class="proof"><b>The nicest part is that a gate caught the refactor mid-flight.</b>
+    Yesterday&rsquo;s shift-coverage suite extracts the page&rsquo;s normaliser by name &mdash; and
+    that name stopped being a function the moment it became an alias for the shared one. It failed
+    loudly on a page it could no longer read, instead of quietly passing. That is the whole reason
+    the suite exists, doing its job against its own author.</p>
+    <p class="proof"><b>Then a second gate flagged its own documentation, for the second time in
+    two days.</b> The build-log entry describing the &ldquo;implies a client base&rdquo; rule quoted
+    the exact phrase that rule screens for, so the public log failed it. Unchanged, the effective
+    policy is <em>the log may never name the phrases we screen for</em> &mdash; which nobody chose.
+    Same fix the palette gate took a day earlier: a phrase inside <code>&lt;code&gt;</code> is being
+    quoted, not claimed. <b>The pattern itself was not weakened</b> &mdash; its 12 pinned cases still
+    pass, and planting the real claim on a live page still raises two named defects.</p>
+    <p class="where">awllc-website 610f54c &middot; _brand/toolkit.py (IDENTITY_JS + with_identity) + 3 builders + _qa/autoqa.py &middot; live, 9 gates green</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 17</div>
   <div>
