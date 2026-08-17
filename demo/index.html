@@ -2500,9 +2500,12 @@ function readAny(f, done){
       if (topName && share >= 40) {
         f.push({ w: topVal,
           t: esc(topName) + ' holds ' + Math.round(share) + '% of everything you are owed.',
-          e: money(topVal) + ' of ' + money(arTotal) + ' outstanding sits with one account, ' +
-             'across ' + acctCount + ' accounts in total. Whatever they do with their ' +
-             'payment schedule, you do too.' });
+          /* "sits with one account, across N accounts in total" read as though the money were
+             SPREAD across N -- the exact opposite of the finding. Say the count first, as
+             context, so the share lands unambiguously on the single name. */
+          e: 'You have ' + acctCount + ' accounts on the book, and ' + money(topVal) +
+             ' of the ' + money(arTotal) + ' outstanding sits with this one. ' +
+             'Whatever they do with their payment schedule, you do too.' });
       }
     }
 
