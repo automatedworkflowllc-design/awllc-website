@@ -31,8 +31,20 @@ BRAND = {'211D14','FBFAF3','F4F1E8','5C5645','6E6555','E4DFD1','D8D2C2','CBC5B1'
 # claims that would imply a client base AWLLC does not have
 # non-capturing groups: re.findall returns tuples when a pattern has groups,
 # which printed "('', '')" instead of the offending phrase
+#
+# "hundreds of" and "dozens of" were bare here, matching the QUANTITY with no
+# regard for what was being counted. On 2026-08-17 the only match site-wide was
+# "hundreds of Go modules" in the build log -- counting software dependencies,
+# which implies nothing about clients. A build log written by engineers will keep
+# producing "dozens of tests", "hundreds of rows", "hundreds of pages"; the check
+# would have fired on all of them and been muted, which is the third false alarm
+# of this exact shape in one night (a palette gate flagging a hex inside <code>,
+# a bounce code read as an outage). TRACTION_DRIFT below already got this right
+# and says so: match the NOUN, not just the word near it.
 FALSE_PROOF = re.compile(r'plenty of (?:clients|customers)|many (?:clients|customers)|'
-                         r'our clients|trusted by|hundreds of|dozens of', re.I)
+                         r'our clients|trusted by|'
+                         r'(?:hundreds|dozens) of (?:businesses|business owners|clients|'
+                         r'customers|companies|users|owners|shops|firms|accounts)', re.I)
 
 # Traction drift: copy describing system CAPACITY in language that reads as a
 # CUSTOMER BASE. This class escaped three times on 2026-07-19 alone ("One

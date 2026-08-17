@@ -80,5 +80,39 @@ drift('SILENT on capacity phrasing "can serve many businesses"',
 drift('SILENT on "multi-tenant by design"',
       'one workflow, multi-tenant by design', False)
 
+# --- 5. false-proof: the QUANTITY is not the claim, the NOUN is
+# "hundreds of" and "dozens of" used to match bare, with no regard for what was
+# being counted. The only match site-wide on 2026-08-17 was "hundreds of Go
+# modules" in the build log -- counting dependencies, implying nothing about
+# clients. An engineering log will keep saying "dozens of tests" and "hundreds of
+# rows"; a check that fires on those gets muted, and then it is not there on the
+# day someone writes "trusted by hundreds of businesses".
+from autoqa import FALSE_PROOF
+def proof(name, text, want):
+    got = bool(FALSE_PROOF.search(text))
+    ok = got == want
+    print(('  PASS  ' if ok else '  FAIL  ') + name + ('' if ok else '  -> %r' % FALSE_PROOF.findall(text)))
+    if not ok:
+        fails.append(name)
+
+print('\nFalse-proof regression suite\n')
+proof('CATCHES "trusted by hundreds of businesses"',
+      'trusted by hundreds of businesses across Florida', True)
+proof('CATCHES "dozens of clients"',
+      'we serve dozens of clients across Florida', True)
+proof('CATCHES "hundreds of business owners"',
+      'hundreds of business owners rely on us', True)
+proof('CATCHES "dozens of companies"',
+      'dozens of companies use this every week', True)
+proof('CATCHES "our clients"', 'our clients love it', True)
+proof('CATCHES "plenty of customers"', 'plenty of customers already', True)
+proof('SILENT on "hundreds of Go modules" (the 8/17 false positive)',
+      'the Collector (hundreds of Go modules) and ClickHouse', False)
+proof('SILENT on "dozens of tests"', 'dozens of tests now cover this', False)
+proof('SILENT on "hundreds of rows"', 'hundreds of rows in the export', False)
+proof('SILENT on "hundreds of pages"', 'hundreds of pages were scanned', False)
+proof('SILENT on "dozens of receipts"', 'dozens of receipts in the ledger', False)
+proof('SILENT on "hundreds of resources"', 'hundreds of resources in the directory', False)
+
 print('\n%s' % ('ALL PASS' if not fails else 'FAILED: %s' % ', '.join(fails)))
 sys.exit(1 if fails else 0)
