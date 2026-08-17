@@ -41,6 +41,8 @@ BRAND = {'211D14','FBFAF3','F4F1E8','5C5645','6E6555','E4DFD1','D8D2C2','CBC5B1'
 # of this exact shape in one night (a palette gate flagging a hex inside <code>,
 # a bounce code read as an outage). TRACTION_DRIFT below already got this right
 # and says so: match the NOUN, not just the word near it.
+CODE_SPAN = re.compile(r'<code\b[^>]*>.*?</code>', re.S | re.I)
+
 FALSE_PROOF = re.compile(r'plenty of (?:clients|customers)|many (?:clients|customers)|'
                          r'our clients|trusted by|'
                          r'(?:hundreds|dozens) of (?:businesses|business owners|clients|'
@@ -172,7 +174,17 @@ def check_pages():
                     + glob.glob(os.path.join(ROOT, 'index.html'))):
         rel = os.path.relpath(f, ROOT)
         s = io.open(f, encoding='utf-8', errors='replace').read()
-        for m in set(FALSE_PROOF.findall(s)):
+        # A phrase inside <code> is being QUOTED, not claimed. Caught 2026-08-17:
+        # a build-log entry describing this very rule quoted "trusted by hundreds
+        # of businesses" as the example it must catch, and /log/ then failed the
+        # rule over its own documentation. Left alone, the effective policy is
+        # "the log may never name the phrases we screen for", which is not the
+        # policy anyone wants. Same fix the palette gate took a day earlier, for
+        # the same reason: ask the question about the page's CLAIMS, not about
+        # its description of a check. FALSE_PROOF itself is untouched, so the 12
+        # pinned cases in test_autoqa.py still hold it at full strength.
+        claims = CODE_SPAN.sub(' ', s)
+        for m in set(FALSE_PROOF.findall(claims)):
             defect('page', '%s implies a client base: %r' % (rel, m))
         for m in set(TRACTION_DRIFT.findall(s)):
             defect('page', '%s traction drift (capacity phrased as customers): %r' % (rel, m))
