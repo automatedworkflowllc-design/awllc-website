@@ -25,7 +25,8 @@ from __future__ import annotations
 import pathlib
 import re
 
-from toolkit import PARSE_DATE_JS, XLSX_JS, PLAIN_CSS, plain_english, with_plain
+from toolkit import (PARSE_DATE_JS, XLSX_JS, PLAIN_CSS, plain_english,
+                     with_plain, with_identity)
 
 PLAIN = plain_english(
     'You do not need to know which check you need. Drop in any business file and it works out what kind of file it is, then runs every check that applies. Drop in two and it compares them against each other.',
@@ -764,7 +765,11 @@ def main() -> None:
     # The roster overtime check needs a real parsed date, not a sliced string.
     # Taken from the shared toolkit rather than hand-copied, so it cannot drift
     # from the identical parser the other tool pages use.
-    script = SCRIPT.replace('function parseTime(', PARSE_DATE_JS.strip() + '\n\nfunction parseTime(', 1)
+    # The customer-name rule comes from the shared toolkit too. It used to be a
+    # hand-copy that happened to agree with Duplicate Customers' copy; agreement
+    # by copying is what drift looks like right before it stops agreeing.
+    script = with_identity(SCRIPT, 'company')
+    script = script.replace('function parseTime(', PARSE_DATE_JS.strip() + '\n\nfunction parseTime(', 1)
     if 'function parseDate' not in script:
         raise SystemExit('parseDate was not injected -- the parseTime anchor moved; fix before shipping')
     # Native .xlsx intake from the shared toolkit -- injected, not hand-copied.

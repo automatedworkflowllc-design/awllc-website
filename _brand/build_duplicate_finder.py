@@ -18,7 +18,8 @@ from __future__ import annotations
 import pathlib
 import re
 
-from toolkit import with_core, with_xlsx, PLAIN_CSS, plain_english, with_plain
+from toolkit import (with_core, with_xlsx, with_identity, PLAIN_CSS,
+                     plain_english, with_plain)
 
 PLAIN = plain_english(
     'Finds the same customer entered more than once under slightly different names &mdash; <em>Acme Roofing</em>, <em>Acme Roofing LLC</em>, <em>acme roofing inc.</em>',
@@ -147,7 +148,10 @@ function parseCSV(text){
 
 /* Legal-form suffixes and punctuation are the usual difference between two
    spellings of one company. Stripping them is the FIRST pass; anything caught
-   here is reported as an exact normalized match, not a fuzzy guess. */
+   here is reported as an exact normalized match, not a fuzzy guess.
+   The rule itself now lives in _brand/toolkit.py (IDENTITY_JS): the block below
+   is REPLACED at build time by with_identity(). Editing it here changes
+   nothing -- change the toolkit. */
 var SUFFIXES = /\b(inc|llc|ltd|co|corp|corporation|company|incorporated|pllc|pc|lp|llp|plc|group|grp|holdings|enterprises|services|svcs|sons)\b/g;
 var NOISE = /[.,'’"()\-_/\\]+/g;
 
@@ -393,7 +397,9 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
     head = head.replace('</head>', f'<style>{PAGE_CSS}{PLAIN_CSS}</style>\n</head>')
 
-    page = head + with_plain(MAIN, PLAIN) + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
+    page = (head + with_plain(MAIN, PLAIN) + footer + LD
+            + with_xlsx(with_core(with_identity(SCRIPT, 'company')))
+            + '\n</body>\n</html>\n')
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')

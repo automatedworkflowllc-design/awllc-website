@@ -626,6 +626,26 @@ function parseCSV(text){
   if(cell !== '' || row.length){ row.push(cell); rows.push(row); }
   return rows;
 }
+
+var ID_NOISE = /[.,'’"()\-_/\\]+/g;
+var LEGAL_SUFFIX = /\b(inc|llc|ltd|co|corp|corporation|company|incorporated|pllc|pc|lp|llp|plc|group|grp|holdings|enterprises|services|svcs|sons)\b/g;
+function normPerson(s){
+  return String(s == null ? '' : s).toLowerCase()
+    .replace(ID_NOISE, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function normCompany(s){
+  var v = String(s == null ? '' : s).toLowerCase();
+  v = v.replace(/&/g, ' and ');
+  v = v.replace(ID_NOISE, ' ');
+  v = v.replace(LEGAL_SUFFIX, ' ');
+  v = v.replace(/\bthe\b/g, ' ');
+  v = v.replace(/\band\b/g, ' ');
+  return v.replace(/\s+/g, ' ').trim();
+}
+
+var normId = normPerson;
 /* All local. No fetch, no XHR, no beacon. */
 
 var OT_HOURS = 40;          // weekly hours above which overtime starts
@@ -720,13 +740,9 @@ function fmtH(h){ return (Math.round(h*10)/10) + 'h'; }
    guessing. The legal-suffix stripping from that tool is deliberately NOT here:
    people are not companies, and folding a surname like "Sons" or "Co" would
    merge two real staff. Group on the key, show the spelling they actually typed. */
-var ID_NOISE = /[.,'’"()\-_/\\]+/g;
-function normId(s){
-  return String(s == null ? '' : s).toLowerCase()
-    .replace(ID_NOISE, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+/* REPLACED AT BUILD TIME by with_identity(..., 'person') from _brand/toolkit.py.
+   Editing it here changes nothing -- change the toolkit. The person variant must
+   never strip legal suffixes: "Sons" and "Co" are surnames. */
 /* Keep every spelling seen for a key and show the most common one, so the report
    reads back in the customer's own words rather than in a normalised key. */
 function noteLabel(labels, key, raw){

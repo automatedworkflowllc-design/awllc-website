@@ -362,6 +362,26 @@ padding-top:.1rem}
 <script>
 (function(){
 'use strict';
+
+var ID_NOISE = /[.,'’"()\-_/\\]+/g;
+var LEGAL_SUFFIX = /\b(inc|llc|ltd|co|corp|corporation|company|incorporated|pllc|pc|lp|llp|plc|group|grp|holdings|enterprises|services|svcs|sons)\b/g;
+function normPerson(s){
+  return String(s == null ? '' : s).toLowerCase()
+    .replace(ID_NOISE, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function normCompany(s){
+  var v = String(s == null ? '' : s).toLowerCase();
+  v = v.replace(/&/g, ' and ');
+  v = v.replace(ID_NOISE, ' ');
+  v = v.replace(LEGAL_SUFFIX, ' ');
+  v = v.replace(/\bthe\b/g, ' ');
+  v = v.replace(/\band\b/g, ' ');
+  return v.replace(/\s+/g, ' ').trim();
+}
+
+var normName = normCompany;
 /* All local. No fetch, no XHR, no beacon. */
 
 var DECISION = /(^|_|\b)(status|flag|state|result|outcome|approved|paid|active|valid|check|verified|error)(\b|_|$)/i;
@@ -783,11 +803,6 @@ function structural(t, src, findings){
 }
 
 /* ---- customer-name collisions ------------------------------------------ */
-var SUFFIXES = /\b(inc|llc|ltd|co|corp|corporation|company|incorporated|pllc|pc|lp|llp|plc|group|grp|holdings|enterprises|services|svcs|sons)\b/g;
-function normName(s){
-  return String(s).toLowerCase().replace(/&/g,' and ').replace(/[.,'’"()\-_/\\]+/g,' ')
-    .replace(SUFFIXES,' ').replace(/\bthe\b/g,' ').replace(/\band\b/g,' ').replace(/\s+/g,' ').trim();
-}
 function nameCollisions(t, src, findings){
   var ci = -1;
   t.header.forEach(function(h,i){ if(ci<0 && NAMEISH.test(h)) ci = i; });

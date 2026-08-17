@@ -18,7 +18,8 @@ from __future__ import annotations
 import pathlib
 import re
 
-from toolkit import with_core, with_xlsx, PLAIN_CSS, plain_english, with_plain
+from toolkit import (with_core, with_xlsx, with_identity, PLAIN_CSS,
+                     plain_english, with_plain)
 
 PLAIN = plain_english(
     'Reads your staff schedule and points out the four problems that cost money: a shift nobody is covering, someone drifting into overtime, a job only one person can do, and shifts too close together to be safe.',
@@ -243,6 +244,9 @@ function fmtH(h){ return (Math.round(h*10)/10) + 'h'; }
    guessing. The legal-suffix stripping from that tool is deliberately NOT here:
    people are not companies, and folding a surname like "Sons" or "Co" would
    merge two real staff. Group on the key, show the spelling they actually typed. */
+/* REPLACED AT BUILD TIME by with_identity(..., 'person') from _brand/toolkit.py.
+   Editing it here changes nothing -- change the toolkit. The person variant must
+   never strip legal suffixes: "Sons" and "Co" are surnames. */
 var ID_NOISE = /[.,'’"()\-_/\\]+/g;
 function normId(s){
   return String(s == null ? '' : s).toLowerCase()
@@ -638,7 +642,9 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
     head = head.replace('</head>', f'<style>{PAGE_CSS}{PLAIN_CSS}</style>\n</head>')
 
-    page = head + with_plain(MAIN, PLAIN) + footer + LD + with_xlsx(with_core(SCRIPT)) + '\n</body>\n</html>\n'
+    page = (head + with_plain(MAIN, PLAIN) + footer + LD
+            + with_xlsx(with_core(with_identity(SCRIPT, 'person')))
+            + '\n</body>\n</html>\n')
     OUT_DIR.mkdir(exist_ok=True)
     (OUT_DIR / 'index.html').write_text(page, encoding='utf-8')
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')

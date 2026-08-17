@@ -81,9 +81,15 @@ function block(sig){
 }
 const lines = (re) => page.split('\n').filter(l => re.test(l)).join('\n');
 const src = [
-  lines(/^\s*var\s+(OT_HOURS|SHORT_TURNAROUND|MAX_STREAK|ID_NOISE)\s*=/),
+  lines(/^\s*var\s+(OT_HOURS|SHORT_TURNAROUND|MAX_STREAK|ID_NOISE|LEGAL_SUFFIX)\s*=/),
   block('var NAMED = {') + ';',
-  block('function normId('), block('function noteLabel('),
+  // The identity rule lives in _brand/toolkit.py now, injected as normPerson
+  // with `var normId = normPerson;` aliasing it. Pull both plus the alias:
+  // extracting `function normId(` alone stopped working the moment it stopped
+  // being a local function, and this gate said so instead of quietly passing.
+  block('function normPerson('), block('function normCompany('),
+  lines(/^var normId = normPerson;/),
+  block('function noteLabel('),
   block('function labelFor('), block('function spellingCount('),
   block('function parseCSV('), block('function parseDate('),
   block('function parseTime('), block('function distinctCount('),

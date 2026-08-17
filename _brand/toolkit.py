@@ -94,6 +94,47 @@ function normText(s){
 
 CORE_JS = ESC_JS + PARSE_CSV_JS + MONEY_JS + PARSE_DATE_JS + NORM_TEXT_JS
 
+# --- identity: a customer name and a person's name are KEYS, not display text -
+# THE HOUSE RULE, and the most expensive lesson in this tree. A tool that groups,
+# joins or counts by a name silently produces a different ANSWER when the same
+# entity is spelled two ways. It has inverted a verdict twice on live pages:
+# /almanac/ read one client under three spellings as three clients and flipped
+# CONCENTRATED (54%) to "no client is more than 27%"; /shift-coverage-check/ lost
+# a nurse spelled five ways and reported no single point of failure and no
+# overtime on a roster where one person was both.
+#
+# Exact match AFTER normalising, and NEVER the edit-distance half -- a page that
+# states a finding as fact about a named client must not be guessing. (Duplicate
+# Customers keeps its own bounded-Levenshtein pass; that is a SUGGESTION surface
+# and stays local to it.) Group on the key, display the spelling the user typed.
+#
+# TWO VARIANTS, deliberately distinct -- do not collapse them:
+#   normCompany  strips legal forms, so "Acme Roofing LLC" == "acme roofing".
+#   normPerson   MUST NOT, because "Sons" and "Co" are real surnames and folding
+#                them would merge two real members of staff.
+# Before 2026-08-17 this was three hand-copies that agreed only by having been
+# copied -- the same shape as skeleton's three parser copies, which also agreed
+# right up until they didn't.
+IDENTITY_JS = r"""
+var ID_NOISE = /[.,'’"()\-_/\\]+/g;
+var LEGAL_SUFFIX = /\b(inc|llc|ltd|co|corp|corporation|company|incorporated|pllc|pc|lp|llp|plc|group|grp|holdings|enterprises|services|svcs|sons)\b/g;
+function normPerson(s){
+  return String(s == null ? '' : s).toLowerCase()
+    .replace(ID_NOISE, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function normCompany(s){
+  var v = String(s == null ? '' : s).toLowerCase();
+  v = v.replace(/&/g, ' and ');
+  v = v.replace(ID_NOISE, ' ');
+  v = v.replace(LEGAL_SUFFIX, ' ');
+  v = v.replace(/\bthe\b/g, ' ');
+  v = v.replace(/\band\b/g, ' ');
+  return v.replace(/\s+/g, ' ').trim();
+}
+"""
+
 # --- XLSX intake, no library ---------------------------------------------
 # "Save it as CSV first" is where prospects quietly leave: small businesses
 # have .xlsx files. Every other tool solves this with SheetJS off a CDN, which
@@ -400,6 +441,79 @@ def with_xlsx(script_js):
 _ESC_DEF = re.compile(r'^function esc\(s\)\{.*?\}\n', re.M)
 _CSV_DEF = re.compile(r'^function parseCSV\(text\)\{.*?^\}\n', re.M | re.S)
 _ANCHOR = "'use strict';\n"
+
+
+def _cut_function(src, name):
+    """Remove `function name(...){...}` by brace matching, returning (src, n).
+
+    Brace-counting is only safe here because these two functions are small,
+    known, and contain no braces inside strings or regexes -- the exact caveat
+    that made a brace-counting page extractor untrustworthy elsewhere. The
+    caller asserts the count, so a shape change fails the build rather than
+    silently leaving the old copy in place.
+    """
+    sig = 'function %s(' % name
+    n = 0
+    while True:
+        i = src.find(sig)
+        if i < 0:
+            break
+        depth, started, j = 0, False, i
+        while j < len(src):
+            c = src[j]
+            if c == '{':
+                depth += 1
+                started = True
+            elif c == '}':
+                depth -= 1
+                if started and depth == 0:
+                    j += 1
+                    break
+            j += 1
+        while j < len(src) and src[j] == '\n':
+            j += 1
+        src = src[:i] + src[j:]
+        n += 1
+    return src, n
+
+
+_ID_DECL = re.compile(r'^var (?:SUFFIXES|NOISE|ID_NOISE) = /.*?/g;\n', re.M)
+
+
+def with_identity(script_js, alias):
+    """Replace a page's hand-copied name-normaliser with the shared one.
+
+    `alias` is 'company' (strips legal forms -- customers) or 'person' (must
+    not -- staff, because "Sons" and "Co" are surnames). Stated explicitly by
+    the caller rather than guessed: picking the wrong one silently merges two
+    real people or fails to merge one real company, and both are answer-changing.
+
+    Raises rather than returning something subtly wrong, for the same reason
+    with_core does: a builder that appeared migrated while still shipping its
+    own drifting copy is the exact failure this ends.
+    """
+    if alias not in ('company', 'person'):
+        raise SystemExit('with_identity: alias must be "company" or "person"')
+    if _ANCHOR not in script_js:
+        raise SystemExit("with_identity: no \"'use strict';\" anchor")
+
+    local, shared = (('normName', 'normCompany') if alias == 'company'
+                     else ('normId', 'normPerson'))
+    out, n = _cut_function(script_js, local)
+    if n != 1:
+        raise SystemExit('with_identity: expected exactly one %s to replace, '
+                         'found %d -- the definition moved; fix before shipping'
+                         % (local, n))
+    out = _ID_DECL.sub('', out)
+
+    inject = IDENTITY_JS + '\nvar %s = %s;\n' % (local, shared)
+    out = out.replace(_ANCHOR, _ANCHOR + inject, 1)
+    for fn in ('function normPerson', 'function normCompany'):
+        if out.count(fn) != 1:
+            raise SystemExit('with_identity: %s not injected exactly once' % fn)
+    if 'function %s(' % local in out:
+        raise SystemExit('with_identity: the local %s survived the swap' % local)
+    return out
 
 
 def with_core(script_js):
