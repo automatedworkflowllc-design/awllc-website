@@ -270,6 +270,55 @@ def check_live():
         if out != '200':
             defect('live', '%s returns %s' % (u, out))
 
+def check_deploy():
+    """Is the live site serving the commit we pushed?
+
+    QUESTION: did the last push actually reach the public site?
+    BLIND SPOT: it trusts GitHub's build record rather than the served bytes, so
+    a CDN handing out stale content after a successful build would slip past.
+
+    check_live above asks whether every URL returns 200, which is a DIFFERENT
+    question and cannot answer this one -- a site four commits behind returns
+    200 on every page. That exact mistake is already in the workspace notes: an
+    HTTP 200 "confirmed" a deploy that the old page was still serving.
+
+    Found 2026-08-17, when a push passed all nine gates, reported success, and
+    the site did not change: one Pages build had errored and the next sat in
+    'building' for fifteen minutes against a thirty-eight second norm. Nothing
+    anywhere would have told anyone. A deploy that silently does not happen is
+    the exact failure this company sells against, so it cannot be the one thing
+    we leave unwatched.
+    """
+    try:
+        head = subprocess.run(['git', 'rev-parse', 'origin/main'], cwd=ROOT,
+                              capture_output=True, text=True, timeout=20).stdout.strip()
+    except Exception as e:
+        defect('deploy', 'could not read origin/main (%s)' % e)
+        return
+    if not head:
+        defect('deploy', 'could not read origin/main -- cannot verify the deploy')
+        return
+    try:
+        out = subprocess.run(
+            ['gh', 'api', 'repos/automatedworkflowllc-design/awllc-website/pages/builds/latest',
+             '--jq', '.status + " " + .commit'],
+            cwd=ROOT, capture_output=True, text=True, timeout=40).stdout.strip()
+    except Exception as e:
+        defect('deploy', 'could not reach the Pages build API (%s)' % e)
+        return
+    parts = out.split()
+    if len(parts) != 2:
+        defect('deploy', 'Pages build API returned %r -- cannot verify the deploy' % out[:80])
+        return
+    status, built = parts
+    if status != 'built':
+        defect('deploy', 'the newest Pages build is %s (commit %s) -- the site is NOT '
+                         'serving what was pushed' % (status, built[:7]))
+    elif built != head:
+        defect('deploy', 'live site is serving %s but origin/main is %s -- a push did not '
+                         'deploy' % (built[:7], head[:7]))
+
+
 # ---------------------------------------------------------------- main
 def check_analytics():
     """The measurement split must hold in both directions.
@@ -311,7 +360,11 @@ def main():
     # about to ship.
     checks = [check_workbooks, check_pages, check_staleness, check_analytics]
     if '--fast' not in sys.argv:
+        # Both need the network, so both stay out of the push gate -- and
+        # check_deploy would be meaningless there anyway, since the deploy it
+        # asks about happens AFTER the push it would be gating.
         checks.append(check_live)
+        checks.append(check_deploy)
     for fn in checks:
         try:
             fn()
