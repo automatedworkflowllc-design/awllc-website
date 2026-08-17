@@ -48,6 +48,13 @@ HEX = re.compile(r'#[0-9a-fA-F]{6}\b')
 # a button is not. Strip the artwork and ask the question about the page.
 SVG = re.compile(r'<svg\b.*?</svg>', re.S | re.I)
 
+# A hex inside <code> is being TALKED ABOUT, not applied. Caught 2026-08-16: the
+# /log/ entry describing this very gate quotes `.hand-picked{color:#7B2FF7}` as its
+# example of a failure, and the gate then blocked the push over its own example.
+# Left alone, the rule is "the build log may never describe a colour" -- which is
+# not the rule anyone wanted. Paint is what a browser renders; <code> is prose.
+CODE = re.compile(r'<code\b[^>]*>.*?</code>', re.S | re.I)
+
 # Black and white are not palette decisions -- they turn up in shadows, borders
 # and SVG defaults on every page and carry no brand meaning.
 UNIVERSAL = set(['#000000', '#FFFFFF'])
@@ -100,7 +107,7 @@ def scan():
             s = io.open(os.path.join(SITE, rel), encoding='utf-8', errors='ignore').read()
         except Exception:
             continue
-        hx = sorted(set(h.upper() for h in HEX.findall(SVG.sub(' ', s))))
+        hx = sorted(set(h.upper() for h in HEX.findall(CODE.sub(' ', SVG.sub(' ', s)))))
         if hx:
             found[rel] = hx
     return found, known
