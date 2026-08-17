@@ -230,10 +230,51 @@ function iso(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(
 function weekKey(d){ var t = new Date(d.getTime()); t.setDate(t.getDate() - t.getDay()); return iso(t); }
 function fmtH(h){ return (Math.round(h*10)/10) + 'h'; }
 
+/* A PERSON AND A ROLE ARE IDENTITIES, NOT DISPLAY STRINGS. Measured 2026-08-17
+   on the shipped page: one nurse covering all six shifts of a week, spelled five
+   ways ("Dave Smith", "dave smith", "Dave  Smith", "DAVE SMITH", trailing space),
+   turned "Nurse is covered by ONE person" and "Dave Smith 54h" into NO SOLO ROLE
+   and NO OVERTIME. Identical schedule, both findings gone -- and gone in the
+   direction of silence, which is the worst direction a risk verdict can fail in.
+
+   This is the house rule from /duplicate-customer-finder/: exact match after
+   case, punctuation and whitespace are normalised, and NEVER its edit-distance
+   half -- a page that names a person as a single point of failure must not be
+   guessing. The legal-suffix stripping from that tool is deliberately NOT here:
+   people are not companies, and folding a surname like "Sons" or "Co" would
+   merge two real staff. Group on the key, show the spelling they actually typed. */
+var ID_NOISE = /[.,'’"()\-_/\\]+/g;
+function normId(s){
+  return String(s == null ? '' : s).toLowerCase()
+    .replace(ID_NOISE, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+/* Keep every spelling seen for a key and show the most common one, so the report
+   reads back in the customer's own words rather than in a normalised key. */
+function noteLabel(labels, key, raw){
+  if(!key) return;
+  var m = labels[key] = labels[key] || Object.create(null);
+  m[raw] = (m[raw] || 0) + 1;
+}
+function labelFor(labels, key){
+  var m = labels[key];
+  if(!m) return key;
+  var best = null, n = -1;
+  Object.keys(m).forEach(function(k){ if(m[k] > n){ n = m[k]; best = k; } });
+  return best === null ? key : best;
+}
+/* How many DIFFERENT spellings fed a finding -- so the page can say so out loud
+   rather than silently merging rows the reader can still see are different. */
+function spellingCount(labels, key){
+  var m = labels[key];
+  return m ? Object.keys(m).length : 1;
+}
+
 function analyze(header, body, picks){
   if(picks.date === undefined) return { error: 'No date column found. The file needs one row per shift with a date.' };
 
-  var shifts = [];
+  var shifts = [], labels = Object.create(null);
   body.forEach(function(r){
     var d = parseDate(r[picks.date]);
     if(!d) return;
@@ -245,12 +286,16 @@ function analyze(header, body, picks){
       if(span <= 0) span += 24*60;          // overnight shift crosses midnight
       hours = span / 60;
     }
+    var pname = picks.person !== undefined ? String(r[picks.person]||'').trim() : '';
+    var rname = picks.role   !== undefined ? String(r[picks.role]||'').trim()   : '';
     shifts.push({
       date: d, day: iso(d),
-      person: picks.person !== undefined ? String(r[picks.person]||'').trim() : '',
-      role:   picks.role   !== undefined ? String(r[picks.role]||'').trim()   : '',
+      person: pname, role: rname,
+      pkey: normId(pname), rkey: normId(rname),
       start: s, end: e, hours: hours
     });
+    if(pname) noteLabel(labels, normId(pname), pname);
+    if(rname) noteLabel(labels, normId(rname), rname);
   });
   if(!shifts.length) return { error: 'No dated shift rows found in that file.' };
   shifts.sort(function(a,b){ return a.date - b.date || (a.start||0) - (b.start||0); });
@@ -262,13 +307,14 @@ function analyze(header, body, picks){
     var byWeek = Object.create(null);
     shifts.forEach(function(s){
       if(!s.person || s.hours === null) return;
-      var k = s.person + '||' + weekKey(s.date);
+      var k = s.pkey + '||' + weekKey(s.date);
       byWeek[k] = (byWeek[k] || 0) + s.hours;
     });
     Object.keys(byWeek).forEach(function(k){
       if(byWeek[k] > OT_HOURS){
         var p = k.split('||');
-        out.ot.push({ person: p[0], week: p[1], hours: byWeek[k] });
+        out.ot.push({ person: labelFor(labels, p[0]), week: p[1], hours: byWeek[k],
+                      spellings: spellingCount(labels, p[0]) });
       }
     });
     out.ot.sort(function(a,b){ return b.hours - a.hours; });
@@ -279,13 +325,15 @@ function analyze(header, body, picks){
     var peopleByRole = Object.create(null), shiftsByRole = Object.create(null);
     shifts.forEach(function(s){
       if(!s.role || !s.person) return;
-      (peopleByRole[s.role] = peopleByRole[s.role] || Object.create(null))[s.person] = 1;
-      shiftsByRole[s.role] = (shiftsByRole[s.role] || 0) + 1;
+      (peopleByRole[s.rkey] = peopleByRole[s.rkey] || Object.create(null))[s.pkey] = 1;
+      shiftsByRole[s.rkey] = (shiftsByRole[s.rkey] || 0) + 1;
     });
-    Object.keys(peopleByRole).forEach(function(role){
-      var who = Object.keys(peopleByRole[role]);
-      if(who.length === 1 && shiftsByRole[role] >= 3){
-        out.solo.push({ role: role, person: who[0], shifts: shiftsByRole[role] });
+    Object.keys(peopleByRole).forEach(function(rkey){
+      var who = Object.keys(peopleByRole[rkey]);
+      if(who.length === 1 && shiftsByRole[rkey] >= 3){
+        out.solo.push({ role: labelFor(labels, rkey), person: labelFor(labels, who[0]),
+                        shifts: shiftsByRole[rkey],
+                        spellings: spellingCount(labels, who[0]) });
       }
     });
     out.solo.sort(function(a,b){ return b.shifts - a.shifts; });
@@ -294,9 +342,10 @@ function analyze(header, body, picks){
   // ---- short turnaround + consecutive-day streaks, per person
   if(picks.person !== undefined){
     var byPerson = Object.create(null);
-    shifts.forEach(function(s){ if(s.person) (byPerson[s.person] = byPerson[s.person] || []).push(s); });
-    Object.keys(byPerson).forEach(function(person){
-      var list = byPerson[person];
+    shifts.forEach(function(s){ if(s.person) (byPerson[s.pkey] = byPerson[s.pkey] || []).push(s); });
+    Object.keys(byPerson).forEach(function(pkey){
+      var person = labelFor(labels, pkey);
+      var list = byPerson[pkey];
       for(var i=1;i<list.length;i++){
         var prev = list[i-1], cur = list[i];
         if(prev.end === null || cur.start === null) continue;

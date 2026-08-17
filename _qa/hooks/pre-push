@@ -80,6 +80,18 @@ python ../skeleton/build.py >/dev/null || {
 # unify is a design decision and NOT this gate's business; inventing a third
 # palette on the way there is. The baseline accepts today's split and blocks new
 # hand-picked colour. --record cannot move it on a run that found something.
+# A person and a role are IDENTITIES. Measured 2026-08-17: one nurse covering a
+# whole week, spelled five ways, made "only one person can cover Nurse" and
+# "54h in a week" BOTH disappear -- an all-clear over a real risk, from a page
+# that had no test of any kind. The controls matter more than the assertions
+# here: a fix that merged everyone would pass the first half and be worse.
+echo "Shift coverage: checking a person is an identity, not a spelling..."
+python _qa/test_shift_coverage.py || {
+  echo ""
+  echo "PUSH BLOCKED - /shift-coverage-check/ groups people or roles wrongly."
+  echo "Either it loses someone to a spelling, or it merged two real people."
+  exit 1
+}
 echo "Palette: checking no page invents a colour..."
 python _qa/palette_audit.py --record || {
   echo ""
