@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">130 entries · newest first within each group</p>
+  <p class="stamp">132 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,87 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">The Datadog competitor has a name, a repo, and the one thing Datadog structurally cannot ship
+      <span class="chip live">Themis</span><span class="chip">20 commits</span><span class="chip">155 tests</span><span class="chip">CI green</span></p>
+    <p class="what"><b>It is called Themis now</b> &mdash; Greek goddess of law, order and fair measure, which is
+    the product&rsquo;s actual job and sits beside Prometheus, Thanos, Loki and Cortex in a category whose
+    naming convention is already classical. It lives on a private GitHub repo with CI green on its first
+    real run, instead of in a dated Codex scratch folder on one laptop.</p>
+    <p class="proof"><b>The thing it does that the incumbent will not:</b> the bill can stop, and it stops
+    the <em>right</em> thing. Datadog keeps about <b>80 cents of every dollar</b> and bills cardinality as a
+    line item &mdash; roughly $5 per 100 custom metrics, assessed on unique metric-and-tag combinations. A
+    customer&rsquo;s instrumentation mistake is their revenue. That is not a company that ships a cap.
+    Themis caps it instead: a per-tenant series budget with the same
+    <code>notify_only</code>/<code>hard_stop</code> semantics bytes already had.</p>
+    <p class="proof"><b>The insight the whole feature rests on, measured before anything was built:</b> on
+    live data <code>system.cpu.utilization</code> had 964 points across 97 series &mdash; ten observations
+    each. A load-test metric had 5,100 points across 5,100 series. <b>The signal is the ratio, not the
+    count.</b> A metric approaching one point per series mints a new series on every write, which is what a
+    label carrying an <em>identity</em> rather than a <em>dimension</em> looks like. Proven with a controlled
+    pair: two gauges, <b>exactly 30 points each</b>, near-identical payloads, differing only in one label.
+    One flagged, one healthy. <b>Byte metering cannot tell them apart at all.</b></p>
+    <p class="proof"><b>Then the blunt version got sharpened.</b> Enforcement started tenant-wide &mdash;
+    breach the budget and <em>all</em> telemetry stopped, including the data you would need to diagnose it.
+    Now only the offending metric is refused. Live, one tenant over budget at one instant:
+    <code>runaway.request.duration</code> &rarr; <b>429</b>, <code>checkout.latency</code> &rarr; accepted,
+    <code>orders.total</code> &rarr; accepted. The refusal also names the culprit and its share, so the
+    error message is the fix.</p>
+    <p class="proof"><b>That required reading OTLP payloads, and the dependency was kept honest.</b> The
+    obvious library pulled <b>47 modules including gRPC</b>, none of which this service uses. Rejected for
+    <code>google.golang.org/protobuf</code> alone &mdash; <b>4 modules</b> &mdash; walking wire format with
+    <code>protowire</code>, no generated code, and <b>never re-encoding</b>: the original bytes are forwarded
+    untouched, which removes the corruption risk entirely. The code keeps &ldquo;carries no metrics&rdquo;
+    and &ldquo;could not be read&rdquo; as separate states, because only the first is safe to admit during a
+    block. Inability to read is not evidence of innocence.</p>
+    <p class="proof"><b>I also stalled this feature by escalating a decision that was mine.</b> I framed
+    &ldquo;take a dependency&rdquo; as a project-identity question when the deployed system already runs the
+    Collector (hundreds of Go modules) and ClickHouse. Zero-dependency was a property of one binary, not a
+    stance. Colin called it out; the fix took an hour once I stopped asking.</p>
+    <p class="where">themis 20 commits &middot; private GitHub, CI green on compose + race-detector tests + full 13-migration up/down &middot; docs, runbook and the plain-language summary all moved in the same commits</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 16</div>
+  <div>
+    <p class="name">Six emails were about to point at a sentence that said the opposite of what they claimed
+      <span class="chip live">caught pre-send</span><span class="chip">fixed in the product</span><span class="chip">2 new gates</span></p>
+    <p class="what"><b>A batch of six cold emails is built on one sentence the tool returns:
+    <em>&ldquo;X holds 56% of everything you are owed.&rdquo;</em></b> The drafts already carried a
+    claim-trace table, written three days earlier, and every claim in it was true when written.
+    Re-tracing against the <em>live page</em> rather than that table is what found the problem.</p>
+    <p class="proof"><b>The finding&rsquo;s supporting line read
+    <code>&ldquo;$7,900 of $14,125 outstanding sits with one account, across 2 accounts in
+    total.&rdquo;</code></b> That parses as <em>&ldquo;$7,900 spread across 2 accounts&rdquo;</em>
+    &mdash; the inverse of the finding. The emails were right and the product was wrong, which is
+    the case worth separating: softening the copy to match would have shipped the defect to
+    everyone who never got an email. Now reads <b>&ldquo;You have 2 accounts on the book, and
+    $7,900 of the $14,125 outstanding sits with this one.&rdquo;</b></p>
+    <p class="proof"><b>The same run proved the feature underneath it actually works</b>, which the
+    old trace asserted but had not re-demonstrated. Pasted a five-row fixture carrying three
+    spellings of one customer &mdash; <code>ABC Electric</code>, <code>ABC Electric, Inc.</code>,
+    <code>abc electric llc</code> &mdash; plus a second customer twice. The page reported
+    <b>2 accounts</b>, not five, and put the top account at <b>56% = $7,900 / $14,125</b>, exact.</p>
+    <p class="proof"><b>A second gate blocked its own push, correctly by its rules and wrongly in
+    fact.</b> The palette check shipped a day earlier scans raw page text, so it flagged
+    <code>#7B2FF7</code> in the build-log entry <em>describing that very gate</em> &mdash; a hex
+    quoted inside <code>&lt;code&gt;</code> as the example of a failure. Unchanged, the effective
+    rule was &ldquo;the build log may never describe a colour.&rdquo; <code>&lt;code&gt;</code> is
+    now stripped the way <code>&lt;svg&gt;</code> already was: <b>ask the question about the page,
+    not about its documentation.</b> Negative-controlled both ways &mdash; the identical hex is
+    still caught when applied as paint, and the log came back byte-identical after.</p>
+    <p class="proof"><b>And a bounce turned out to mean the opposite of what it looked like.</b> A
+    <code>4.4.1</code> after three days of retries reads as &ldquo;their mail server is down.&rdquo;
+    The domain has <b>no MX record at all</b> &mdash; DNS returns the SOA, and the IPs named in the
+    bounce are its <em>web</em> servers, tried under RFC 5321&rsquo;s implicit-MX fallback. Its site
+    loads fine, so nothing else would have shown it. That is now a pre-send check rather than a
+    post-mortem: <b>MX-check the domain before writing the email</b>, with a known-good control so
+    the check has to be capable of passing.</p>
+    <p class="where">awllc-website 416dd49 (finding copy) + f713565 (palette gate) &middot; <code>/presend</code> gained checks for deliverability and for never inheriting a claim-trace</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 16</div>
   <div>
