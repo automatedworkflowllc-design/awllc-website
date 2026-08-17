@@ -370,7 +370,7 @@
   <div class="date">Aug 17</div>
   <div>
     <p class="name">&ldquo;We never got paged&rdquo; is now a question with an answer &mdash; one the vendor cannot fake
-      <span class="chip live">Themis</span><span class="chip">26 commits</span><span class="chip">207 tests</span><span class="chip">4 tamperings rejected</span><span class="chip staged">CI unconfirmed</span></p>
+      <span class="chip live">Themis</span><span class="chip">26 commits</span><span class="chip">207 tests</span><span class="chip">4 tamperings rejected</span><span class="chip">CI green</span></p>
     <p class="what"><b>Every delivery record is now signed when it is written</b>, and a standalone tool
     that talks to nothing can check it against a public key the platform publishes <em>without asking
     for a credential</em>. That last part is the feature, not an oversight: a verification key you can
@@ -416,7 +416,7 @@
     <em>altered</em>. It does not prove none was <em>deleted</em>, or that an older signed version was
     not swapped back in &mdash; both need an ordered hash chain, which needs single-writer ordering the
     system does not yet have. Recorded as a boundary rather than half-built and described as whole.</p>
-    <p class="where">themis 2c7c56d + 7d48c17 &middot; <code>GET /v1/receipts/signing-key</code> (unauthenticated) + <code>/receipt</code> per delivery &middot; cmd/verify-receipt, docs/RECEIPT-FORMAT.md, an independent Node verifier, migration 0015, 21 new tests (208 total) &middot; green locally and both live scripts pass; <b>CI result unconfirmed</b> &mdash; GitHub&rsquo;s Actions API was returning 503/404 while the repo API reported the repo healthy</p>
+    <p class="where">themis 2c7c56d + 7d48c17 &middot; <code>GET /v1/receipts/signing-key</code> (unauthenticated) + <code>/receipt</code> per delivery &middot; cmd/verify-receipt, docs/RECEIPT-FORMAT.md, an independent Node verifier, migration 0015, 21 new tests (208 total) &middot; green locally, both live scripts pass, and CI confirmed green on 7d48c17 &mdash; though GitHub&rsquo;s Actions API spent most of the window returning 503/404 while the repo API reported the repo healthy, so the result took several retries to read</p>
   </div>
 </div>
 <div class="row">
