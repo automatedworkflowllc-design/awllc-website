@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">141 entries · newest first within each group</p>
+  <p class="stamp">142 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,41 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">A push passed all nine gates, reported success, and the site did not change — nothing would have said so
+      <span class="chip live">fixed</span><span class="chip">10th check</span><span class="chip">5 branches proven</span></p>
+    <p class="what"><b>The gates guard what goes INTO a push. Nothing was watching whether the push
+    came out the other end.</b> Today one GitHub Pages build errored and the next sat in
+    <code>building</code> for fifteen minutes against a thirty-eight second norm. Every gate was
+    green, the push reported success, and the live site kept serving the previous build. The only
+    reason anyone noticed is that I checked the deployed page rather than trusting the push.</p>
+    <p class="proof"><b>The check that looked like it covered this could not.</b>
+    <code>check_live</code> asks whether every URL returns 200 &mdash; and <em>a site four commits
+    behind returns 200 on every page</em>. That exact mistake is already in the workspace notes: an
+    HTTP 200 once &ldquo;confirmed&rdquo; a deploy the old page was still serving. Two different
+    questions; only one of them was being asked.</p>
+    <p class="proof"><b>So the new one asks the other:</b> is the live site serving the commit we
+    pushed? It compares the newest Pages build&rsquo;s status and commit against
+    <code>origin/main</code>, and it is deliberately kept out of the push gate, because the deploy
+    it asks about happens <em>after</em> the push that would be gating it. Its blind spot is written
+    down beside it: it trusts GitHub&rsquo;s build record, not the served bytes, so a CDN handing
+    out stale content after a successful build still slips past.</p>
+    <p class="proof"><b>Proven on all five branches with the shell stubbed</b> &mdash; clean ONLY
+    when the build is <code>built</code> AND its commit matches; stale commit, still building,
+    errored, and an unreadable API response each raise a named defect. Then proven for real, which
+    is better: it went red during the outage naming the stuck commit, and clean the moment the
+    build completed.</p>
+    <p class="proof"><b>And the obvious fix was a trap worth not falling into.</b> A slow Jekyll
+    build invites dropping in <code>.nojekyll</code> to skip it. Jekyll&rsquo;s default exclusion of
+    underscore directories is the <em>only</em> thing keeping <code>_brand/</code>,
+    <code>_qa/</code> and <code>_scratch/</code> off the public web &mdash; all three return 404,
+    checked. That one-line &ldquo;fix&rdquo; would have published the entire build system and QA
+    suite. Written into the workspace traps instead.</p>
+    <p class="where">awllc-website 4ca6815 &middot; _qa/autoqa.py <code>check_deploy</code> &middot; recorded in RELIABILITY-MAP.md with its blind spot, per that file&rsquo;s own rule</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 17</div>
   <div>
