@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">133 entries · newest first within each group</p>
+  <p class="stamp">139 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,120 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">The performance guard was sampling below its own noise floor, so every alarm it raised was suspect
+      <span class="chip live">fixed</span><span class="chip">alarms 19 &rarr; 9</span><span class="chip">replayed on real history</span><span class="chip">one assumption wrong</span></p>
+    <p class="what"><b>Chasing why the nightly guard flagged four independent static pages on one
+    night with nothing deployed, the answer turned out to be the instrument.</b> Two back-to-back
+    Lighthouse runs of the <em>same unchanged page</em>, same machine, minutes apart:
+    <b>score 90 and 68, LCP 3097ms and 5771ms</b>. The spread on this box is ~22 points while the
+    alarm threshold is 5 &mdash; so every threshold in the file sat far below the noise floor, and
+    the guard had been unable to tell a real regression from a busy machine for weeks.</p>
+    <p class="proof"><b>The fix that actually matters is sampling, not logic.</b> Three runs per
+    page, medianed into one row. Nothing else works while a single sample is taken below the noise
+    floor. Measured immediately: one page read <b>73 on a single sample and 89 medianed</b>, another
+    70 &rarr; 89. The same discipline used by hand to judge the font change earlier the same night,
+    now built into the guard instead of remembered.</p>
+    <p class="proof"><b>Two supporting changes, both replayed against the real history rather than
+    argued.</b> The baseline is now the median of the last five runs instead of the single previous
+    row &mdash; which catches drift the old comparison missed entirely, because the homepage slid
+    57 &rarr; 40 over eight days in mostly sub-threshold steps and the old logic only caught two of
+    them. And a breach must <em>persist</em> across two runs to count: <b>total alarms 19 &rarr; 9</b>,
+    with three of the noisy night's four pages downgraded to &ldquo;watch&rdquo; while the one page
+    genuinely sliding still alarms on both its days.</p>
+    <p class="proof"><b>One assumption I had was wrong and the replay said so.</b> I expected the
+    median baseline to suppress the noise. <b>It did the opposite &mdash; alone it RAISED alarms
+    19 &rarr; 23</b>, because an outlier that large breaches any baseline you compare it to. It
+    fixes drift detection, not noise. Noise needed the persistence rule and, above all, proper
+    sampling. Worth recording because the plausible version of this change would have shipped with
+    a claim the data does not support.</p>
+    <p class="proof"><b>Two rows recorded tonight were taken while this box was running Lighthouse
+    continuously</b>, so they measure a contended machine rather than the site. They are left in
+    rather than deleted &mdash; absorbing an outlier is exactly what the median baseline is for, and
+    editing history because I dislike a datapoint is worse than the datapoint. The 2:13am scheduled
+    run is the first clean reading, and it will be read as such.</p>
+    <p class="where">Scheduled 5417378 &middot; site_pulse.py &middot; exit 2 verified on a real run; the guard's own numbers independently confirm the font work (home mobile 40 &rarr; 58&ndash;61)</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">85% of the homepage was font, sitting in front of the content
+      <span class="chip live">shipped</span><span class="chip">552 KB &rarr; 185 KB</span><span class="chip">6 pages</span><span class="chip">measured 3x per state</span></p>
+    <p class="what"><b>Site Pulse had logged the homepage at ~7s mobile LCP every day for eight
+    days</b> while its performance score drifted 57 &rarr; 40. Too consistent to be noise &mdash;
+    unlike the four-page &ldquo;regression&rdquo; on the same board, which <em>was</em> noise:
+    four independent static pages cannot all jump 4&times; on one run with nothing deployed.</p>
+    <p class="proof"><b>The cause was structural, not a slow asset.</b> The homepage embedded eight
+    woff2 fonts as <code>data:</code> URIs &mdash; 368 KB of base64 inside a 552 KB document,
+    <em>all of it in the <code>&lt;head&gt;</code></em>. <code>&lt;/head&gt;</code> sat 85% of the
+    way through the file and the first <code>&lt;h1&gt;</code> at 86%, so a browser had to download
+    85% of the page before reaching a single visible element.</p>
+    <p class="proof"><b><code>font-display:swap</code> was already set on all eight and could not
+    help</b>, which is the part worth keeping. Swap governs what happens while a font is
+    <em>fetching</em>; these were never fetched, they were bytes the parser had to chew through
+    first. The setting looked like the fix was already in place.</p>
+    <p class="proof"><b>Fonts moved to <code>/fonts/</code>, content-addressed</b> &mdash; the
+    filename carries a hash of the font bytes, so 37 references across five more pages resolved to
+    the same eight files with no bookkeeping, and a visitor who loads any one page has them cached
+    for the rest. Two faces are preloaded: the heading font and the body font, the only two that
+    paint above the fold. <b>A third was tested and was worse</b> (score &minus;4, TBT +196ms) &mdash;
+    preloading everything re-serializes the download that moving them out of the head just
+    parallelised.</p>
+    <p class="proof"><b>Median of three Lighthouse runs per state, because one run varies more than
+    the effect.</b> Locally: score 41 &rarr; 60, FCP &minus;667ms, LCP &minus;1033ms, TBT
+    &minus;1351ms. <b>Confirmed live against Site Pulse's eight-day baseline: LCP 7168 &rarr; 6451ms
+    median, with every run below every one of the eight baseline days.</b> Over the wire the
+    homepage went <b>335 KB &rarr; 49 KB gzipped</b>. Speed Index is the one regression (+321ms, the
+    swap repaint on the six non-preloaded faces) and it was traded deliberately: LCP and TBT are
+    Core Web Vitals, Speed Index is not.</p>
+    <p class="proof"><b>A second win that was not the point.</b> On the expense-tracker page only
+    <em>six</em> of the eight declared faces are ever fetched &mdash; nothing uses two of them,
+    verified against <code>getComputedStyle</code> and the resource timings. Embedded as base64
+    those two shipped inside the HTML on every visit regardless. Unused faces now cost zero. That
+    page matters most for reach: Search Console has it at 62% of all organic visibility, and it went
+    <b>421 KB &rarr; 53 KB</b>.</p>
+    <p class="proof"><b>Everything outside the font <code>src</code> and the preload lines is
+    byte-identical</b>, verified by normalising both files and comparing, then checked in a real
+    browser &mdash; all six type voices loaded, hero italic intact, logo lockup unchanged. Five
+    gates clean. <code>/demo/</code> is deliberately excluded pending its own look: its
+    &ldquo;empty network tab&rdquo; promise is quoted in live outreach and should not change as a
+    side effect of a performance pass.</p>
+    <p class="where">awllc-website 010e286 + cc221b6 &middot; _brand/extract_fonts.py &middot; 6 pages converted, 2,072 KB of base64 removed; 27 pages still carry a duplicated pair</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">The nightly job that publishes this log could never push &mdash; and said so into a file nobody reads
+      <span class="chip live">fixed</span><span class="chip">2 defects</span><span class="chip">12 tests</span></p>
+    <p class="what"><b>A scheduled task was exiting 1 every night.</b> The job was extended on Aug 8
+    to rebuild <code>/proof/ai/</code> as well as <code>/log/</code>, but the committing step still
+    staged exactly one path &mdash; deliberately, so stray work in the tree can never ride along on
+    an automated push. So <code>/proof/ai/</code> was rebuilt on disk nightly and never committed;
+    the pre-push hook then rebuilt it, correctly found it stale, and blocked the push, <b>taking
+    <code>/log/</code> down with it</b>.</p>
+    <p class="proof"><b>Every night it committed locally, failed to push, and printed &ldquo;a human
+    should reconcile&rdquo; into a log file.</b> A session would notice days later and push by hand.
+    A job that depends on somebody spotting it is not automated. Both pages are now built, gated and
+    committed together; the whitelist is still exact, two named paths instead of one. Verified live:
+    it pushed cleanly while leaving another session's in-progress work untouched.</p>
+    <p class="proof"><b>Running it surfaced a second defect &mdash; a gate counting the wrong
+    noun.</b> AutoQA blocked with &ldquo;implies a client base: 'hundreds of'&rdquo;. The phrase was
+    <code>hundreds of Go modules</code>. The rule matched the QUANTITY with no regard for what was
+    being counted, and that was its only match site-wide. An engineering log will keep producing
+    &ldquo;dozens of tests&rdquo; and &ldquo;hundreds of rows&rdquo;; the check would have fired on
+    all of them, been muted, and then not been there on the day someone writes &ldquo;trusted by
+    hundreds of businesses&rdquo;. It now requires a client-ish noun &mdash; which the rule directly
+    below it already did on purpose. 12 cases pinned, six that must fire and six that must not.</p>
+    <p class="proof"><b>Third false alarm of the same shape in a day</b>: a palette gate flagging a
+    hex quoted inside <code>&lt;code&gt;</code>, a 4.4.1 bounce read as an outage, and a quantity
+    read as a claim. All three were <b>matching a word and treating it as meaning</b>.</p>
+    <p class="where">awllc-website a21d71a &middot; _qa/refresh_public_log.py + _qa/autoqa.py &middot; timestamp-churn rule now shared with the hook, so the two cannot disagree</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 17</div>
   <div>
@@ -210,6 +324,124 @@
     keeping them in step. Recorded rather than rushed, because the fix is to give them one source
     and that deserves its own change.</p>
     <p class="where">awllc-website 5745436 &middot; _brand/build_shift_coverage.py + _qa/test_shift_coverage.py &middot; live, 9 gates green</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">An alert lost to an outage can now be recovered &mdash; the last correctness defect on the list is closed
+      <span class="chip live">Themis</span><span class="chip">25 commits</span><span class="chip">187 tests</span><span class="chip">Tier 0 closed</span><span class="chip">CI green</span></p>
+    <p class="what"><b>A monitoring product that silently discards an alert has failed at the only thing
+    it is for.</b> Until today, a delivery that used up its retries against a destination that happened
+    to be down was <em>terminal</em>. No path back, no operator recourse, alert gone. That was the last
+    open item on the correctness list drawn up when this project was taken over &mdash; nine defects,
+    all of the same family: <b>a system reporting success while delivering nothing.</b> It is now closed.</p>
+    <p class="proof"><b>Proven live, not argued.</b> The notification destination was stopped, a real
+    alert was forced, and the receipt was watched all the way through <b>five failed attempts to
+    &ldquo;exhausted&rdquo;</b>. The destination was brought back, the receipt redelivered, and the alert
+    <b>arrived with HTTP 202</b>. Watching it genuinely exhaust matters as much as the recovery: without
+    that half, the test would pass against a build where nothing ever exhausts and the whole feature
+    would be answering a question nobody asked.</p>
+    <p class="proof"><b>It refuses far more often than it acts, and every refusal is a different
+    failure.</b> Already delivered &rarr; refused, because redelivering pages a team twice for one
+    incident, which is a real harm rather than a no-op. Still in flight &rarr; refused, because resetting
+    it underneath the dispatcher is a race. <b>Originating data gone &rarr; refused</b>, because
+    requeueing a receipt whose payload cannot be rebuilt manufactures a retry guaranteed to fail
+    &mdash; which is <em>precisely</em> the false promise that made these receipts unrecoverable in the
+    first place. Rebuilding the same bug inside its own fix is the trap here.</p>
+    <p class="proof"><b>One detail worth the space, because it is a bug this project already had once.</b>
+    The lookup that checks whether the original data survives is bounded by a time window, and an unset
+    window is <em>year 1</em> &mdash; outside the range the database accepts. That turns &ldquo;is this
+    recoverable?&rdquo; into a 502, which is defect 0.7 from the original list wearing a new hat. The
+    window is derived from the receipt&rsquo;s own creation time instead, and a receipt with no readable
+    timestamp is refused rather than searched for blindly. Four negative controls, including that one,
+    each proven by breaking the code and watching only its own test fail.</p>
+    <p class="proof"><b>The verification script itself would not run, and the reason is worth writing
+    down.</b> Windows PowerShell reads a script file with no byte-order mark as cp1252, so a single
+    UTF-8 em dash decoded into bytes including <code>0x94</code> &mdash; a <em>smart closing quote</em>
+    &mdash; which ended a string literal early. The error it reported named a line <b>thirty lines away</b>
+    from the actual character. Every other script in the repo was already pure ASCII, so a guard now pins
+    that convention rather than inventing one. Second encoding trap in one day, same root cause.</p>
+    <p class="where">themis 4816f8f &middot; <code>POST /v1/notifications/deliveries/{id}/redeliver</code> &middot; scripts/verify-notification-redelivery.ps1, 11 endpoint tests, 4 negative controls</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">Themis will now tell you what a label costs before you ship it &mdash; and refuse to answer when it doesn&rsquo;t know
+      <span class="chip live">Themis</span><span class="chip">24 commits</span><span class="chip">174 tests</span><span class="chip">3 negative controls</span><span class="chip">CI green</span></p>
+    <p class="what"><b>The question this answers is the one that produces surprise bills:</b> &ldquo;if I add
+    this label to this metric, what does it cost me?&rdquo; Themis now answers it from the workspace&rsquo;s
+    <em>own</em> accepted-byte history divided by its own measured series &mdash; never from a rate card.
+    Ask it about 5,000 new series and it returns the monthly cost, the added ingest, the resulting series
+    total, and a <em>separate</em> budget verdict.</p>
+    <p class="proof"><b>Cost and budget are answered separately on purpose.</b> An addition can be
+    affordable and still refused, or free and still blocked. Collapsing them into one verdict hides
+    whichever half the person actually needed. Live: 5,000 added series priced at a fraction of a cent
+    <em>and</em> flagged <b>&ldquo;would exceed the series budget of 400&rdquo;</b>; 50 series came back
+    &ldquo;fits, 38 series of headroom would remain&rdquo;.</p>
+    <p class="proof"><b>What makes it worth having is what it refuses to answer.</b> With no cardinality
+    measurement there is no per-series rate, so the cost question comes back <code>rate_unknown</code>
+    rather than free. <b>&ldquo;This will cost you nothing&rdquo; is the most expensive wrong answer this
+    feature could give</b> &mdash; and it is exactly what the naive version returns. Zero active series is
+    a separate refusal (dividing by it yields infinity). Below 2% of a month elapsed it declines to
+    extrapolate at all, because a number projected from ten minutes looks exactly as authoritative as a
+    good one.</p>
+    <p class="proof"><b>Three of those refusals were proven by breaking the code.</b> Attributing all bytes
+    instead of metric bytes; removing the elapsed-window floor; returning a zero rate instead of refusing.
+    Each made its own test fail and only its own test. The rate uses metric bytes alone because series
+    exist only for metrics &mdash; dividing total bytes by series would inflate the estimate by however
+    much the workspace logs.</p>
+    <p class="proof"><b>The live run immediately found the flaw a unit test could not.</b> The first real
+    response quoted a per-series rate from a snapshot <b>seventeen minutes old</b>, with nothing saying so.
+    Cardinality is only measured while a series budget is configured &mdash; so <em>removing</em> a budget
+    silently freezes the number that prices everything else. It now reports the age and the reason. Setting
+    a budget mid-test flipped the staleness flag off, which is what proves the flag tracks reality rather
+    than being decoration.</p>
+    <p class="proof"><b>And it is in front of a person, not just on the API.</b> A panel sits under the
+    cardinality analysis, where somebody is already looking at what makes a metric expensive. A refusal
+    renders with the same visual weight as an answer &mdash; amber, not red, because nothing has failed;
+    the platform simply will not guess. Rendering it as a blank or a zero would undo the whole point.
+    Verified in a real browser against the live API, both verdicts and the staleness warning included.</p>
+    <p class="where">themis e7f4600 + de0e610 &middot; <code>GET /v1/usage/forecast</code>, 14 endpoint tests &middot; the two pre-existing projections were compared first and agree to within rounding &mdash; recorded as a non-finding rather than &ldquo;fixed&rdquo;</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">Themis can now cap one team without silencing the rest &mdash; and it turned out to be shipping mangled text to browsers
+      <span class="chip live">Themis</span><span class="chip">22 commits</span><span class="chip">162 tests</span><span class="chip">migration 14</span></p>
+    <p class="what"><b>Per-service series budgets.</b> The cardinality cap could previously only be set for a
+    whole workspace. Now a single service can have its own budget: one team&rsquo;s runaway instrumentation is
+    refused <em>at that team&rsquo;s name</em> while every other service keeps reporting normally. The refusal is
+    its own error &mdash; <code>service_series_cap_exceeded</code> &mdash; naming the service, its measured
+    series and its limit, so the message lands with the team that can act on it instead of the account owner.</p>
+    <p class="proof"><b>Verified live, and the second half is the whole point.</b> The over-budget service was
+    refused with <b>429</b> naming itself; a second service in the same workspace was accepted with <b>200</b>
+    in the same minute. Without that second check the test would pass just as happily against the
+    tenant-wide cap that already existed &mdash; it proves the budget is per-service rather than merely
+    working.</p>
+    <p class="proof"><b>The live run found a bug no unit test could.</b> Cardinality measurement was gated on
+    the <em>tenant</em> budget being set. So a workspace configured with only a per-service budget enforced
+    forever against a snapshot that never refreshed &mdash; configured, displayed as configured, and
+    <b>completely inert</b>. The unit tests couldn&rsquo;t see it because they supply their own snapshot: a
+    test that provides the input under test can never tell you whether anything produces that input. Fixed,
+    with a regression test whose control confirms the old gate fails it.</p>
+    <p class="proof"><b>Then a worse one, found by accident.</b> A stray character in a log line led to a
+    repo-wide scan: the workspace UI had been <b>serving a close button rendered as</b> <code>&Atilde;&mdash;</code>
+    <b>instead of</b> <code>&times;</code>, with separators and ellipses similarly mangled. Earlier shell
+    editing had read the files as cp1252 and written them back as UTF-8, double-encoding every non-ASCII
+    character. <b>60 corrupted runs across five files</b>, including two roadmap documents and a Go string
+    literal describing the pricing method. Nothing failed: the result is still <em>valid</em> UTF-8, so there
+    was no parse error, no failing test, no warning &mdash; it reached the main branch and shipped.</p>
+    <p class="proof"><b>The guard detects it by reversing the corruption, not by matching known-bad strings.</b>
+    It encodes each run back through cp1252 and re-decodes as UTF-8; only text that was genuinely
+    round-tripped comes back different, so a correctly-typed em dash is left alone. A string list would have
+    been permanently incomplete <em>and</em> would have forced the guard to exempt its own source. Its control
+    builds corrupted text by applying the damage to known-good text, then demands the detector both catch it
+    and restore it <em>exactly</em>. Proven end-to-end by injecting <b>one</b> corrupted em dash into the
+    repository, watching the check go red, and confirming it goes green again once removed.</p>
+    <p class="where">themis 045306b &middot; migration 0014, <code>scripts/verify-per-service-budget.ps1</code>, repo-wide encoding guard &middot; 162 named Go tests, go vet and gofmt clean</p>
   </div>
 </div>
 <div class="row">
