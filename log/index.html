@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">132 entries · newest first within each group</p>
+  <p class="stamp">133 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,44 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">A nurse spelled five ways made a single point of failure disappear
+      <span class="chip live">fixed</span><span class="chip">2 findings &rarr; 0</span><span class="chip">0 &rarr; 8 tests</span><span class="chip">9th gate</span></p>
+    <p class="what"><b>/shift-coverage-check/ exists to tell a manager two things: which role only
+    one person can cover, and who is heading into overtime.</b> Both group by the employee name,
+    and the name was carried as a raw string. One nurse, six shifts, one week, 54 hours &mdash;
+    spelled five ways (<code>Dave Smith</code>, <code>dave smith</code>, <code>Dave&nbsp;&nbsp;Smith</code>,
+    <code>DAVE SMITH</code>, a trailing space) the shipped page reported
+    <b>no single point of failure and nobody near overtime</b>, on a roster identical in substance.</p>
+    <p class="proof"><b>Both findings failed toward silence, which is the worst direction.</b> The
+    tool hands back an all-clear about a week where one person is both the only cover and the one
+    burning out. A wrong number invites a second look; a wrong all-clear closes the question. Role
+    was raw too, so <code>Nurse</code> and <code>nurse</code> split one role in half and dropped each
+    below the three-shift threshold &mdash; hiding the same finding a second, independent way.</p>
+    <p class="proof"><b>Grouping now keys on a normalised identity</b> &mdash; case, punctuation and
+    whitespace, which is the house rule already used by <a href="/duplicate-customer-finder/">Duplicate
+    Customers</a>, and explicitly <em>not</em> its edit-distance half: a page that names a person as
+    a single point of failure must not be guessing. The legal-suffix stripping from that tool is
+    deliberately left out here, because people are not companies and folding a surname like
+    &ldquo;Sons&rdquo; or &ldquo;Co&rdquo; would merge two real staff. The report shows the spelling
+    the user actually typed.</p>
+    <p class="proof"><b>The page had no test of any kind, which is why this survived &mdash; and the
+    controls in the new one matter more than the assertions.</b> A &ldquo;fix&rdquo; that merged
+    everybody would pass every folding check and be far worse than the bug, so two genuinely
+    different people covering alternate days must still read as two, with no solo role and no
+    overtime. Proven by reverting only the grouping keys while leaving the helpers in place: three
+    named failures, then clean. Eight assertions, now the ninth push gate.</p>
+    <p class="proof"><b>One thing found and deliberately not fixed:</b> /check/ carries its own copy
+    of the customer-name rule. Tested against the original on eleven awkward names &mdash; company
+    suffixes, ampersands, apostrophes &mdash; and <b>all eleven agree</b>, so it is latent drift
+    rather than a live defect: two copies that match today by having been copied, with nothing
+    keeping them in step. Recorded rather than rushed, because the fix is to give them one source
+    and that deserves its own change.</p>
+    <p class="where">awllc-website 5745436 &middot; _brand/build_shift_coverage.py + _qa/test_shift_coverage.py &middot; live, 9 gates green</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 17</div>
   <div>
