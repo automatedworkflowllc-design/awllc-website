@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">128 entries · newest first within each group</p>
+  <p class="stamp">130 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,79 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 16</div>
+  <div>
+    <p class="name">The observability platform can now see the cost that byte metering is blind to
+      <span class="chip live">shipped</span><span class="chip">API + UI</span><span class="chip">150 tests</span><span class="chip">measured before built</span></p>
+    <p class="what"><b>An exploding label set is cheap to ingest and expensive to store and query</b>
+    &mdash; which is why an observability bill is really a cardinality bill, and why metering
+    accepted bytes cannot see the thing that costs the money. The platform now reports, per metric,
+    how many distinct series it produces and <em>which attribute key is causing it</em>.</p>
+    <p class="proof"><b>The design came from measuring first, not from a guess.</b> On live data
+    <code>system.cpu.utilization</code> had 964 points across 97 series &mdash; about ten
+    observations each. <code>platform.reliability.cardinality</code> had 5,100 points across 5,100
+    series. <b>The useful signal is the ratio, not the series count:</b> a metric approaching one
+    point per series is minting a new series on every single write, which is what a label carrying
+    an <em>identity</em> rather than a <em>dimension</em> looks like.</p>
+    <p class="proof"><b>Proven with a controlled comparison, which is the only reason it means
+    anything.</b> Two gauges ingested through the real gateway with <em>exactly 30 points each</em>
+    and near-identical payloads, differing only in label cardinality.
+    <code>demo.request.latency</code> (<code>request.id</code>, 30 distinct) &rarr; 30 series, ratio
+    1.00, flagged. <code>demo.orders.latency</code> (<code>region</code>, 3 distinct) &rarr; 3
+    series, ratio 10.00, healthy. <b>Byte metering cannot tell those two payloads apart at all.</b></p>
+    <p class="proof"><b>It refuses to judge a sample too small to judge.</b> Under 20 points it
+    returns &ldquo;too few points to judge&rdquo; &mdash; visibly load-bearing rather than
+    decorative, because three real low-volume metrics sit at ratio 1.00 and would otherwise all read
+    as critical. Same instinct as flatline declining to call a dead column on six rows.</p>
+    <p class="proof"><b>The UI decision matters more than the UI.</b> The analysis is deliberately
+    <em>not</em> part of the 30-second refresh: both queries scan raw points and each run spends a
+    query unit from the tenant&rsquo;s own monthly allowance, so polling it would have rebuilt the
+    exact quota exhaustion fixed hours earlier, with slower queries. It runs on a button, and the
+    panel says why. Verified in the browser: <b>0 calls during load and refresh, 1 after the
+    click.</b> Checking the existing markup first also saved shipping a panel built on three class
+    names and a helper that do not exist &mdash; the workspace has no <code>&lt;table&gt;</code>
+    elements at all.</p>
+    <p class="where">observability-platform bd81ee4 (API) + d17058b (workspace) &middot; 13 commits on the baseline &middot; contract grew nine metered routes to ten; README, ROADMAP and the threat model moved in the same commit</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 16</div>
+  <div>
+    <p class="name">The design system promised pages couldn&rsquo;t go off-brand. Nothing was checking — and it was already false twice over
+      <span class="chip live">shipped</span><span class="chip">33 vs 3 pages</span><span class="chip">8th gate</span></p>
+    <p class="what"><b>The open item read &ldquo;push design tokens through the remaining ~8 builders.&rdquo;
+    Measuring it first changed what it was.</b> The site is <b>33 pages on a palette that predates
+    <code>tokens.py</code> and 3 pages on <code>tokens.py</code></b> — and no check could tell you
+    which. The token file opens by promising &ldquo;a new tool CANNOT be off-brand, because it does
+    not declare its own colours.&rdquo; That promise had no enforcement behind it, which is why
+    there are two palettes instead of one.</p>
+    <p class="proof"><b>So I did not repaint 33 live pages on my own judgment.</b> Which way to
+    unify — migrate the 33 forward or fold the 3 back — is a real design decision with very
+    different costs, and the drift is small enough to be invisible in the neutrals (5&ndash;8 apart)
+    while the red is a visible shift (rust <code>#B4452C</code> vs crimson <code>#98283C</code>) on
+    severity markers. That is Colin&rsquo;s call, and it is now measured rather than vague.</p>
+    <p class="proof"><b>What I built instead is the half that is needed whichever way he goes:</b> a
+    gate that asks the decision-neutral question — <em>does any page use a colour that comes from no
+    source at all?</em> Not tokens, not the legacy brand, not its own baseline. That is someone
+    hand-picking a hex, which is exactly how the site got two palettes. Failing pushes on &ldquo;not
+    yet on tokens&rdquo; would hold every push hostage to a redesign; this blocks a third palette
+    forming while the first two get sorted out.</p>
+    <p class="proof"><b>The first version was wrong twice, and looking rather than trusting the
+    number is what caught both.</b> It reported <b>697 unsourced colours on 34 pages</b> — the shape
+    of a broken check, not a broken site. Nearly all were gradient stops inside inline
+    <code>&lt;svg&gt;</code> illustrations; artwork is allowed its own colours, a button is not.
+    Then <code>--record</code> could never fire, because with no baseline every existing colour is
+    unsourced — <b>the gate could never be armed.</b> Arming is now an explicit one-time
+    <code>--bootstrap</code> that states out loud that it is accepting the current split, and
+    <code>--record</code> still cannot move the baseline on a run that found something.</p>
+    <p class="proof"><b>Proven both ways before it was trusted:</b> adding
+    <code>.hand-picked{color:#7B2FF7}</code> to <code>/builds/</code> fails the gate and names the
+    page and the colour; running <code>--record</code> on that failing run <b>refuses</b> to write
+    the colour into the baseline; restored, clean and green.</p>
+    <p class="where">awllc-website e0de386 &middot; _qa/palette_audit.py + _qa/hooks/pre-push &middot; 8th push gate, live</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 16</div>
   <div>
