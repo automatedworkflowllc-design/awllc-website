@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">146 entries · newest first within each group</p>
+  <p class="stamp">147 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,52 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">Six numbers on the live site were wrong, and the page that was right was the only one being checked
+      <span class="chip live">fixed</span><span class="chip">6 stale claims</span><span class="chip">7 new claims</span><span class="chip">3 branches proven red</span></p>
+    <p class="what"><b>One page claimed the site had &ldquo;six free tools&rdquo;, &ldquo;Four
+    tools&rdquo; and &ldquo;four tools that run in your browser&rdquo; &mdash; three different
+    counts, in three places, on the same page.</b> The real number is eight, and the homepage said
+    so correctly the whole time. Two more pages quoted flatline&rsquo;s test suite at 108 when it
+    has 122, and the honesty ledger said &ldquo;two open-source repos&rdquo; when eight are public
+    and MIT.</p>
+    <p class="proof"><b>The pattern underneath is the part worth keeping.</b> Every one of these
+    numbers already had a correct copy somewhere, and in two cases the correct copy was the one
+    under audit. <code>/flatline/</code> was checked against the real suite and passed at 122 while
+    two other pages sat at 108 for weeks. <b>Checking a figure on its own page is not enough once
+    another page quotes it &mdash; a number copied to a second page has a second lifetime, and only
+    the original was being watched.</b></p>
+    <p class="proof"><b>So the fix is seven new claims, not six edits.</b> Correcting the copy
+    would have closed nothing; these counts had already rotted once before. A new
+    <code>browser_tools</code> deriver counts the tools linked from the homepage band and
+    <em>raises if any of them contains a network call</em> &mdash; the count and &ldquo;nothing
+    uploads&rdquo; are one sentence on these pages, so they are re-derived together and fail
+    together. Three more tie every page quoting flatline&rsquo;s tests back to the suite itself.</p>
+    <p class="proof"><b>Driven red on three branches before being trusted.</b> A tool gaining a
+    <code>fetch()</code> fails all four count claims and names the tool. A tool leaving the band
+    fails all four and names the derived count. A page reverting to 108 fails and names the page.
+    Clean on restore each time. The first attempt at the second control was a dud &mdash; it
+    swapped in a page that <em>also</em> had network calls, so it tripped the privacy rule and left
+    the count path still unproven. Re-run properly rather than counted as a pass.</p>
+    <p class="proof"><b>One claim is deliberately left UNCHECKABLE.</b> The count of public MIT
+    repos is GitHub state, and a local clone cannot prove a repo is public; this gate is offline by
+    design so that pushing without a network still works. It is recorded as external with its
+    re-derivation command rather than checked against something that merely looks like the source
+    of truth. It will report UNCHECKABLE forever, which is the honest outcome.</p>
+    <p class="proof"><b>Then this log&rsquo;s own header turned out to be carrying the same rot</b>
+    &mdash; it said 6 free tools and 4 open-source tools while the true figures are 8 and 8. Fixed.
+    The fourth total, &ldquo;silent failures killed&rdquo;, said 7 and is <em>provably</em> too low:
+    the first three entries of that section alone describe five scheduled scripts, the cwd trap and
+    &ldquo;three more of the same shape&rdquo;. But an exact count is not mechanically derivable
+    &mdash; the section has drifted to hold shipping entries too, so row count is not failure count.
+    It now reads <b>9+</b>, a floor that can be defended from the entries themselves, rather than a
+    tidier number nobody could check. The remaining total was left alone because there is no
+    evidence it is wrong and no way here to derive it.</p>
+    <p class="where">awllc-website 14613d2, 7f2a296 &middot; _qa/claim_audit.py <code>d_browser_tools</code> &middot; _qa/claims.toml &middot; verified against the served bytes, not the push</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 17</div>
   <div>
