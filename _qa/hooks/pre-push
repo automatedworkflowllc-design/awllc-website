@@ -35,6 +35,20 @@ python _qa/security_sweep.py || {
   echo "PUSH BLOCKED — a secret or internal ID would go public. Redact/rotate first."
   exit 1
 }
+# AutoQA's own controls -- and until 2026-08-18 NOTHING RAN THEM. The 12 pinned
+# cases guarding the client-base rule, and the check_deploy cases added the same
+# day, sat in the tree executed by no gate and no job: the identical shape as
+# skeleton's assertion-free harness and vouch's suite that was red for six days.
+# A control nobody runs is a control that does not exist, so it runs first, for
+# the same reason the security sweep's does.
+echo "AutoQA controls: proving the claim and deploy checks can still fail..."
+python _qa/test_autoqa.py || {
+  echo ""
+  echo "PUSH BLOCKED — autoqa's own checks no longer behave. Either the claim"
+  echo "patterns stopped catching a real overclaim, or check_deploy started"
+  echo "crying wolf on normal build churn. Fix the check, not the test."
+  exit 1
+}
 echo "AutoQA: checking artifacts before push..."
 # --record: the push is the ONLY moment allowed to move the baseline, and only
 # when the gate passes. Without it these audits wrote history on every run, so

@@ -114,5 +114,61 @@ proof('SILENT on "hundreds of pages"', 'hundreds of pages were scanned', False)
 proof('SILENT on "dozens of receipts"', 'dozens of receipts in the ledger', False)
 proof('SILENT on "hundreds of resources"', 'hundreds of resources in the directory', False)
 
+# --- 6. check_deploy: silent through churn, loud when genuinely stuck
+# Shipped 2026-08-17 and was wrong the same day. It called two builds "errored"
+# that had not failed -- both were CANCELLED, superseded when a second push
+# landed minutes after the first. Reporting routine churn as a failure is crying
+# wolf, and this tree has already paid for that once: the five unread alerts from
+# a monitor that fired on a schedule were the real cost, not the red badge.
+#
+# So these assert the SHAPE of the answer, not the state. Out of step for two
+# minutes is normal and must be silent; out of step for ninety is a fact and must
+# be named. The proof for this lived only in a transcript until now, which is the
+# same disposable-control problem the nightly suite sweep just had fixed.
+import datetime as _dt
+import autoqa as _aq
+
+
+class _R:
+    def __init__(self, out):
+        self.stdout = out
+
+
+def deploy(name, head, api, want_defect):
+    _aq.defects = []
+    real = _aq.subprocess.run
+    _aq.subprocess.run = lambda cmd, **kw: _R((head + '\n') if cmd[0] == 'git' else (api + '\n'))
+    try:
+        _aq.check_deploy()
+    finally:
+        _aq.subprocess.run = real
+    got = len(_aq.defects) > 0
+    ok = got == want_defect
+    print(('  PASS  ' if ok else '  FAIL  ') + name +
+          ('' if ok else '  -> %r' % [d['msg'] for d in _aq.defects]))
+    if not ok:
+        fails.append(name)
+
+
+print('\ncheck_deploy regression suite\n')
+_now = _dt.datetime.now(_dt.timezone.utc)
+_fresh = (_now - _dt.timedelta(minutes=2)).strftime('%Y-%m-%dT%H:%M:%SZ')
+_old = (_now - _dt.timedelta(minutes=90)).strftime('%Y-%m-%dT%H:%M:%SZ')
+_sha, _prev = 'a' * 40, 'b' * 40
+
+deploy('SILENT when built and matching', _sha, 'built ' + _sha + ' ' + _fresh, False)
+deploy('SILENT while a build is 2 minutes old (normal churn)',
+       _sha, 'building ' + _sha + ' ' + _fresh, False)
+deploy('SILENT on an errored build for a SUPERSEDED commit (the 8/17 false alarm)',
+       _sha, 'errored ' + _prev + ' ' + _fresh, False)
+deploy('REPORTS an errored build on head after 90 minutes',
+       _sha, 'errored ' + _sha + ' ' + _old, True)
+deploy('REPORTS a build stuck building for 90 minutes',
+       _sha, 'building ' + _sha + ' ' + _old, True)
+deploy('REPORTS a live site 90 minutes behind origin/main',
+       _sha, 'built ' + _prev + ' ' + _old, True)
+deploy('REPORTS an unreadable API response rather than assuming healthy',
+       _sha, 'nonsense', True)
+
 print('\n%s' % ('ALL PASS' if not fails else 'FAILED: %s' % ', '.join(fails)))
 sys.exit(1 if fails else 0)
