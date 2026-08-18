@@ -125,3 +125,48 @@ page = "workflow-automation/index.html"
 says = "{} tools that run in your browser"
 derive = "browser_tools"
 args = { style = "words" }
+
+# --- flatline's test count, everywhere it is quoted ----------------------
+# /flatline/ had this right at 122 and was already checked. Two OTHER pages
+# quoted the same suite at 108 and nothing was watching them, so the number
+# was stale by 14 for as long as it took someone to look. Found 2026-08-17
+# alongside the tool-count drift; same defect, different number.
+#
+# The lesson worth keeping: checking the number on its OWN page is not enough
+# when other pages quote it. Every page that states a figure needs its own
+# claim, because a figure copied to a second page has a second lifetime.
+[[claim]]
+id = "builds-flatline-tests"
+page = "builds/index.html"
+says = "{} tests, MIT, public"
+derive = "pytest_count"
+args = { path = "C:/Users/hisbo/claude/dev/flatline" }
+
+[[claim]]
+id = "workflow-flatline-tests"
+page = "workflow-automation/index.html"
+says = "MIT licensed, {} tests."
+derive = "pytest_count"
+args = { path = "C:/Users/hisbo/claude/dev/flatline" }
+
+[[claim]]
+id = "workflow-ledger-tests"
+page = "workflow-automation/index.html"
+says = "open-source repos, {} tests"
+derive = "pytest_count"
+args = { path = "C:/Users/hisbo/claude/dev/flatline" }
+
+# The repo count is GitHub state, not repo state -- a local clone cannot prove
+# a repo is PUBLIC, and this gate is deliberately offline so that pushing
+# without a network still works. So it is honestly UNCHECKABLE here rather
+# than checked against something that only looks like the source of truth.
+# Re-derive with:
+#   curl -s https://api.github.com/users/automatedworkflowllc-design/repos \
+#     | python -c "import sys,json;print(sum(1 for r in json.load(sys.stdin) if not r['private'] and (r.get('license') or {}).get('spdx_id')=='MIT'))"
+# It read 8 on 2026-08-17 (airlock attest canary custody docket flatline
+# hearth watchpost). tare is PRIVATE and is deliberately not counted.
+[[claim]]
+id = "workflow-open-source-repos"
+page = "workflow-automation/index.html"
+derive = "external"
+note = "count of PUBLIC MIT repos is GitHub state; this gate is offline by design. Re-derive with the curl in claims.toml; was 8 on 2026-08-17"

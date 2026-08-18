@@ -1,7 +1,7 @@
 {
- "claims": 11,
+ "claims": 15,
  "failed": 0,
- "uncheckable": 1,
+ "uncheckable": 2,
  "rows": [
   {
    "status": "SUPPORTED",
@@ -57,6 +57,26 @@
    "status": "SUPPORTED",
    "id": "workflow-tool-count-ledger",
    "detail": "workflow-automation/index.html still says \"eight tools that run in your browser\""
+  },
+  {
+   "status": "SUPPORTED",
+   "id": "builds-flatline-tests",
+   "detail": "builds/index.html still says \"122 tests, MIT, public\""
+  },
+  {
+   "status": "SUPPORTED",
+   "id": "workflow-flatline-tests",
+   "detail": "workflow-automation/index.html still says \"MIT licensed, 122 tests.\""
+  },
+  {
+   "status": "SUPPORTED",
+   "id": "workflow-ledger-tests",
+   "detail": "workflow-automation/index.html still says \"open-source repos, 122 tests\""
+  },
+  {
+   "status": "UNCHECKABLE",
+   "id": "workflow-open-source-repos",
+   "detail": "count of PUBLIC MIT repos is GitHub state; this gate is offline by design. Re-derive with the curl in claims.toml; was 8 on 2026-08-17"
   }
  ]
 }

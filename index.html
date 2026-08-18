@@ -2625,7 +2625,13 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 
       <figure class="pulse-demo rv">
         <figcaption class="pulse-demo-cap"><span aria-hidden="true">//</span> Watch a report write itself &mdash; 20 seconds</figcaption>
-        <video src="/ai-business-pulse-demo.mp4" autoplay muted loop playsinline preload="metadata"
+        <!-- data-src, not src: this file is 538 KB and this figure is 54% down the page
+             inside a .rv block, so it starts at opacity:0 and NOBODY has seen it at the
+             moment it downloads. It carried preload="metadata", which reads like a limit
+             and is overridden by autoplay on the same tag - the whole file was fetched on
+             every visit, competing with the content above it. Loading is now deferred to
+             the observer below, which starts it 300px before it scrolls into view. -->
+        <video data-src="/ai-business-pulse-demo.mp4" autoplay muted loop playsinline preload="none"
                aria-label="Twenty-second demo: every Monday at 8am the workflow reads your numbers, writes a plain-English summary, and emails it to you — shown ending on a real AI-written email reporting $7,850 outstanding."></video>
       </figure>
     </section>
@@ -3056,6 +3062,51 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
 
   // Scroll reveal — with a hard failsafe: nothing content-critical may stay hidden.
   var revealEls = document.querySelectorAll(".rv");
+
+  // Deferred media.
+  //
+  // NOTE the deliberate difference from the reveal failsafe below. That sweep force-reveals
+  // everything after 4s because hidden CONTENT is unacceptable. Media does NOT ride that
+  // sweep: doing so would download the 538 KB for every visitor anyway, four seconds later,
+  // which is not a fix -- it just moves the cost past the paint. The failure it would guard
+  // against is a blank video frame for someone who scrolled to it AND whose observer missed,
+  // which is cosmetic, and screenshot tools and odd viewports (the cases that sweep exists
+  // for) are exactly the ones that should not be fetching half a megabyte of video.
+  //
+  // loadMedia is idempotent: it keys on the attribute it removes.
+  var loadMedia = function(root){
+    if (!root || !root.querySelectorAll) return;
+    var vids = root.querySelectorAll("video[data-src]");
+    Array.prototype.forEach.call(vids, function(v){
+      v.src = v.getAttribute("data-src");
+      v.removeAttribute("data-src");
+      v.load();
+      var p = v.play();
+      // An autoplay rejection is normal (power saving, reduced data). Swallow it:
+      // an unhandled rejection here would surface as a console error on a page whose
+      // whole promise is that you can open devtools and watch it behave.
+      if (p && p.catch) { p.catch(function(){}); }
+    });
+  };
+  var loadAllMedia = function(){ loadMedia(document); };
+
+  if ("IntersectionObserver" in window) {
+    var mediaEls = document.querySelectorAll("video[data-src]");
+    if (mediaEls.length) {
+      var mio = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if (entry.isIntersecting) { loadMedia(entry.target.parentNode || entry.target); mio.unobserve(entry.target); }
+        });
+      // Deliberately EARLIER than the reveal observer below, which fires slightly late
+      // (-6%). Starting the fetch only once the frame is already on screen would trade a
+      // page-load cost for a visible stall, which is not a fix.
+      }, { rootMargin: "300px 0px 300px 0px" });
+      Array.prototype.forEach.call(mediaEls, function(v){ mio.observe(v); });
+    }
+  } else {
+    loadAllMedia();
+  }
+
   var revealAll = function(){
     Array.prototype.forEach.call(revealEls, function(el){ el.classList.add("in"); });
   };
