@@ -219,7 +219,13 @@ function table(rows){
   var header = rows[0].map(function(h,i){ return (h||'').trim() || ('column '+(i+1)); });
   var body = rows.slice(1).filter(function(r){ return r.join('').trim() !== ''; });
   return { header: header, body: body,
-    col: function(i){ return body.map(function(r){ return (r[i]===undefined?'':String(r[i])).trim(); }); } };
+    col: function(i){ return body.map(function(r){ return (r[i]===undefined?'':String(r[i])).trim(); }); },
+    /* Untrimmed. col() trims every cell, which is right for date and number
+       parsing and fatal for the one check whose whole subject is whitespace:
+       "Paid" vs "Paid " arrived here already identical, so the spacing half of
+       the spelling/spacing check could never fire and the file came back
+       "no name collisions". Only that check uses this. */
+    colRaw: function(i){ return body.map(function(r){ return r[i]===undefined?'':String(r[i]); }); } };
 }
 
 /* ---- classify by what the columns MEAN, not by filename ---------------- */
@@ -287,11 +293,13 @@ function structural(t, src, findings){
        space that did not exist. The sibling name check two blocks down already
        quotes the real forms; these are now consistent. Found 2026-08-18 by the
        dirty-data probe. */
+    var rawDistinct = Object.keys(t.colRaw(ci).reduce(function(acc,v){
+      if(String(v).trim() !== '') acc[v]=1; return acc; }, Object.create(null)));
     var canon = Object.create(null), variants = 0, firstPair = null;
-    distinct.forEach(function(v){ var k=v.toLowerCase().replace(/\s+/g,' ').trim();
+    rawDistinct.forEach(function(v){ var k=v.toLowerCase().replace(/\s+/g,' ').trim();
       if(canon[k] !== undefined){ variants++; if(!firstPair) firstPair=[canon[k], v]; }
       else canon[k]=v; });
-    if(variants && distinct.length < 40) findings.push({sev:'med', src:src,
+    if(variants && rawDistinct.length < 40) findings.push({sev:'med', src:src,
       title:'"'+name+'" has '+variants+' spelling/spacing variant'+(variants===1?'':'s'),
       detail: (firstPair ? '"'+firstPair[0]+'" vs "'+firstPair[1]+'"' : '')
         + ' — filters and pivot tables count these as different things.'});
