@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">155 entries · newest first within each group</p>
+  <p class="stamp">156 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,42 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">A check called &ldquo;spelling/spacing&rdquo; could not detect spacing &mdash; and its own example was the case it could not find
+      <span class="chip live">fixed</span><span class="chip">2 defects</span><span class="chip">failed toward silence</span><span class="chip">3 controls</span></p>
+    <p class="what"><b>A second probe of /check/, at the column checks rather than the reconcile
+    path another session had just fixed.</b> It started well: a deliberately nasty invoice export
+    produced four correct findings &mdash; three date formats, one customer spelled three ways,
+    mixed number formats, a status variant &mdash; and the clean version of the same six invoices
+    produced zero, worded honestly (&ldquo;that is the result you want &mdash; and it is not the
+    same as not having looked&rdquo;). Both directions demonstrated before looking for anything.</p>
+    <p class="proof"><b>The first defect was a detail line that only looked like data.</b> It read
+    <code>e.g. "Paid" vs "paid&nbsp;"</code> &mdash; hardcoded, printed regardless of the file. On a
+    file whose real collision was case, it sent the reader hunting for a trailing space that did not
+    exist. The sibling name check two blocks down already quoted the real forms, so one report was
+    showing your data and the other was showing a fiction, in the same list.</p>
+    <p class="proof"><b>Fixing that meant testing the case the example cited &mdash; and the second
+    defect was underneath it. THE SPACING HALF COULD NEVER FIRE.</b> <code>table()</code>'s
+    <code>col()</code> trims every cell, which is right for date and number parsing and fatal for
+    the one check whose entire subject is whitespace. <code>Paid</code> and <code>Paid&nbsp;</code>
+    arrived already identical, so a file containing exactly that came back <b>&ldquo;Nothing found
+    &hellip; no name collisions&rdquo;</b> &mdash; a clean bill of health on the defect the tool
+    advertises, and the ironic case: the hardcoded example named the one thing it was blind to.</p>
+    <p class="proof"><b>It failed toward silence, which is the worse direction</b> &mdash; a wrong
+    number invites a second look, a clean report closes the question. Fixed with a
+    <code>colRaw()</code> accessor used by that single check, rather than un-trimming
+    <code>col()</code> and disturbing every other check that depends on it.</p>
+    <p class="proof"><b>Three cases against the rebuilt page, because a fix that always reported a
+    pair would have passed the obvious test and been worse.</b> A trailing-space file now reports
+    <code>"Paid" vs "Paid&nbsp;"</code> with the quotes making the space visible; the clean file
+    still reports nothing, so it does not fire spuriously; and the original dirty file still
+    produces all four of its findings. Five suites and six gates pass, including the reconcile
+    tests another session added hours earlier.</p>
+    <p class="where">awllc-website a30adfa &middot; _brand/build_check_page.py &middot; distinct from f70b7e2, which fixed the join key on the same page</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 17</div>
   <div>
