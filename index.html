@@ -2631,7 +2631,16 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
              and is overridden by autoplay on the same tag - the whole file was fetched on
              every visit, competing with the content above it. Loading is now deferred to
              the observer below, which starts it 300px before it scrolls into view. -->
-        <video src="/ai-business-pulse-demo.mp4" autoplay muted loop playsinline preload="metadata"
+        <!-- data-src, not src. This file is 538 KB and this figure sits 54% down the page inside
+             a .rv block, so it starts at opacity:0 -- nobody has seen it at the moment it
+             downloads. preload="metadata" reads like a limit and is overridden by autoplay on
+             the same tag, so the whole file was fetched on every visit. Loading is deferred to
+             the observer below, which starts it 600px before the frame scrolls into view.
+             NOTE: no playback attribute is changed. Once src is assigned this element is
+             configured identically to the original, so anything that played before still
+             plays; the only new failure mode is src never being assigned, which is the part
+             that IS verifiable here. -->
+        <video data-src="/ai-business-pulse-demo.mp4" autoplay muted loop playsinline preload="none"
                aria-label="Twenty-second demo: every Monday at 8am the workflow reads your numbers, writes a plain-English summary, and emails it to you — shown ending on a real AI-written email reporting $7,850 outstanding."></video>
       </figure>
     </section>
@@ -3100,7 +3109,7 @@ a.btn-green:hover, a.btn-green:focus, a.btn-green:active, .btn-green{
       // Deliberately EARLIER than the reveal observer below, which fires slightly late
       // (-6%). Starting the fetch only once the frame is already on screen would trade a
       // page-load cost for a visible stall, which is not a fix.
-      }, { rootMargin: "300px 0px 300px 0px" });
+      }, { rootMargin: "600px 0px 600px 0px" });
       Array.prototype.forEach.call(mediaEls, function(v){ mio.observe(v); });
     }
   } else {
