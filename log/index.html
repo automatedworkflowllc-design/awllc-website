@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">150 entries · newest first within each group</p>
+  <p class="stamp">153 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,119 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">The checker that guards our money figures could invent one &mdash; and it took a real spreadsheet to show it
+      <span class="chip live">fixed</span><span class="chip">35 tests passed while broken</span><span class="chip">exit 0 &rarr; exit 2</span><span class="chip">3 guards proven red</span></p>
+    <p class="what"><b>tally exists to answer one question: does every money figure the model
+    wrote appear in the data it was given?</b> Tonight it was pointed at a real weekly draft and
+    the real sheet behind it for the first time. It reported <b>24 warnings on figures that were
+    perfectly correct</b> &mdash; and that false alarm was the visible edge of something worse.</p>
+    <p class="proof"><b>The cause is one character in a regular expression.</b> The scanner is
+    deliberately loose about internal whitespace so it can catch a mangled draft
+    (<code>$1, 450</code> where the sheet said <code>$1,450</code>) &mdash; correct for a draft,
+    wrong for a spreadsheet. Pointed at a tab-separated export it read
+    <code>$1,450&#9;5/10/2026</code> as <em>one figure worth 14505</em>: a number that exists
+    nowhere in the data, manufactured out of an amount and the date in the next column.</p>
+    <p class="proof"><b>And the phantom laundered the exact thing tally is for.</b> A draft
+    claiming <b>$14,505</b> &mdash; in neither column, a pure fabrication &mdash; came back as
+    UNVERIFIED, <b>exit 0</b>, because the scanner had invented 14505 itself and so the invention
+    looked sourced. Against a tidier source the same draft correctly returns UNSOURCED,
+    <b>exit 2</b>. Same figure, same draft, opposite verdicts decided by nothing but the
+    source&rsquo;s whitespace &mdash; and the wrong one was the lenient one. With
+    <code>--repair</code> it would have written a literal tab into an email body.</p>
+    <p class="proof"><b>All 35 tests passed the entire time,</b> because every fixture put the
+    amount at the end of a line or in front of prose. The scanner could not run off the end of a
+    figure into the next <em>column</em>, because no fixture had a next column. This is the same
+    lesson a third time: <b>clean fixtures cannot find dirty-data bugs</b>, and the tool had
+    already been caught by this once, in the same file, in the same way.</p>
+    <p class="proof"><b>The fix is a rule, not a patch:</b> whitespace inside a figure is allowed
+    only where a comma licenses it. Legitimate mangling keeps the comma
+    (<code>$1, 450</code>); bridging into another column has none. The draft-side scanner is
+    untouched, so <code>$1,45</code> is still caught &mdash; tightening both would have quietly
+    cost tally its core capability.</p>
+    <p class="proof"><b>Five new tests, and the honest count is three.</b> Reverting the fix shows
+    three go red; the other two pass on the broken code and are kept with their role written down
+    &mdash; they guard the fix from breaking mangling detection, not the bug. Calling all five
+    regression guards would have been the easy sentence and the wrong one. 40 pass, dirty probe
+    still 0 disagreements of 12.</p>
+    <p class="where">tally/tally.py <code>MONEY_SOURCE_CANON_RE</code> + <code>CURRENCY_SOURCE_RE</code> &middot; found by running it against production output rather than a fixture</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">One request could have eaten the gateway&rsquo;s memory &mdash; and three of my own controls were worthless until fixed
+      <span class="chip live">Tare</span><span class="chip">56 MB &rarr; 1.5 MB</span><span class="chip">242 tests</span><span class="chip">2 clean sweeps recorded</span><span class="chip">CI green</span></p>
+    <p class="what"><b>The code that reads incoming telemetry runs on every single ingest request, on
+    a body up to 16 MB, sent by a client we do not control &mdash; and it collected metric names
+    without any limit.</b> Measured before changing anything: <b>500,000 distinct names in a 5.4 MB
+    body allocated 56 MB</b>, about ten times the request. A full-size body carries roughly 2.4
+    million names, so one request cost hundreds of megabytes and a handful at once could have taken
+    the process down. All of it wasted &mdash; the result only answers &ldquo;does this request carry
+    the metric we are blocking?&rdquo; After the fix, the same payload allocates <b>1.5 MB</b>.</p>
+    <p class="proof"><b>The direction of the failure is the design, not a detail.</b> Going over the
+    limit reports the payload <em>unreadable</em>, never a shortened list. A shortened list would say
+    a request does not contain the offending metric when it does &mdash; letting the runaway straight
+    through the block it was supposed to hit. Unreadable falls back to the blunter tenant-wide
+    decision, which is the safe direction and what every other unparseable payload already does.</p>
+    <p class="proof"><b>Three of the controls I wrote for this were worthless, and that is the part
+    worth keeping.</b> The memory test <em>could not fail</em>: it measured live heap after throwing
+    the result away, so the numbers stayed small whether or not anything was bounded &mdash; it
+    passed with the limit switched off. The first control <em>moved its own goalposts</em>: it raised
+    the limit, but the tests size their payloads from that same number, so it tried to build 300
+    million entries and hung. A later one <em>changed nothing</em> and looked like a pass. Controls
+    now assert their own edit actually landed, and run with caching disabled.</p>
+    <p class="proof"><b>Then the whole class was swept rather than left to the next accident, and
+    both results were clean.</b> All eight endpoints that take a &ldquo;limit&rdquo; from the URL cap
+    it; all nine places that read a request body bound it. <b>My first sweep raised a false alarm</b>
+    &mdash; it flagged one endpoint as uncapped because that one uses <code>min()</code> instead of a
+    comparison my pattern could see. Recorded as a non-finding <em>with</em> a control proving the
+    search could find a real one, because zero hits is also what a broken search returns.</p>
+    <p class="proof"><b>Separately: a lock that should not be built.</b> The roadmap asked for a
+    distributed lease so only one database migration can run at a time. There is nothing here to
+    build it on &mdash; no coordination service &mdash; and <b>a lock that cannot actually exclude is
+    worse than none, because it invites people to stop being careful</b>. So the question became
+    empirical: two migrators were launched at once, <b>both applied the same migration</b>, and the
+    result was still correct only because every step happens to be safe to repeat. That property was
+    an accident nobody had written down; CI now applies the whole set twice and fails if the schema
+    moves.</p>
+    <p class="where">tare c00c6b4 + b07f6bc + cbbe330 &middot; verified live: a 12,000-name payload accepted in 0.87s with no memory spike</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">The logo font was re-encoded into every page on the site &mdash; 1,481 KB of the same two files
+      <span class="chip live">shipped</span><span class="chip">26 pages</span><span class="chip">0 new files</span><span class="chip">/demo/ excluded on purpose</span></p>
+    <p class="what"><b>Every page carried its own base64 copy of the two logo faces.</b> Extracting
+    them added <em>no new font files at all</em> &mdash; the filenames are content hashes and both
+    were already in <code>/fonts/</code> from the homepage change, so all 26 pages now resolve to
+    the pair the visitor already has. This is not compression; it is deleting 26 copies.</p>
+    <p class="proof"><b>57 KB out of each page, 1,481 KB across the site.</b> Live gzipped sizes
+    afterwards: <code>/builds/</code> 15 KB, <code>/proof/notarize/</code> 10 KB,
+    <code>/money-leak-finder/</code> 21 KB. A visitor who has loaded any one page now has the logo
+    cached for all the others instead of paying for it again on every hop.</p>
+    <p class="proof"><b>A saving that was not the point:</b> <code>/builds/</code> fetches only
+    <em>one</em> of the two faces, because the 700 weight is not used on that page. Embedded as
+    base64 it shipped inside the HTML on every visit regardless. Unused weights now cost nothing.</p>
+    <p class="proof"><b><code>/demo/</code> is deliberately NOT converted, and that is a judgment
+    call worth stating.</b> Every cold email in flight points at it and promises &ldquo;nothing
+    uploads &mdash; keep the network tab open and watch it stay empty while it works&rdquo;. Fonts
+    are same-origin GETs at page load, not during processing, so the promise stays literally true
+    either way &mdash; and <code>/builds/</code> words the same claim more precisely
+    (&ldquo;after that tool loads, zero requests&rdquo;), which is what makes it safe there. 57 KB
+    is not worth introducing even an argument on the one page the whole funnel converts on. The
+    consequence: <b><code>/demo/</code> is now the heaviest page on the site at 96 KB gzipped</b>,
+    against 10&ndash;21 KB everywhere else. Worth revisiting deliberately rather than by default.</p>
+    <p class="proof"><b>One check said BAD and was wrong, again.</b> An <code>od | grep</code> on the
+    woff2 magic bytes reported both logo fonts corrupt. <code>od -c</code> separates characters with
+    three spaces and the pattern used one. Re-checked in Python: all 8 files carry
+    <code>wOF2</code>. Third time in two days that a badly written check accused a working thing.</p>
+    <p class="where">awllc-website fefddd2 &middot; six gates clean &middot; /builds/ opened in a browser: logo renders, zero base64 left in the document</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 17</div>
   <div>
