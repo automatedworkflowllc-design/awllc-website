@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">149 entries · newest first within each group</p>
+  <p class="stamp">150 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,49 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">Our own flagship automation has been drafting chase emails off numbers that froze a month ago
+      <span class="chip staged">found</span><span class="chip">31 days stale</span><span class="chip">5 of 8 wrong tier</span><span class="chip">not yet fixed</span></p>
+    <p class="what"><b>The weekly chase-queue workflow ran this morning at 07:01 and produced a
+    perfect-looking draft.</b> Every invoice listed, every amount correct, every tone assigned,
+    total reconciling to the sheet. It went out to nobody, as designed &mdash; it stops at a draft.
+    And every &ldquo;days overdue&rdquo; figure in it was <b>31 days out of date</b>.</p>
+    <p class="proof"><b>How it surfaced:</b> comparing the draft from 8/10 with the one from 8/17.
+    The overdue counts were <em>identical</em> &mdash; 68, 63, 60, 46, 37, 22, 19, 16 on both. Seven
+    days apart, against fixed due dates, those numbers have to move. Two reports agreeing with each
+    other is not evidence; here it was the symptom.</p>
+    <p class="proof"><b>Then the arithmetic said exactly when it stopped.</b> Adding each row&rsquo;s
+    printed &ldquo;days overdue&rdquo; back onto its own due date lands on <b>2026-07-17 for all
+    eight rows</b> &mdash; one single date, which is what proves the column is typed values rather
+    than a formula. A formula would have drifted per-row or not at all; it could not land eight
+    rows on one stale day.</p>
+    <p class="proof"><b>It is not a cosmetic staleness &mdash; it changes what the emails say.</b>
+    Tone escalates with age (15 friendly / 30 firmer / 60+ serious), and tone is derived from the
+    frozen column, so <b>5 of 8 invoices are in the wrong tier</b>. Three accounts genuinely 47&ndash;53
+    days overdue are being drafted <em>friendly nudges</em>; two at 68&ndash;77 days get
+    &ldquo;firmer&rdquo; instead of serious. True split is 5 serious / 3 firmer / 0 friendly; the
+    sheet says 3 / 2 / 3.</p>
+    <p class="proof"><b>The part that stings.</b> The sheet says, in its own header text,
+    <em>&ldquo;Days overdue computes itself&rdquo;</em> and <em>&ldquo;each Monday this queue
+    rebuilds itself from your open invoices&rdquo;</em>. Both are false. This is the precise failure
+    this business is pointed at &mdash; a report that arrives on time carrying numbers that stopped
+    updating &mdash; found inside our own demo of that exact product. It is also, literally, the
+    defect the redline tool exists to find: a typed number sitting where a formula should be.</p>
+    <p class="proof"><b>Blast radius, checked rather than assumed:</b> the sheet is <b>not linked
+    from any page on the site</b>, and the three live pages that say a thing &ldquo;rebuilds
+    itself&rdquo; are describing <code>/demo/</code>, which genuinely does. So no visitor has been
+    shown these numbers. The exposure is internal: one workflow, drafting weekly, into our own inbox.</p>
+    <p class="proof"><b>NOT FIXED, and saying so rather than implying otherwise.</b> The only Google
+    Sheets write action available here appends rows &mdash; it cannot rewrite a cell or set a
+    formula, so there is no safe path to repair it from this seat. The fix is Colin&rsquo;s and it is
+    a design call as much as a repair: make Days Overdue and Tone Tier real formulas, and anchor the
+    due dates to today the way <code>/demo/</code> already does, so the spread stays teachable and
+    the sheet cannot freeze again.</p>
+    <p class="where">Nudge Escalator (AR Chase Queue) demo sheet, unmodified since 2026-07-19 &middot; verified against the 8/10 and 8/17 drafts and re-derived from due dates, not read off the sheet</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 17</div>
   <div>
