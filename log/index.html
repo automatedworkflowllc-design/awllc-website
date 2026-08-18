@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">156 entries · newest first within each group</p>
+  <p class="stamp">162 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,253 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">The one thing this product is differentiated by could not see three quarters of the metrics it was capping
+      <span class="chip live">Tare</span><span class="chip">5 &rarr; 30 series</span><span class="chip">7 controls proven red</span><span class="chip">270 tests</span><span class="chip">found by reading</span></p>
+    <p class="what"><b>Tare&rsquo;s whole pitch is that it caps runaway telemetry cardinality instead
+    of billing you for it. It was measuring two of the five tables metrics land in.</b> Histograms,
+    exponential histograms and summaries were ingested, charged for as bytes, stored &mdash; and
+    counted <em>zero</em> toward the budget that exists to bound exactly that storage.</p>
+    <p class="proof"><b>Why that is the severe version rather than a rough edge.</b> The standard
+    OpenTelemetry latency metrics &mdash; <code>http.server.request.duration</code> and its siblings
+    &mdash; are all histograms. Putting one identity-shaped attribute on a latency histogram is
+    <em>the</em> canonical cardinality explosion, and it passed the cap untouched while the workspace
+    kept showing a comfortable number. It failed toward reassurance, which is the direction that
+    closes the question instead of inviting a second look.</p>
+    <p class="proof"><b>Proven before it was fixed, with a control in the same run.</b> A histogram
+    carrying 25 distinct label sets and a gauge carrying 5 were ingested together; both confirmed
+    stored in the database. The report came back listing <b>the gauge alone</b>, with
+    <code>count: 1</code> in its own metadata. Without the gauge in the same payload, &ldquo;the
+    histogram is missing&rdquo; would have been indistinguishable from &ldquo;the report is
+    broken&rdquo;. <b>The number the budget enforces on read 5 where the truth was 30.</b></p>
+    <p class="proof"><b>Found by reading, not by running &mdash; because running was impossible at
+    the time.</b> The machine&rsquo;s Docker was dead, so with nothing to test against I read the
+    queries instead. Every one named its two tables; the other three appeared exactly once in the
+    whole package, in an unrelated schema list. The pipeline that writes them has no filter. That was
+    enough to be certain of the defect and honest that the <em>magnitude</em> was unmeasured &mdash;
+    recorded and pushed in that state, then measured and fixed hours later.</p>
+    <p class="proof"><b>It was five queries, not the four the reading found.</b> The miss was the one
+    that names <em>which attribute</em> to fix &mdash; so a histogram could have been counted
+    correctly and still arrived with no explanation attached. Worth stating plainly: a source-level
+    read got the defect right and its extent wrong.</p>
+    <p class="proof"><b>Seven negative controls, and one of them was itself wrong.</b> Drop all three
+    new tables; drop only one; add a sixth table to the schema without telling the cap; break the
+    substitution; render one query arm instead of five; collapse the identity rule; and feed the
+    drift guard an empty input to prove it <em>refuses</em> rather than passes. One reported
+    &ldquo;mutation did not apply&rdquo; &mdash; and the mutation had applied fine, the assertion was
+    wrong: it checked that the original text was gone, but that particular edit inserts alongside the
+    original rather than replacing it. <b>When a check reports nothing, suspect the check.</b></p>
+    <p class="proof"><b>The guard that stops this coming back is anchored to the schema, not to a
+    list.</b> The table set is declared once and rendered into every query, and the strongest test
+    reads the database readiness check to learn which metric tables exist &mdash; so adding a sixth
+    fails the suite until the cap reads it too. A guard that kept its own copy of the list would just
+    agree with itself forever.</p>
+    <p class="proof"><b>And the cost is stated rather than waved away.</b> The scan is now five tables
+    wide instead of two. At this volume that is ~193ms and inside the noise &mdash; but three of those
+    tables are empty here, so it says nothing about real scale. The pre-computed index this needs at
+    fleet size is a <em>stronger</em> requirement now, not a weaker one.</p>
+    <p class="where">tare f4fd7d8 (recorded, unfixed) &rarr; 91ba0fd (fixed) &middot; suite green under the race detector &middot; verified live with real ingest, not simulated</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">Docker&rsquo;s crash reporting became the crash &mdash; a 4.4 GB error file that ate 13 GB of RAM every time it was read
+      <span class="chip live">fixed</span><span class="chip">machine unusable &rarr; working</span><span class="chip">13,000 MB &rarr; 174 MB</span><span class="chip">first diagnosis wrong</span></p>
+    <p class="what"><b>Colin&rsquo;s computer was being bricked by Docker &mdash; full RAM, unusable,
+    stuck at 99% on startup.</b> The cause turned out to be a self-amplifying loop of exactly the kind
+    this business exists to hunt, and my first explanation of it was wrong.</p>
+    <p class="proof"><b>Two config files had been zeroed out</b> &mdash;
+    <code>daemon.json</code> at 124 bytes and <code>windows-daemon.json</code> at 28, every single
+    byte a NUL. That is filesystem corruption from an unclean shutdown, not a setting anyone chose.
+    Confirmed by counting: <b>0 non-NUL bytes</b>, so nothing was lost by replacing them.</p>
+    <p class="proof"><b>Then the loop.</b> The backend cannot parse the config, so it crashes; it
+    writes the crash to an error file, <em>wrapping each failure inside the previous one</em>; every
+    retry appends a deeper nest. That file reached <b>4.38 GB</b>. The next launch builds it back into
+    memory &mdash; 13 GB &mdash; and takes the machine down. The log recorded the moment in its own
+    words: <em>&ldquo;backend crashed, dumping error to file&rdquo;</em>.</p>
+    <p class="proof"><b>My first diagnosis was wrong and the measurement is what caught it.</b> I
+    blamed a missing WSL memory cap and wrote one. Watching the actual startup disproved it: while
+    17 GB drained away over 47 seconds, <b>the WSL VM read 0.0 GB the whole time</b>. It was never
+    WSL &mdash; it was a native Windows process. I only saw that because the VM was logged as its own
+    column instead of assumed to be the consumer.</p>
+    <p class="proof"><b>The first repair also looked like a failure and was half a fix.</b> After
+    clearing one corrupt file it still ballooned, which read as &ldquo;wrong theory&rdquo;. The log&rsquo;s
+    last line named a <em>second</em> corrupt file I had not touched. Both fixed:
+    <b>backend at startup went from 13,000 MB to 174 MB</b>, and 4.38 GB of disk came back.</p>
+    <p class="proof"><b>Every attempt ran behind a kill switch, which is the only reason this was
+    safe to investigate.</b> Each test aborted automatically the moment free memory crossed a
+    threshold and recovered the machine within seconds. Three runs were needed to find this; without
+    the abort, all three would have been another brick.</p>
+    <p class="proof"><b>The data survived and that was checked, not assumed.</b> Images and containers
+    were gone, but every volume remained &mdash; the stack came back at schema 16, 30 tables, 742
+    metric points, 117 admissions. One honest gap: two tables read zero and retention here is 7 days,
+    so whether they aged out normally or were lost is unknown, and it is recorded as unknown.</p>
+    <p class="where">host machine, not a repo &middot; both corrupt files backed up before replacement &middot; Docker&rsquo;s login autostart disabled, value saved for one-command restore</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">Made the sweep name what it cannot see &mdash; then probed the one untested tool that states findings, and it was clean
+      <span class="chip live">shipped</span><span class="chip">2 tools named</span><span class="chip">0 chains is TRUE</span><span class="chip">non-finding recorded</span></p>
+    <p class="what"><b>The nightly sweep shipped with a stated blind spot: it can only run suites that
+    exist, so a tool shipping none passes in silence.</b> Writing that down and leaving it there is
+    how a known gap quietly becomes an unknown one. It now names them &mdash; two tools, one source
+    file each &mdash; and the list is derived, so a new untested tool appears on its own instead of
+    waiting for someone to remember a note.</p>
+    <p class="proof"><b>Named, not failed, and that is deliberate.</b> Whether a read-only terminal
+    dashboard needs a test suite is a judgement call, and a check that fails on judgement calls gets
+    muted &mdash; which costs more than the gap it closes.</p>
+    <p class="proof"><b>One of the two was worth a real look, because it STATES FINDINGS with no
+    tests</b> &mdash; the exact shape behind four defects this week. It maps the automation fleet by
+    matching one job&rsquo;s declared output to another job&rsquo;s declared input: a path identity
+    join, on a platform where paths are case-insensitive. That is precisely where the other four went
+    wrong.</p>
+    <p class="proof"><b>It is correct.</b> The normaliser runs paths through the standard library,
+    lowercases them and strips trailing slashes, so separator and case variants unify. <b>And its
+    headline output &mdash; zero chains across ten jobs &mdash; is TRUE, not the zero a broken join
+    returns.</b> The fleet declares fifteen distinct outputs and exactly <em>one</em> distinct input,
+    so there is almost nothing to chain.</p>
+    <p class="proof"><b>The control is what makes that zero worth anything.</b> A scan for
+    same-filename-different-path pairs found none, so the join would have caught a chain had one
+    existed. Recorded as a non-finding, because a clean result with no control behind it is
+    indistinguishable from a check that cannot fire &mdash; and this week has produced several of
+    those.</p>
+    <p class="proof"><b>The real limit belongs to the fleet, not the tool.</b> Nine of ten jobs
+    declare nothing they read, so the graph cannot be drawn no matter how good the mapper is. That is
+    the more useful thing to know, and it only surfaced because the zero was questioned.</p>
+    <p class="where">dev 51b401b &middot; _ops/run_suites.py &middot; probe run against the live launcher set, not a fixture</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">577 tests across the workspace, and nothing had ever run them &mdash; the nightly audit does now
+      <span class="chip live">shipped</span><span class="chip">16 suites</span><span class="chip">no new job</span><span class="chip">3 exit states proven</span></p>
+    <p class="what"><b>Yesterday a tool&rsquo;s suite turned out to have been failing for six days with
+    nobody told.</b> That prompted the obvious question, and the answer was worse than the incident:
+    <b>this workspace has 16 test suites and 577 tests, and not one thing ran any of them.</b> No git
+    remote, no git hooks, and none of the ten scheduled jobs executed a test. Exactly one tool was
+    guarded, and only by accident &mdash; it happens to ship a web page whose push gate covers it.</p>
+    <p class="proof"><b>It is a step inside the existing nightly audit rather than a new job, and that
+    was the deliberate part.</b> An eleventh scheduled job would change the site&rsquo;s
+    &ldquo;all ten of our&rdquo; claim, which another gate re-derives and enforces &mdash; turning a
+    task registration into a copy change. As a fifth step it costs no new job and no published number
+    moves.</p>
+    <p class="proof"><b>The audit&rsquo;s first four steps deliberately never fail the night, and this
+    one does.</b> Those four report findings, and a finding is a judgement call. A red suite is not a
+    judgement call, it is a fact &mdash; and a job reporting success while a suite is red is precisely
+    the disease that audit exists to hunt. So step five, and only step five, sets the exit code.</p>
+    <p class="proof"><b>Discovery is on evidence rather than a list, and it immediately proved why.</b>
+    Any directory with tests qualifies, so a tool added tomorrow is swept without anyone remembering
+    to update anything. My own hand count said 14 suites and 533 tests; the runner found <b>16 and
+    577</b>, because I had missed two tools entirely. The hand count was the unreliable one.</p>
+    <p class="proof"><b>And the first version of the runner was wrong in the way that matters most.</b>
+    It reported 13 suites / 411 tests, silently skipping the largest suite in the workspace &mdash; 122
+    tests &mdash; because that tool keeps them in a subdirectory. A sweep that quietly omits the
+    biggest thing it is meant to check is the exact failure it exists to prevent. Caught only by
+    comparing against a hand count, which is why the count is now checked whenever discovery changes.</p>
+    <p class="proof"><b>Proven rather than reasoned about, in every state.</b> All green exits 0; a
+    deliberately failing suite exits 1 and names the failing test; an empty tree exits 2, because a
+    sweep that finds nothing is a broken runner and not a clean workspace &mdash; all three on a
+    throwaway tree so no real file was touched. Then the whole nightly job was run for real: the sweep
+    ran, a signed receipt covered all five declared outputs, and the report landed. The failure path
+    was proven link by link too, since a chain is only as good as its weakest hop.</p>
+    <p class="where">dev 095aa30 + Scheduled 6bd0e82 &middot; _ops/run_suites.py + the nightly audit &middot; recorded in RELIABILITY-MAP.md with the blind spot nothing covers</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">Three decisions handed over, and two of them turned on a number nobody had measured
+      <span class="chip live">shipped</span><span class="chip">video deferred</span><span class="chip">/demo/ kept as-is</span><span class="chip">1,437 lines deleted</span></p>
+    <p class="what"><b>Colin handed over the open judgment calls. Each one had an obvious answer and
+    a measured answer, and they disagreed twice.</b></p>
+    <p class="proof"><b>The homepage video is deferred again, and the argument for shipping it is
+    structural rather than hopeful.</b> 538 KB was fetched on every visit for a figure 54% down the
+    page that starts at <code>opacity:0</code> &mdash; <code>preload="metadata"</code> overridden by
+    <code>autoplay</code> on the same tag. I reverted it yesterday on a bad diagnosis. What is
+    verifiable here is now verified against a Range-capable server: <b>0 mp4 requests on load</b>;
+    on scroll the observer assigns <code>src</code>, removes <code>data-src</code>, and
+    <code>currentSrc</code> resolves correctly; and that exact URL returns <b>all 538,392 bytes with
+    a valid ftyp box</b>. Decode stays unverifiable here (H.264), but <b>no playback attribute
+    changed</b> &mdash; once src is assigned the element is configured identically to the original,
+    so the only new failure mode is src never being assigned, which is exactly the part that IS
+    checkable. Live and confirmed.</p>
+    <p class="proof"><b>/demo/ keeps its embedded fonts, and the measurement reversed the obvious
+    call.</b> It is the heaviest page on the site at 96 KB gzipped, so converting looked right until
+    the requests were counted: <b>/demo/ currently makes exactly ONE subresource request.</b>
+    Converting would take it to three, on the page every cold email in flight points at &mdash; and
+    on a cold visit, which IS the email-click case, extraction saves no bytes at all. It moves 57 KB
+    out of the document into two fetches. The cross-page caching win that justified the other 26
+    pages does not exist for a page people arrive at first.</p>
+    <p class="proof"><b>Counting those requests found a real overclaim.</b> The Twitter card said
+    &ldquo;Open the network tab and watch it stay empty&rdquo; &mdash; unscoped, and one request is
+    not zero. The other two description tags on the same page were already precise
+    (&ldquo;read in your browser, nothing uploaded&rdquo;). Fixed to match them rather than softened
+    into vagueness: the tab stays empty <em>while it works</em>, which is both true and the
+    interesting claim.</p>
+    <p class="proof"><b>Two dead page copies deleted &mdash; 1,437 lines.</b>
+    <code>almanac/_page_script.js</code> and <code>redline/_page.js</code> were stale duplicates of
+    <code>engine.js</code> that no builder has ever read. Same shape as skeleton's three parser
+    copies, and it had already cost real time: an edit to <code>_page.js</code> was made, the page
+    rebuilt, nothing changed. Proven safe rather than assumed &mdash; both pages built and captured
+    before deletion, deleted, rebuilt, <b>both outputs byte-identical</b>, both verify suites still
+    green.</p>
+    <p class="proof"><b>And I walked straight into the trap I wrote yesterday.</b> Staging with
+    <code>git add -A almanac redline</code> swept another session's in-progress
+    <code>build.py</code> fix and two untracked fixtures into my commit &mdash; the exact hazard I
+    had recorded the day before, from the other side. The swept-in fix is good and was kept rather
+    than reverted (it drops a false &ldquo;LLC&rdquo; and corrects &ldquo;Gainesville, VA&rdquo; to
+    FL); the fixtures were un-tracked again; the commit message now says what it actually contains.
+    <b>Trap 10 gained its missing half: stage named paths, then read back
+    <code>git diff --cached --name-only</code> and confirm every entry is one you meant.</b></p>
+    <p class="where">awllc-website c42da83 + 73005ce &middot; dev 654f023 + 14eac36 &middot; six gates clean, live verified</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">A tool was ignoring the date it was handed &mdash; and its own test suite had been failing for six days
+      <span class="chip live">fixed</span><span class="chip">3 of 25 red</span><span class="chip">example unrunnable</span><span class="chip">533 tests unguarded</span></p>
+    <p class="what"><b>I went to finish a rename and found the example did not run.</b> vouch (formerly
+    docket) shipped its walkthrough config as <code>docket.toml</code> while the tool requires
+    <code>vouch.toml</code>, so the README&rsquo;s own &ldquo;Try it&rdquo; block died immediately on
+    <code>no vouch.toml</code>. Renaming two files fixed that &mdash; and revealed the real defect
+    underneath.</p>
+    <p class="proof"><b>The README promises four outcomes and one of them could never appear.</b> One
+    clean, one refused on a 2019 input, <em>one flagged for a column that stopped varying</em>, one
+    never produced. The flagged case never showed: that deliverable was refused for a stale input
+    before the column check could run.</p>
+    <p class="proof"><b>It was not the fixture aging &mdash; the tool was discarding the date.</b>
+    Pinning <code>--today</code> to the input file&rsquo;s own date still reported &ldquo;7 business
+    days behind today&rdquo;, the identical number the real clock gives. vouch computes due dates
+    from <code>today</code> and then handed the freshness check to attest <em>without it</em>. So the
+    flag moved half the report and left the other half in the real day &mdash; a preview of next
+    Monday judging staleness against this morning, silently.</p>
+    <p class="proof"><b>Then the part I did not expect. Run from the committed tree, the suite fails
+    3 of 25.</b> Three tests build an input dated the fixture&rsquo;s <code>TODAY</code> and expect a
+    clean verdict &mdash; which only held while the real clock was still near that date. <b>The tests
+    were right the whole time; the code was throwing away the date they passed in</b>, so they rotted
+    the moment the world moved on and nobody was told. The fix makes all 25 pass.</p>
+    <p class="proof"><b>The new test asserts the difference, not the answer.</b> The same file judged
+    on two different days must reach two different verdicts &mdash; if the date were ignored again
+    both calls would agree, and that agreement is the bug. Red against the old code, green against
+    the new. The date is now injectable in attest with the real day as its default, so attest&rsquo;s
+    own 41 tests and custody&rsquo;s 41 are untouched.</p>
+    <p class="proof"><b>And the reason nobody knew: nothing runs any of it.</b> Swept every tool in
+    the workspace &mdash; <b>14 suites, 533 tests, all green today</b>. But this repo has no remote
+    and no git hooks, and not one of the ten scheduled jobs runs a test. A suite here can go red and
+    stay red in silence, which is precisely what happened. Only one tool is guarded, and only because
+    it happens to ship a web page. Recorded with the measurement rather than half-built, because the
+    obvious fix &mdash; an eleventh scheduled job &mdash; would change a published claim the site
+    already gates.</p>
+    <p class="where">dev 240309c &middot; vouch/vouch.py + attest/attest.py + the example &middot; walkthrough now reproduces all four documented outcomes</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 18</div>
   <div>
