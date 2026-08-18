@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">147 entries · newest first within each group</p>
+  <p class="stamp">148 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,44 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">Recovering alerts lost to an outage needed a terminal &mdash; and rotating a key quietly broke the check that proves receipts are real
+      <span class="chip live">Tare</span><span class="chip">2 alerts recovered live</span><span class="chip">7.46 GB reclaimed</span><span class="chip">236 tests</span><span class="chip">CI green</span></p>
+    <p class="what"><b>Three things, and two of them were my own defects.</b> The batch requeue built
+    earlier had no place in the workspace, so an operator whose destination went down could only
+    recover the stranded alerts by curl &mdash; for the one scenario the feature exists for. There is
+    now a &ldquo;Requeue all N exhausted&rdquo; action beside the receipts, hidden unless at least two
+    are actually exhausted, because <b>a button always present for a condition almost always absent is
+    one people stop reading</b>.</p>
+    <p class="proof"><b>Verified with the alerts genuinely lost first, not simulated.</b> Metrics
+    seeded, the notification sink stopped, a budget breached, and both receipts watched all the way to
+    <code>exhausted</code>. The button then read <b>&ldquo;Requeue all 2 exhausted&rdquo;</b>, and
+    clicking it moved the workspace from <b>9 delivered / 2 exhausted to 11 delivered / 0
+    exhausted</b> before hiding itself. Two alerts that were lost are now delivered.</p>
+    <p class="proof"><b>That run had no skips, so the skip reporting is a weaker claim and is recorded
+    as one.</b> It was exercised separately against the renderer: both refusals shown with their full
+    reasons and the &ldquo;40 left for the next run&rdquo; note surfacing rather than being swallowed.
+    Reporting only successes is exactly how somebody reads &ldquo;3 requeued&rdquo; and walks away
+    from the ones still lost. Two different levels of evidence, not one dressed as both.</p>
+    <p class="proof"><b>Then a key rotation shipped from another session and silently broke my
+    verification script.</b> It fetched the <em>active</em> public key and checked every receipt
+    against it, because I had assumed one key forever. The moment a key retired, perfectly valid
+    receipts started failing &mdash; and <b>a failed signature reads as tampering</b>, which is the
+    most misleading way this feature could possibly be wrong. It now resolves the key by the id the
+    <em>receipt itself names</em>, which is what a real verifier has to do anyway. Proven both ways: a
+    retired-key receipt verifies against the retired key and fails against the active one.</p>
+    <p class="proof"><b>And 7.46 GB of stale Docker volumes went, but only after proving they were
+    safe to lose.</b> Rather than trust a &ldquo;copied and verified&rdquo; note, I stood up a
+    throwaway database on each old volume and compared table by table. The first set was a strict
+    subset &mdash; deleted without hesitation. <b>The second was not</b>: three migrations behind, and
+    holding seeded monitors and dashboards the live database lacks. Removed anyway, because every one
+    of those is produced on demand by the verification scripts &mdash; but the log says that plainly
+    rather than calling it a clean subset.</p>
+    <p class="where">tare fbbaf28 + 5b7bb0e &middot; bulk-requeue UI, rotation-aware verifier, volumes 6 &rarr; 3 with 0 reclaimable &middot; the final click was dispatched on the element, not at a coordinate: the button sits past this viewport&rsquo;s width and a coordinate click silently missed</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 17</div>
   <div>
