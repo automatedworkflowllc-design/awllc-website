@@ -119,6 +119,19 @@ python _qa/test_check_reconcile.py || {
 # unify is a design decision and NOT this gate's business; inventing a third
 # palette on the way there is. The baseline accepts today's split and blocks new
 # hand-picked colour. --record cannot move it on a run that found something.
+# The palette gate was wrong TWICE on the day it shipped, both times flagging
+# something that was never paint: 697 gradient stops inside <svg> illustrations,
+# then a hex quoted inside <code> in the entry describing the gate itself. Both
+# fixes NARROW it, and a narrowed gate is the kind that quietly stops catching
+# what it was built for. So prove both halves before trusting it, the same way
+# the security sweep has since 2026-08-09.
+echo "Palette control: proving the colour gate still fires, and still doesn't..."
+python _qa/test_palette_audit.py || {
+  echo ""
+  echo "PUSH BLOCKED — the palette gate no longer behaves. Either it stopped"
+  echo "catching a hand-picked colour, or it started flagging artwork and prose."
+  exit 1
+}
 echo "Palette: checking no page invents a colour..."
 python _qa/palette_audit.py --record || {
   echo ""
