@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">153 entries · newest first within each group</p>
+  <p class="stamp">154 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,56 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">The platform refused telemetry during exactly the outage it exists to observe &mdash; and the thing we blamed was not the cause
+      <span class="chip live">Tare</span><span class="chip">503 &rarr; 200</span><span class="chip">265 tests</span><span class="chip">19 controls proven red</span><span class="chip">roadmap corrected</span></p>
+    <p class="what"><b>With the database paused, every request failed &mdash; after a fifteen-second
+    wait, because the wait was the database client timeout.</b> So an observability platform stopped
+    accepting data at the one moment somebody needs it, and did it by hanging rather than refusing.
+    Both halves are now fixed, and the second half is the one the roadmap had wrong.</p>
+    <p class="proof"><b>Measured before writing anything.</b> A credential lookup costs ~8.5ms
+    against ~187ms for a request doing real work, so this was an availability problem and not a
+    latency one. Authentication is now cached with a bounded outage grace, and the grace only ever
+    extends an answer <em>already observed</em>: a key never seen is refused, a denial is never
+    extended, and an expired credential is denied inside the window as well as outside it.
+    Inventing authorization is not an availability tradeoff anyone gets to make.</p>
+    <p class="proof"><b>Then the fix revealed the real coupling, and the roadmap&rsquo;s own words
+    turned out to be an unchecked estimate.</b> It called authentication &ldquo;the largest
+    availability coupling&rdquo;. With auth cached, the same paused-database ingest failed as
+    <code>spend_control_unavailable</code> instead &mdash; the admission path does up to five
+    database reads per ingest request and runs on every metered query too. It was both the larger
+    coupling and the wider one. Measuring it took ten minutes; it had sat in a plan for two days.</p>
+    <p class="proof"><b>The question that decided the second fix was not &ldquo;can we be more
+    available&rdquo; but &ldquo;whose promise are we keeping.&rdquo;</b> A customer configured for a
+    hard stop asked for exact enforcement, and exact is impossible while the ledger is unreadable
+    &mdash; so it still refuses, and now names the mode so the log reads as a decision rather than a
+    bug. A customer configured for alerts-only explicitly asked <em>not</em> to be blocked, so
+    blocking them enforces a stop nobody configured. Now they keep ingesting.</p>
+    <p class="proof"><b>And that only works because of something checked rather than assumed:</b>
+    posting telemetry straight to the collector with the database paused returned <b>200</b>, it
+    retried on a backoff, and the point landed once the database came back. Admitting during an
+    outage genuinely preserves the data instead of moving the failure one hop downstream. Had the
+    collector rejected it, the honest answer was to leave the refusal alone &mdash; that is how the
+    question was framed before the answer was known.</p>
+    <p class="proof"><b>The usage admitted blind is owed, not forgotten.</b> It accrues in memory,
+    is written back on recovery as one deliberately <em>uncertain</em> record rather than
+    &ldquo;accepted&rdquo;, and a failed write puts the debt back. Until it lands, the customer&rsquo;s
+    own usage page says so: <code>accepted_bytes: 1743</code> beside
+    <code>unrecorded: {bytes: 498, requests: 2}</code>. <b>A total that is quietly too low is the
+    exact failure this whole product is pointed at</b>, so nobody should have to read our logs to
+    find out theirs is provisional.</p>
+    <p class="proof"><b>19 negative controls, and 5 of them did not work on the first attempt.</b>
+    Two failed to match the source, three compiled away a variable &mdash; and a control that never
+    ran is indistinguishable from a check that cannot fail. Each one now asserts the mutation
+    actually landed before its test runs. <b>Two more test expectations turned out wrong against
+    correct code:</b> a write-only failure <em>should</em> admit an alerts-only customer, and the
+    memory bound on owed usage cannot be reached by customer count at all, because a second bound
+    refuses first. That second one became its own test.</p>
+    <p class="where">tare 1f3c1e8 + 0137b79 &middot; ADR 0016 + 0017 &middot; verified live with the database paused, not simulated &middot; suite green under the race detector before each commit</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 17</div>
   <div>
