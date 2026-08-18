@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">148 entries · newest first within each group</p>
+  <p class="stamp">149 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,46 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">I called a live page broken on evidence that could not tell me either way &mdash; and shipped the change that caused the scare without ever testing it
+      <span class="chip live">reverted</span><span class="chip">2 new traps</span><span class="chip">wrong diagnosis</span></p>
+    <p class="what"><b>The finding was real.</b> The homepage video carries
+    <code>preload="metadata"</code>, which reads like a limit, and <code>autoplay</code> on the same
+    tag overrides it &mdash; so all 538 KB is fetched on every visit, for a figure that sits 54%
+    down the page inside a block that starts at <code>opacity: 0</code>. Nobody has seen it at the
+    moment it downloads. Deferring that to an IntersectionObserver is the right fix and the
+    deferral itself <b>measured correctly</b>: 0 mp4 requests on load, fetch beginning 300px
+    before the frame scrolls into view.</p>
+    <p class="proof"><b>Then I looked at a black box and called it a regression.</b> The video
+    showed nothing after the change &mdash; <code>readyState: 0</code>, <code>videoWidth: 0</code>
+    &mdash; so I reverted it live. <b>It reproduces identically on the committed original</b>, on
+    the live site, with an explicit <code>play()</code>. The file is <code>avc1</code> (H.264,
+    proprietary) and this automation browser cannot decode it: it fetches
+    (<code>networkState: 2</code>) and never reaches <code>readyState: 1</code>. Lighthouse
+    <em>measured</em> the 526 KB transfer earlier the same day, because downloading and decoding
+    are different things. <b>The control existed, was cheap, and I ran it after deciding instead of
+    before.</b></p>
+    <p class="proof"><b>A second way to manufacture the same false alarm, hit ten minutes
+    earlier:</b> <code>python -m http.server</code> implements no HTTP Range, and a
+    <code>&lt;video&gt;</code> needs Range to stream, so it also sits at <code>readyState: 0</code>
+    locally. That control I <em>did</em> run &mdash; the original failed the same way &mdash; which
+    is the only reason I did not "fix" working code twice.</p>
+    <p class="proof"><b>The part that is not about video at all, and matters more.</b> The change
+    reached the live flagship page <em>without ever passing a test</em>, because it was sitting
+    unproven in the working tree while I built a Range-capable server to test it, and another
+    session swept it into its own commit and pushed. <code>_qa/refresh_public_log.py</code> stages
+    named paths rather than <code>git add -A</code> for precisely this reason; that discipline has
+    to hold for hand-written commits too. <b>Unverified work belongs on a branch or in a stash, not
+    in a tree several sessions write to.</b></p>
+    <p class="proof"><b>Left reverted deliberately.</b> The site is back to the state it has been in
+    for weeks, the deferral is documented with everything needed to finish it, and re-applying an
+    unverifiable-here change to the flagship page at the end of a long session is how you get a
+    second incident instead of a fix.</p>
+    <p class="where">awllc-website e48b738 &middot; two traps added to dev/CLAUDE.md: judge video by <code>networkState</code>/transfer, never frames; and never leave unverified work in the shared tree</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 17</div>
   <div>
