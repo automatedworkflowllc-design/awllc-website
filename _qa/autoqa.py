@@ -301,22 +301,42 @@ def check_deploy():
     try:
         out = subprocess.run(
             ['gh', 'api', 'repos/automatedworkflowllc-design/awllc-website/pages/builds/latest',
-             '--jq', '.status + " " + .commit'],
+             '--jq', '.status + " " + .commit + " " + .updated_at'],
             cwd=ROOT, capture_output=True, text=True, timeout=40).stdout.strip()
     except Exception as e:
         defect('deploy', 'could not reach the Pages build API (%s)' % e)
         return
     parts = out.split()
-    if len(parts) != 2:
+    if len(parts) != 3:
         defect('deploy', 'Pages build API returned %r -- cannot verify the deploy' % out[:80])
         return
-    status, built = parts
+    status, built, when = parts
+    if status == 'built' and built == head:
+        return
+
+    # NOT serving origin/main. Whether that is a PROBLEM depends on how long it
+    # has been true. Learned the hard way on 2026-08-17: two pushes minutes apart
+    # left the first build 'errored' in this API purely because the second one
+    # superseded it -- the workflow run says 'cancelled'. Reporting that as a
+    # failure is crying wolf, and a guard nobody trusts is worse than no guard,
+    # which is the lesson the Hearth monitor already paid for. Normal builds here
+    # finish in ~40s; the worst legitimate wait observed was ~15 minutes during a
+    # GitHub incident. So churn is silent and only a genuinely stuck or failed
+    # deploy speaks up.
+    try:
+        age_min = (datetime.datetime.now(datetime.timezone.utc)
+                   - datetime.datetime.fromisoformat(when.replace('Z', '+00:00'))
+                   ).total_seconds() / 60.0
+    except Exception:
+        age_min = 999.0
+    if age_min < 30:
+        return
     if status != 'built':
-        defect('deploy', 'the newest Pages build is %s (commit %s) -- the site is NOT '
-                         'serving what was pushed' % (status, built[:7]))
-    elif built != head:
-        defect('deploy', 'live site is serving %s but origin/main is %s -- a push did not '
-                         'deploy' % (built[:7], head[:7]))
+        defect('deploy', 'the newest Pages build has been %s for %d minutes (commit %s) -- '
+                         'the site is NOT serving what was pushed' % (status, age_min, built[:7]))
+    else:
+        defect('deploy', 'live site has been serving %s for %d minutes but origin/main is %s -- '
+                         'a push did not deploy' % (built[:7], age_min, head[:7]))
 
 
 # ---------------------------------------------------------------- main
