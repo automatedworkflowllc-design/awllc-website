@@ -74,12 +74,6 @@ python ../skeleton/build.py >/dev/null || {
   echo "PUSH BLOCKED - skeleton's engine suite failed. Fix the engine, not the test."
   exit 1
 }
-# _brand/tokens.py promises "a new tool CANNOT be off-brand, because it does not
-# declare its own colours". Measured 2026-08-16: nothing enforced that, and the
-# site was already 33 pages on a legacy palette and 3 on tokens.py. Which way to
-# unify is a design decision and NOT this gate's business; inventing a third
-# palette on the way there is. The baseline accepts today's split and blocks new
-# hand-picked colour. --record cannot move it on a run that found something.
 # A person and a role are IDENTITIES. Measured 2026-08-17: one nurse covering a
 # whole week, spelled five ways, made "only one person can cover Nurse" and
 # "54h in a week" BOTH disappear -- an all-clear over a real risk, from a page
@@ -92,6 +86,25 @@ python _qa/test_shift_coverage.py || {
   echo "Either it loses someone to a spelling, or it merged two real people."
   exit 1
 }
+# /check/ is the only tool that puts MONEY on a finding, and the number comes
+# from joining two files on a shared column. Measured 2026-08-17: spelling the
+# job IDs in lower case turned "$800 of finished work nobody invoiced" into NO
+# FINDING -- and it still reported a successful join, because the only overlap
+# left was the two AMOUNT columns. An amount is not an identity, and joining on
+# one turns "these files do not line up" into a confident all-clear.
+echo "Check: does the dollar figure survive how the IDs are spelled..."
+python _qa/test_check_reconcile.py || {
+  echo ""
+  echo "PUSH BLOCKED - /check/ reconciles two files wrongly."
+  echo "Either a spelling difference hides real unbilled work, or it invented a join."
+  exit 1
+}
+# _brand/tokens.py promises "a new tool CANNOT be off-brand, because it does not
+# declare its own colours". Measured 2026-08-16: nothing enforced that, and the
+# site was already 33 pages on a legacy palette and 3 on tokens.py. Which way to
+# unify is a design decision and NOT this gate's business; inventing a third
+# palette on the way there is. The baseline accepts today's split and blocks new
+# hand-picked colour. --record cannot move it on a run that found something.
 echo "Palette: checking no page invents a colour..."
 python _qa/palette_audit.py --record || {
   echo ""

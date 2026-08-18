@@ -280,12 +280,21 @@ function structural(t, src, findings){
       findings.push({sev:'high', src:src, title:'"'+name+'" is "'+distinct[0].slice(0,28)+'" on every row',
         detail:'A column whose job is to flag things has never once flagged anything. It cannot distinguish.'});
 
-    var canon = Object.create(null), variants = 0;
+    /* Quote the pair that ACTUALLY collided. This detail line used to print a
+       hardcoded 'e.g. "Paid" vs "paid "' regardless of the file, which reads as
+       though it is showing your data and is not: on a file whose real collision
+       was case ("unpaid" vs "Unpaid"), it sent the reader hunting for a trailing
+       space that did not exist. The sibling name check two blocks down already
+       quotes the real forms; these are now consistent. Found 2026-08-18 by the
+       dirty-data probe. */
+    var canon = Object.create(null), variants = 0, firstPair = null;
     distinct.forEach(function(v){ var k=v.toLowerCase().replace(/\s+/g,' ').trim();
-      if(canon[k] !== undefined) variants++; else canon[k]=v; });
+      if(canon[k] !== undefined){ variants++; if(!firstPair) firstPair=[canon[k], v]; }
+      else canon[k]=v; });
     if(variants && distinct.length < 40) findings.push({sev:'med', src:src,
       title:'"'+name+'" has '+variants+' spelling/spacing variant'+(variants===1?'':'s'),
-      detail:'e.g. "Paid" vs "paid " — filters and pivot tables count these as different things.'});
+      detail: (firstPair ? '"'+firstPair[0]+'" vs "'+firstPair[1]+'"' : '')
+        + ' — filters and pivot tables count these as different things.'});
 
     var shapes = Object.create(null);
     present.forEach(function(v){ var s=dateShape(v); if(s) shapes[s]=1; });
@@ -386,15 +395,32 @@ function rosterChecks(t, src, findings){
 
 /* ---- reconciliation across two files ------------------------------------ */
 function reconcile(a, b, findings){
+  /* AN ID IS AN IDENTITY. Measured 2026-08-17 on the shipped page: the same two
+     files, with the invoice side spelling job IDs in lower case, went from
+     "$800 of finished work nobody invoiced" to NO FINDING AT ALL -- and still
+     reported a successful join, because once the ID columns stopped matching,
+     the best-scoring overlap left was the two AMOUNT columns. Joining work to
+     invoices on the amount declares every job billed whenever the numbers
+     happen to line up. That is the /money-leak-finder/ defect, on the page that
+     puts a dollar figure on its answer.
+
+     Two fixes, and the second matters as much as the first:
+       - the join key is normalised (the shared normPerson rule -- case, spacing
+         and punctuation, never edit distance), so a spelling difference cannot
+         hide a match;
+       - a money column can never BE the key. An amount is not an identity, and
+         letting it become one turns "these files do not line up" into a
+         confident all-clear, which is the worse of the two failures. */
   function cols(t){
     return t.header.map(function(h,i){ return {i:i, name:h, vals:t.col(i).filter(Boolean)}; })
-      .filter(function(c){ return c.vals.length; });
+      .filter(function(c){ return c.vals.length && !MONEYISH.test(c.name); })
+      .map(function(c){ c.keys = c.vals.map(normPerson); return c; });
   }
   var best=null;
   cols(a).forEach(function(ca){
-    var set = Object.create(null); ca.vals.forEach(function(v){ set[v]=1; });
+    var set = Object.create(null); ca.keys.forEach(function(v){ if(v) set[v]=1; });
     cols(b).forEach(function(cb){
-      var hits = cb.vals.filter(function(v){ return set[v]; }).length;
+      var hits = cb.keys.filter(function(v){ return v && set[v]; }).length;
       var score = hits / Math.max(ca.vals.length, cb.vals.length);
       if(hits >= 2 && (!best || score > best.score)) best = {score:score, ca:ca, cb:cb};
     });
@@ -421,10 +447,10 @@ function reconcile(a, b, findings){
      business to trust. */
   function sumFor(t, keyIdx, amtIdx, keys){
     if(amtIdx < 0) return null;
-    var want = Object.create(null); keys.forEach(function(k){ want[k] = 1; });
+    var want = Object.create(null); keys.forEach(function(k){ want[normPerson(k)] = 1; });
     var taken = Object.create(null), total = 0, counted = 0;
     t.body.forEach(function(r){
-      var k = String(r[keyIdx]||'').trim();
+      var k = normPerson(String(r[keyIdx]||''));
       if(!k || !want[k] || taken[k]) return;
       var v = money(r[amtIdx]);
       if(v === null) return;
@@ -437,9 +463,15 @@ function reconcile(a, b, findings){
   var aAmt = amountCol(a), bAmt = amountCol(b);
 
   function side(from, to, fromCol, toCol, fromAmt, label, meaning, sev){
-    var inTo = Object.create(null); toCol.vals.forEach(function(v){ inTo[v]=1; });
+    /* Matched on the normalised key, but REPORTED in the spelling the file
+       actually used -- the reader has to be able to find the row. */
+    var inTo = Object.create(null); toCol.keys.forEach(function(v){ if(v) inTo[v]=1; });
     var seen = Object.create(null), missing = [];
-    fromCol.vals.forEach(function(v){ if(!inTo[v] && !seen[v]){ seen[v]=1; missing.push(v); } });
+    fromCol.vals.forEach(function(v, idx){
+      var k = fromCol.keys[idx];
+      if(!k || inTo[k] || seen[k]) return;
+      seen[k] = 1; missing.push(v);
+    });
     if(!missing.length) return 0;
     var sum = sumFor(from, fromCol.i, fromAmt, missing);
     var f = {sev: sev, src:'both files',
