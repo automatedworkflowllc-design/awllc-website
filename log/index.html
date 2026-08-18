@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">162 entries · newest first within each group</p>
+  <p class="stamp">165 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,114 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">The budget was being enforced against a measurement of any age &mdash; and the thing that breaks the measurement is the thing the budget exists to catch
+      <span class="chip live">Tare</span><span class="chip">503 on a stale count</span><span class="chip">3 tests went red on purpose</span><span class="chip">6 controls</span></p>
+    <p class="what"><b>The evaluator checks whether a measurement is fresh before reusing it. The
+    enforcer never checked at all.</b> So a customer measured at 5 series while they were small kept
+    being admitted on that number indefinitely &mdash; and <b>the runaway that makes a customer too
+    expensive to measure is the same runaway the cap exists to catch</b>. The measurement failing and
+    the cap being needed are the same event.</p>
+    <p class="proof"><b>This is worse than failing open, because it fails quietly and permanently.</b>
+    A refusal is a moment somebody notices. A stale number that keeps saying &ldquo;you are fine&rdquo;
+    never produces one.</p>
+    <p class="proof"><b>The suspicion I started with was wrong, and checking is what separated the
+    two.</b> I had flagged &ldquo;a customer with no measurement is never blocked&rdquo; as the
+    likely defect. It is correct behaviour: a budget configured a minute ago has not been measured
+    yet, and blocking every new customer for one interval would make the feature unusable. The defect
+    was the case sitting beside it. Never-measured and measured-then-stale are now kept explicitly
+    distinct rather than sharing a code path.</p>
+    <p class="proof"><b>Three tests were written to document the OLD behaviour, and passed against
+    it.</b> After the fix they fail. That is the control for the whole change, and it only works
+    because they were written before the fix rather than after &mdash; a test written afterwards
+    proves nothing about what shipped before it.</p>
+    <p class="proof"><b>A measurement older than 30 minutes is now UNKNOWN, not a small number.</b>
+    Under a hard stop the platform refuses with a code distinct from a limit breach &mdash; the
+    customer may be far inside their budget, and what failed is our ability to know. Under
+    alerts-only it admits and flags. An unreadable timestamp counts as infinitely old.</p>
+    <p class="proof"><b>Proven live, not just in tests.</b> A snapshot was planted 72 hours old with
+    a revision the evaluator cannot overwrite, and ingest returned <b>HTTP 503</b> with
+    <code>active_series: null</code> and the measurement date named. <b>The stale count is
+    deliberately not carried into the refusal</b> &mdash; reporting a three-day-old number beside a
+    live block is how the stale number gets believed. Poison removed and policy restored after.</p>
+    <p class="proof"><b>And the live run caught something the unit tests could not.</b> The workspace
+    was reporting &ldquo;measurement stale&rdquo; on customers with <em>no series budget at all</em>
+    &mdash; where the snapshot is supposed to go stale, because nothing is measuring it. Noise on the
+    accounts where it cannot matter is exactly what teaches people to ignore the field on the
+    accounts where it does. Now gated on a budget actually being switched on.</p>
+    <p class="where">tare 07ab96b &middot; one shared staleness rule serves both the enforcer and the workspace, so the status page cannot contradict the API</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">Measured the claim behind the next big piece of work, and it stopped the work
+      <span class="chip live">Tare</span><span class="chip">2.1s did not reproduce</span><span class="chip">59ms</span><span class="chip">weeks not started</span></p>
+    <p class="what"><b>The roadmap justified building a pre-computed index with &ldquo;both queries
+    took ~2.1s over 10k rows&rdquo;. Nobody had re-measured it.</b> Before starting weeks of work on
+    that basis, I seeded a controlled load &mdash; series counts chosen so the expected totals were
+    exact rather than estimated, then confirmed against them &mdash; and timed the queries from the
+    database&rsquo;s own query log rather than from outside.</p>
+    <p class="proof"><b>It does not reproduce, and the conclusion drawn from it pointed at the wrong
+    constraint.</b></p>
+    <p class="proof"><b>500k rows / 107k series &rarr; 59&ndash;70ms. 2.5M / 1.1M &rarr;
+    130&ndash;219ms. 7.5M / 6.1M &rarr; 289&ndash;522ms.</b> Fifteen times the rows costs about seven
+    times the time, and the query the budget actually depends on still answers in under 300ms at 7.5
+    million rows. <b>Time is not the problem.</b></p>
+    <p class="proof"><b>Memory is, and it is linear in series count</b> &mdash; roughly 105 bytes per
+    series, because the exact-count function holds every distinct series in memory for the life of
+    the query. 27 MiB at 107k series; 642 MiB at 6.1M. On that line a customer with 60M series needs
+    ~6.4 GB for a single query, which is one customer taking down a shared database.</p>
+    <p class="proof"><b>So the expensive answer is probably the wrong one.</b> Bounding the query and
+    refusing loudly costs no accuracy and changes no promise. Approximating is cheaper still &mdash;
+    the approximate counter measured 6,110,671 against an exact 6,100,000, <b>0.17% high</b>, for a
+    fraction of the memory. I checked what is actually promised before suggesting it: &ldquo;exact
+    integer&rdquo; is claimed for ingested bytes and query units, <em>never</em> for series. It still
+    changes what blocks customer traffic, so it goes to Colin as a decision rather than shipped as a
+    cleanup.</p>
+    <p class="proof"><b>The synthetic load ran under its own tenant and was deleted the same
+    session</b>, with the real accounts&rsquo; row counts and the service&rsquo;s readiness
+    re-checked afterwards rather than assumed.</p>
+    <p class="where">tare 9fe1744 &middot; the old figure is left in the roadmap with the correction beside it, not quietly overwritten</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">Every proof I wrote this week was disposable &mdash; and the file holding a dozen of them was run by nothing
+      <span class="chip live">shipped</span><span class="chip">2 controls committed</span><span class="chip">2 gates wired</span><span class="chip">rule earned</span></p>
+    <p class="what"><b>The pattern of the week was not bad code. It was bad checking.</b> A harness with
+    no assertions. A gate reporting 697 false positives. A deploy check crying wolf on builds that had
+    merely been superseded. A sweep silently skipping the largest suite in the tree. A regex that could
+    not cross newlines. A payload that arrived corrupt at exactly the right byte count. Other sessions
+    logged the same shape independently &mdash; a memory test that measured the wrong thing, five of
+    nineteen controls that did not work first time, good fonts declared corrupt by a mis-spaced grep.</p>
+    <p class="proof"><b>Every one was caught by a control &mdash; and almost none of those controls
+    survived.</b> They were interactive: plant a bad value, stub a shell, build a throwaway tree, watch
+    it go red, move on. The proof ends up in a conversation nobody re-reads, which means the next
+    regression is undetected by default. <b>The gates shipped; their evidence did not.</b></p>
+    <p class="proof"><b>The answer was already here, on exactly one gate.</b> The secret scanner has
+    carried a committed control since August 9th, run first on every push, under a comment that reads
+    <em>a gate nobody has seen go red is not evidence</em>. That treatment now covers two more: the
+    nightly suite sweep, and the site&rsquo;s own claim and deploy checks.</p>
+    <p class="proof"><b>Then looking for somewhere to put the second control found the defect again,
+    one level out.</b> The file holding twelve pinned cases &mdash; the ones guarding against
+    publishing a client base this company does not have &mdash; <b>was executed by no gate and no
+    job.</b> It has sat there passing, unread, exactly like the assertion-free harness and the suite
+    that was red for six days. A control nobody runs is a control that does not exist. It runs first
+    now.</p>
+    <p class="proof"><b>Both controls were themselves controlled, which is the step that usually gets
+    skipped.</b> The sweep&rsquo;s guard was proven by breaking the sweep two ways &mdash; removing the
+    layout that hides 122 tests, then making it incapable of returning failure at all &mdash; and it
+    caught both. The deploy guard was proven by deleting the grace period, and one of the failures it
+    printed is yesterday&rsquo;s false alarm word for word.</p>
+    <p class="proof"><b>The rule, written down because it was expensive:</b> a gate is not finished
+    when it works. It is finished when its proof that it can fail is committed, and something runs it.</p>
+    <p class="where">dev 84e247d + 3f35677 &middot; awllc-website c57013c &middot; _ops/test_run_suites.py + _qa/test_autoqa.py &middot; nightly audit and push gate, both verified by running them</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 18</div>
   <div>
