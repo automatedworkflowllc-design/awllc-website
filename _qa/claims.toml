@@ -84,3 +84,44 @@ id = "hearth-record-count"
 page = "builds/index.html"
 derive = "external"
 note = "60,000+ records is produced by the Hearth pipeline in another repo; re-derive there, not here"
+
+# --- how many tools, and whether any of them phones home ------------------
+# These two facts are the same sentence on every page that says them, so one
+# deriver checks both: it counts the tools linked from the homepage band and
+# raises if any of them contains a network call. Added 2026-08-17, after
+# /workflow-automation/ was found claiming "six free tools", "Four tools" and
+# "four tools that run in your browser" on one page while the homepage
+# correctly said eight. Correcting the copy does not close that -- the number
+# had already rotted once before and nothing was watching it.
+#
+# NOTE the deliberate asymmetry: the homepage claim is checked in WORDS
+# ("Eight tools") and is also the page the count is derived from. That is not
+# circular -- the count comes from the band's LINKS and the assertion is
+# against its PROSE, which is exactly the pair that drifted apart here.
+[[claim]]
+id = "home-tool-count"
+page = "index.html"
+says = "{} tools that run"
+derive = "browser_tools"
+args = { style = "Words" }
+
+[[claim]]
+id = "workflow-tool-count-hero"
+page = "workflow-automation/index.html"
+says = "{} free tools on this site run entirely in your browser"
+derive = "browser_tools"
+args = { style = "words" }
+
+[[claim]]
+id = "workflow-tool-count-bench"
+page = "workflow-automation/index.html"
+says = "{} tools on this site."
+derive = "browser_tools"
+args = { style = "Words" }
+
+[[claim]]
+id = "workflow-tool-count-ledger"
+page = "workflow-automation/index.html"
+says = "{} tools that run in your browser"
+derive = "browser_tools"
+args = { style = "words" }

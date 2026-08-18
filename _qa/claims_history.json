@@ -1,5 +1,5 @@
 {
- "claims": 7,
+ "claims": 11,
  "failed": 0,
  "uncheckable": 1,
  "rows": [
@@ -37,6 +37,26 @@
    "status": "UNCHECKABLE",
    "id": "hearth-record-count",
    "detail": "60,000+ records is produced by the Hearth pipeline in another repo; re-derive there, not here"
+  },
+  {
+   "status": "SUPPORTED",
+   "id": "home-tool-count",
+   "detail": "index.html still says \"Eight tools that run\""
+  },
+  {
+   "status": "SUPPORTED",
+   "id": "workflow-tool-count-hero",
+   "detail": "workflow-automation/index.html still says \"eight free tools on this site run entirely in your browser\""
+  },
+  {
+   "status": "SUPPORTED",
+   "id": "workflow-tool-count-bench",
+   "detail": "workflow-automation/index.html still says \"Eight tools on this site.\""
+  },
+  {
+   "status": "SUPPORTED",
+   "id": "workflow-tool-count-ledger",
+   "detail": "workflow-automation/index.html still says \"eight tools that run in your browser\""
   }
  ]
 }

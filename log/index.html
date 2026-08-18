@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">142 entries · newest first within each group</p>
+  <p class="stamp">146 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -399,6 +399,137 @@
     keeping them in step. Recorded rather than rushed, because the fix is to give them one source
     and that deserves its own change.</p>
     <p class="where">awllc-website 5745436 &middot; _brand/build_shift_coverage.py + _qa/test_shift_coverage.py &middot; live, 9 gates green</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">The check that proves our receipts are real only worked once
+      <span class="chip live">Tare</span><span class="chip">fixed</span><span class="chip">2 wrong fixes first</span><span class="chip">proven twice back-to-back</span></p>
+    <p class="what"><b>The script that verifies a signed delivery receipt against the published key
+    passed on Monday and refused to run on Tuesday.</b> It needed an unacknowledged delivery to
+    rewrite &mdash; and acknowledging is exactly what it did to the row it used. Every run consumed
+    the thing the next run needed. <b>A verification script that only works the first time cannot
+    answer the one question it exists for: is this still true?</b></p>
+    <p class="proof"><b>The first fix was wrong, and the second was wrong for a different reason
+    &mdash; both worth recording.</b> Fix one: seed a fresh alert by breaching a budget. But usage
+    alerts <em>deduplicate</em> on a fingerprint that includes the budget value, so every run burns
+    one value and eventually raises nothing at all. Fix two: randomise the budget &mdash; except the
+    alert fires when series <em>reach</em> the limit, so a value from an arbitrary range is usually
+    far above the real count and breaches nothing. <b>Both failures look identical to a broken
+    pipeline</b>, which is why each took a run to diagnose rather than a glance.</p>
+    <p class="proof"><b>The actual fix was to stop needing a rewrite at all.</b> Since each row now
+    records which format its signature was made under, a receipt that is <em>already</em> signed can
+    be checked as it stands. That removes the dependency on the alert pipeline entirely &mdash; and
+    it is closer to what a real auditor does, since they verify records they had no hand in creating.
+    The rewrite and seeding paths stay as fallbacks for a database with no signed row at all.</p>
+    <p class="proof"><b>Proven the only way that counts here:</b> run twice, back to back, both exit
+    0 &mdash; and the four tampering assertions still run in full, so the easier path did not become
+    an easier test.</p>
+    <p class="where">tare 492f55b &middot; scripts/verify-receipt-signing.ps1</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">The Datadog competitor is called Tare now &mdash; the old name was owned, and one place it was buried decided the timing
+      <span class="chip live">Tare</span><span class="chip">8 names vetted</span><span class="chip">5 blocked</span><span class="chip">0 signatures touched</span><span class="chip">CI green</span></p>
+    <p class="what"><b>Colin asked whether themis.com was a problem. It was.</b> It is a live
+    governance/compliance SaaS selling to banks, and its owner holds a <b>live US trademark on the bare
+    word THEMIS in Class 42</b> &mdash; software-as-a-service, the exact class this product would file
+    in. The scope is compliance rather than observability, which is the argument in our favour, but
+    &ldquo;both are B2B SaaS sold to enterprise buyers&rdquo; is not a frivolous argument against.</p>
+    <p class="proof"><b>Two non-legal reasons mattered more than the trademark.</b> themis.com sells
+    <em>compliance monitoring</em> &mdash; and this is a monitoring product, so the search collision
+    sits on our own category&rsquo;s noun, permanently. And <b>every addressable domain was already
+    gone</b>: .com, .io, .dev, .ai, .sh. You cannot build a brand you cannot address.</p>
+    <p class="proof"><b>Eight candidates were vetted before any was proposed</b> &mdash; USPTO Class
+    9/42 via the authoritative status service, existing products, GitHub, package registries, and
+    registry RDAP. <b>Five came back blocked.</b> Colin doubted <em>Argus</em> specifically and was
+    right: four live products in this exact category already use it. The instructive one was
+    <em>Governor</em>, whose trademark register looks <em>empty</em> &mdash; because the USPTO has
+    twice refused it as merely descriptive for monitoring software. A clean search there would have
+    been actively misleading.</p>
+    <p class="proof"><b>Tare was the only one clear</b>, and it earns the name: the tare weight is what
+    you subtract so the scale reports <em>only what you are actually paying for</em>. That is this
+    product&rsquo;s entire thesis rather than a decoration on it &mdash; and unlike the rejected
+    &ldquo;Plimsoll&rdquo;, it is a word people meet on any kitchen scale.</p>
+    <p class="proof"><b>The name was cosmetic in 20 places and load-bearing in one, and that one set the
+    deadline.</b> It was the first line of every <em>cryptographically signed</em> delivery receipt, in
+    a published spec, with immutable signatures over it. That was made vendor-neutral <em>days
+    earlier, deliberately</em>, so the rename could not touch a single signature &mdash; and it did
+    not. <b>All six stored receipts still verify, against both independent verifiers, with all four
+    tampering cases still rejected.</b> Once receipts exist in a customer&rsquo;s audit trail, that
+    window closes for good.</p>
+    <p class="proof"><b>And the find-and-replace quietly edited history, which is worth recording.</b>
+    It rewrote a path in the durability notes so the docs claimed the project once lived somewhere it
+    <em>never had</em>, and it left the README explaining the <em>old</em> name&rsquo;s meaning under
+    the new one. Both caught by re-reading rather than by any check. <b>A rename is a
+    find-and-replace right up until it silently rewrites the record.</b> The dated entry naming Themis
+    stays in the build log, because that log is appended to, not rewritten.</p>
+    <p class="where">tare 49ea35c &middot; repo + directory + Compose project renamed, ~2GB of ClickHouse volumes copied and verified intact (16 migrations, 6 signed receipts) &middot; CI green</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">Recovering lost alerts one at a time was the wrong shape &mdash; an outage never strands exactly one
+      <span class="chip live">Themis</span><span class="chip">223 tests</span><span class="chip">3 negative controls</span><span class="chip">CI green</span></p>
+    <p class="what"><b>The redelivery endpoint built yesterday recovers an alert that died against a
+    destination that was down.</b> But a destination outage does not strand one alert &mdash; it
+    strands everything that fired while it was down. Recovering them by pasting identifiers one at a
+    time is the wrong tool for the only situation the feature exists for. Now a single call requeues
+    them as a batch, optionally scoped to one route.</p>
+    <p class="proof"><b>The rule it is built around is accounting, not throughput.</b> The response
+    names every receipt it requeued, every receipt it <em>skipped and why</em>, and how many eligible
+    ones it deliberately left behind. <b>Reporting only successes is how somebody reads
+    &ldquo;requeued 3&rdquo; and walks away from twelve alerts that are still lost.</b> The live test
+    asserts the arithmetic: requeued + skipped + remaining must account for every exhausted receipt,
+    so nothing can vanish between what it looked at and what it said.</p>
+    <p class="proof"><b>It refuses to requeue everything at once, on purpose.</b> Capped at 100 per
+    call, and it says when more remain &mdash; because dumping a whole outage&rsquo;s backlog at a
+    destination that has just come back is how you knock it over a second time. A partial run that
+    stayed quiet about the remainder would read as a complete one.</p>
+    <p class="proof"><b>One decision function, not two.</b> The per-receipt &ldquo;may this be
+    resent?&rdquo; check now lives in one place both endpoints call. A second copy is precisely how a
+    bulk operation ends up double-paging a team that the single-receipt path would have protected.
+    Proven by breaking it three ways &mdash; dropping the skip reporting, ignoring the limit, removing
+    the safety check &mdash; each failing only its own test.</p>
+    <p class="proof"><b>Verified live and scoped honestly:</b> sink stopped, a real alert exhausted,
+    sink restarted, batch requeued it, and a second immediate call correctly requeued nothing because
+    they were back in flight. <b>The live run stranded one receipt, not several</b> &mdash; the
+    multi-receipt and partial-limit cases are covered by unit tests, and the log says so rather than
+    implying the batch was proven at scale.</p>
+    <p class="where">themis 8b7ea7b &middot; <code>POST /v1/notifications/deliveries/redeliver</code> &middot; scripts/verify-bulk-redelivery.ps1, 8 endpoint tests</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 17</div>
+  <div>
+    <p class="name">Eleven of our own evidence files could not be opened by any JSON reader &mdash; and nothing had noticed
+      <span class="chip live">Themis</span><span class="chip">11 of 11 broken</span><span class="chip">3 bytes</span><span class="chip">218 tests</span><span class="chip">CI green</span></p>
+    <p class="what"><b>The harnesses that prove this platform behaves as claimed write their results to
+    JSON files.</b> Every single one of those files began with a <em>byte-order mark</em> &mdash; three
+    invisible bytes that make a file <b>invalid JSON</b>. Go&rsquo;s parser rejects them. JavaScript&rsquo;s
+    rejects them. <b>Evidence that no parser can read is not evidence.</b></p>
+    <p class="proof"><b>Proven, with the control that matters.</b> Stripping exactly three bytes makes
+    the identical file parse cleanly &mdash; so the mark is the sole cause, not a coincidence. 11 of 11
+    artifacts affected, going back to files written on the 14th. <b>Nothing had ever failed</b>, because
+    nothing in the repo read them back. They were written, committed, and trusted, and they had been
+    unreadable the whole time.</p>
+    <p class="proof"><b>One root cause, five scripts.</b> <code>Set-Content -Encoding UTF8</code> on
+    Windows PowerShell writes that mark. Every harness used it. They now write the mark-free form
+    explicitly, the 20 affected files in the tree were stripped &mdash; including
+    <code>compose.yaml</code> and all four Kubernetes manifests &mdash; and a guard walks the repo for
+    leading marks, proven by planting one marked JSON file and watching the build go red.</p>
+    <p class="proof"><b>This is the third encoding defect in one day, all from the same source, and the
+    shape is worth naming.</b> The first double-encoded the shipped UI so a close button rendered as
+    <code>&Atilde;&mdash;</code>. The second made a script unparseable via an invisible smart quote,
+    reporting the error thirty lines from the actual character. This one made evidence unreadable.
+    <b>Not one of the three produced an error at the time.</b> Every one produced a file that looks
+    completely fine and cannot be consumed &mdash; which is the same failure this whole product exists
+    to catch, found in our own tooling.</p>
+    <p class="where">themis 9d382fb &middot; 5 harness scripts + repo-wide BOM guard &middot; 218 tests, CI green, docker compose config still validates</p>
   </div>
 </div>
 <div class="row">

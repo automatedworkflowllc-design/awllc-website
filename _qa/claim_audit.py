@@ -145,7 +145,60 @@ def d_sum_rows(source: str, ids: list, **_) -> str:
     return '$' + format(total, ',')
 
 
+_NET_CALL = re.compile(r'fetch\(|XMLHttpRequest|WebSocket|sendBeacon|navigator\.send')
+
+
+def d_browser_tools(style: str = 'words', **_) -> str:
+    """How many in-browser tools the site has -- and none of them phones home.
+
+    The count and the privacy claim are ONE SENTENCE on three pages ("eight free
+    tools ... run entirely in your browser"), so they are re-derived together: a
+    tool that gains a fetch() must not be silently counted as one that cannot
+    upload. It raises instead, and the claim fails.
+
+    Source of truth is the homepage tools band -- the shipped list a visitor can
+    press -- minus the /builds/ index, which is a page about the tools and not
+    one of them. That is a STRUCTURAL definition (what is linked, what the file
+    contains) checked against a PROSE claim, which is the point: the two rot
+    independently, and this is what notices. Written 2026-08-17 after the count
+    was found stale in three places on /workflow-automation/ while the homepage
+    was right -- the second time these numbers have disagreed with each other.
+    """
+    home = (ROOT / 'index.html').read_text(encoding='utf-8', errors='replace')
+    s = home.index('<section class="tools-band"')
+    band = home[s:home.index('</section>', s)]
+
+    dirs, seen = [], set()
+    for href in re.findall(r'href="(/[a-z0-9-]+/)"', band):
+        if href != '/builds/' and href not in seen:
+            seen.add(href)
+            dirs.append(href)
+    if not dirs:
+        raise RuntimeError('no tools linked in the homepage tools band')
+
+    talkers = []
+    for href in dirs:
+        p = ROOT / href.strip('/') / 'index.html'
+        if not p.exists():
+            raise RuntimeError(f'tools band links {href} but {p} does not exist')
+        if _NET_CALL.search(p.read_text(encoding='utf-8', errors='replace')):
+            talkers.append(href)
+    if talkers:
+        raise RuntimeError('these are counted as in-browser tools but make network '
+                           'calls: ' + ', '.join(talkers))
+
+    n = len(dirs)
+    if style == 'digits':
+        return str(n)
+    w = _WORDS.get(n, str(n))
+    # Two of these claims open a sentence, so the match is case-sensitive on
+    # purpose -- a template that ignored case would also stop noticing a
+    # mid-sentence number that got capitalised by a careless edit.
+    return w.capitalize() if style == 'Words' else w
+
+
 DERIVERS = {
+    'browser_tools': d_browser_tools,
     'sum_rows': d_sum_rows,
     'pytest_count': d_pytest_count,
     'wrapped_jobs': d_wrapped_jobs,
