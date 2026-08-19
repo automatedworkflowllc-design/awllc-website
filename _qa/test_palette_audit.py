@@ -92,7 +92,12 @@ def main():
 
     # 3. THE POINT. Real paint from no palette must fail, and be named.
     code, out = run(site({'painted': PAINTED}))
-    ok('a hand-picked colour in real paint fails the gate', code == 1, 'exit %s' % code)
+    # Requires the gate's own banner as well as the exit code. A Python traceback
+    # also exits 1, so `code == 1` alone passes on a gate that merely CRASHED --
+    # measured 2026-08-18 by breaking palette_audit.py syntactically and watching
+    # this one case go green while the naming cases caught it.
+    ok('a hand-picked colour in real paint fails the gate',
+       code == 1 and 'PALETTE AUDIT' in out, 'exit %s | %s' % (code, out[:120]))
     ok('the offending page is named', 'painted' in out, out)
     ok('the offending colour is named', INVENTED in out, out)
 
