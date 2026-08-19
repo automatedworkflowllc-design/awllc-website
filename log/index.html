@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">165 entries · newest first within each group</p>
+  <p class="stamp">170 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,194 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">Sixteen of seventeen endpoints could not tell a partial answer from a complete one &mdash; so it became a convention, not a fifth patch
+      <span class="chip live">Tare</span><span class="chip">16 of 17 silent</span><span class="chip">guard found 3 more</span><span class="chip">16 controls</span></p>
+    <p class="what"><b>Every list endpoint here is bounded, which is deliberate &mdash; an unbounded
+    query is how one customer takes the database down. What was missing is that a result sitting at
+    its limit looked identical to a complete one.</b> And <b>the harm is never the missing rows. It
+    is the conclusion drawn from their absence:</b> no audit events for this action, no incidents
+    this week, no failed deliveries, no dependency between these two services.</p>
+    <p class="proof"><b>It started as a fifth one-off fix and turned into a survey.</b> Having just
+    fixed the dependency map by hand &mdash; where a truncated result is drawn as <em>the</em>
+    topology, and the half of a topology nobody thinks to doubt is the <em>absence</em> of an edge
+    &mdash; I counted the rest. Sixteen of seventeen bounded handlers said nothing. Fixing a fifth
+    would have meant coming back for a sixth.</p>
+    <p class="proof"><b>The leverage point was already in the code.</b> Six handlers shared one
+    response builder, so the convention went in once and covered them immediately; the rest took a
+    one-line change each. Every bounded response now carries whether it was truncated, plus wording
+    that says what that means rather than only flipping a boolean.</p>
+    <p class="proof"><b>The guard is the actual deliverable.</b> A test reads the handler source
+    &mdash; not a list somebody has to remember to update &mdash; and fails any handler that applies
+    a limit, returns a list, and stays silent. <b>It found three more on its first run</b>, including
+    one the manual survey had missed entirely.</p>
+    <p class="proof"><b>And one of those three was the guard being wrong, which is the part worth
+    keeping.</b> It sliced each handler's body up to the <em>next</em> handler, so helper functions
+    defined in between bled in and their limits were blamed on the wrong handler. Fixed to stop at
+    the function's own closing brace &mdash; matched on the formatter's column-zero brace rather than
+    by counting, because a brace counter mis-slices any function with a brace inside a string, which
+    this workspace has already been burned by. <b>A guard that cries wolf is a guard people switch
+    off.</b></p>
+    <p class="proof"><b>The one exemption has to keep earning itself.</b> A single handler lists
+    every monitor a customer has defined, with no request limit and no limit in the database query
+    &mdash; checked, not assumed. It is exempt, the reason sits beside it, and two further tests fail
+    if it ever gains a limit or if the exemption names a handler that no longer exists.</p>
+    <p class="proof"><b>Verified live across eight endpoints at a limit of one:</b> audit events,
+    usage admissions, usage events and delivery receipts all report themselves partial; logs, spans,
+    services and incidents report complete.</p>
+    <p class="where">tare bf1d51a + ea94772 &middot; 16 mutation controls green &middot; the wording says records MAY exist beyond the limit, and a test stops it hardening into &ldquo;are missing&rdquo;</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">A four-hour hole in the data was drawn as a smooth, healthy line
+      <span class="chip live">Tare</span><span class="chip">2 of 72 buckets</span><span class="chip">drawn as 100%</span><span class="chip">non-finding recorded</span></p>
+    <p class="what"><b>The chart placed points by their position in the array, not by when they
+    happened.</b> That is harmless only if every time bucket is present &mdash; and the API
+    deliberately <em>omits</em> buckets with no data rather than filling them with zeros, which is the
+    right call. So the chart received a handful of scattered timestamps and drew them as though they
+    were consecutive.</p>
+    <p class="proof"><b>Measured rather than reasoned about.</b> One metric over a six-hour window
+    returned <b>2 of 72 possible buckets</b> &mdash; and those two were spread across the full width
+    of the chart. Ten minutes of data rendered as six hours of continuous coverage.</p>
+    <p class="proof"><b>For a monitoring product that is the bad direction to be wrong in, because
+    the gap usually IS the incident.</b> A smooth line says &ldquo;this was steady&rdquo;. The truth
+    was &ldquo;we stopped hearing from this thing four hours ago&rdquo;.</p>
+    <p class="proof"><b>Now the x-position comes from the timestamp within the window that was
+    actually asked for</b> &mdash; not the span of whatever data came back, or a metric reporting for
+    ten minutes would still fill the chart edge to edge. The line breaks wherever buckets are
+    missing, a lone surviving bucket gets a dot (a one-point run has no line and would otherwise
+    vanish, which is the same disappearing act), and the footer states coverage: <em>2 of 72
+    buckets</em>.</p>
+    <p class="proof"><b>I nearly &ldquo;fixed&rdquo; something that was already right.</b> The API
+    returns buckets newest-first, which looked like a bug when a measured span came out negative. It
+    is deliberate: newest-first with a limit is what makes a bounded query return the most
+    <em>recent</em> window rather than an arbitrary slice, and the workspace sorts before drawing.
+    Recorded as a non-finding &mdash; what was genuinely missing is that nothing <em>said</em> so, so
+    the response now states its ordering. The difference between a contract and a coincidence.</p>
+    <p class="proof"><b>I also nearly reported a clock skew that did not exist.</b> A window came
+    back inverted and the database looked hours out of step. Checked instead of escalating: the two
+    clocks agreed to the second, and the earlier reading was the database client printing in local
+    time. My window was simply wrong.</p>
+    <p class="proof"><b>Stated limit, because it matters here:</b> these tests assert that the
+    shipped code computes positions from time and breaks on gaps. They cannot prove the picture looks
+    right &mdash; this environment cannot judge rendered pixels, and saying so is better than
+    implying a visual check that never happened.</p>
+    <p class="where">tare 15473d5 &middot; verified against the app.js served by the running container, not the copy on disk</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">&ldquo;No deployments around this alert&rdquo; was being said when nothing had been checked
+      <span class="chip live">Tare</span><span class="chip">silence &rarr; &ldquo;not checked&rdquo;</span><span class="chip">9 sites cleared</span><span class="chip">caught my own test</span></p>
+    <p class="what"><b>An empty list of deployments answers &ldquo;did a release cause this alert?&rdquo;
+    with &ldquo;no&rdquo;. That is only true if we looked</b> &mdash; and two paths left it empty
+    without looking. One logged the failed query and carried on; the other skipped the correlation
+    entirely, on an unusable time window, <em>without even a log</em>. On the alerting screen, during
+    an incident, in the reassuring direction.</p>
+    <p class="proof"><b>What exposed it was an asymmetry, not a bug report.</b> The same correlation
+    exists in two places: the evaluation path <em>returns an error</em> when it fails, and the
+    listing swallowed it. Same question, loud in one place and silent in the other &mdash; the
+    identical shape to a finding earlier the same day, where one component checked whether a
+    measurement was current and its sibling did not.</p>
+    <p class="proof"><b>Now every evaluation says whether it was correlated or not.</b> A listing
+    cannot fail a whole page because one monitor's lookup broke, so it degrades per row and names the
+    rows it could not check. The previously silent branch logs the window it could not use.</p>
+    <p class="proof"><b>The workspace carries it too, because that is where the conclusion actually
+    gets drawn</b> &mdash; and it is styled as an <em>absence</em> rather than a finding: muted and
+    dashed rather than the amber used for real correlated changes. &ldquo;We did not look&rdquo; must
+    not borrow the appearance of &ldquo;we looked&rdquo;.</p>
+    <p class="proof"><b>The sweep that found it cleared nine other sites, and that half is recorded
+    too.</b> Ten places log an error and continue; nine are sound &mdash; a known documented gap, two
+    that expire on their own, one that already reports uncertainty correctly. A sweep that only
+    reports hits tells you nothing about what was ruled out. The five different ways this API says
+    &ldquo;unknown&rdquo; also turned out to be five <em>different facts</em> &mdash; cannot measure,
+    approximate, stale, declined &mdash; rather than one inconsistency to tidy.</p>
+    <p class="proof"><b>And the committed mutation controls caught a weakness in my NEW TEST, not in
+    the code.</b> The mutation renamed the field to <code>..._MUTANT</code> and my check still passed,
+    because the original name is a <em>substring</em> of the mutated one &mdash; the test would have
+    been happy with the field misspelled. It now asserts the exact comparison. Second time in two
+    days those controls have caught something a green suite was hiding, and the first time they
+    caught me writing a toothless test rather than breaking working code.</p>
+    <p class="where">tare ceeb542 &middot; API and workspace &middot; served app.js and styles.css verified from the running container, not from disk</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">The cap gave up on exactly the customers it exists for &mdash; so counting became an estimate, deliberately
+      <span class="chip live">Tare</span><span class="chip">332 MB &rarr; 8.5 MB</span><span class="chip">0.65% error</span><span class="chip">margin to the customer</span><span class="chip">ADR 0018</span></p>
+    <p class="what"><b>Counting series exactly holds every one of them in memory.</b> That is bounded,
+    so it stops working for the customers with the worst cardinality &mdash; which is precisely who a
+    cardinality cap is for. <b>A cap that gives up on its hardest cases has a hole in the one thing
+    this product is differentiated by.</b></p>
+    <p class="proof"><b>First, the bound, so the failure stopped being an outage.</b> A single query
+    is now capped at 512 MB. Without it, one large customer exhausts the shared database and everyone
+    is down; with it, that customer gets a refusal naming the reason. But a refusal still means the
+    budget cannot be enforced for them, so this was half an answer.</p>
+    <p class="proof"><b>Then the real fix, and the measurement that decided it.</b> Both counting
+    methods were run against six metrics whose true counts were known by construction and verified
+    first. The estimator's worst error is <b>0.646%</b>, and it under-counts more often than it
+    over-counts. Memory across ~7.1 million series fell from <b>332.78 MB to 8.56 MB</b> &mdash; 39x
+    &mdash; and it was faster.</p>
+    <p class="proof"><b>My own earlier number was wrong, from one sample.</b> I had quoted 0.17% and
+    it pointed the error in the <em>opposite</em> direction. A single data point is not a basis for a
+    safety margin, which is the entire reason this was measured across six scales before anything was
+    built on it.</p>
+    <p class="proof"><b>Why the accuracy loss is acceptable, as a comparison rather than an
+    assertion:</b> the count already refreshes only every five minutes, and a runaway metric adds far
+    more than 0.6% in five minutes. The error is small against imprecision the design already accepts
+    and documents. It also breaks no promise &mdash; &ldquo;exact&rdquo; is claimed for ingested bytes
+    and query counts, never for series, and I checked that before deciding rather than after.</p>
+    <p class="proof"><b>The margin is spent on the customer's side of the line.</b> Enforcement blocks
+    only once the estimate is clear of the limit by more than the estimator could be wrong. A false
+    block is an outage <em>we</em> caused on someone who is inside their budget; a runaway is orders
+    of magnitude over and completely unaffected by two percent. Both API surfaces label the number as
+    an estimate, so a customer comparing it to their own count sees why before opening a ticket.</p>
+    <p class="proof"><b>An existing test caught the change, and was updated rather than deleted.</b>
+    It asserted a block at <em>exactly</em> the limit &mdash; the old contract. Its real subject is
+    unchanged, so its boundary value moved and the boundary itself is now pinned by dedicated tests
+    on both sides.</p>
+    <p class="where">tare 1992e28 + ac454ff &middot; ADR 0018 &middot; reversible in four function names if a customer ever makes exactness worth weeks of work</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">Every control that proved this week&rsquo;s fixes was disposable &mdash; now they run in CI, with a canary that earned itself in minutes
+      <span class="chip live">Tare</span><span class="chip">10 cases</span><span class="chip">3 failure modes proven</span><span class="chip">already caught 3 things</span></p>
+    <p class="what"><b>Every fix here ships with a control: break it deliberately, confirm the check
+    fails, restore.</b> Those controls ran once in a terminal and evaporated. The fix got committed;
+    <b>the evidence that its guard works did not.</b> So a test can quietly stop guarding anything
+    &mdash; a rename, a refactor, a condition that no longer fires &mdash; and the suite stays green.
+    That is this product's own disease, pointed at us.</p>
+    <p class="proof"><b>The session made the case better than the argument does.</b> Of nineteen
+    controls written that day, <b>five did not work on the first attempt</b>, and one reported
+    &ldquo;mutation did not apply&rdquo; when the mutation was fine and my assertion was wrong.</p>
+    <p class="proof"><b>Ten cases now run in CI</b>, each breaking one real behaviour and requiring
+    its tests to go red. Two rules are baked in, both learned the hard way: assert the mutation
+    <em>landed</em> by looking for the text it inserts (checking that the original is <em>absent</em>
+    fails when the edit inserts alongside it), and carry a <b>canary</b> mutation that must NOT be
+    caught.</p>
+    <p class="proof"><b>The canary earned itself within minutes of being written.</b> Testing whether
+    the runner could fail, I neutered a guard &mdash; and that edit left a variable unused, so the
+    package stopped compiling. Every case then returned non-zero and dutifully reported
+    &ldquo;caught&rdquo;. <b>Without the canary the runner would have printed 10 of 10 and exited 0
+    while verifying absolutely nothing.</b> It invalidated the whole run instead.</p>
+    <p class="proof"><b>Proven to fail in all three ways it should</b>, including the one that
+    matters most: a guard that is present, compiles, and no longer fires. The runner names it
+    &mdash; <em>&ldquo;the suite stayed GREEN with this behaviour broken&rdquo;</em>.</p>
+    <p class="proof"><b>It has already caught three real things.</b> A rename invalidating an anchor
+    on the first refactor after it shipped; a second rename the same day; and a brand-new test whose
+    substring check would have passed with the field misspelled. None of those would have shown up in
+    a green suite.</p>
+    <p class="where">tare b274087 &middot; scripts/mutation-controls.sh in the CI job &middot; the rule is in the repo&rsquo;s own notes so the next session adds a case rather than rediscovering this</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 18</div>
   <div>
@@ -251,7 +439,7 @@
   <div class="date">Aug 18</div>
   <div>
     <p class="name">Every proof I wrote this week was disposable &mdash; and the file holding a dozen of them was run by nothing
-      <span class="chip live">shipped</span><span class="chip">2 controls committed</span><span class="chip">2 gates wired</span><span class="chip">rule earned</span></p>
+      <span class="chip live">shipped</span><span class="chip">3 controls committed</span><span class="chip">3 gates wired</span><span class="chip">rule earned</span></p>
     <p class="what"><b>The pattern of the week was not bad code. It was bad checking.</b> A harness with
     no assertions. A gate reporting 697 false positives. A deploy check crying wolf on builds that had
     merely been superseded. A sweep silently skipping the largest suite in the tree. A regex that could
@@ -277,6 +465,13 @@
     layout that hides 122 tests, then making it incapable of returning failure at all &mdash; and it
     caught both. The deploy guard was proven by deleting the grace period, and one of the failures it
     printed is yesterday&rsquo;s false alarm word for word.</p>
+    <p class="proof"><b>The third and last one followed the same day.</b> The colour gate needed it
+    most, having been wrong twice on the day it shipped &mdash; and both fixes made it <em>narrower</em>,
+    which is the kind that quietly stops catching what it was built for. Twelve cases now hold both
+    halves: real paint from no palette is still caught and named, while the same hex as artwork or as
+    quoted prose is still ignored. Proven by breaking the gate two ways &mdash; reviving the 697
+    false positives, then making it incapable of failing at all &mdash; and watching the control catch
+    each. <b>All three gates shipped this week now have committed proofs that something runs.</b></p>
     <p class="proof"><b>The rule, written down because it was expensive:</b> a gate is not finished
     when it works. It is finished when its proof that it can fail is committed, and something runs it.</p>
     <p class="where">dev 84e247d + 3f35677 &middot; awllc-website c57013c &middot; _ops/test_run_suites.py + _qa/test_autoqa.py &middot; nightly audit and push gate, both verified by running them</p>
