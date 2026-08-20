@@ -139,6 +139,20 @@ python _qa/palette_audit.py --record || {
   echo "Use a token from _brand/tokens.py, or add it to the palette deliberately."
   exit 1
 }
+# /spreadsheet-health-check/ -- the last of the nine live tools to get a test of
+# what it reports. Its duplicate key is written TWICE: once in the check that
+# REPORTS "N exact duplicate rows" and once in the fix that REMOVES them. Two
+# copies of one rule agreeing only by having been written together. Breaking one
+# gives "reported 5, removed 3" -- an owner told one number and handed a sheet
+# with a different number gone. Both directions pinned: missed repeats inflate
+# every total, invented ones accuse someone of pasting twice.
+echo "Health-check control: proving real repeats are found and false ones are not..."
+python _qa/test_health_check.py || {
+  echo ""
+  echo "PUSH BLOCKED — /spreadsheet-health-check/ either stopped finding repeated"
+  echo "rows, started inventing them, or its report and its fix now disagree."
+  exit 1
+}
 # /duplicate-customer-finder/ is the REFERENCE implementation of the identity
 # rule three other tools were fixed against. It groups exactly (a fact) and by
 # typo distance (a guess), and the guess must keep marking itself as one --
