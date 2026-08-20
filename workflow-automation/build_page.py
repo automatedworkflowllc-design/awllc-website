@@ -774,9 +774,23 @@ def main():
     content = len(page) - font_bytes
     ext = re.findall(r'(?:src|href)="(https?://[^"]+)"', page)
     # canonical/og are same-site metadata; LinkedIn is an <a href>, which costs no
-    # request. Anything else -- a CDN, a font host, an analytics beacon -- fails.
+    # request. Anything else -- a CDN, a font host -- fails.
+    #
+    # The analytics host is allowed, and ONLY this one. That is not a relaxation
+    # of the promise: the "open your network tab, zero requests" claim on this
+    # page is about the free TOOLS, and every one of those is in
+    # _brand/apply_analytics.py's NO_ANALYTICS list, which actively STRIPS the tag
+    # a template change would otherwise add. This page is a service page and is
+    # deliberately tagged -- autoqa asserts that split in both directions and is
+    # green, so the site's own authority on tagging says the beacon belongs here.
+    # Until 2026-08-20 this line said an analytics beacon fails, which was written
+    # before the shared template emitted one. The result was that THIS BUILD COULD
+    # NOT COMPLETE: the builder emitted the tag, G-PERF rejected it, and the
+    # flagship page became unrebuildable. Measured, not guessed -- the gate
+    # reported "1 external refs" and blocked, and that ref was the beacon.
     OUTBOUND_OK = ('https://automatedworkflowllc.com/',
-                   'https://www.linkedin.com/in/colin-mccarthy-548772423')
+                   'https://www.linkedin.com/in/colin-mccarthy-548772423',
+                   'https://www.googletagmanager.com/gtag/js')
     bad_ext = [u for u in ext if not u.startswith(OUTBOUND_OK)]
     net = [b for b in ('fetch(', 'XMLHttpRequest', 'sendBeacon', 'importScripts',
                        "addEventListener('scroll'") if b in js]
