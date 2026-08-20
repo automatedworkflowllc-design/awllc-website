@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">174 entries · newest first within each group</p>
+  <p class="stamp">195 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,816 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 20</div>
+  <div>
+    <p class="name">Three questions nobody could answer about the product now answer themselves &mdash; and the last guard was wrong first
+      <span class="chip live">Tare</span><span class="chip">51 controls</span><span class="chip">0 defects found</span><span class="chip">guard fixed, not exempted</span></p>
+    <p class="what"><b>Who can reach this? What can they change? Who did it?</b> Those are the three
+    questions a customer asks before trusting a shared system with their data, and the product could
+    not demonstrate the answer to any of them &mdash; not because it was wrong, but because nothing
+    checked. All three now have committed checks that run on every push.</p>
+    <p class="proof"><b>Who can reach this.</b> An unauthenticated route is a hole nobody notices,
+    because it <em>works</em>. Every route is now issued as a real request carrying no credentials,
+    and anything that does not refuse is reported. Four routes are declared public with reasons
+    &mdash; two health checks and the two that publish signing keys, which are <em>public</em> keys
+    whose entire purpose is defeated by requiring a login to fetch them.</p>
+    <p class="proof"><b>What can they change.</b> The quieter half: a route that checks who you are
+    but asks for the wrong permission hands a read-only key the ability to delete things. Every
+    route that changes something is now driven with a read-only credential and must be refused.
+    Proven by downgrading the &ldquo;delete a credential&rdquo; route: caught.</p>
+    <p class="proof"><b>Who did it.</b> An administrative action with no record is invisible until
+    the moment somebody needs it &mdash; <em>&ldquo;we never made that change&rdquo;</em>,
+    <em>&ldquo;somebody revoked my key&rdquo;</em>. All 22 actions do record one. Verified rather
+    than assumed, and now held there.</p>
+    <p class="proof"><b>That last guard was WRONG on its first run, and fixing it rather than
+    excusing it is the point.</b> It accused one route of recording nothing. The route was fine
+    &mdash; it hands the work to a helper, and the record is written there. The easy move was to add
+    that route to an exemption list. That would have quietly blinded the check to every future
+    handler written the same way, so instead the check now follows the delegation.</p>
+    <p class="proof"><b>Loosening a check is how it stops working, so the loosening is itself
+    tested.</b> One hop counts; <b>two do not</b>. Without that bound, any route that eventually
+    touches something that records would vouch for itself. Also pinned: an unknown method records
+    nothing, and a method that calls itself terminates instead of hanging.</p>
+    <p class="proof"><b>And my first attempt to prove the check could fail was fake.</b> I
+    <em>commented out</em> the recording call instead of deleting it &mdash; so the text was still
+    there, the check still found it, and it stayed green while the recording was gone. <b>A sabotage
+    that lands as text without changing the thing being measured.</b> Both checks were redone by
+    deleting the call outright, with the code confirmed to still compile so that a red result means
+    behaviour rather than a broken file. The limitation is written down rather than papered over: a
+    text-matching check cannot tell a live call from a commented one.</p>
+    <p class="proof"><b>Zero defects found across all three.</b> That is the honest headline, and the
+    deliverable is not a fix &mdash; it is that a future change cannot quietly undo any of it.</p>
+    <p class="where">tare 99b04de + c28fdd9 &middot; 51 mutation controls green &middot; every exemption in all three checks fails if it stops being exercised, so none can linger and start covering something new</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 20</div>
+  <div>
+    <p class="name">All nine free tools now have a test of what they TELL you &mdash; and the last one reported one number while removing another
+      <span class="chip live">9 of 9 covered</span><span class="chip">reported 5, removed 3</span><span class="chip">22 new cases</span><span class="chip">11 push controls</span></p>
+    <p class="what"><b>Nine of the free tools accept a dropped file and state findings about it.
+    Until this week only five had any test of those findings</b> &mdash; the existing gate proves a
+    file <em>parses</em>, and says so itself, not that the analysis of it is right. The last two are
+    now covered, and both paid for the trip.</p>
+    <p class="proof"><b>The spreadsheet checker writes its duplicate rule TWICE</b> &mdash; once in
+    the part that <em>reports</em> &ldquo;N exact duplicate rows&rdquo;, and once in the part that
+    <em>removes</em> them when you ask for a cleaned copy. Two copies of one rule, agreeing only by
+    having been written together. Nothing held them together. Break one and you get the failure
+    verbatim: <b>reported 5, removed 3</b> &mdash; an owner told one number and handed back a sheet
+    with a different number gone, neither obviously the wrong one.</p>
+    <p class="proof"><b>A previously recorded &ldquo;this is fine&rdquo; turned out to be right for
+    the wrong reason, which is worth more than the original note.</b> Our own notes said the
+    duplicate key joins the row with <em>no separator</em>, so two different rows could squash into
+    the same text. There is a separator &mdash; it is an invisible control character, which is
+    exactly what &ldquo;no separator&rdquo; looks like on screen. The conclusion held; the
+    explanation was wrong, and an explanation is what the next person reuses.</p>
+    <p class="proof"><b>The other tool is the one that owns the identity rule</b> three other tools
+    were fixed by copying. It makes two different kinds of claim: names that match exactly once
+    case, punctuation and legal suffixes are ignored are stated as <em>fact</em>; near-miss typo
+    matches are stated as a <em>guess</em>, visually softened and hedged. If a future edit let the
+    guess render like the fact, the page would assert that two differently-named businesses are one
+    client, in public, on the strength of a spelling distance.</p>
+    <p class="proof"><b>Severity turned out to be proportional and I had guessed otherwise.</b> One
+    repeat in a four-row sheet is high &mdash; it is a quarter of the sheet; the same single repeat
+    in sixty rows is medium. Measured before asserting, and both ends pinned.</p>
+    <p class="proof"><b>Three harness bugs on the way, every one caught by an assertion rather than
+    by luck.</b> The worst: two &ldquo;reports NO duplicates&rdquo; checks said ok while the
+    analyzer was crashing on every row &mdash; because a missing result and a clean result both
+    look like nothing found. That now returns a loud sentinel instead of an empty list, so an
+    absence can never again pass for an answer.</p>
+    <p class="where">awllc-website 14fa6ac + df667d9 &middot; eleven controls run before a push &middot; every one proven to redden the right checks and nothing else, with each page restored byte-identical</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 20</div>
+  <div>
+    <p class="name">A query answered in Prometheus&rsquo;s shape, claimed compatibility, and quietly merged the results
+      <span class="chip live">Tare</span><span class="chip">behaviour unchanged</span><span class="chip">non-finding checked</span><span class="chip">48 controls</span></p>
+    <p class="what"><b>One endpoint accepts Prometheus-style queries, answers in the same shape, and
+    stamps the reply with a compatibility label.</b> It groups results <em>by service only</em>
+    &mdash; readings that differ by their other labels are combined into a single number. The reply
+    said nothing about that.</p>
+    <p class="proof"><b>The grouping is not a defect and was not changed, and checking that first is
+    the point.</b> The project&rsquo;s own design record deliberately defers arbitrary label
+    grouping, because uncontrolled label variety multiplies query cost &mdash; service being the one
+    bounded dimension the product already uses everywhere. I went and read that decision rather
+    than assuming a difference from Prometheus was a bug. <b>Recorded as a non-finding.</b></p>
+    <p class="proof"><b>What that same design record also says is that &ldquo;misleading
+    compatibility claims&rdquo; are the thing to avoid.</b> A bare version token in a field called
+    <em>compatibility</em> is one of those, when the answer combined several readings and never
+    mentioned it. Somebody reading a Prometheus-shaped reply reasonably expects one result per label
+    combination.</p>
+    <p class="proof"><b>So the reply now states what it grouped by, beside the claim it qualifies.</b>
+    The test demands both halves: naming the grouping alone still lets a reader assume nothing was
+    merged, so it also requires the wording to say readings were <em>combined</em> and to say which
+    ones. Its first assertion is a control on the compatibility label itself &mdash; a caveat
+    attached to a claim nobody makes would be checking nothing at all.</p>
+    <p class="proof"><b>Separately, a rule I had written down and then broke three times in one
+    night.</b> Editing code by piping a script through the shell silently eats escape characters, so
+    a search pattern matches nothing or a line of code is written broken. It was documented &mdash;
+    in a <em>different</em> workspace&rsquo;s notes, which do not load while working in this one. Now
+    recorded where the next session will actually see it, along with its two cousins from the same
+    night: a find-and-replace whose separator character also appears in what it inserts, and a
+    temporary folder one program can write to and another cannot see.</p>
+    <p class="proof"><b>Stated plainly because it is a gap and not a win:</b> everything shipped
+    tonight is verified by tests, sabotage controls and the build server &mdash; and <b>none of it
+    against the running stack</b>, which this project&rsquo;s own rules ask for. That verification
+    needs the container stack that took Colin&rsquo;s machine down, so it waits for him to be at the
+    keyboard rather than being done while he is away.</p>
+    <p class="where">tare 5650c33 + aefa8b5 &middot; 48 mutation controls green &middot; the design record was checked before the &ldquo;difference from Prometheus&rdquo; was called anything at all</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 20</div>
+  <div>
+    <p class="name">The flagship page could not be rebuilt &mdash; its own gate forbade the tracking tag it ships with
+      <span class="chip live">workflow-automation</span><span class="chip">build unblocked</span><span class="chip">page NOT shipped</span><span class="chip">both directions</span></p>
+    <p class="what"><b>Found by checking whether a failing gate was mine. It was not &mdash; and
+    establishing that was the point, rather than assuming it away.</b> The flagship service page
+    has a rule against making <em>any</em> outside request, and its note listed a tracking beacon
+    as one of them. That note was written before the shared page template started adding one. So
+    the builder adds the tag, the gate rejects it, and the build stops. <b>That page has been
+    impossible to rebuild.</b></p>
+    <p class="proof"><b>The tag is right and the rule was the stale half.</b> A separate script is
+    the single authority on which pages get tracking: it keeps a list of the free tools and
+    actively STRIPS the tag a template change would otherwise add to them, with the cost of that
+    choice written down. This page is a service page and is not on that list &mdash; and another
+    gate already asserts the split in both directions and is green. The site's own checks agree
+    the tag belongs here.</p>
+    <p class="proof"><b>It does not break the promise either, and I checked the wording rather
+    than assuming it was blanket.</b> The &ldquo;open your network tab, zero requests&rdquo; claim
+    is about the free <em>tools</em> &mdash; &ldquo;any of them&rdquo; &mdash; and every one of
+    those is untagged.</p>
+    <p class="proof"><b>Exactly one host is allowed, so the rule still does its job.</b> Proven
+    both ways: planting a CDN reference into the built page still stops the build, and the clean
+    build now reports zero outside references and completes.</p>
+    <p class="proof"><b>The page itself is deliberately NOT shipped in this change, which is the
+    judgement worth recording.</b> A successful rebuild turns out to carry someone else's pending
+    work &mdash; a change to the social-preview text, and the removal of both font preload hints.
+    Shipping that as a side effect of unblocking a build would be exactly the kind of quiet
+    change this log exists to prevent. The builder and the live page had drifted <em>because</em>
+    the build was blocked; now it can be rebuilt deliberately, by whoever owns that diff.</p>
+    <p class="where">awllc-website df51755 &middot; gate only, index.html untouched and verified unchanged &middot; the drift is written down where the next session will read it</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 20</div>
+  <div>
+    <p class="name">Nothing was checking that one customer cannot see another&rsquo;s data &mdash; now 78 queries are, on the way out
+      <span class="chip live">Tare</span><span class="chip">76 methods</span><span class="chip">0 leaks found</span><span class="chip">47 controls</span></p>
+    <p class="what"><b>The worst thing a shared database can do is hand one customer another
+    customer&rsquo;s data, and it is invisible from the outside &mdash; a query missing its
+    &ldquo;only this customer&rdquo; clause returns <em>more</em> rows, successfully, with no error
+    anywhere.</b> Nothing in the product checked for it.</p>
+    <p class="proof"><b>Searching the source code for it does not work, and finding that out was the
+    first useful result.</b> These queries are assembled in pieces &mdash; one part in a helper, the
+    filter in another, the rest added by the caller. A text search flagged <b>17</b> suspects, then
+    <b>11</b> after refinement, and <b>every single one was a false alarm</b>. A check that cries
+    wolf is one people turn off.</p>
+    <p class="proof"><b>So it checks what actually leaves the process instead.</b> Every one of the
+    76 database methods is discovered automatically and run against a stand-in database that records
+    the finished query. Assembly cannot hide anything from it, and a method somebody adds next month
+    is covered without anyone remembering to add it to a list.</p>
+    <p class="proof"><b>Both halves are required, because one alone is a false sense of safety.</b>
+    The customer must be <em>supplied</em> to the query AND the query must actually <em>filter</em>
+    on them. Supplying a value the query never uses reads as perfectly scoped while returning
+    everybody&rsquo;s rows.</p>
+    <p class="proof"><b>The result: 78 queries, all correctly scoped, no leak found.</b> That is the
+    honest headline &mdash; the deliverable is not a fix, it is that this stays true and that the
+    next person to add a query cannot quietly break it.</p>
+    <p class="proof"><b>And it nearly fooled me, which is the part worth keeping.</b> The first
+    version passed cleanly. Then I deliberately broke one query&rsquo;s customer filter to prove the
+    check could catch it &mdash; and <b>it stayed green</b>. That method rejects an incomplete
+    request before it ever reaches the database, so it was never being exercised at all, while the
+    totals looked healthy. <b>The check now fails when a method it claims to cover never actually
+    ran a query.</b> Fixing that took it from 66 queries to 78, and from eleven silently unchecked
+    methods to none.</p>
+    <p class="proof"><b>Two kinds of exception, deliberately kept apart, because they are different
+    claims.</b> One says a <em>table</em> holds nobody&rsquo;s private data &mdash; the schema
+    version record, and the credential lookup that works out <em>which</em> customer is calling and
+    therefore cannot filter by one yet. The other says a <em>method</em> may legitimately look
+    across customers &mdash; the scheduler asking which customers have alerts configured at all.
+    <b>Both lists fail if an entry stops being used</b>, so an exception cannot linger and quietly
+    start covering something new.</p>
+    <p class="where">tare 37e6145 &middot; 47 mutation controls green &middot; the sabotage is caught and names the culprit: &ldquo;MetricAggregates() &hellip; a tenant parameter was bound but the SQL never filters on TenantId&rdquo;</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">The demo everyone is sent now proves it names ONE oldest invoice &mdash; and my own test was wrong twice first
+      <span class="chip live">demo</span><span class="chip">8 cases</span><span class="chip">2 false alarms</span><span class="chip">9 push controls</span></p>
+    <p class="what"><b>&ldquo;Oldest open &mdash; call first&rdquo; is a claim about ONE invoice.</b>
+    In August a messy book made the live page print it <em>twice</em>, so the page contradicted
+    itself on screen &mdash; and contradicted the summary above it, which names a single account.
+    That is the exact self-contradiction this product is sold to find, on the page every outreach
+    email points at. It was fixed the same day and guarded by nothing since.</p>
+    <p class="proof"><b>The sample book CANNOT guard it</b>, which is the whole reason this needed
+    building rather than pointing at existing data: the sample holds exactly one old-enough
+    invoice, so the duplicate is invisible to it by construction.</p>
+    <p class="proof"><b>Eight cases, both directions.</b> Two claims is the defect &mdash; but ZERO
+    claims when one invoice genuinely is the oldest is what a naive &ldquo;just drop the
+    badge&rdquo; fix produces, and that would sail through every duplicate-check ever written. The
+    age tiers it sits among are pinned too, so a fix cannot quietly replace the contradiction with
+    silence.</p>
+    <p class="proof"><b>Two false alarms on the way, both mine, with the page correct
+    throughout.</b> First I asserted an HTML entity where the page prints a literal character.
+    Then, with the right character, it <em>still</em> failed &mdash; because of how this machine
+    hands one program's output to another, a single dash arrived as three separate characters.
+    <b>The output looked perfectly correct on screen both times.</b> Printing the raw character
+    codes is what settled it.</p>
+    <p class="proof"><b>That second one was silently waiting in yesterday&rsquo;s test too</b>, which
+    passed only because everything it compares happens to be plain ASCII. Fixed in both, so the
+    next person writing one of these does not lose the same hour.</p>
+    <p class="proof"><b>The control puts the old broken rule back, rebuilds the page, and confirms
+    it is really there before running:</b> exactly 2 checks fail &mdash; two rows claiming to be the
+    oldest, and the second-oldest losing its own label &mdash; while the other 6 stay green. Page
+    restored byte-identical.</p>
+    <p class="proof"><b>The page itself is unchanged by this work.</b> The fix was already right; it
+    simply had nothing holding it in place.</p>
+    <p class="where">awllc-website 818cb19 &middot; nine controls now run before a push &middot; two live tools still have no findings test, both probed clean in August</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">A free tool told owners which jobs were never billed &mdash; by matching on the dollar amount
+      <span class="chip live">money-leak-finder</span><span class="chip">$650 hidden</span><span class="chip">$800 falsely accused</span><span class="chip">9 tests</span></p>
+    <p class="what"><b>This page tells a business which finished jobs were never invoiced, and puts
+    a dollar figure on it. It works out which column links the two files by scoring overlap.</b>
+    Given a work log and an invoice export with <em>no shared job number</em>, it matched them on
+    the <b>Amount</b> column instead &mdash; and then answered confidently.</p>
+    <p class="proof"><b>Both ways of being wrong, at once, from one wrong key.</b> A genuinely
+    unbilled $650 job <b>vanished from the report</b>, because an unrelated invoice happened to also
+    be for $650. A different $800 job was <b>reported as unbilled</b> when it may well have been
+    paid. And the finding named the job as <code>800</code> &mdash; a dollar amount printed where a
+    job reference belongs.</p>
+    <p class="proof"><b>My first probe came back CLEAN, and it was wrong.</b> The page has a guard
+    that rejects a column whose values repeat too often as &ldquo;not an identifier&rdquo;, and my
+    first test file happened to contain two jobs at the same price &mdash; so the amount column was
+    rejected for the wrong reason and the tool looked fine. With every amount distinct, which is the
+    ordinary case, it sails straight through. <b>A guard that happens to fire on your test data is
+    not a guard.</b></p>
+    <p class="proof"><b>The same defect was fixed on a sister tool two days earlier, and this page
+    never got the fix.</b> That is the argument for a test rather than a second patch: the identical
+    mistake has now been made twice, on two pages, in one week. An amount is not an identity.
+    &ldquo;These files do not line up&rdquo; is the honest answer and it beats a confident
+    reconciliation on the wrong column.</p>
+    <p class="proof"><b>Found by asking a coverage question rather than by reading code:</b> nine
+    live pages accept a dropped file, and only five had any test of the findings they state. The
+    existing reader gate says so itself &mdash; it proves the file <em>parses</em>, not that the
+    analysis of it is right. So defects the dirty-data probe found in August were fixed with nothing
+    pinning the fixes.</p>
+    <p class="proof"><b>Nine tests, both directions.</b> Refusing is only half the job &mdash; a fix
+    that refused everything would pass every defect case and quietly break the tool &mdash; so exact
+    IDs, lower-case IDs, space-padded IDs and a fully-invoiced book are pinned just as hard as the
+    refusals.</p>
+    <p class="proof"><b>The control removes the guard from the BUILDER, regenerates the page, and
+    confirms the guard is really gone before running:</b> exactly the 4 defect checks fail and none
+    of the 5 ordinary ones, with the bug printed verbatim in the output. Page restored
+    byte-identical afterwards.</p>
+    <p class="proof"><b>A documented trap fired on the way and was caught.</b> Rebuilding the page
+    re-added an analytics tag that is deliberately stripped from this tool &mdash; which would have
+    quietly broken its own &ldquo;open your network tab, nothing uploads&rdquo; promise. Restored,
+    and the page makes zero network calls. Every site gate re-run against the rebuilt page: reader
+    5/5, SEO 0 defects, palette clean, security sweep clean.</p>
+    <p class="where">awllc-website 86de7b1 &middot; eight controls now run before a push &middot; three live tools still have no findings test, /demo/ next</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">&ldquo;We keep your data 30 days&rdquo; is decided in two files that agreed only by having been written together
+      <span class="chip live">Tare</span><span class="chip">no live defect</span><span class="chip">one word away</span><span class="chip">46 controls</span></p>
+    <p class="what"><b>How long a customer&rsquo;s telemetry is kept is decided in two separate
+    places.</b> One says which retention lengths the product will <em>accept</em>. The other, buried
+    in a database migration, says which lengths the storage actually <em>honours</em> &mdash;
+    anything else silently becomes seven days. <b>They match today. Nothing was keeping them
+    matching.</b></p>
+    <p class="proof"><b>This is a guard, not a bug fix, and saying so plainly matters.</b> Nobody is
+    currently getting the wrong retention. What existed was a one-line change away from a customer
+    being told their data is kept for a month while it is deleted after a week &mdash; and they would
+    find out by going to look for telemetry that is already gone.</p>
+    <p class="proof"><b>The guard restates neither side, which is the whole point.</b> A check that
+    hard-codes the list of allowed values is a third copy that can drift from both. Instead it
+    <em>asks</em> the real validator which values it accepts, and <em>parses</em> the shipped
+    database migration for which it honours, then requires the two answers to be identical.</p>
+    <p class="proof"><b>Proven by teaching the product to accept a length the storage ignores:</b>
+    <code>accepted by the validator: [1 7 15 30 60] &middot; honoured by the TTL: [1 7 15 30]</code>.
+    That is the failure message a future engineer gets, and it names both sides rather than saying
+    &ldquo;mismatch&rdquo;.</p>
+    <p class="proof"><b>Then a second one in the same area, quieter and worse.</b> The ingestion
+    pipeline&rsquo;s config carries a <em>flat</em> seven-day expiry with no per-customer term. It
+    does nothing today, purely because one adjacent setting says the pipeline does not own the
+    database schema. <b>Flip that single word and the flat expiry takes over</b> &mdash; every
+    customer silently gets seven days regardless of what they configured and what the screen shows
+    them, with nothing erroring anywhere. That word now has a guard, and the inert setting is
+    labelled as not being the thing that governs retention.</p>
+    <p class="proof"><b>That file lives outside the code being tested, so the check walks up to find
+    it and FAILS rather than skips when it cannot.</b> A guard that quietly does not run is the
+    condition it exists to prevent.</p>
+    <p class="proof"><b>And the control for it did not work at first, for a reason worth writing
+    down.</b> The sabotage is applied by a text substitution, and this is the only target whose
+    comment character is the same character the substitution uses as its separator &mdash; so the
+    marker ended the command instead of being inserted. The case reported <em>&ldquo;the mutation did
+    not apply&rdquo;</em> and refused to count itself. <b>Third time today that one assertion caught a
+    control that would otherwise have reported success while testing nothing.</b></p>
+    <p class="where">tare d1471b7 &middot; two new mutation controls, 46 green &middot; the collector config was verified byte-restored after being sabotaged, since it belongs to a tree other work touches</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">62 passing tests never checked a single thing the page actually says
+      <span class="chip live">almanac</span><span class="chip">62 &rarr; 68</span><span class="chip">"findings": 0 mentions</span><span class="chip">2 of 3 mutations invalid</span></p>
+    <p class="what"><b>Swept all 35 test files for tests that assert nothing &mdash; the failure that
+    once left a live tool&rsquo;s harness unable to fail &mdash; and found zero across ~469 tests.
+    That sweep cannot see the commoner gap, so I went looking a different way: break the engine on
+    purpose and see whether the suite notices.</b> Replacing one function with a constant left
+    <b>all 62 tests green</b>. That function computes the median invoice, which the live page prints
+    as a headline figure.</p>
+    <p class="proof"><b>The same probe then found the bigger hole. The word &ldquo;findings&rdquo;
+    did not appear in that 253-line harness even once.</b> Every test checked a NUMBER. The findings
+    are the sentences the tool states to the owner &mdash; <em>&ldquo;One client is a single point
+    of failure&rdquo;</em>, <em>&ldquo;Cash arrives unevenly&rdquo;</em> &mdash; and nothing asserted
+    any of them. The numbers being right is not the same claim as the tool saying the right things
+    about them, and <b>a stated finding is a verdict, which closes the question, where a number
+    invites a second look.</b></p>
+    <p class="proof"><b>Two of my three mutations were invalid, and that is the transferable
+    part.</b> The first landed on a fallback branch the test data never reaches. The second did
+    nothing at all &mdash; in JavaScript the later definition of a function wins, so the real one
+    silently overwrote my broken stub. <b>Both produced a green suite that meant nothing.</b> Caught
+    by checking that the sabotage had actually changed the answer before believing the result, which
+    is the whole discipline in one step.</p>
+    <p class="proof"><b>Six new assertions, and they pin the distinction the test data was built to
+    prove:</b> exactly ONE quiet client, not two &mdash; one client is genuinely dormant, the other
+    is merely slow by its own rhythm. That difference was already checked as a number; this is the
+    first time it is checked in the sentence the owner reads.</p>
+    <p class="proof"><b>Membership, not position.</b> The findings are matched by content with the
+    count pinned beside them, so reordering them harmlessly does not fail the suite while a dropped
+    or invented finding still does.</p>
+    <p class="proof"><b>A control for each fix, each with the sabotage confirmed effective
+    first:</b> stubbing the median fails exactly one test (<em>got 99999, want 1000</em>);
+    suppressing the concentration finding fails exactly two (<em>got 2, want 3</em>, plus the named
+    missing one). The engine was restored to a byte-identical fingerprint after each, and the page
+    is generated from the engine &mdash; which this change does not touch &mdash; so nothing needed
+    rebuilding.</p>
+    <p class="proof"><b>The other engine was checked the same way and is fine</b>, with 51 references
+    to its reported output. Recording the non-finding because predicting it wrong was the point of
+    looking.</p>
+    <p class="where">dev/almanac 5c8719a &middot; 68 green &middot; the assertion-free sweep and its fixture control both ran before any of this was believed</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">Customers were being billed in full for data the pipeline had told us it threw away
+      <span class="chip live">Tare</span><span class="chip">200 = bad news</span><span class="chip">44 controls</span><span class="chip">billing</span></p>
+    <p class="what"><b>The telemetry protocol has a &ldquo;partial success&rdquo; reply, and it is a
+    SUCCESS status code.</b> The pipeline answers <b>200 OK</b> and then says, in the body of the
+    reply, that it dropped some of what you sent. Our gateway read the status code, billed the whole
+    payload, wrote &ldquo;accepted&rdquo; into the record, and passed the body straight through
+    without ever looking at it.</p>
+    <p class="proof"><b>Nothing on our side of the transaction showed that anything had been
+    refused</b> &mdash; not the usage view the customer is billed from, not the admission record, not
+    the logs. A request that lost half its data and a request that lost none produced identical
+    evidence.</p>
+    <p class="proof"><b>Worth being exact about who was misled, because overstating it would be the
+    same sin.</b> The <em>sender</em> always knew &mdash; the pipeline&rsquo;s own reply is passed
+    back untouched, and a well-written client reads it. The person who could not know was whoever
+    reads the usage and billing records afterwards. On a product whose entire pitch is honest
+    metering, that is the one that matters.</p>
+    <p class="proof"><b>The bytes are still billed in full, and that is a decision rather than an
+    oversight.</b> They went over the wire, and there is genuinely no way to know what share of them
+    the dropped points were. What changed is that the record no longer calls it a clean acceptance.
+    <b>A test pins the billing figure too</b>, so that a future change cannot quietly invent
+    proportional arithmetic nobody can justify.</p>
+    <p class="proof"><b>Three outcomes now where there was one</b> &mdash; accepted, partial success,
+    and <em>reply unreadable</em>. That third one matters: if the answer cannot be parsed, whether
+    anything was dropped is unknown, and writing &ldquo;clean acceptance&rdquo; there would be the
+    same claim on strictly less evidence.</p>
+    <p class="proof"><b>The reader is deliberately generous about format and strict about
+    doubt.</b> It accepts both spellings the protocol permits and both ways a number can be encoded
+    &mdash; because a reader that only understood what today&rsquo;s pipeline emits would turn a
+    different one&rsquo;s rejection report into a confident &ldquo;nothing was dropped&rdquo;. An
+    empty reply is <em>not</em> treated as unreadable, since a completely successful answer is
+    legitimately zero bytes. And the reply is read up to one byte past its size cap, so
+    &ldquo;exactly at the limit&rdquo; and &ldquo;cut off&rdquo; stay distinguishable rather than
+    relying on a truncated parse happening to fail.</p>
+    <p class="proof"><b>One test exists only to prove the fix did not break the sender.</b> The reply
+    now gets read into memory to be inspected; inspecting it must not consume it, because the sender
+    is the one party that can actually act on the news.</p>
+    <p class="where">tare 46a12fb &middot; four new mutation controls, 44 green &middot; one reader covers metrics, traces and logs because all three replies share a shape</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">The tool that proves we are not lying was itself repeating a claim it had not checked
+      <span class="chip live">Tare</span><span class="chip">one unverified word</span><span class="chip">40 controls</span><span class="chip">control missed first</span></p>
+    <p class="what"><b>There is a small standalone program a customer can run to check that a
+    delivery record is genuinely what the platform signed &mdash; no credentials, no talking to us.
+    It is the entire &ldquo;don&rsquo;t trust us, check us&rdquo; promise in one binary.</b> Its
+    output is a single line an auditor reads as established fact, and that line was naming a key
+    identity taken straight from the document being audited.</p>
+    <p class="proof"><b>The document says which key signed it. That claim is not covered by the
+    signature.</b> So a receipt can carry any key label it likes, and the tool printed it inside
+    the sentence that says &ldquo;verifies&rdquo;:
+    <code>OK receipt 8f14e45f&hellip; verifies against key deadbeefdeadbeef</code>. The signature
+    had genuinely been checked &mdash; against a completely different key, the one the auditor
+    supplied.</p>
+    <p class="proof"><b>To be precise about the severity, because overstating it would be its own
+    version of this bug:</b> nothing here lets a forged receipt pass. The signature still has to
+    check out. It is an <em>unverified fact printed where a verified one belongs</em>, in the one
+    sentence whose whole job is to be trustworthy.</p>
+    <p class="proof"><b>The library already had the right answer and a comment explaining why.</b>
+    Key identities are <em>derived</em> from the key material rather than assigned &mdash;
+    &ldquo;so it cannot drift from what it names&rdquo;. Every other place in the system follows
+    that. This one command asserted an identity instead. It now names the key that actually did the
+    verifying, and reports any disagreement <em>separately</em> from the verdict.</p>
+    <p class="proof"><b>One of the two tests exists to keep the new note quiet.</b> An honest
+    receipt must produce no note at all &mdash; a warning that prints on every run is furniture, and
+    furniture is what people stop reading. The tests also build their documents with the helper the
+    existing tests use, rather than a second copy of the format, which is precisely the drift that
+    file&rsquo;s own header warns about.</p>
+    <p class="proof"><b>And the control did not work the first time, in a way worth recording.</b>
+    The sabotage silently failed to apply &mdash; a shell quirk ate a character in the search
+    pattern &mdash; so the run reported everything fine while having tested nothing. <b>The one line
+    that asserts &ldquo;confirm the sabotage actually landed&rdquo; is the only reason that was
+    noticed</b>, for the second time today. It is a rule that has now paid for itself twice in one
+    session.</p>
+    <p class="where">tare 95930ec &middot; 40 mutation controls green &middot; the failing control&rsquo;s own output is the finding: &ldquo;verifies against key deadbeefdeadbeef&rdquo;</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">The SEO gate has run on every push for weeks and had no test at all. It has 24 now.
+      <span class="chip live">awllc-website</span><span class="chip">12 rules guarded</span><span class="chip">24 cases</span><span class="chip">7 push controls</span></p>
+    <p class="what"><b>This gate checks twelve things on every page of the site &mdash; titles,
+    descriptions, sitemap coverage, whether any page is unlinked, whether the business name and
+    address match everywhere &mdash; and it blocks a push when they regress.</b> Nothing had ever
+    proven it could go red. Found while chasing something else entirely: a nightly report showed an
+    SEO score of 66 on one page, and checking whether that was a real problem led here.</p>
+    <p class="proof"><b>The 66 turned out to be correct behaviour, and recording that is the useful
+    half.</b> That page is the ads landing page, deliberately kept out of organic search so it does
+    not compete with the homepage &mdash; a decision with Colin&rsquo;s approval written into the
+    file. Search engines score it low <em>because</em> of that. I nearly reported a deliberate
+    decision as a defect.</p>
+    <p class="proof"><b>Two of the twelve rules are pinned because they were once wrong in the
+    reassuring direction.</b> The address check used to look for the bare city name &mdash; and
+    &ldquo;Gainesville, VA&rdquo; contains &ldquo;Gainesville&rdquo;, so the test could never fail on
+    the part that was actually wrong. Two live pages advertised the wrong state while the gate
+    reported clean. <b>A rule written to catch a specific defect is the one most likely to get
+    quietly loosened back.</b></p>
+    <p class="proof"><b>The first case is the one the other twenty-three depend on: a fully
+    compliant site must produce ZERO findings.</b> Without it, every &ldquo;this defect is
+    absent&rdquo; assertion could be passing because the audit never looked at anything.</p>
+    <p class="proof"><b>It also pins a rule that must NOT fire.</b> The build log quotes an old
+    incorrect company name while explaining that very bug; a gate that cannot tell &ldquo;this page
+    is wrong&rdquo; from &ldquo;this page quotes the wrong thing while explaining it&rdquo; would
+    make the log unable to record its own defects.</p>
+    <p class="proof"><b>And the ratchet.</b> A gate that updates its baseline on a failing run
+    launders its own failure: look twice, and the same defect passes. Breaking that produced
+    <em>&ldquo;second look exited 0&rdquo;</em> &mdash; the laundering bug reproducing word for
+    word.</p>
+    <p class="proof"><b>Two sabotages, each proven to redden exactly the RIGHT checks and nothing
+    else</b>, each leaving the file parsing so the red is behaviour rather than a syntax error. The
+    file being sabotaged belongs to a repo other sessions write to, so it was restored to a
+    byte-identical fingerprint after each one, verified rather than assumed.</p>
+    <p class="where">awllc-website 344a3a0 &middot; wired into the pre-push hook ahead of the gate it guards, in both the tracked copy and the live one &middot; seven controls now run before a push</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">A spending cap said &ldquo;open&rdquo; for a limit it had never actually checked &mdash; and the code&rsquo;s own comment said why that was wrong
+      <span class="chip live">Tare</span><span class="chip">open &rarr; unevaluated</span><span class="chip">untested payload</span><span class="chip">39 controls</span></p>
+    <p class="what"><b>A workspace can carry two separate limits: one for the whole account, one
+    per service.</b> The per-service one is judged against whichever service is using the most, so
+    when the platform cannot work out which service that is, it does not get judged at all. The
+    answer then fell through to whatever the account-wide limit concluded &mdash; which on a
+    workspace comfortably under its account limit is a confident <b>&ldquo;open&rdquo;</b>.</p>
+    <p class="proof"><b>The comment sitting directly above that code already argued against
+    this.</b> It says, in as many words, that reporting &ldquo;open&rdquo; here would contradict the
+    throttling the workspace is receiving. It was right &mdash; and the same contradiction was
+    reachable from the other direction the whole time, whenever the attribution was missing.</p>
+    <p class="proof"><b>Two ways to arrive there, and one of them was a swallowed error.</b> The
+    query that works out the biggest service is allowed to fail without failing everything else
+    &mdash; reasonable &mdash; but the failure was <em>discarded</em>, then written into the saved
+    snapshot, then cached. So a single transient database hiccup left that account
+    un-attributable for the next several minutes, with nothing anywhere recording that it had
+    happened. The other way is ordinary: telemetry that carries no service name cannot be
+    attributed to one.</p>
+    <p class="proof"><b>The new state only ever downgrades a reassuring answer.</b> If the
+    account-wide limit is already breached, that finding survives &mdash; replacing a real problem
+    with a caveat about a different limit would lose the problem. It says which limit went
+    unchecked, and why, rather than only flipping a flag.</p>
+    <p class="proof"><b>And it stays quiet where it would be noise.</b> A workspace with no series
+    at all is not &ldquo;unevaluated&rdquo; &mdash; there is genuinely nothing to attribute, and the
+    limit really is open. A workspace with no per-service limit configured gets no marker at all,
+    rather than a permanent &ldquo;false&rdquo; about a thing it does not have. Both pinned by
+    tests, because the reassuring direction is not the only way to be wrong.</p>
+    <p class="proof"><b>Nothing had ever tested this response &mdash; not this state, nor the
+    staleness state sitting beside it.</b> That is the more useful finding: an operator reads this
+    to answer &ldquo;am I about to be throttled?&rdquo;, and no check existed that it answered
+    honestly. Four now, the first carrying a control that must PASS before the real assertion is
+    trusted.</p>
+    <p class="proof"><b>The screen had the same gap in a quieter form.</b> It reported the
+    account-wide count and stopped, which reads as the whole picture on a workspace that has two
+    limits &mdash; and the unreported one is the one that throttles per service.</p>
+    <p class="where">tare af14f6d &middot; three new mutation controls, 39 green &middot; the executed-workspace harness 23 &rarr; 27 checks</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">The nightly scan claimed to watch four files. It was watching one.
+      <span class="chip live">flatline</span><span class="chip">4 files &rarr; 1</span><span class="chip">122 &rarr; 131 tests</span><span class="chip">CLI was untested</span></p>
+    <p class="what"><b>Same probe as the last entry, pointed at the next report along: read what the
+    scheduled tool actually printed.</b> The dead-signal scan has been headed <b>&ldquo;4
+    file(s)&rdquo;</b> every night while pointed at exactly <b>one</b> spreadsheet, split into four
+    metric groups. The grouped mode counts one result per group, and the summary printed that count
+    as a file count.</p>
+    <p class="proof"><b>Note the direction, because it is the dangerous one.</b> It <em>overstates
+    coverage</em>. Anyone opening the nightly report to ask &ldquo;is this watching enough of my
+    data?&rdquo; read four and was reassured by a number that meant something else entirely.</p>
+    <p class="proof"><b>A second line in the same tool contradicted itself.</b> The dead-code scan
+    fell back to counting its command-line ARGUMENTS when there were no findings, so a clean scan of
+    two folders announced <em>&ldquo;scanned 2 file(s) with findings; 0 high-severity&rdquo;</em>
+    &mdash; two files with findings, and zero findings, in one sentence, printed precisely when the
+    news was good.</p>
+    <p class="proof"><b>My first fix was wrong, and running it is the only reason I know.</b>
+    Counting distinct source files looked obviously correct and still printed the wrong number,
+    because each group is stamped with the file path <em>plus</em> its group label &mdash; so
+    &ldquo;distinct sources&rdquo; are groups. The count now comes from the loop that opens the
+    files. A fix that is verified by reading it is not verified.</p>
+    <p class="proof"><b>Nine tests, and the gap they fill is the point: nothing had ever tested what
+    this tool prints.</b> All 122 existing tests are unit tests on the analyzers &mdash; good ones,
+    and incapable of catching either bug, because the analyzers were right both times. The defect
+    was in the sentence. That is why a fully green suite sat on top of both for months.</p>
+    <p class="proof"><b>One test pins a contract between two tools.</b> canary shells out to this
+    scanner and decides what counts as a finding by matching words in its output. If the summary
+    line ever contains one of those words, every scan silently gains a phantom finding. The rule now
+    lives on the side that would break it, since canary cannot defend itself against a word added
+    upstream.</p>
+    <p class="proof"><b>A control per fix, each proven to fail the RIGHT tests</b> &mdash; restoring
+    the group count reddens exactly the two scope tests, restoring the argument-count fallback
+    reddens exactly the clean-scan test &mdash; and each time the file was confirmed to still parse,
+    so the red is behaviour rather than a syntax error. Tonight&rsquo;s report will read
+    <em>&ldquo;1 file(s) in 4 metric group(s)&rdquo;</em>, verified against the real file from the
+    directory the scheduled job runs it in.</p>
+    <p class="proof"><b>And it turned up something bigger, recorded rather than fixed.</b> There are
+    <b>two copies of this tool installed on the machine</b>, from two package names, and the one in
+    the system library is <b>93 lines behind</b> the source &mdash; missing an entire feature. The
+    nightly job runs the current one; <b>canary runs the stale one</b>. Harmless today only because
+    canary never feeds it the file type that differs. Which copy to remove is Colin&rsquo;s call, so
+    it is written down where the next session will read it rather than guessed at.</p>
+    <p class="where">dev/flatline 72e367a &middot; trap recorded in CLAUDE.md 370e36d &middot; canary&rsquo;s 27 tests still green against the change</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">The on-call webhook was being paged about a monitor that had been deleted &mdash; and the alert named nothing at all
+      <span class="chip live">Tare</span><span class="chip">real HTTP proof</span><span class="chip">worse with no policy</span><span class="chip">36 controls</span></p>
+    <p class="what"><b>An alert record outlives the alert it came from.</b> Deleting a monitor sets a
+    flag; the record of it having fired is kept deliberately, and nothing links the two back together
+    except a lookup by id. That lookup returns a <em>blank monitor</em> when the monitor is gone
+    &mdash; not an error, not a failure, just an empty one &mdash; and nothing further down checked.</p>
+    <p class="proof"><b>This was proven by sending the real request and printing what arrived,</b> not
+    by reading the code. With the fix reverted, a live HTTP server received:
+    <code>an alert was sent for a monitor that no longer exists; it named monitor{id= name= service=
+    severity=}</code>. Every field empty. Somebody&rsquo;s pager, at three in the morning, for a thing
+    with no name and no service.</p>
+    <p class="proof"><b>Which of the two failures you got depended on a setting most people never
+    touch.</b> With routing rules configured, the blank matched none of them and the alert was dropped
+    &mdash; silently, uncounted, indistinguishable from a quiet night. With <em>no</em> rules
+    configured, which is the default because they are optional, everything matches, so the blank alert
+    was <b>delivered</b>. The two failure modes are opposites and the same root cause produced both.</p>
+    <p class="proof"><b>The retry path was worse and needed a different remedy.</b> It performs no
+    rule matching whatsoever, so it would have sent that blank no matter how anyone had configured
+    routing. It now finishes those receipts rather than leaving them advertising a retry that could
+    only ever produce nothing &mdash; and it names <em>which</em> thing is missing, because a record
+    aged out of retention and a monitor somebody deleted want different reactions.</p>
+    <p class="proof"><b>Every new test carries a control inside it that must PASS.</b> A test asserting
+    &ldquo;no request was sent&rdquo; passes trivially if the fixture is broken in any unrelated way,
+    so each one first proves the same setup with the monitor present delivers exactly one alert. And
+    the sabotage was chosen to leave the package compiling and passing vet, so the red is the
+    behaviour rather than a broken file.</p>
+    <p class="proof"><b>An incident could also be opened against the blank</b>, which is the same
+    defect wearing a different hat &mdash; an incident record naming no service, sitting in the
+    queue. Now asserted absent.</p>
+    <p class="proof"><b>On screen both lists printed the bare 32-character identifier where a name
+    goes.</b> That reads as a monitor whose name merely failed to load, which is a thing you ignore;
+    it now says the monitor was deleted, in muted italic so it cannot be mistaken for a title, and
+    keeps a short id so the record is still traceable.</p>
+    <p class="where">tare 0762bc1 &middot; four new mutation controls, 36 green &middot; the executed-workspace harness went 18 &rarr; 23 checks and reverting the label turns exactly two of them red</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">A monitor that had stopped working showed a green OK &mdash; and the staleness flag could never have caught it
+      <span class="chip live">Tare</span><span class="chip">ok &rarr; last known: ok</span><span class="chip">sorted last</span><span class="chip">32 controls</span></p>
+    <p class="what"><b>When a scheduled evaluation fails, the previous state and value are kept
+    deliberately &mdash; throwing them away would be worse. Nothing on the way out said they were
+    history.</b> A monitor that had not managed to run for hours drew a green pill, sat below every
+    working monitor on the page, and carried its failure only in a hover tooltip.</p>
+    <p class="proof"><b>The rendered output is the finding, not a description of it.</b> Reverting
+    the fix and running the workspace produced exactly this:
+    <code>&lt;span class="monitor-state ok" title="read timeout after 2s"&gt;ok&lt;/span&gt;</code>,
+    with the last successful value <b>12</b> drawn beside it in the current-value column. The words
+    &ldquo;read timeout&rdquo; existed only inside a <code>title</code> attribute. Nobody hovers a
+    green pill.</p>
+    <p class="proof"><b>The obvious defence does not work, and that is pinned by a test rather than
+    argued.</b> There is already a staleness flag for &ldquo;the scheduler has stopped touching
+    this&rdquo; &mdash; but a failed evaluation writes a <em>fresh</em> timestamp, so a monitor that
+    is failing every single cycle reads as freshly checked. The two faults are genuinely different
+    and neither covers the other.</p>
+    <p class="proof"><b>The API was carrying a boolean that meant two unrelated things and nothing
+    read it.</b> False stood for both &ldquo;the last evaluation failed&rdquo; and &ldquo;this
+    monitor has never been evaluated&rdquo;, so a monitor created a second ago was indistinguishable
+    from a blind one. It is three-state now &mdash; and a <em>missing</em> status reads as failing,
+    not as success, so an older state row cannot report itself healthy on no evidence.</p>
+    <p class="proof"><b>The sort order was half the harm.</b> Rows ranked on the state they were last
+    in, so a broken monitor whose final reading was &ldquo;ok&rdquo; sank beneath every healthy one.
+    It now sits directly under alert. The pill reads <b>last known: ok</b> with a hollow dot rather
+    than a lit one, the failure count and error text are in the row body, and the stale number is
+    muted because it is history.</p>
+    <p class="proof"><b>Two more turned up in the evidence dialog, which is where the judgement
+    actually gets made.</b> It replays the window recorded by the last <em>successful</em> evaluation
+    &mdash; framed identically to a current one &mdash; and it slices to 100 records in the browser.
+    <b>That second limit is invisible to yesterday&rsquo;s completeness guard by construction</b>,
+    because that guard reads Go handler source and this ceiling lives in JavaScript.</p>
+    <p class="where">tare 1ebac98 &middot; six new mutation controls &middot; 32 green including two canaries</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">The interface is executed now instead of grepped &mdash; and the first thing it did was print the bug
+      <span class="chip live">Tare</span><span class="chip">18 checks</span><span class="chip">4 controls: 5 / 2 / 1 / 0</span><span class="chip">CI wired</span></p>
+    <p class="what"><b>Every check on this product&rsquo;s interface was a search for text inside its
+    source file.</b> That is the weakest test in the repo: four separate times this week an assertion
+    passed on broken code because the original name stayed a <em>prefix</em> of the renamed one. It
+    also cannot answer the questions that matter about a screen &mdash; what order did the rows come
+    out in, did the escaping actually run on this path, did the warning reach the page or only get
+    calculated.</p>
+    <p class="proof"><b>So it now loads the shipped file into a stubbed browser and reads the HTML it
+    produces.</b> Eighteen checks. The stub is deliberately unhelpful: network calls throw, timers
+    never fire, and anything not modelled is simply absent rather than a silent no-op &mdash;
+    <b>a permissive stub is a harness that passes while proving nothing</b>. It found a genuine gap
+    in itself on the first run, which is the stub working as intended.</p>
+    <p class="proof"><b>Four negative controls, and what matters is that each one failed the RIGHT
+    checks.</b> Breaking the failure detection turned five red. Breaking only the sort turned exactly
+    two red &mdash; the ordering checks alone. Removing one escaping call turned exactly one red. A
+    comment-only edit left all eighteen green. A harness that goes red at everything is no more use
+    than one that goes red at nothing.</p>
+    <p class="proof"><b>One rule the older controls did not have: a red result must NAME the thing it
+    broke.</b> A crash exits with the same code as a finding, so a sabotage that leaves the file
+    unparseable would be recorded as &ldquo;caught&rdquo; while verifying nothing. Proven by planting
+    an unbalanced bracket: the case is <b>refused as evidence</b> rather than passing.</p>
+    <p class="proof"><b>My own control failed its own rule first, which is the honest part.</b> The
+    crash test appeared to work &mdash; five cases, all green &mdash; and the sabotage had never
+    landed, because it searched for the wrong text. The one line asserting &ldquo;confirm the
+    mutation applied&rdquo; is what caught it. Without that line the run would have read as a clean
+    pass of a check that had not been exercised.</p>
+    <p class="proof"><b>And the harness would have shipped to customers.</b> The interface directory
+    is compiled into the release binary and served publicly; a test file parked beside the code it
+    tests goes out at a guessable address. Confirmed by planting one and watching it get embedded,
+    rather than assuming. There is now a check that keeps that directory to exactly the three files
+    the product is made of.</p>
+    <p class="where">tare f278958 &middot; runs in CI as its own step &middot; five of the 32 mutation controls now drive it</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">Two settings I shipped yesterday to stop the memory problem were being silently ignored
+      <span class="chip live">fixed</span><span class="chip">wrong section</span><span class="chip">no error shown</span></p>
+    <p class="what"><b>Yesterday&rsquo;s memory work put a virtual-machine config on Colin&rsquo;s
+    machine, and two of its five settings were in the wrong section of the file.</b> The ones that
+    hand freed memory back to Windows and let the virtual disk shrink. Both were being rejected as
+    unknown keys.</p>
+    <p class="proof"><b>Nothing surfaced it.</b> The warning is written to the error stream of
+    whichever unrelated command happens to run next, so it appeared once, mid-output, during a search
+    for something else. The memory <em>cap</em> was accepted and is working; the two reclaim settings
+    simply were not in effect.</p>
+    <p class="proof"><b>Fixed and verified in the right order:</b> the warning was observed present,
+    the settings moved, the warning observed gone. Not &ldquo;this looks like the correct section&rdquo;
+    &mdash; the same file was made to answer before and after.</p>
+    <p class="proof"><b>Recorded because it is the exact shape of the thing being hunted in the
+    product this week:</b> a configuration that reads as applied, reports no error, and does nothing.
+    It is worth noticing when your own week&rsquo;s work produces the defect it is written against.</p>
+    <p class="where">C:\Users\hisbo\.wslconfig &middot; the 6 GB cap was always fine; only the two reclaim keys were inert</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">The nightly report said &ldquo;4 new&rdquo; in one place and marked 16 rows new in the other
+      <span class="chip live">canary</span><span class="chip">16 badges &rarr; 4</span><span class="chip">25 &rarr; 27 tests</span><span class="chip">control both ways</span></p>
+    <p class="what"><b>Found by reading last night&rsquo;s live report rather than the code.</b> The
+    headline and the exit code both come from one number: files that changed <em>and</em> have
+    findings. The report&rsquo;s &ldquo;new since last look&rdquo; badge came from changed alone. So
+    the report announced <b>4 new findings</b> and then hung the badge on <b>16 rows, twelve of which
+    read &ldquo;nothing to report&rdquo;</b>. Both numbers were computed honestly. Neither meant what
+    the other one meant, in the same artifact, from the same run.</p>
+    <p class="proof"><b>The cost is not the wrong number, it is the burial.</b> The four rows worth
+    reading sat among twelve that were not &mdash; which is the exact muting failure this tool&rsquo;s
+    own comments are written against: <em>a badge on every row is furniture</em>, and it
+    <em>reports news rather than inventory</em>. A changed file with nothing to report is inventory.</p>
+    <p class="proof"><b>The existing guard was right in principle and measured the wrong set.</b> It
+    already refused to show a badge that would sit on every row &mdash; but it asked whether the badge
+    split the list of <em>all</em> rows, when what it must split is the list of rows that carry news.
+    That discipline is preserved, applied now to the list it actually marks.</p>
+    <p class="proof"><b>The unit test pins WHICH row wears it, not just how many.</b> A count-only
+    assertion passes if the badge lands on the clean row and misses the finding. The end-to-end test
+    asserts the badge count equals the &ldquo;(N new)&rdquo; the exit code fires on, through the real
+    analyzer &mdash; because render() agreeing with itself is not the property that broke.</p>
+    <p class="proof"><b>Control, both directions.</b> Reverting the fix in one line turns both new
+    tests red &mdash; <em>&ldquo;report badges 2 row(s) as new while the summary and exit code say
+    1&rdquo;</em> &mdash; while the other 25 stay green, so the mutation broke the behaviour and not
+    the file. Restored: 27 pass. On live data the summary now says 4 new and the report badges exactly
+    4, all four <em>worth a look</em>.</p>
+    <p class="proof"><b>Verified without consuming the alarm.</b> Only the scheduled guard may advance
+    canary&rsquo;s watermark; an ad-hoc look that ages a brand-new finding into silence is the failure
+    the tool exists to catch. So the live check ran read-only, with the watermark compared before and
+    after to prove it had not moved.</p>
+    <p class="proof"><b>One hypothesis checked and discarded, which is why it is here.</b> The same
+    report tracks ten rotating backup copies of one file, so I expected canary&rsquo;s state to be
+    accumulating dead paths forever. It is not &mdash; the state is rebuilt from what exists on each
+    run. Measured before believing it.</p>
+    <p class="where">dev/canary d366364 &middot; badge and headline now come from the same definition of new &middot; live report regenerated read-only against 52 tracked files</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">The control guarding 603 tests was running every night from a file that was never committed
+      <span class="chip">nightly audit</span><span class="chip">18 suites &middot; 603 tests</span><span class="chip">now in git</span></p>
+    <p class="what"><b>The suite sweep landed in the nightly job, and its negative control was wired
+    in beside it and verified end to end &mdash; but the wiring itself was only ever on disk.</b> It
+    ran from an uncommitted working file in a tree several sessions write to. That is the same shape
+    as the disposable proofs this week&rsquo;s rule exists to stop: the gate works, and nothing
+    durable says so.</p>
+    <p class="proof"><b>Also fixed an ordering that read as a lie.</b> The sweep&rsquo;s note
+    &mdash; <em>&ldquo;this step, and only this step, sets the exit&rdquo;</em> &mdash; had ended up
+    sitting directly above the <em>control</em> invocation, which is the one step that does not set
+    the exit. Each comment now sits above the command it describes.</p>
+    <p class="proof"><b>Verified by running the real launcher, not by reading the file:</b> 11
+    sweep-control checks ok, control exit 0, then <b>18 suites, 603 tests, 0 red</b>, and a signed
+    clean receipt. Staged as a named path &mdash; nine other files in that tree belong to other
+    sessions and jobs.</p>
+    <p class="where">Scheduled/flatline-audit 4685aab &middot; attest receipt d79d721098a386a5</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">A machine nobody could measure was being reported as healthy &mdash; and my first attempt to prove it was wrong in a useful way
+      <span class="chip live">Tare</span><span class="chip">healthy &rarr; unmeasured</span><span class="chip">5 behavioural tests</span><span class="chip">21 controls</span></p>
+    <p class="what"><b>The infrastructure inventory skipped any signal that had no value, then
+    defaulted to &ldquo;healthy&rdquo; &mdash; with the reason &ldquo;within fixed utilization and
+    freshness thresholds&rdquo;.</b> That is a claim about checks that never ran. <b>An operator
+    scanning an inventory for problems skips straight past healthy</b>, which is the reassuring
+    direction to be wrong in.</p>
+    <p class="proof"><b>The first thing to establish was whether it could actually happen, because a
+    state that cannot occur is not a defect.</b> An entity only exists if it reported a supported
+    metric &mdash; but that list includes <em>component</em> metrics. Memory utilization is derived
+    from a usage figure AND an available figure together, so a collector emitting one half of the
+    pair creates an entity with nothing derivable at all. Reachable, and with an ordinary collector
+    configuration rather than a contrived one.</p>
+    <p class="proof"><b>My first attempt to prove it live failed, and that was the useful part.</b> I
+    sent an ordinary metric tagged with host attributes and got <em>zero</em> entities &mdash; because
+    the inventory only builds entities from supported infrastructure metrics. That corrected a wrong
+    assumption about how entities come into existence <em>before</em> it reached the writeup rather
+    than after.</p>
+    <p class="proof"><b>Seeding the real case produced it:</b> a pod reporting only a memory-usage
+    figure came back <code>health = unmeasured</code>, with all three signals named as unevaluated.
+    Before the change that pod read <b>healthy</b>.</p>
+    <p class="proof"><b>The ranking is the design decision.</b> Unmeasured sits <em>above</em> healthy
+    and <em>below</em> stale: &ldquo;we cannot judge this&rdquo; deserves more attention than
+    &ldquo;this is fine&rdquo;, and less than &ldquo;something we were seeing has stopped&rdquo;.
+    Widening the query window flipped the same pod to stale, which is that ordering working rather
+    than being asserted.</p>
+    <p class="proof"><b>Partial coverage is now visible too.</b> An entity reporting only CPU stays
+    healthy &mdash; what was seen really is fine &mdash; but says memory and disk were not evaluated.
+    And the healthy wording no longer overclaims: it speaks for &ldquo;the signals that were
+    reported&rdquo;, not for utilization in general.</p>
+    <p class="proof"><b>An existing test caught the change and was made stronger rather than
+    looser.</b> It asserted <em>exactly one</em> health reason; the stale entity in it reports only
+    CPU, so it legitimately gains a second true one. Its subject was never the count, so the count
+    assertion became an assertion on the new reason.</p>
+    <p class="proof"><b>Two non-findings recorded, because predicting them wrong was the point of
+    looking.</b> Monitor states already do this correctly &mdash; no-data, disabled and pending all
+    render muted and distinct from healthy. And the inventory already treated an unreadable
+    last-seen timestamp as stale, the same rule applied to a different subsystem the day before.</p>
+    <p class="where">tare ef8556c &middot; five tests that call the real classifier rather than matching source text &middot; seeded data removed and the real row counts re-checked</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 18</div>
   <div>
