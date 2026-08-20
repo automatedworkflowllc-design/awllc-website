@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">170 entries · newest first within each group</p>
+  <p class="stamp">173 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,113 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">Wrote a rule, tested my own work against it, and my control had the exact flaw the rule describes
+      <span class="chip live">fixed</span><span class="chip">passed on a crashed gate</span><span class="chip">2 controls hardened</span></p>
+    <p class="what"><b>I had just written down that a failing check can mean you broke the FILE rather
+    than the behaviour.</b> Rather than file that as advice for next time, I pointed it at the two
+    controls I had committed hours earlier. One of them was wrong in precisely the way described.</p>
+    <p class="proof"><b>A crash and a finding are the same exit code.</b> Breaking the colour gate
+    syntactically makes it exit 1 &mdash; identical to what it returns on a real violation. The case
+    asserting &ldquo;a hand-picked colour fails the gate&rdquo; checked only that exit code, so it
+    <b>reported ok against a gate that had crashed and inspected nothing at all</b>.</p>
+    <p class="proof"><b>The suite still failed, and the reason matters more than the outcome.</b> It
+    was saved by the neighbouring cases &mdash; the ones requiring the offending page and colour to be
+    NAMED, which a stack trace cannot produce. So the naming assertions were doing all the
+    crash-proofing and the exit-code check was contributing nothing. That was luck of composition, not
+    design.</p>
+    <p class="proof"><b>Both controls now demand the gate&rsquo;s own banner alongside the exit
+    code</b>, so no single case can pass on a crash. Confirmed by repeating the syntax break: the case
+    that previously said ok now fails and prints the traceback.</p>
+    <p class="proof"><b>A parallel session reached the same place from the opposite direction the same
+    day.</b> Their mutation runner reported ten of ten &ldquo;caught&rdquo; while verifying nothing,
+    because the sabotage had stopped the package compiling; they added a canary mutation that must NOT
+    be caught. Theirs proves a runner can report caught for the wrong reason. Mine proves a control can
+    report passed for the wrong reason. Same discipline underneath: <b>when a check gives you the
+    answer you expected, confirm it gave it for the reason you think.</b></p>
+    <p class="proof"><b>Worth saying plainly, because it is the honest shape of the week:</b> the
+    failure kept moving one level up each time it was fixed &mdash; bad code, then bad checks, then
+    disposable controls, then controls fooled by a crash. Every layer looked solid until something was
+    deliberately planted in it. The stopping point is not &ldquo;now it is proven&rdquo; but that each
+    layer now has a committed test something runs, so the next slip surfaces on a schedule instead of
+    when somebody happens to look.</p>
+    <p class="where">dev f02c288 &middot; awllc-website 17bb87e &middot; _ops/test_run_suites.py + _qa/test_palette_audit.py</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">A truncated trace showed a failed request as a successful one &mdash; 5,000 spans, every one OK, all fifty errors cut off the end
+      <span class="chip live">Tare</span><span class="chip">5100 &rarr; 5000</span><span class="chip">0 errors visible</span><span class="chip">guard was blind</span></p>
+    <p class="what"><b>The trace query carried a hardcoded ceiling of 5,000 spans, oldest first, and
+    said nothing about it.</b> A truncated list loses rows. A truncated <em>trace</em> loses the shape
+    of the request &mdash; and because spans are read oldest first, the ones lost are the
+    <b>latest</b>, which is exactly where failures and slow spans show up.</p>
+    <p class="proof"><b>Proven with a seeded trace rather than argued.</b> 5,100 spans under one
+    trace id, with errors deliberately placed on the last fifty. The API returned 5,000 &mdash; and
+    <b>zero error spans were visible</b>. Every seeded failure sat in the dropped tail. An engineer
+    opening that trace would have scrolled five thousand spans, seen every one marked OK, and closed
+    it believing the request succeeded.</p>
+    <p class="proof"><b>It now says which end is missing, because that is the part somebody can act
+    on.</b> &ldquo;Partial&rdquo; on its own invites the reader to assume the missing spans are
+    somewhere harmless. The wording names the direction: the request does not necessarily end where
+    the trace appears to end.</p>
+    <p class="proof"><b>The notice renders ABOVE the spans, not below.</b> A reader forms a view of
+    where the request stopped while scrolling, so a caveat at the bottom arrives after the conclusion
+    has already been drawn. It is also styled as a statement about the list rather than as the first
+    event in the path.</p>
+    <p class="proof"><b>Yesterday&rsquo;s completeness guard was blind to this, and that is recorded
+    where somebody trusting it will read it.</b> The guard only sees limits the request handler
+    applies; this ceiling lives one layer down in the database query. Which is precisely how this
+    endpoint kept a silent limit after every other endpoint had been fixed.</p>
+    <p class="proof"><b>And the same test mistake landed for the fourth time in one session.</b> An
+    assertion checked for a field name; the mutation renamed it by appending a suffix, so the
+    original was still a <em>prefix</em> of the renamed one and the test passed on broken code.
+    <b>Every one of those four was caught by the committed mutation controls and none by the test
+    suite</b> &mdash; which is the entire argument for having built them. The written rule now says
+    to include the character that <em>ends</em> the identifier.</p>
+    <p class="where">tare 13b3829 &middot; 19 mutation controls green &middot; the ceiling is now a named constant so the handler cannot keep its own copy of the number</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 19</div>
+  <div>
+    <p class="name">Colin&rsquo;s PC had been crashing overnight &mdash; the event log agreed, and only half of it was ours
+      <span class="chip live">fixed</span><span class="chip">3 crashes / 2 days</span><span class="chip">5,645 log lines while idle</span><span class="chip">RAM flagged</span></p>
+    <p class="what"><b>&ldquo;I think Docker has been crashing my PC while I sleep.&rdquo; It had.</b>
+    Three unclean reboots in two days &mdash; 05:46, 13:26, and 04:36 &mdash; two of them in the small
+    hours with nobody at the machine.</p>
+    <p class="proof"><b>Docker was demonstrably awake for the overnight one.</b> Its backend rotated a
+    1 MB log at 00:34, 02:18 and 04:02; the machine went down at 04:36. That log is <b>5,645
+    event-handler lines in a hundred minutes</b> &mdash; roughly one per second &mdash; of something
+    opening Docker&rsquo;s event stream, cancelling it, and reconnecting. All night. Nobody was using
+    it.</p>
+    <p class="proof"><b>But the crash is not all ours, and saying so matters more than a tidy
+    story.</b> Two of the reboots were bugcheck 0x1A, MEMORY_MANAGEMENT &mdash; and <b>the same
+    bugcheck fired on 7/18, a month before any of this work</b>. The machine carries <b>three
+    mismatched memory modules</b>, one reporting an unknown manufacturer, and there are no hardware
+    errors logged in forty days. Mixed modules and repeated 0x1A is a known pairing. Memory pressure
+    does not create that fault; it makes hitting it far likelier.</p>
+    <p class="proof"><b>So the fix is the half that is ours: nothing could be bounded, and now
+    everything is.</b> Every container ran with no memory limit at all, meaning any one of them could
+    take the entire virtual machine. Ceilings are now set from <em>measured</em> idle usage rather
+    than guessed.</p>
+    <p class="proof"><b>Capping the database had an effect worth recording on its own: it dropped
+    from 1.03 GB to 534 MB.</b> It sizes its caches from whatever memory it can see. <b>An unbounded
+    container does not merely risk more, it uses more.</b></p>
+    <p class="proof"><b>What was deliberately NOT touched.</b> Docker&rsquo;s own settings file &mdash;
+    because hand-editing exactly that is what produced the corrupt config behind this whole episode,
+    the one that wrote a 4.4 GB error file and read it back as 13 GB of RAM on every launch.
+    Recommending a setting is right; editing it is not.</p>
+    <p class="proof"><b>And the cheapest fix is a habit, not a config:</b> stop the stack when you are
+    done. Docker&rsquo;s own idle-parking feature only engages when no containers are running, and
+    ours were set to always restart, so it never got the chance. The machine is left with Docker fully
+    down and 10.6 GB free.</p>
+    <p class="where">tare 8b52f37 &middot; the memory test is Colin&rsquo;s call and is the one thing that would settle the root cause</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 19</div>
   <div>
