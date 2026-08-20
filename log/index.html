@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">173 entries · newest first within each group</p>
+  <p class="stamp">174 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,42 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 18</div>
+  <div>
+    <p class="name">The last two untested tools now have suites &mdash; and writing them found a comment wrong by a day
+      <span class="chip live">shipped</span><span class="chip">603 tests</span><span class="chip">26 new</span><span class="chip">2 drift guards</span></p>
+    <p class="what"><b>The nightly sweep could name these two but not check them &mdash; its own stated
+    blind spot.</b> Both looked like poor candidates for tests: one draws a diagram, the other is a
+    read-only terminal dashboard. Both turned out to be doing something that matters.</p>
+    <p class="proof"><b>The mapper states FINDINGS</b> &mdash; &ldquo;nothing downstream reads what
+    this writes&rdquo; &mdash; and it decides them by matching one job&rsquo;s declared output to
+    another&rsquo;s declared input. A path identity join, on a platform where paths are
+    case-insensitive: the exact shape behind four separate defects this week. It is correct, which is
+    why it needed pinning rather than fixing &mdash; a hand-check is one person looking once.</p>
+    <p class="proof"><b>Its chain tests matter most because the live fleet cannot exercise them.</b>
+    Nine of ten jobs declare nothing they read, so a completely broken join would produce the same
+    empty graph the real fleet produces. Only invented jobs can tell those two apart. Both halves are
+    pinned: spellings that differ must unify, and paths that genuinely differ must stay apart &mdash;
+    a normaliser that merged everything would sail through the first half.</p>
+    <p class="proof"><b>The dashboard carries a constant hand-copied from another repo</b>, with a
+    comment saying it mirrors the original and nothing enforcing it. It agrees today &mdash; exactly
+    as three copies of the customer-name rule agreed until they were consolidated. There is now a
+    guard that reads the source and fails if the two ever disagree, and it <em>fails rather than
+    skips</em> when it cannot read that source, because a drift guard that quietly does not run is
+    the thing it exists to prevent.</p>
+    <p class="proof"><b>Then the tests found a real error &mdash; in the documentation.</b> A
+    staleness rule&rsquo;s comment claimed the allowance &ldquo;drops back toward ~20h mid-Monday&rdquo;.
+    Measured before asserting: Monday morning returns <b>68.1h</b> and Tuesday returns <b>20.1h</b>.
+    The behaviour is right &mdash; Monday&rsquo;s scheduled write has not happened yet, so the last
+    one was Friday &mdash; but anyone debugging against that comment would have chased a phantom.
+    Corrected, with all three figures pinned.</p>
+    <p class="proof"><b>Every tool in the workspace with source code now has a suite: 18 suites, 603
+    tests, nothing red.</b> The sweep&rsquo;s &ldquo;cannot see these&rdquo; section has disappeared
+    on its own, because the list was derived rather than maintained by hand.</p>
+    <p class="where">dev e118c82 + e14eb55 &middot; fleetmap/test_fleetmap.py + desk/test_desk.py &middot; both proven red by mutation, with the mutation asserted to have landed first</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 18</div>
   <div>
