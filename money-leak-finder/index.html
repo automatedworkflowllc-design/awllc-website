@@ -675,15 +675,31 @@ function colValues(t, ci){ return t.body.map(function(r){ return (r[ci]===undefi
    The uniqueness test is what actually rejects Amount, and it does so on principle rather than
    by guessing at column names -- a column called "Total" or "Value" would fail it too. */
 function normKey(v){ return String(v).replace(/\s+/g,' ').trim().toLowerCase(); }
+/* A MONEY COLUMN CAN NEVER BE THE JOIN KEY. An amount is not an identity.
+   Measured on the shipped page 2026-08-19, with work and invoice files whose ID
+   columns shared nothing and whose amounts were all distinct: this joined
+   Amount <-> Amount and then reported "$800 uninvoiced" keyed as `800`, while
+   SILENTLY HIDING a genuinely unbilled $650 job -- because an unrelated invoice
+   happened to be for $650. A false all-clear over real money, plus a false
+   accusation, from one wrong key.
+   The uniqueness filter below does NOT cover this: it only rejected the amount
+   column in earlier testing because that fixture happened to repeat a value.
+   With all-distinct amounts, which is the ordinary case, it sails through.
+   /check/ took the same defect and the same fix on 2026-08-17; this page never
+   got the guard. "These files do not line up" is the honest answer and it is
+   strictly better than a confident reconciliation on the wrong column. */
+var MONEYISH = /amount|total|price|value|charge|cost|fee|rate/i;
 function detectJoin(a, b){
   var best = {score: 0, ai: 0, bi: 0};
   for(var i=0;i<a.header.length;i++){
+    if(MONEYISH.test(a.header[i]||'')) continue;
     var av = colValues(a,i).filter(Boolean).map(normKey);
     if(!av.length) continue;
     var aset = {}; av.forEach(function(v){ aset[v]=1; });
     var uniq = 0; for(var k in aset){ if(aset.hasOwnProperty(k)) uniq++; }
     if(uniq / av.length < 0.9) continue;          /* not an identifier -- repeats too much */
     for(var j=0;j<b.header.length;j++){
+      if(MONEYISH.test(b.header[j]||'')) continue;
       var bv = colValues(b,j).filter(Boolean).map(normKey);
       if(!bv.length) continue;
       var hits = 0; bv.forEach(function(v){ if(aset[v]) hits++; });

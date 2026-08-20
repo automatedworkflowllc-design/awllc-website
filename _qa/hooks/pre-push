@@ -139,6 +139,20 @@ python _qa/palette_audit.py --record || {
   echo "Use a token from _brand/tokens.py, or add it to the palette deliberately."
   exit 1
 }
+# /money-leak-finder/ states which finished work was never billed and puts a
+# dollar figure on it. Measured 2026-08-19: with no shared ID column and all
+# amounts distinct, it joined Amount <-> Amount, hid a genuinely unbilled $650
+# job because an unrelated invoice shared that amount, and reported $800 keyed
+# as `800`. /check/ took the identical defect and fix two days earlier; this
+# page never got the guard. Both directions are pinned -- refusing everything
+# would pass every defect case and break the tool.
+echo "Money-leak control: proving it still finds gaps, and still refuses the money column..."
+python _qa/test_money_leak.py || {
+  echo ""
+  echo "PUSH BLOCKED — /money-leak-finder/ either stopped finding real unbilled"
+  echo "work, or went back to reconciling work against invoices on the AMOUNT."
+  exit 1
+}
 # The SEO gate guards twelve rules across every tracked page and ran for weeks
 # with no test of any kind. Two of those rules exist because they were once
 # WRONG in the reassuring direction: the city check matched a bare "Gainesville",
