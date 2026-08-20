@@ -148,7 +148,7 @@ def run(runner, work, inv):
     io.open(pa, 'w', encoding='utf-8').write(work)
     io.open(pb, 'w', encoding='utf-8').write(inv)
     out = subprocess.run(['node', runner, PAGE, pa, pb],
-                         capture_output=True, text=True, timeout=60)
+                         capture_output=True, text=True, encoding='utf-8', timeout=60)
     if out.returncode != 0:
         return {'crashed': (out.stderr or '').strip().splitlines()[-1:]}
     return json.loads(out.stdout.strip().splitlines()[-1])

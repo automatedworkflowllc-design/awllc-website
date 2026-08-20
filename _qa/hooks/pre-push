@@ -139,6 +139,19 @@ python _qa/palette_audit.py --record || {
   echo "Use a token from _brand/tokens.py, or add it to the palette deliberately."
   exit 1
 }
+# /demo/ is the page every outreach email points at. "Oldest open -- call first"
+# is a claim about ONE invoice; on 2026-08-13 a messy book printed it twice and
+# the page contradicted itself on screen. The SAMPLE BOOK CANNOT catch that --
+# it holds exactly one old-enough invoice -- so these rows are synthetic. Both
+# directions: two claims is the defect, zero claims when one is genuinely oldest
+# is the naive fix, and either would ship without this.
+echo "Demo control: proving exactly one invoice is named oldest..."
+python _qa/test_demo_rows.py || {
+  echo ""
+  echo "PUSH BLOCKED — /demo/ is either naming two invoices as the oldest again,"
+  echo "or has stopped naming one at all."
+  exit 1
+}
 # /money-leak-finder/ states which finished work was never billed and puts a
 # dollar figure on it. Measured 2026-08-19: with no shared ID column and all
 # amounts distinct, it joined Amount <-> Amount, hid a genuinely unbilled $650
