@@ -139,6 +139,19 @@ python _qa/palette_audit.py --record || {
   echo "Use a token from _brand/tokens.py, or add it to the palette deliberately."
   exit 1
 }
+# /duplicate-customer-finder/ is the REFERENCE implementation of the identity
+# rule three other tools were fixed against. It groups exactly (a fact) and by
+# typo distance (a guess), and the guess must keep marking itself as one --
+# otherwise the page asserts that two differently-named businesses are the same
+# client, in public, on a spelling distance. Proven both ways: collapsing the
+# guess flag reddens 1 check, breaking suffix folding reddens 3.
+echo "Duplicate-finder control: proving a fact still reads differently from a guess..."
+python _qa/test_duplicate_finder.py || {
+  echo ""
+  echo "PUSH BLOCKED — /duplicate-customer-finder/ either stopped folding real"
+  echo "spelling variants, or started stating a typo match as fact."
+  exit 1
+}
 # /demo/ is the page every outreach email points at. "Oldest open -- call first"
 # is a claim about ONE invoice; on 2026-08-13 a messy book printed it twice and
 # the page contradicted itself on screen. The SAMPLE BOOK CANNOT catch that --
