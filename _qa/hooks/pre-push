@@ -139,6 +139,20 @@ python _qa/palette_audit.py --record || {
   echo "Use a token from _brand/tokens.py, or add it to the palette deliberately."
   exit 1
 }
+# The SEO gate guards twelve rules across every tracked page and ran for weeks
+# with no test of any kind. Two of those rules exist because they were once
+# WRONG in the reassuring direction: the city check matched a bare "Gainesville",
+# which "Gainesville, VA" contains, so it stayed green while live pages carried
+# the wrong state. A rule built from a defect is the one most likely to be
+# loosened back. Symmetric duty, same as the palette control above.
+echo "SEO control: proving the SEO gate still fires, and still doesn't..."
+python _qa/test_seo_audit.py || {
+  echo ""
+  echo "PUSH BLOCKED — the SEO gate no longer behaves. Either it stopped catching"
+  echo "a planted defect, or it started flagging a compliant page, or --record can"
+  echo "once again launder a failing run into the baseline."
+  exit 1
+}
 echo "SEO audit: checking metadata/schema/sitemap/NAP before push..."
 python _qa/seo_audit.py --record || {
   echo ""
