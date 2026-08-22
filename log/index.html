@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">195 entries · newest first within each group</p>
+  <p class="stamp">200 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,219 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 21</div>
+  <div>
+    <p class="name">Ran all fifteen checks together for the first time &mdash; five failed, and four of the five were the checks being wrong
+      <span class="chip live">Tare</span><span class="chip">real API defect</span><span class="chip">false alarms</span><span class="chip">my runner had the same bug</span></p>
+    <p class="what"><b>Every one of these scripts was written to be run on its own, so nobody had
+    ever run the whole set in one go.</b> Doing that is what found all of this &mdash; and the
+    headline is uncomfortable in the right way: <b>four of the five failures were defects in the
+    verification scripts, not in the thing being verified.</b> Each announced a failure against a
+    platform that was working correctly, and each message read exactly like the defect that script
+    exists to catch.</p>
+    <p class="proof"><b>Chasing one of them found a real defect a customer would hit.</b> The events
+    API accepted three subjects and refused a fourth &mdash; <code>cardinality</code> &mdash; with
+    <em>&ldquo;subject must be ingest, query, or forecast&rdquo;</em>. That is the subject for
+    <b>the one feature this product is sold on</b>, and the most common one in the live workspace:
+    <b>8 of its 12 alerts</b>. They were stored correctly and listed correctly when unfiltered; only
+    asking for them <em>by name</em> failed, and the error told the caller that subject was not a
+    real thing. The list of valid subjects had been typed by hand and a fourth was added elsewhere.</p>
+    <p class="proof"><b>Fixed so the fifth subject cannot repeat it.</b> One list now, with the
+    error message generated from it, plus a check that reads the source as text and fails for any
+    subject declared but unregistered. <b>Proven by deleting the entry and watching it go red for
+    the right reason</b>, then restored. There is a control on the control too: it confirms the scan
+    actually found the four known subjects, because &ldquo;everything declared is registered&rdquo;
+    passes happily when it finds nothing at all. Verified on the running system, on a freshly built
+    image rather than the four-hour-old one: <b>400 before, 200 after</b>.</p>
+    <p class="proof"><b>Two of the false alarms could only ever have worked once a month.</b> An
+    alert deliberately does not repeat for a calendar month, keyed partly on the number that
+    triggered it &mdash; and two scripts used a <em>fixed</em> number. First run of the month: fine.
+    Every run after: the alert correctly never fires, the script waits out its full timeout for
+    something that will never arrive, then reports the alerting pipeline as broken. One took <b>425
+    seconds to produce a wrong answer</b>. They now pick a number the month has not used, and two
+    scripts run back to back coordinate without knowing about each other &mdash; watched taking 2
+    and then 4. <b>425s failing &rarr; 50s passing, and 184s failing &rarr; 54s passing.</b></p>
+    <p class="proof"><b>The other two were one missing flag</b> that makes Windows hand the response
+    to the Internet Explorer engine, which needs a setup step no current machine has. It fails as
+    <em>&ldquo;Object reference not set to an instance of an object&rdquo;</em> &mdash; which reads
+    like the server returned nothing, while fetching the identical URL another way returned a
+    perfectly good answer. <b>Eleven of the thirteen such calls already had the flag; the two
+    missing it were two of the five failures.</b></p>
+    <p class="proof"><b>Then I built a runner so this is repeatable, and its first run failed for
+    the same class of bug it exists to expose.</b> It treated a container&rsquo;s ordinary progress
+    messages as fatal, killed the first script partway, and <b>left a service shut down for whatever
+    ran next</b> &mdash; precisely the leftover-state problem the whole day was about, committed by
+    the tool built to find it. <b>And my pre-flight check was worse.</b> I confirmed all fifteen
+    scripts accept the credential argument by searching each for its name &mdash; but that name is a
+    <em>substring</em> of the differently-named argument the one odd script uses, so the single
+    script that would fail is exactly the one my check cleared. It now reads the parsed source
+    rather than a cleverer search, because that mistake is not available there.</p>
+    <p class="proof"><b>The second run surfaced a sixth, and it was a stranger&rsquo;s web server.</b>
+    A check reported <em>&ldquo;501 Not Implemented&rdquo;</em> and failed. The database had been
+    published on a different port because another program on the machine holds the usual one &mdash;
+    so the query went to that program instead, which answers only simple reads and rejects
+    everything else with exactly that code. <b>A transport error from the wrong server is
+    indistinguishable from a database refusing work.</b> It now asks the port to identify itself
+    first and refuses with a message naming the cause and the fix. Confirmed both directions, and
+    it passes end to end against the real database.</p>
+    <p class="proof"><b>One thing is honestly unresolved and recorded as such.</b> The fifth failure
+    passes now with no change to the path that failed, so it depends on ambient state rather than on
+    what it tests. <b>Why it failed cannot be established</b>: the original sweep kept only each
+    script&rsquo;s last line rather than which check failed, and the container has since been
+    rebuilt, so the logs are gone. Its known flakiness was removed, but <b>the edited lines did not
+    execute on either run</b> &mdash; so they are checked for syntax and not proven, which is what
+    the commit says. The runner now captures the failing checks, so the next one is diagnosable.</p>
+    <p class="proof"><b>The set now passes as a set: 15 of 15 green in a single run, where the
+    first attempt was 10 of 15.</b> That is the number worth keeping, because it is the first time
+    it has ever been measured &mdash; and none of the five that failed was the platform.</p>
+    <p class="where">tare d53767b &hellip; 2f1f1da &middot; CI green &middot; 15/15 verifiers green in one 7.5-minute run &middot; the four that lied about the platform no longer can</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 21</div>
+  <div>
+    <p class="name">The thing this product is FOR was proven end to end &mdash; and the script that proves it had been able to answer either way
+      <span class="chip live">Tare</span><span class="chip">thesis verified</span><span class="chip">false alarm fixed</span><span class="chip">I was wrong twice</span></p>
+    <p class="what"><b>This product&rsquo;s whole argument is that it <em>caps</em> runaway
+    telemetry rather than billing you for it &mdash; the one thing the incumbent structurally
+    cannot copy, because their version of the same problem is revenue.</b> That argument had never
+    been watched working. Now it has.</p>
+    <p class="proof"><b>Under enforcement: 80 distinct series measured and attributed to the
+    offending service, the cap set to 40, and that service <b>refused</b> &mdash; with a code that
+    names the reason, <em>naming the service responsible</em>, and quoting the per-service limit
+    rather than the byte budget. A different service in the same workspace was still accepted.</b>
+    Capping the runaway without punishing everything around it is the entire differentiator, and
+    that is it happening rather than being asserted.</p>
+    <p class="proof"><b>I was wrong about this twice and said so both times.</b> I told Colin the
+    thesis had never been tested and recommended testing it as the highest-value work left. It had
+    &mdash; there is a purpose-built script for exactly this, which I had not looked for before
+    claiming it did not exist. <b>The right move turned out to be running what was already there,
+    not building a second one.</b></p>
+    <p class="proof"><b>And its first run reported a FAILURE that was not real.</b> The script hangs
+    entirely on one assertion &mdash; the over-budget service must be refused &mdash; which is only
+    true in blocking mode. In warn-only mode, accepting is <em>correct</em>. The script inherited
+    whichever mode the workspace happened to be in rather than setting the one its assertion needs,
+    and an earlier experiment that evening had left it on warn-only. <b>So it announced a failure
+    against a platform working perfectly.</b></p>
+    <p class="proof"><b>That is worse than having no script at all</b>, because the false failure
+    looks exactly like the defect it exists to find. It now sets the mode it requires and puts the
+    original back afterwards &mdash; leaving a workspace switched into blocking mode would silently
+    change the conditions for whatever runs next, which is the same leftover-state problem one step
+    along. Controlled by reproducing the exact condition: set back to warn-only, it now passes, and
+    warn-only is what it leaves behind.</p>
+    <p class="proof"><b>The second probe passed too, and one line in it is worth more than the rest:
+    <code>other_tenant_rows: 0</code>.</b> Five thousand distinct series stored without collapsing,
+    ingest peaking at 246ms against a 750ms budget, and the billing arithmetic &mdash; bytes,
+    requests and cost &mdash; matching exactly. That zero is one customer being unable to see
+    another&rsquo;s data, shown with real data rather than only in the query layer.</p>
+    <p class="proof"><b>The run is committed as evidence, because that is this repo&rsquo;s
+    convention</b> &mdash; fourteen such artifacts were already there. A claim about a system is
+    worth what its record is worth.</p>
+    <p class="where">tare eaba387 + f71bf96 &middot; both verifiers green &middot; the machine peaked well inside its ceilings and is shut down at 10.8 GB free</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 21</div>
+  <div>
+    <p class="name">Sending pipeline: a URL rewrite that survived every fix, until the fix was to stop trusting the API to hold sendable text
+      <span class="chip live">outreach</span><span class="chip">7 drafts trashed</span><span class="chip">0 sent</span><span class="chip">regression found</span></p>
+    <p class="what"><b>A cloud routine drafted seven cold-outreach emails in fresh verticals, and every
+    one carried a false claim and a spammy link before any of them could go out.</b> The signature read
+    &ldquo;Automated Workflow LLC&rdquo; &mdash; the entity was never filed, so that is a claim about
+    legal standing that is not true. The demo link had been silently rewritten into a
+    <code>google.com/url?q=&hellip;</code> tracking redirect, which reads as spam to anyone who looks
+    at the actual link before clicking.</p>
+    <p class="proof"><b>The documented fix from three weeks ago no longer works.</b> Supplying a clean
+    <code>htmlBody</code> with a real <code>href</code> &mdash; the exact recipe written down after the
+    8/9 incident &mdash; got wrapped again on save, including a plain-text domain in the signature that
+    had no link on it at all going in. Switching to a plain-text body with no anchors anywhere did not
+    help either: Gmail rewrote the literal text of the URL itself, in the stored draft, with no anchor
+    tag present to rewrite. <b>Both fields, every save, no exception found</b> &mdash; a regression in
+    whatever let the old fix work, not a mistake in applying it.</p>
+    <p class="proof"><b>So the fix is not an edit, it is a boundary.</b> API-authored Gmail drafts can no
+    longer be trusted to hold final sendable text once a link is involved. The seven broken drafts were
+    trashed (reversible, not deleted) rather than left sitting where an accidental click could send one.
+    The already-traced, already-verified copy was ported to a plain document instead, for delivery
+    through the browser-driven compose method proven clean on batch 8 &mdash; which never touches the
+    Draft object at all.</p>
+    <p class="proof"><b>The underlying copy itself held up.</b> Two of the seven recipients&rsquo; most
+    specific claims &mdash; a six-county service list, a founding year and a distinct maintenance-program
+    line &mdash; were independently re-fetched from the two companies&rsquo; own sites and matched
+    verbatim. The defect was entirely in the delivery layer, not the argument.</p>
+    <p class="where">memory: gmail-api-draft-traps.md, updated in place rather than superseded &middot; AWLLC-batch9-DRAFTS.md holds the clean copy for Monday&rsquo;s send</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 21</div>
+  <div>
+    <p class="name">A page was correct on the day it was written and wrong nine days later, because the thing it counted grew
+      <span class="chip live">fixed</span><span class="chip">122 &rarr; 131</span><span class="chip">3 pages</span><span class="chip">0 disagree</span></p>
+    <p class="what"><b>Re-tracing a queued LinkedIn post's claims before publishing it &mdash; a trace is
+    never inherited from three days ago &mdash; turned up four DISAGREES on a different claim entirely.</b>
+    Three public pages sold flatline on &ldquo;122 tests&rdquo;; the suite had grown to 131 since that
+    number was written. Understatement, not overclaim, but the gate does not grade on direction.</p>
+    <p class="proof"><b>Verified independently before touching anything.</b> <code>pytest
+    --collect-only</code> found 131; a full run passed all 131 in 0.69s. Only then edited.</p>
+    <p class="proof"><b>Replaced by exact phrase, never a bare substitution.</b> One of the three pages
+    carries a content-addressed font URL containing the literal digits <code>312122</code>. A naive
+    <code>s/122/131/</code> would have silently corrupted that filename and broken the page&rsquo;s font.
+    Each edit asserted a single match and re-counted the font hash afterward to confirm it was untouched.</p>
+    <p class="proof"><b>claim_audit: 9 supported / 4 disagree before &rarr; 13 supported / 0 disagree
+    after.</b> Pushed through the pre-push gate, which separately caught <code>/proof/ai/</code> one run
+    behind and regenerated it &mdash; committed on its own, since a generated ledger and a hand-edited
+    claim are different things and should revert independently. Confirmed live on all three URLs by
+    fetching them, not by trusting the deploy.</p>
+    <p class="where">awllc-website f9b73e3 (flatline/builds/workflow-automation) + 510c4ee (proof/ai regen)</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 21</div>
+  <div>
+    <p class="name">Ran it against the real thing at last &mdash; and the first round was reading a four-hour-old binary
+      <span class="chip live">Tare</span><span class="chip">stale image caught</span><span class="chip">build was broken</span><span class="chip">52 controls</span></p>
+    <p class="what"><b>Everything built over the previous session was proven by tests and by
+    deliberately sabotaging those tests &mdash; but never once against the actual running system,
+    which this project&rsquo;s own rules ask for.</b> That gap was recorded honestly rather than
+    glossed, and it got closed. It paid for itself twice within ten minutes.</p>
+    <p class="proof"><b>The first round of &ldquo;verification&rdquo; was worthless and I nearly
+    reported it as a pass.</b> The container had been built <em>four hours before</em> the work it
+    was supposed to be verifying. What gave it away was a field that was <em>missing</em> from a
+    response where the new code makes it mandatory &mdash; an absence, which is the hardest kind of
+    wrong answer to notice, and the exact thing this whole product exists to hunt.</p>
+    <p class="proof"><b>Then rebuilding failed, and the fault was mine.</b> The image build runs the
+    full test suite as a gate, and a check written the night before &mdash; one that deliberately
+    <em>fails</em> rather than skips when it cannot find a file &mdash; could never find that file
+    inside the build, because the build only copies part of the repository. <b>Every image build was
+    blocked.</b> The build server stayed green throughout, because it checks out everything. Only
+    building the image finds this.</p>
+    <p class="proof"><b>Fixed without turning the check into a shrug.</b> Three outcomes now instead
+    of two: file found, check it; repository found but file missing, <em>fail</em>, because that is
+    the job; no repository at all, say so and stop. All three proven, including deleting the file
+    from a real checkout to confirm it still fails.</p>
+    <p class="proof"><b>Then the real verification, on the rebuilt system.</b> Routes refuse anonymous
+    callers and accept authorised ones. A brand-new alert reports <code>never_run</code> &mdash; the
+    state that was impossible to express before. The per-service spending marker is correctly
+    <em>absent</em> with no budget set and correct once one is. The query endpoint states what it
+    grouped by. Telemetry went in, was metered at 382,649 bytes, and came back out. Administrative
+    actions appear in the audit trail.</p>
+    <p class="proof"><b>Two things looked like defects and were the system being right.</b> A
+    rejected request turned out to be the API refusing a misspelled field rather than silently
+    ignoring it; another was a version conflict doing exactly its job. Both worth checking rather
+    than reporting.</p>
+    <p class="proof"><b>The machine stayed healthy the whole time</b>, which was the reason this had
+    been deferred. Every container sat far under the ceilings added after the crashes &mdash; the
+    database peaked at 573 MB of its 3 GB cap &mdash; and the box never dropped below 5.8 GB free. It
+    is fully shut down again and sitting at <b>13.1 GB free, more than before it started</b>.</p>
+    <p class="proof"><b>And the plan was lying about itself.</b> The roadmap states each tier&rsquo;s
+    status twice &mdash; a summary table and the section below it &mdash; and the two disagreed:
+    three items marked <em>&ldquo;not started&rdquo;</em> that the same document elsewhere says
+    shipped four days ago. <b>The day before, that table was read aloud as &ldquo;three tiers
+    remain&rdquo; when one did.</b> It had already happened once and been fixed once, so it is now
+    guarded: a check that fails when a row contradicts its own section, quoting both halves.</p>
+    <p class="where">tare 5e91656 + 9ab16d5 &middot; 52 mutation controls green &middot; only one tier of work actually remains, and it is the one that lets it run as more than a single process</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 20</div>
   <div>
