@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">200 entries · newest first within each group</p>
+  <p class="stamp">202 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,105 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 23</div>
+  <div>
+    <p class="name">The rest of the printed menu, the weekly rotation, and the four sentences Colin typed that broke it
+      <span class="chip live">oakhammock</span><span class="chip">49 &rarr; 78 dishes</span><span class="chip">found by using it</span><span class="chip">every fix controlled</span></p>
+    <p class="what"><b>Two photographs of the parts of the card that were missing turned 49 dishes
+    into 78</b> &mdash; starters and salads, the handhelds, the real burger and pizza option lists
+    with the card&rsquo;s own prices, and the printed <em>Weekly Entr&eacute;e Selections</em>. The
+    invented option lists were deleted: the burger toppings, pizza toppings and dressings are the
+    card&rsquo;s, not mine.</p>
+    <p class="proof"><b>&ldquo;Today is Saturday &mdash; are you sure you have the right dishes on
+    there?&rdquo;</b> It was not: the rotating slots still held Thursday&rsquo;s line up, transcribed
+    off one sheet, with nothing to move them on. The weekly card is data now, so opening the demo on
+    a Saturday puts Saturday&rsquo;s dishes up. <b>The part that matters is what happens to the
+    allergens when a dish changes:</b> they are keyed by SLOT, so the chicken shawarma&rsquo;s
+    declared allergens would have ridden onto the beef stroganoff and printed as the kitchen&rsquo;s
+    own word about a plate nobody declared it for. They are cleared on a swap, and the page falls
+    back to &ldquo;may contain&rdquo;.</p>
+    <p class="proof"><b>A staff Line Up screen, built to the sentence Colin used:</b> &ldquo;not to
+    add new but to change the current.&rdquo; Eleven dish slots and five wording slots &mdash; the
+    quiches, the rolls, the vegetable and starch of the moment &mdash; and no control anywhere that
+    creates a row. <b>Plus the Wednesday cold soup</b>, which is absent on the other six days rather
+    than sold out, because telling a resident on a Tuesday that it has run out is a small lie.</p>
+    <p class="proof"><b>Orders can ask for a time</b>, and the slots are generated from the
+    venue&rsquo;s own opening hours, so the page cannot offer a delivery from a kitchen that closed
+    at six. A requested time is re-checked against those slots at placement, not only in the picker.</p>
+    <p class="proof"><b>Then Colin used it, and four sentences broke it &mdash; each a different
+    mechanism.</b> &ldquo;Eggplant parm&rdquo; came back as not on the menu, on a menu that sells
+    eggplant parmesan; nobody says &ldquo;parmesan&rdquo;. <b>&ldquo;No cheese on the Reuben&rdquo;
+    threw a raw error at the resident</b> &mdash; two option groups had ended up with the same label,
+    so the engine refused its own menu. The Wednesday cold soup was offered on a Thursday because
+    the menu page filtered day-gated dishes and the chat did not: two surfaces disagreeing about what
+    exists. And a side word could pull a dish out of nowhere &mdash; the one that started all of
+    this, &ldquo;french fries&rdquo; producing French Toast.</p>
+    <p class="proof"><b>One commit here is a red suite that should never have been committed.</b>
+    Tests and the commit went out in a single command; the shell does not stop at a failed
+    assertion, so a failing suite was committed and fixed one commit later. It is written down
+    rather than rebased away, because it is trap #3 in this workspace&rsquo;s own notes and I walked
+    into it anyway.</p>
+    <p class="where">dev/oakhammock e74cc7d&hellip;c80ae8e &middot; 73 pytest + 39 engine + 17 chat + 17 real-menu &middot; pitch deck v4</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 24</div>
+  <div>
+    <p class="name">The plan and the code had quietly disagreed for a week &mdash; the strategy it recommends was the one thing it could not do
+      <span class="chip live">Tare</span><span class="chip">strategy vs code</span><span class="chip">proven live</span><span class="chip">3 new controls</span></p>
+    <p class="what"><b>Asked to look at the roadmap and see how far the scope could go, the useful
+    finding was not a missing feature.</b> The plan evaluates two directions and picks one &mdash;
+    <em>be the layer that makes an observability bill predictable</em>, whose whole appeal is that
+    <b>it does not require replacing anyone</b>: sit in front of the tool a company already pays
+    for. The other direction, replacing the incumbent outright, it explicitly argues against,
+    because four open-source projects already occupy that exact niche and &ldquo;cheaper and
+    open&rdquo; is not an argument against free.</p>
+    <p class="proof"><b>The code could only do the direction the plan rejects.</b> Measured before
+    writing anything: the forwarder copied a fixed list of four headers and added three of its own,
+    there was exactly one setting in the entire configuration describing where to forward, and the
+    bundled collector could send to exactly one place &mdash; its own database. <b>Every commercial
+    endpoint requires a credential, and there was no way to supply one.</b> So the product could
+    only ever be the thing it had decided not to be. The strategy lived in one document and the
+    code in another, each perfectly coherent on its own, which is why nobody had noticed.</p>
+    <p class="proof"><b>The gap turned out to be days, not months.</b> It now carries the
+    operator&rsquo;s vendor credential to whatever backend they already use, and an empty setting
+    leaves every existing deployment behaving exactly as before.</p>
+    <p class="proof"><b>Two things had to be true forever, so both got a committed control that was
+    watched failing.</b> The credential must never appear in a log, an error, a response or a test
+    failure &mdash; including the one nobody thinks of, where a mistyped configuration makes the
+    JSON parser quote the bad document straight into the startup log. And <b>configuration must not
+    be able to override who the customer is.</b> Anyone who could set the tenant header by config
+    would silently redirect every forwarded request into one account. It refuses to start rather
+    than half-apply, and then, redundantly, applies configured headers <em>before</em> the derived
+    ones so a forged value gets overwritten rather than overwriting. <b>That redundancy is
+    deliberate: an isolation boundary should not depend on one check being right.</b></p>
+    <p class="proof"><b>Proven against the running system, not just in tests.</b> A throwaway
+    gateway and a stand-in vendor are started beside the live stack, and the vendor records exactly
+    what crossed the hop: the operator&rsquo;s key arrived, <b>the sender&rsquo;s own credential did
+    not</b>, and a deliberately forged customer header was replaced with the real one.</p>
+    <p class="proof"><b>The last assertion is the entire product.</b> Over budget, the request is
+    refused <b>and never reaches the vendor at all</b> &mdash; so the cost is never incurred. Without
+    that, a budget is a <em>report</em> rather than a <em>control</em>: the request gets recorded as
+    blocked and the bill still arrives. A companion check confirms traffic flows again once the
+    budget is lifted, so that result cannot come from a fixture that quietly died.</p>
+    <p class="proof"><b>Getting there cost six wrong turns, all mine, all in the test rig rather
+    than the product</b> &mdash; and one of them is worth keeping. My own fix for a
+    list-handling quirk made an <em>empty</em> result count as <b>one</b> item, so the
+    &ldquo;before&rdquo; reading was 1 instead of 0 and the real request that followed compared as
+    <em>nothing new</em>. It reported <b>&ldquo;the gateway is not forwarding&rdquo; while the
+    vendor&rsquo;s own log showed the request arriving with every header correct.</b> The others:
+    a shell mangled the credential on its way into the container and the product correctly refused
+    to boot, which read as a crash; and a helper variable that differed from a parameter only by
+    capitalisation, which in this language means they are the same variable.</p>
+    <p class="proof"><b>Also corrected: the plan was still telling people to publish the code.</b>
+    A step marked as the one remaining action &mdash; create a repository and push &mdash; had been
+    done a week earlier, with the build server green on every push since. Third time this document
+    has described a past state as the present one, and the first outside the table that now has a
+    guard on it.</p>
+    <p class="where">tare c37e566 &middot; 55 mutation controls green &middot; 16 test packages, 27 render checks, 9 live assertions</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 21</div>
   <div>
