@@ -255,9 +255,31 @@ ENGINEERING = [
      "An open-source reliability tool that finds signals carrying no information and jobs producing "
      "nothing: a check that fires on 100% of rows, a scheduled task that reports success while "
      "writing nothing, a branch that can never run.",
+     # 131 as of 2026-08-24, and this figure is GUARDED: _qa/claims.toml has
+     # `builds-flatline-tests`, which re-derives it from the flatline suite on every push and fails
+     # when the page and the suite disagree.
+     #
+     # It had drifted here in the worst way. The built page was patched to 131 when the claim audit
+     # caught it at 108, and THIS BUILDER WAS NEVER UPDATED - so regenerating /builds/ for any
+     # unrelated reason would have silently put the overclaim back. Found 2026-08-24 by diffing a
+     # regeneration against the committed page before trusting it, which is the only way to see a
+     # post-build patch at all.
      "Built after a real scheduled job discarded four days of data while reporting success every "
-     "run. 108 tests, MIT, public &mdash; the page shows five ways to use it on your own stack.",
+     "run. 131 tests, MIT, public &mdash; the page shows five ways to use it on your own stack.",
      ["Open source", "MIT"]),
+    # Tare deliberately carries no count and no price. Its source is private, so unlike every
+    # other entry in this section a reader cannot go and check a number for themselves - and the
+    # project's own roadmap forbids quoting prices derived from its placeholder development rate.
+    # The chips say what is true rather than what sells: it runs, and nobody is on it.
+    ("tare", "/tare/",
+     "A cost-governance gateway for telemetry. Metrics are billed on how many distinct label "
+     "combinations you send, so one deploy that adds a user ID to a metric can multiply the bill "
+     "overnight &mdash; and you find out weeks later on the invoice.",
+     "It refuses over-budget telemetry <em>before</em> it leaves your network, so the cost is never "
+     "incurred rather than merely recorded as blocked. The large vendors bill runaway cardinality "
+     "as a line item, which makes your mistake their revenue; this caps it instead, which is the "
+     "one position they cannot copy. Sits in front of the backend you already pay for.",
+     ["Working system", "No customers yet"]),
     ("canary", "/canary/",
      "The always-on half of flatline. Point it at the folder where your exports already get saved "
      "and it checks each file the moment it changes &mdash; a column that is one value all the way "
