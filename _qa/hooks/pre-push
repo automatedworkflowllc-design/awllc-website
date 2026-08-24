@@ -284,3 +284,32 @@ if [ "${ai_drift:-0}" -gt 0 ]; then
 fi
 # Only the timestamp moved: discard that churn rather than committing noise.
 git checkout -- proof/ai/index.html 2>/dev/null || true
+
+# Every gate above this line reads the HTML as TEXT. That is a real blind spot:
+# a page can parse perfectly, pass structure/claim/palette/SEO, and still reach
+# a visitor blank, collapsed, or with its JavaScript dead on load. The precedent
+# is in this repo: on 2026-08-12 a reader scope bug shipped to five live tools
+# and every gate stayed green because none of them opened a spreadsheet.
+# test_reader.py closed the file-drop half; nothing caught a script that throws
+# on PAGE LOAD, which fails identically and is equally invisible to a text scan.
+#
+# Controls first, same rule as the security sweep and autoqa: a gate nobody has
+# seen go red is not evidence. This plants an uncaught JS error, a blank body,
+# and a 1400px overflow, and proves all three are caught AND that a clean page
+# is ignored -- both directions, because a gate that flags everything gets
+# switched off as fast as one that flags nothing.
+echo "Render controls: proving the render gate can still fail..."
+python _qa/test_render_audit.py || {
+  echo ""
+  echo "PUSH BLOCKED — render_audit's own controls failed. Either it stopped"
+  echo "catching a planted defect, or it started flagging a clean page."
+  echo "Fix the gate, not the test."
+  exit 1
+}
+echo "Render gate: opening every page in a real browser at 375px..."
+python _qa/render_audit.py || {
+  echo ""
+  echo "PUSH BLOCKED — a page renders blank, throws on load, or scrolls"
+  echo "sideways at mobile width. Fix, or push with --no-verify."
+  exit 1
+}
