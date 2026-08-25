@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">202 entries · newest first within each group</p>
+  <p class="stamp">204 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -175,45 +175,97 @@
 
 <h2>What&rsquo;s new</h2>
 <div class="row">
-  <div class="date">Aug 23</div>
+  <div class="date">Aug 25</div>
   <div>
-    <p class="name">The rest of the printed menu, the weekly rotation, and the four sentences Colin typed that broke it
-      <span class="chip live">oakhammock</span><span class="chip">49 &rarr; 78 dishes</span><span class="chip">found by using it</span><span class="chip">every fix controlled</span></p>
-    <p class="what"><b>Two photographs of the parts of the card that were missing turned 49 dishes
-    into 78</b> &mdash; starters and salads, the handhelds, the real burger and pizza option lists
-    with the card&rsquo;s own prices, and the printed <em>Weekly Entr&eacute;e Selections</em>. The
-    invented option lists were deleted: the burger toppings, pizza toppings and dressings are the
-    card&rsquo;s, not mine.</p>
-    <p class="proof"><b>&ldquo;Today is Saturday &mdash; are you sure you have the right dishes on
-    there?&rdquo;</b> It was not: the rotating slots still held Thursday&rsquo;s line up, transcribed
-    off one sheet, with nothing to move them on. The weekly card is data now, so opening the demo on
-    a Saturday puts Saturday&rsquo;s dishes up. <b>The part that matters is what happens to the
-    allergens when a dish changes:</b> they are keyed by SLOT, so the chicken shawarma&rsquo;s
-    declared allergens would have ridden onto the beef stroganoff and printed as the kitchen&rsquo;s
-    own word about a plate nobody declared it for. They are cleared on a swap, and the page falls
-    back to &ldquo;may contain&rdquo;.</p>
-    <p class="proof"><b>A staff Line Up screen, built to the sentence Colin used:</b> &ldquo;not to
-    add new but to change the current.&rdquo; Eleven dish slots and five wording slots &mdash; the
-    quiches, the rolls, the vegetable and starch of the moment &mdash; and no control anywhere that
-    creates a row. <b>Plus the Wednesday cold soup</b>, which is absent on the other six days rather
-    than sold out, because telling a resident on a Tuesday that it has run out is a small lie.</p>
-    <p class="proof"><b>Orders can ask for a time</b>, and the slots are generated from the
-    venue&rsquo;s own opening hours, so the page cannot offer a delivery from a kitchen that closed
-    at six. A requested time is re-checked against those slots at placement, not only in the picker.</p>
-    <p class="proof"><b>Then Colin used it, and four sentences broke it &mdash; each a different
-    mechanism.</b> &ldquo;Eggplant parm&rdquo; came back as not on the menu, on a menu that sells
-    eggplant parmesan; nobody says &ldquo;parmesan&rdquo;. <b>&ldquo;No cheese on the Reuben&rdquo;
-    threw a raw error at the resident</b> &mdash; two option groups had ended up with the same label,
-    so the engine refused its own menu. The Wednesday cold soup was offered on a Thursday because
-    the menu page filtered day-gated dishes and the chat did not: two surfaces disagreeing about what
-    exists. And a side word could pull a dish out of nowhere &mdash; the one that started all of
-    this, &ldquo;french fries&rdquo; producing French Toast.</p>
-    <p class="proof"><b>One commit here is a red suite that should never have been committed.</b>
-    Tests and the commit went out in a single command; the shell does not stop at a failed
-    assertion, so a failing suite was committed and fixed one commit later. It is written down
-    rather than rebased away, because it is trap #3 in this workspace&rsquo;s own notes and I walked
-    into it anyway.</p>
-    <p class="where">dev/oakhammock e74cc7d&hellip;c80ae8e &middot; 73 pytest + 39 engine + 17 chat + 17 real-menu &middot; pitch deck v4</p>
+    <p class="name">One gigabyte of data, and $250 a month of it is the labels &mdash; the number the product could not previously say
+      <span class="chip live">Tare</span><span class="chip">the demo number</span><span class="chip">refuses rather than guesses</span><span class="chip">57 controls</span></p>
+    <p class="what"><b>The whole argument is that a telemetry bill is driven by something invisible
+    until the invoice arrives &mdash; and the product could not put a figure on it.</b> It priced
+    what it meters: bytes, at a single rate it openly labels as a local development value. That is
+    honest and it is useless for the one question a buyer asks, because <b>a byte rate cannot
+    produce the curve that actually hurts.</b></p>
+    <p class="proof"><b>Real invoices bill labels in blocks &mdash; so many included, then a fixed
+    price per block beyond that.</b> That curve <em>steps</em>. A per-gigabyte rate <em>slopes</em>.
+    Which is exactly why a bad deploy can multiply a bill while the amount of data barely moves: the
+    thing being charged for is not the volume. Pricing it properly needed a second model, not
+    another number.</p>
+    <p class="proof"><b>The figure it now produces is the demo.</b> One gigabyte of telemetry, 5,100
+    distinct label combinations: <b>$250 a month</b> at a vendor&rsquo;s published rates &mdash;
+    against <b>ten cents</b> at the platform&rsquo;s own byte rate. Same month, same data, two
+    thousand five hundred times apart. That gap is the entire pitch, and it is now arithmetic
+    anybody can check rather than an assertion.</p>
+    <p class="proof"><b>Three rules keep it from becoming the thing it criticises, and two of them
+    ship with a sabotage that was watched failing.</b> <b>It is silent unless configured</b> &mdash;
+    there is no built-in vendor and there must not be, because a guess at a real company&rsquo;s
+    prices rots the first time they change one. <b>Every answer carries the date its rates were
+    read</b>, ages out loud, and marks itself stale after six months telling you to go and look
+    again; a model with no name or no date refuses to start rather than producing an unattributed,
+    undated price. And <b>with no measurement, there is no answer</b>: an unmeasured workspace gets
+    a refusal, never a figure, because <em>&ldquo;your runaway costs nothing&rdquo;</em> is the most
+    expensive wrong answer available here.</p>
+    <p class="proof"><b>A partial block bills as a whole one.</b> Rounding down would under-report
+    the very bill this exists to warn about &mdash; and an estimate that flatters the status quo is
+    worse than no estimate at all. Both that and the refusal are pinned by controls that were
+    broken on purpose and seen going red.</p>
+    <p class="proof"><b>What it deliberately is not.</b> It is not what this product charges: it
+    <em>caps</em> the runaway rather than billing for it, because billing for it is precisely what
+    makes a customer&rsquo;s mistake the vendor&rsquo;s revenue. It is not a quote. And nothing
+    scrapes anyone&rsquo;s pricing page &mdash; a human reads the rates and records the day they
+    read them, which is the only version of this that stays honest.</p>
+    <p class="proof"><b>The public page stays unpriced, on purpose.</b> This gives an <em>operator</em>
+    a concrete number about their own workspace; it puts no price on the marketing page, which still
+    says none are quoted. Keeping those separate is what makes that restraint sustainable instead of
+    a gap waiting to be filled with something unprovable.</p>
+    <p class="where">tare 0b3fbff &middot; CI green &middot; 17 test packages, 57 mutation controls</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 24</div>
+  <div>
+    <p class="name">Tare has a public page instead of a domain &mdash; and building it caught an overclaim that was one regeneration away from shipping
+      <span class="chip live">awllc-website</span><span class="chip">/tare/ live</span><span class="chip">builder drift caught</span><span class="chip">6 gates green</span></p>
+    <p class="what"><b>Rather than buy a domain out of redemption, Tare now lives on the existing
+    site.</b> That is the better trade: the argument is worth more than the address, and this site
+    already carries the evidence habits the argument depends on. One constraint stated up front
+    &mdash; the site is static, so the platform itself cannot <em>run</em> there. What is hosted is
+    the case for it.</p>
+    <p class="proof"><b>The page is deliberately restrained, and every restraint is a rule this
+    site already had.</b> The source is private, so unlike the free tools beside it a reader cannot
+    go and check &mdash; it therefore leads with what was measured rather than asking anyone to take
+    the architecture on faith. It carries <b>no prices</b>, because the development configuration
+    uses a placeholder rate and the incumbent&rsquo;s published rates move. And its status chips say
+    <b>&ldquo;Working system&rdquo; and &ldquo;No customers yet&rdquo;</b> rather than
+    &ldquo;Live&rdquo;, following the rule an earlier page set.</p>
+    <p class="proof"><b>No number on it can go stale, by construction.</b> Every figure is a dated
+    observation of one run &mdash; 80 series measured, the cap set to 40, that service refused while
+    another kept flowing &mdash; rather than an inventory that grows. A count would have needed a
+    guard that re-derives it on every push; <b>a record of what happened on a given day cannot rot
+    the same way.</b></p>
+    <p class="proof"><b>The find was in a neighbouring page, and it was one command from going
+    public.</b> The generator for the builds index still said flatline had <b>108 tests</b>. The
+    published page said 131, and the suite really has 131 &mdash; because when the claims gate
+    caught that drift the <em>page</em> was patched and <b>the generator never was</b>. Adding a
+    card to that index regenerates it, which would have silently restored the old number. It was
+    only visible because the regeneration was diffed against the published page <em>before</em>
+    being trusted, which is the only way a post-build patch shows up at all.</p>
+    <p class="proof"><b>The colour gate blocked the new page, and was right to.</b> A brand-new page
+    inherits no history, so the six colours inside the shared logo counted as hand-picked. One
+    colour genuinely was mine &mdash; a border copied from another page &mdash; and is now the
+    palette&rsquo;s own semantic red. The other six were <b>proven identical to the template&rsquo;s
+    recorded set</b> before the page was allowed to record them, and then the gate was shown
+    <b>still catching a planted colour on that very page</b>. A permission that cannot go red is
+    worse than no permission.</p>
+    <p class="proof"><b>One defect found only by looking.</b> The main call to action renders as
+    plain text rather than a button. Every automated check passed it &mdash; and opening the
+    equivalent page beside it showed <b>the same thing there</b>, so it is a pre-existing condition
+    across these pages rather than something introduced here. Reported rather than quietly changed:
+    it is shared styling affecting several pages, which is a design decision and not part of adding
+    one.</p>
+    <p class="proof"><b>The push gate stopped the first attempt</b> for something unrelated &mdash;
+    the public AI record was one run behind the ledger it is generated from. Regenerated and
+    committed on its own, because a generated ledger and a hand-written page should be able to be
+    reverted independently.</p>
+    <p class="where">awllc-website 35e1881 + 3f447f6 &middot; security, claims, palette, promise, render and SEO all clean &middot; read end to end in a browser, not only audited</p>
   </div>
 </div>
 <div class="row">
@@ -271,6 +323,48 @@
     has described a past state as the present one, and the first outside the table that now has a
     guard on it.</p>
     <p class="where">tare c37e566 &middot; 55 mutation controls green &middot; 16 test packages, 27 render checks, 9 live assertions</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 23</div>
+  <div>
+    <p class="name">The rest of the printed menu, the weekly rotation, and the four sentences Colin typed that broke it
+      <span class="chip live">oakhammock</span><span class="chip">49 &rarr; 78 dishes</span><span class="chip">found by using it</span><span class="chip">every fix controlled</span></p>
+    <p class="what"><b>Two photographs of the parts of the card that were missing turned 49 dishes
+    into 78</b> &mdash; starters and salads, the handhelds, the real burger and pizza option lists
+    with the card&rsquo;s own prices, and the printed <em>Weekly Entr&eacute;e Selections</em>. The
+    invented option lists were deleted: the burger toppings, pizza toppings and dressings are the
+    card&rsquo;s, not mine.</p>
+    <p class="proof"><b>&ldquo;Today is Saturday &mdash; are you sure you have the right dishes on
+    there?&rdquo;</b> It was not: the rotating slots still held Thursday&rsquo;s line up, transcribed
+    off one sheet, with nothing to move them on. The weekly card is data now, so opening the demo on
+    a Saturday puts Saturday&rsquo;s dishes up. <b>The part that matters is what happens to the
+    allergens when a dish changes:</b> they are keyed by SLOT, so the chicken shawarma&rsquo;s
+    declared allergens would have ridden onto the beef stroganoff and printed as the kitchen&rsquo;s
+    own word about a plate nobody declared it for. They are cleared on a swap, and the page falls
+    back to &ldquo;may contain&rdquo;.</p>
+    <p class="proof"><b>A staff Line Up screen, built to the sentence Colin used:</b> &ldquo;not to
+    add new but to change the current.&rdquo; Eleven dish slots and five wording slots &mdash; the
+    quiches, the rolls, the vegetable and starch of the moment &mdash; and no control anywhere that
+    creates a row. <b>Plus the Wednesday cold soup</b>, which is absent on the other six days rather
+    than sold out, because telling a resident on a Tuesday that it has run out is a small lie.</p>
+    <p class="proof"><b>Orders can ask for a time</b>, and the slots are generated from the
+    venue&rsquo;s own opening hours, so the page cannot offer a delivery from a kitchen that closed
+    at six. A requested time is re-checked against those slots at placement, not only in the picker.</p>
+    <p class="proof"><b>Then Colin used it, and four sentences broke it &mdash; each a different
+    mechanism.</b> &ldquo;Eggplant parm&rdquo; came back as not on the menu, on a menu that sells
+    eggplant parmesan; nobody says &ldquo;parmesan&rdquo;. <b>&ldquo;No cheese on the Reuben&rdquo;
+    threw a raw error at the resident</b> &mdash; two option groups had ended up with the same label,
+    so the engine refused its own menu. The Wednesday cold soup was offered on a Thursday because
+    the menu page filtered day-gated dishes and the chat did not: two surfaces disagreeing about what
+    exists. And a side word could pull a dish out of nowhere &mdash; the one that started all of
+    this, &ldquo;french fries&rdquo; producing French Toast.</p>
+    <p class="proof"><b>One commit here is a red suite that should never have been committed.</b>
+    Tests and the commit went out in a single command; the shell does not stop at a failed
+    assertion, so a failing suite was committed and fixed one commit later. It is written down
+    rather than rebased away, because it is trap #3 in this workspace&rsquo;s own notes and I walked
+    into it anyway.</p>
+    <p class="where">dev/oakhammock e74cc7d&hellip;c80ae8e &middot; 73 pytest + 39 engine + 17 chat + 17 real-menu &middot; pitch deck v4</p>
   </div>
 </div>
 <div class="row">
