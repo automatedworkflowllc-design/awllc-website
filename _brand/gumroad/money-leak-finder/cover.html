@@ -1,0 +1,43 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  /* Brand tokens from _brand/awllc_brand.py — paper system */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{zoom:1.25;width:1280px;height:720px;overflow:hidden;background:#FBFAF3;
+       font-family:Georgia,'Times New Roman',serif;position:relative}
+  .rainbow{position:absolute;top:0;left:0;right:0;height:10px;
+    background:linear-gradient(90deg,#E1483E,#F08A24,#EFC939,#4FAE4A,#3E7FD9,#9B4FB8)}
+  .wrap{padding:64px 72px 0}
+  .mark{font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:20px;color:#211D14;
+    background:#211D14;color:#FBFAF3;display:inline-block;padding:7px 14px;border-radius:9px;letter-spacing:.06em}
+  .mark b{color:#74E1EC}
+  .eyebrow{font-family:ui-monospace,Consolas,monospace;font-size:17px;letter-spacing:.22em;
+    color:#1E7A47;text-transform:uppercase;margin:34px 0 18px}
+  h1{font-size:74px;line-height:1.04;color:#211D14;letter-spacing:-.015em;font-weight:700;max-width:900px}
+  h1 em{font-style:italic;color:#5C5645}
+  .cards{display:flex;gap:22px;margin-top:44px}
+  .card{background:#FFFFFF;border:1.5px solid #E4DFD1;border-radius:16px;padding:22px 26px;width:300px}
+  .card .lbl{font-family:ui-monospace,Consolas,monospace;font-size:13px;letter-spacing:.12em;
+    text-transform:uppercase;color:#5C5645;margin-bottom:10px}
+  .card .val{font-size:44px;font-weight:700;letter-spacing:-.02em}
+  .v-red{color:#B23B3B}.v-amber{color:#B45309}
+  .card.red{background:#F6E7E7;border-color:#e8cfcf}
+  .card.amber{background:#FBEFE0;border-color:#efdcc2}
+  .foot{position:absolute;left:0;right:0;bottom:0;background:#211D14;color:#C9C3B4;
+    font-family:ui-monospace,Consolas,monospace;font-size:16.5px;letter-spacing:.04em;
+    padding:20px 72px;display:flex;justify-content:space-between}
+  .foot b{color:#FBFAF3}
+  .sample{font-family:ui-monospace,Consolas,monospace;font-size:13px;color:#6E6555;margin-top:14px;letter-spacing:.06em}
+</style>
+<div class="rainbow"></div>
+<div class="wrap">
+  <span class="mark">{<b>a_w</b>} automated_workflow</span>
+  <div class="eyebrow">Money Leak Finder · spreadsheet template</div>
+  <h1>Find the money<br>you <em>already</em> earned.</h1>
+  <div class="cards">
+    <div class="card red"><div class="lbl">Never invoiced</div><div class="val v-red">$1,280</div></div>
+    <div class="card amber"><div class="lbl">Unpaid invoices</div><div class="val v-amber">$5,430</div></div>
+    <div class="card red"><div class="lbl">Past 60 days</div><div class="val v-red">$705</div></div>
+  </div>
+  <div class="sample">// figures from the included example — sample data, every number invented</div>
+</div>
+<div class="foot"><span><b>Live formulas</b> — paste your data, it recalculates</span><span>Excel + Google Sheets</span></div>
