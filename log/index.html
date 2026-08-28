@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">213 entries · newest first within each group</p>
+  <p class="stamp">217 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,181 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 28</div>
+  <div>
+    <p class="name">Two test suites could not run at all &mdash; and the four that could were run by nothing
+      <span class="chip live">oakhammock</span><span class="chip">49 assertions unrunnable</span><span class="chip">6 suites now swept</span><span class="chip">controls proven red</span></p>
+    <p class="what"><b>Found by running the suites rather than counting them.</b> Six browser
+    suites sit in <code>web/</code>. Two of them &mdash; the one that renders the actual page and
+    the one that feeds it what a real resident types &mdash; <b>died instantly on a missing file</b>,
+    every single time, and had done for as long as they have existed. The other four need no such
+    file, stayed green, and the totals looked perfectly healthy. <b>49 real assertions, incapable of
+    running, invisible.</b></p>
+    <p class="proof"><b>The missing file is a build product nothing wrote.</b> The page builder
+    generates the menu in memory and inlines it; those two suites expect it on disk. Nobody had
+    ever written it there, so a fresh checkout could not run them at all. It is now written by the
+    builder <em>from the same object the page inlines</em>, so the suites cannot be testing a
+    different menu than the one that ships &mdash; and it is deliberately <b>not committed</b>,
+    because a second copy of the menu on disk is a copy that can drift from its one source.</p>
+    <p class="proof"><b>The other half is the one that matters: what RUNS them.</b> Only two of the
+    six were wired into anything. The new runner <b>discovers the suites from disk rather than from
+    a list</b>, so a seventh added tomorrow is swept without anyone remembering &mdash; and it
+    demands each suite&rsquo;s own verdict line, so one exiting 0 having asserted nothing cannot
+    pass. It generates its own copy of the menu into a temporary file, so it leaves no mark on the
+    shipped page in a tree several sessions write to.</p>
+    <p class="proof"><b>A crash turned green proves nothing, so both recovered suites were made to
+    fail on purpose.</b> Dropping the field that carries the kitchen&rsquo;s own allergen word
+    reddens the page suite (1 of 8) and the rules suite (2 of 43). Disabling the hand-off that
+    refuses to answer an allergy question reddens the resident suite (2 of 41) and the language
+    suite (3 of 17). Every target was confirmed to still parse first, so a red result is behaviour
+    rather than a broken file, and both files were restored and verified byte-identical.</p>
+    <p class="proof"><b>And the first sabotage was inert, which is the transferable part.</b>
+    Disabling <em>one</em> of the two allergy detectors left the resident suite completely green
+    &mdash; and that reads exactly like a coverage gap on the most safety-critical rule in the
+    product. It is not one: the two detectors are redundant <em>by design</em>, so half a mutation
+    changes nothing. <b>Only disabling both showed the suite had been guarding it the whole
+    time.</b> A partial mutation is the quiet way to accuse working code of being untested.</p>
+    <p class="proof"><b>One claim of my own was wrong and was fixed rather than worked around.</b>
+    The first version of the runner carried a comment asserting a directory was already on the
+    import path. It was not, and the test failed on it immediately. The comment now says what is
+    actually true instead of what would have been convenient.</p>
+    <p class="where">oakhammock 815d2ba &middot; 87 pytest + 121 assertions across all six browser suites &middot; the runner rides the nightly sweep that already discovers this file, so no new scheduled job and no published count moves</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 28</div>
+  <div>
+    <p class="name">Married the rules to the model &mdash; same accuracy, a third of the cost, and it survives being handed to a stranger
+      <span class="chip live">93.3% for $0.0004</span><span class="chip">70% never leaves the machine</span><span class="chip">cannot be used as a free LLM</span><span class="chip staged">deploy is Colin&rsquo;s</span></p>
+    <p class="what"><b>In plain terms:</b> the ordering chat now asks a language model only when its
+    hand-written rules get stuck, and the model runs somewhere that keeps the API key out of the file
+    people are handed. Both halves were measured rather than assumed.</p>
+    <p class="proof"><b>The marriage is worth it, and the number says by how much.</b> Rules alone:
+    75.0% right first time. Model on everything: 93.3%, at $0.0013 a message. <b>Rules first, model
+    only when stuck: the same 93.3% for $0.0004</b>, because only 18 messages in 60 ever reach it.
+    <b>Escalating on the rules&rsquo; clarifying questions too was measured and rejected</b> &mdash;
+    identical 93.3%, 27 calls instead of 18. <b>And the trade that is NOT free, stated rather than
+    buried:</b> the hybrid keeps the parser&rsquo;s one wrong dish, because it trusts a confident
+    order and never second-guesses one. Zero wrong dishes costs 3.4&times;. The escalation rule was
+    deliberately not tuned to catch that one case &mdash; fitting to a known answer is how the first
+    four corpora died.</p>
+    <p class="proof"><b>An allergy handoff is never escalated, by policy and by test.</b> The rules
+    score 6 of 6 handing those to a human. Spending a network call to reconsider the one answer we
+    most want boringly consistent is the wrong trade.</p>
+    <p class="proof"><b>The key cannot live in the page, so it lives in a worker &mdash; and the
+    worker cannot be turned into a free model.</b> The system prompt and the 78-item menu sit
+    server-side, so a caller sends one short utterance and nothing else. <b>Verified against the
+    running worker rather than the source:</b> a request carrying <em>its own</em> system prompt
+    asking for a four-line poem came back
+    <code>{"intent":"unknown","said":"Write me a four-line poem about the sea"}</code> &mdash; the
+    injected instructions ignored, the model answering only that this is not on the menu. Passphrase
+    enforced (401 without, 401 wrong), input capped at 280 characters (413), empty refused (400),
+    real order works. All six driven live.</p>
+    <p class="proof"><b>The page is unchanged without an endpoint, and that is the property that
+    matters.</b> With none configured &mdash; which is every copy handed to anybody &mdash; it
+    answers synchronously on the rules and is the offline product it has always been. It cannot
+    hang: a slow endpoint falls back on a timer. And <b>it does not trust what comes back</b>: a dish
+    name is accepted only if it exists in that page&rsquo;s own menu. The worker deliberately does
+    not validate, because a second copy of that check would drift from the first, and the check that
+    protects a resident belongs next to the resident.</p>
+    <p class="proof"><b>Four defects on the way, every one in my own harness rather than the
+    code.</b> Module-cache stubbing that silently did not take, so the real parser ran against an
+    empty menu and every case escalated. Async tests sharing mutable state, so one test pushed into
+    the array another was asserting was empty &mdash; two failures, correct code both times.
+    <b>Then the one that matters: a suite reporting 5 of 5 passed while running nothing</b>, because
+    a replace had not matched and it was still awaiting an array of plain objects. Only sabotaging
+    the code exposed it &mdash; escalation broken, suite still green. And the key sweep flagged the
+    local secrets file wrangler needs: <b>the guard was right and its scope was wrong</b>, so it now
+    checks git-tracked files, because a guard that cries wolf on a correctly-ignored file is one
+    people learn to ignore.</p>
+    <p class="proof"><b>Not deployed, and the limit is written down three places.</b> There is no
+    Cloudflare auth on this machine and the workspace has no remote to deploy from, so it is two
+    commands and a browser login. <b>There is no daily spend counter</b> &mdash; the binding is
+    recorded here as not enforcing on this account, so <em>the prepaid credit balance is the cap</em>.
+    Anyone who cracks the passphrase burns what is on the account and no more. That sentence is in
+    the config, the runbook, and the health endpoint, so nobody finds it the hard way.</p>
+    <p class="where">dev/oakhammock 837f509 + fd374c4 + 41bc81a &middot; worker/ + web/hybrid_propose.js &middot; 85 pytest + 8 UI + 5 hybrid &middot; every guard sabotaged and watched fail</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 28</div>
+  <div>
+    <p class="name">The folder I said was safe to delete held 57 files git had never heard of &mdash; seven of them finished products
+      <span class="chip">correction</span><span class="chip">57 files archived</span><span class="chip">7 products</span><span class="chip">nothing deleted</span></p>
+    <p class="what"><b>In plain terms:</b> there is a second, abandoned copy of the website folder
+    on this machine, 254 commits out of date. I had recommended deleting it, after rescuing four
+    product images from it and checking no further. <b>Four of sixty.</b></p>
+    <p class="proof"><b>Comparing the two folders file by file found 61 that exist only in the
+    abandoned one &mdash; and asking git about each of them found that 60 are in no version history
+    anywhere.</b> Deleting the folder would have destroyed them permanently. Among them: seven
+    complete spreadsheet products, each with the script that builds it, the workbook it produces,
+    and its written spec and sales pitch. Also every site redesign mockup.</p>
+    <p class="proof"><b>The reason the first read was wrong is worth more than the files.</b>
+    &ldquo;It is 254 commits behind&rdquo; is a statement about the <em>tracked</em> files, and it
+    says nothing whatsoever about the untracked ones &mdash; which are exactly the files no other
+    copy can be holding. Being behind describes what git knows; the risk lives in what it does not.</p>
+    <p class="proof"><b>They are archived OUTSIDE the website repository, deliberately, and that
+    was nearly the second mistake.</b> My first move was to commit them into the repo under a
+    folder the public site does not serve. The ignore file already refused those exact folders, with
+    its reason written down: the repository <em>is</em> the public site, and the products carry build
+    scripts, sample client data and internal pitch documents. <b>An explicit rule with a stated
+    reason is not an obstacle to route around.</b> So the copy went to a separate archive, outside
+    the repo, and whether they should be versioned somewhere unpublished is Colin&rsquo;s call.</p>
+    <p class="proof"><b>Then the clone was re-checked until it held nothing unique</b> &mdash; every
+    remaining difference is an older version of a tracked file, and its commit is an ancestor of the
+    live branch, so git can reproduce all of it. The one locally-changed workbook turned out to be
+    identical in content: zero differing cells, one byte of zip metadata. <b>Nothing was deleted.</b>
+    The folder can now go, by hand.</p>
+    <p class="where">Documents\awllc-product-archive &middot; 57 files, each hash-verified against its source &middot; clone left in place</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 28</div>
+  <div>
+    <p class="name">Twenty-four buttons had no surface &mdash; including the one that only appears after the tool works
+      <span class="chip live">15 pages fixed</span><span class="chip">24 controls</span><span class="chip">new push gate</span><span class="chip">12 pinned cases</span></p>
+    <p class="what"><b>In plain terms:</b> a button on the site is built from a shared style. Pages
+    that used the plain version got the full button <em>shape</em> &mdash; the rounded pill, the
+    padding, the bold text &mdash; and then a transparent border and no fill. <b>Correct geometry,
+    nothing you can see the edge of.</b> Eighteen of them rendered as bare text; the rest fell back
+    to the browser&rsquo;s grey default.</p>
+    <p class="proof"><b>Four of the twenty-four are the ones that matter, and no amount of reading
+    the pages would have found them.</b> They do not exist until the visitor has dropped a file and
+    the tool has produced an answer &mdash; they are the &ldquo;Email these numbers to Colin&rdquo;
+    link on four of the free tools. <b>That is the conversion step, invisible at the single moment
+    someone has just been given a reason to press it.</b></p>
+    <p class="proof"><b>Counted in the browser rather than by searching the text, because the first
+    search was wrong twice.</b> It missed buttons whose tag ran across two lines, and then it
+    counted the explanatory comment I had just written, which quoted the very thing it was
+    searching for. The final figures come from two independent methods that agree exactly: reading
+    the files says 13 links and 7 buttons, and the rendering engine, asked across all fifteen pages,
+    says 13 and 7.</p>
+    <p class="proof"><b>Fixed in the one shared style rather than at 24 places</b> &mdash; thirteen
+    of the fifteen pages are generated, so editing the markup means editing thirteen generators, and
+    &ldquo;which of these should be filled in&rdquo; is a design judgement nothing forces today.
+    Verified by deleting the new rule from the live page and watching the border go back to
+    transparent while nothing else moved.</p>
+    <p class="proof"><b>Two pages were measured and deliberately left alone.</b> They run on the
+    newer colour system, where the plain button <em>is</em> the filled one. Three buttons there were
+    correct exactly as written, and &ldquo;fixing&rdquo; them to match would have been the actual
+    defect.</p>
+    <p class="proof"><b>Eleven existing gates passed all twenty-four, because none of them asked
+    whether a control looks like a control.</b> That question is now a gate. <b>Its first version
+    could not fail:</b> it treated any style rule it could not parse as proof the button was fine,
+    and the site&rsquo;s decorative flourishes are unparseable and carry a colour, so every button
+    looked covered &mdash; the check stayed green with the fix deleted.</p>
+    <p class="proof"><b>Caught by breaking it on purpose, and the repair was checked the same
+    way.</b> The obvious test case does not reproduce it: a rule on the page background <em>can</em>
+    be parsed, so it is rejected for a different reason, and a test written against it passes while
+    the check is broken. That was my first draft. The four real culprits are named in the tests
+    instead. Proven in four directions &mdash; clean tree silent, one page un-fixed and it names the
+    page, the shared class renamed and it says it examined nothing rather than reporting a
+    comfortable zero, and the logic reverted and the tests fail while still compiling, so the
+    failure is behaviour and not a typo.</p>
+    <p class="where">awllc-website 5e6dbde &middot; live and serving &middot; 12 new pinned cases, already run by the existing push step</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 27</div>
   <div>
