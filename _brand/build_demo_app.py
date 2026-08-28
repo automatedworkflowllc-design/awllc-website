@@ -967,12 +967,20 @@ __SHARED_INTAKE__
      touching a single render function -- which is what lets a visitor drop
      their own export on it. Declared with the same names in the same closure
      precisely so nothing downstream has to change. */
-  var weeks, receivables, spend, activeCustomers, arTotal, undated, overdue,
+  var weeks, dayTotals, receivables, spend, activeCustomers, arTotal, undated, overdue,
       overdueTotal, mtd, pmtd, mtdDelta, neverInvoiced, netCash, openAccounts;
 
   function deriveFrom(book){
     D = book;
     weeks           = D.weeks;
+    /* Absent on the sample book and on any externally supplied AW_DASHBOARD_DATA
+       that predates this field, so [] means "fall back to the weekly spread"
+       rather than "this month earned nothing". Dates are normalised because an
+       injected book may pass strings where the file parser passes Date objects. */
+    dayTotals       = (D.days || []).map(function (d) {
+      var s = (d && d.start instanceof Date) ? d.start : new Date(String(d && d.start) + 'T00:00:00');
+      return { start: s, value: Number(d && d.value) || 0 };
+    }).filter(function (d) { return d.start && !isNaN(d.start.getTime()); });
     receivables     = D.receivables;
     spend           = D.spend;
     activeCustomers = D.activeCustomers;
@@ -989,8 +997,27 @@ __SHARED_INTAKE__
   /* Sum the days of the weekly series that fall inside a given calendar month,
      up to a day-of-month limit. perDay uses wk.days, not 7, so a pro-rated
      current week is not double-discounted. */
+  /* EXACT when the book carries day-level totals, which every dropped file does.
+     Spreading a week evenly across its seven days is an ESTIMATE, and this tile
+     sits directly above the sentence "no estimates, no industry averages". A
+     week straddling a month boundary used to split its money by day-count rather
+     than by invoice date: $900 invoiced Sat 2026-08-01 lives in the Jul 27 week,
+     so only 2 of 7 days were in August and it contributed $257. A two-invoice
+     August book totalling $2,100 printed $1,457. Measured 2026-08-28.
+     The weekly spread survives ONLY for the sample book, whose weeks are
+     synthetic -- there is no truer daily answer for it to round to. Guarded both
+     directions by _qa/test_demo_mtd.py. */
   function monthSum(monthRef, dayLimit){
     var m = monthRef.getMonth(), y = monthRef.getFullYear(), sum = 0;
+    if (dayTotals && dayTotals.length) {
+      dayTotals.forEach(function (dt) {
+        var day = dt.start;
+        if (day.getMonth() === m && day.getFullYear() === y && day.getDate() <= dayLimit) {
+          sum += dt.value;
+        }
+      });
+      return Math.round(sum);
+    }
     weeks.forEach(function (wk) {
       var perDay = wk.value / wk.days;
       for (var d = 0; d < wk.days; d++) {
@@ -1897,7 +1924,7 @@ __SHARED_INTAKE__
     /* Two extra splits, accumulated in the SAME pass so they cannot disagree
        with the weekly total the chart draws. byDow is Monday-first to match the
        weekly buckets; getDay() is Sunday-first, hence the shift. */
-    var byDow = [0, 0, 0, 0, 0, 0, 0], byAccount = {};
+    var byDow = [0, 0, 0, 0, 0, 0, 0], byAccount = {}, byDay = {};
     rows.forEach(function (r) {
       var d = parseWhen(r[di]), n = parseNum(r[ai]);
       if (d === null || n === null) { skipped++; return; }
@@ -1920,6 +1947,12 @@ __SHARED_INTAKE__
       }
       var key = mondayOf(d).getTime();
       byWeek[key] = (byWeek[key] || 0) + n;
+      /* Same pass as the weekly bucket, for the same reason the dow/account
+         splits are: a second walk could disagree with the chart. This keeps the
+         exact invoice date, which mondayOf() throws away, so month totals can be
+         summed by date instead of spread across a straddling week. */
+      var dkey = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+      byDay[dkey] = (byDay[dkey] || 0) + n;
     });
     if (!used) { throw new Error('the columns were found, but no row had both a readable date and amount'); }
 
@@ -1971,8 +2004,18 @@ __SHARED_INTAKE__
                         .trim()
                         .replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); })
                         .slice(0, 48) || 'Your business';
+    /* Exact per-day totals, so a month is summed by invoice date rather than by
+       spreading a straddling week. Not truncated like receivables: dropping days
+       would silently under-report a month. */
+    var daysOut = [];
+    for (var dk in byDay) {
+      if (byDay.hasOwnProperty(dk)) {
+        daysOut.push({ start: new Date(Number(dk)), value: Math.round(byDay[dk]) });
+      }
+    }
+    daysOut.sort(function (a, b) { return a.start - b.start; });
     return {
-      book: { business: label, weeks: out, receivables: open.slice(0, 40), spend: 0,
+      book: { business: label, weeks: out, days: daysOut, receivables: open.slice(0, 40), spend: 0,
               hasSpend: false, activeCustomers: nOpen, dow: dowOut, accounts: accts },
       map: { date: header[di], amount: header[ai],
              customer: ci >= 0 ? header[ci] : null,
