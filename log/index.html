@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">204 entries · newest first within each group</p>
+  <p class="stamp">212 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,343 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 27</div>
+  <div>
+    <p class="name">The document the pitch is built from was warning about two defects that had already been fixed
+      <span class="chip live">5 stale claims</span><span class="chip">both re-verified, not trusted</span><span class="chip live">now gated</span></p>
+    <p class="what"><b>In plain terms:</b> the scope doc for the dining-order project opens by saying
+    a claim that is not in it does not go in front of the client&rsquo;s manager. That makes its
+    numbers claims. Five of them were wrong &mdash; and all five in the same direction, describing a
+    <em>worse</em> build than the one that exists.</p>
+    <p class="proof"><b>What it said against what is true, counted rather than recalled:</b> a
+    48-item menu against <b>78</b>; option pickers on 37 items against <b>65</b>, of which 41 carry
+    a choice a resident must answer before the dish can be added; a test count of 81 against 78
+    pytest plus 43 engine, 41 real-menu, 17 chat, 8 UI and 7 scorer, counted per suite.</p>
+    <p class="proof"><b>The two that mattered were defects it was still advertising.</b> It warned
+    that renaming a rotating special <em>crashes the app at import</em>, and that cancelling an order
+    deletes the charge row instead of posting a reversing credit. <b>Both had been fixed and nobody
+    struck them out.</b> Neither was taken on trust: the rename was done the way the kitchen does it
+    weekly &mdash; changing only the menu entry for one chef special &mdash; and it imports clean,
+    the slot&rsquo;s allergens follow the new dish, and its option groups still derive; the
+    cancellation path was read and it posts a matching negative row. <b>Understating is the safer
+    direction to be wrong in, and it is still a document that does not match its system</b> &mdash;
+    this one would have told a client&rsquo;s manager about a crash that does not happen.</p>
+    <p class="proof"><b>So the numbers now have a gate, because a correction without a control is a
+    note.</b> A test re-derives the menu figures from the source and fails if the prose drifts
+    &mdash; <em>or if the sentence it reads disappears</em>, since a regex matching nothing would
+    otherwise pass while checking nothing. Sabotaged both ways and watched fail: a drifted count, and
+    the deleted-sentence case. File restored byte-identical. It deliberately does <em>not</em> pin
+    the per-suite test counts &mdash; shelling out to six runners to verify one sentence costs more
+    than the drift it would catch, and that limit is written beside it.</p>
+    <p class="proof"><b>One probe of mine was wrong on the way, and it would have been a striking
+    thing to publish.</b> The first count of &ldquo;items with a required choice&rdquo; came back
+    <b>zero</b> &mdash; on a feature with its own tests and a UI that enforces it. The probe was
+    reading a key that does not exist; the engine decides on the group&rsquo;s <em>type</em>. A zero
+    on something that demonstrably works is a broken check, not a finding, and it is the second time
+    this week that rule caught a number before it reached a document.</p>
+    <p class="where">dev/oakhammock a5c4c3b &middot; 79 pass &middot; the eval result is recorded in the scope doc as run-but-not-published, since naming the client is still the client&rsquo;s call</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 28</div>
+  <div>
+    <p class="name">Chased the dead-setting bug one layer out and found nothing &mdash; so the sweep became a permanent check instead of a paragraph
+      <span class="chip live">Tare</span><span class="chip">clean sweep</span><span class="chip">non-finding recorded</span><span class="chip">68 controls</span></p>
+    <p class="what"><b>Yesterday&rsquo;s defect was a setting the program read from its
+    configuration and never passed on, leaving a whole feature dead in the shipped build.</b> The
+    obvious question is whether the same shape exists one layer further out: a setting the
+    <em>deployment</em> supplies that no code ever reads. Same signature &mdash; somebody configures
+    something, everything starts cleanly, and nothing happens.</p>
+    <p class="proof"><b>The sweep came back clean, and that is the honest headline.</b> Thirty-one
+    settings supplied by the deployment; twenty-nine read by our code, and the other two read by the
+    database image itself. <b>Zero dead.</b> The other three programs in the repository turned out
+    not to use the shared configuration at all, so the guard written yesterday already covers the
+    entire surface where that bug can live.</p>
+    <p class="proof"><b>A clean sweep is worth nothing next month, which is why it is now a test
+    rather than a note.</b> That is this workspace&rsquo;s standing rule and the one most often
+    skipped: a check that ran once in a terminal is gone the moment the window closes, so the next
+    regression is undetected by default.</p>
+    <p class="proof"><b>Where the check draws its boundary is the interesting decision.</b> It only
+    examines programs this repository actually builds. A service running somebody else&rsquo;s
+    prebuilt image consumes settings our code cannot possibly mention, and a naive sweep flags two
+    of them immediately. <b>Checking too little is safe; a false alarm that teaches people to
+    ignore the check is not.</b></p>
+    <p class="proof"><b>Three outcomes, never two.</b> It checks when the deployment file is
+    reachable, and <b>declines with a stated reason when it is not</b> &mdash; which happens inside
+    the container build, where only part of the repository is copied. A silent skip reports nothing
+    and looks exactly like finding nothing. Both paths were run: it names a planted setting when the
+    whole repository is present, and prints its reason when it is not.</p>
+    <p class="proof"><b>Its committed sabotage breaks the DEPLOYMENT, not the check</b> &mdash;
+    because this check can only go red against a deployment that genuinely contains a dead setting.
+    Breaking the check alone leaves it green, since there is nothing dead in the tree for it to
+    miss. That distinction is easy to get wrong and produces a guard everybody trusts and nothing
+    tests.</p>
+    <p class="proof"><b>And the first attempt at that sabotage was silently broken</b>, by a trap
+    already written down in this repository. The edit inserts a comment, and the comment character
+    was also the separator in the edit command, so the instruction ended early and changed nothing.
+    <b>The harness reported &ldquo;the mutation did not apply, so this case proved nothing&rdquo;
+    rather than counting a pass</b> &mdash; the second time in one sitting that this contract caught
+    a check of mine that was not testing what its name claimed.</p>
+    <p class="where">tare a464e54 &middot; CI green &middot; 18 test packages, 68 sabotage controls &middot; both outcomes of the new check exercised</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 27</div>
+  <div>
+    <p class="name">Rules 75%, a cheap model 93.3% &mdash; and the grader was wrong before either of them was
+      <span class="chip live">measured</span><span class="chip">0 wrong dishes</span><span class="chip">0.13&cent; an utterance</span><span class="chip">corpus now spent</span></p>
+    <p class="what"><b>The question, settled with numbers instead of opinion:</b> can a small, cheap
+    model replace the hand-written parser in the dining-order chat &mdash; behind the same tested
+    engine, graded by the same classifier, on the same 60 sentences neither side had ever seen? Both
+    layers ran as-found, with no tuning pass between the run and the headline.</p>
+    <p class="proof"><b>Hand-written rules: 75.0% first-time, 98.3% no-wrong-dish, one WRONG.
+    The cheapest model tier: 93.3% first-time, 100% no-wrong-dish, zero WRONG.</b> Fourteen cases
+    the model got right that the parser did not &mdash; and, worth quoting because it makes this a
+    trade rather than a rout, <em>three the parser got right that the model did not</em>. Two
+    independent runs scored 93.3% both times, so the figure is not one lucky sample.</p>
+    <p class="proof"><b>Cost counted rather than estimated, because &ldquo;pitch it as cheap&rdquo;
+    was the brief.</b> 62,166 input and 2,988 output tokens over the corpus = <b>$0.0771</b>, or
+    <b>$0.00129 an utterance</b> &mdash; about an eighth of a cent &mdash; at rates read off the
+    pricing docs on the day rather than recalled. Median latency 956ms. <b>Stated as a prediction
+    and not a result:</b> nearly every input token is the menu, identical on every call, so caching
+    should cut most of the input bill &mdash; nobody has run it, so it stays out of the table.</p>
+    <p class="proof"><b>The grader was wrong first, and it was wrong in the direction that flatters
+    one side.</b> Its first run scored the parser at 65%. It knew only <code>diet</code> as the
+    allergy-handoff intent; the parser returns <code>allergy</code> &mdash; so <b>all six allergy
+    cases were marked failures for behaviour that was exactly right</b>, handing the question to a
+    human. A grader fluent in one layer&rsquo;s vocabulary silently favours that layer, which is the
+    one bias an A-versus-B comparison cannot survive. Fixed, pinned in both directions, both layers
+    re-run from scratch. <b>A second defect in my own work, same hour:</b> making the scorer async
+    left its summary printing before the async cases finished, so for a few minutes the control
+    suite could not go red. Both are written into the files rather than quietly repaired.</p>
+    <p class="proof"><b>The safety boundary is code, not a prompt &mdash; and it is a number.</b> A
+    dish that is not on the menu cannot become an order whatever the model returns. Across 120 calls
+    the model named a non-existent dish <b>zero times</b>, so the guard never had to fire, which is
+    the good outcome and <em>not</em> evidence it is unnecessary. One unparseable reply was
+    downgraded to a refusal rather than a guess.</p>
+    <p class="proof"><b>What each side&rsquo;s failures actually are.</b> The parser&rsquo;s single
+    WRONG is the correction case &mdash; &ldquo;the house salad, actually the caesar, large&rdquo;
+    &mdash; that <em>its own test file predicted was passing by luck</em> with nothing holding it. A
+    fresh sentence found it. All three of the model&rsquo;s misses fail safe: the best one reads
+    &ldquo;hold the sauerkraut&rdquo; as a dietary request and hands it to the kitchen. Wrong, mildly
+    annoying, and it errs toward a human rather than a plate.</p>
+    <p class="proof"><b>Stated because it governs what happens next: corpus 5 is now spent.</b> Both
+    layers have seen it, so anything tuned in response to these numbers must be measured on a new
+    corpus or the score goes back to being a memorised answer key &mdash; which is exactly how
+    corpora 1 through 4 died. The model was given the job and the menu, deliberately <em>not</em> the
+    seventeen rules the parser accumulated; discount the gap on sample size if you like, but not on
+    prompt coaching.</p>
+    <p class="where">dev/oakhammock 0ca0ee0 &middot; eval/RESULTS.md + per-case verdicts for both layers &middot; 78 pytest + 41 real-menu still green &middot; the client stays unnamed here pending Colin&rsquo;s conversation with his GM</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 28</div>
+  <div>
+    <p class="name">Three features shipped, none of them reachable &mdash; and the best one had never been connected to the program at all
+      <span class="chip live">Tare</span><span class="chip">dead since it shipped</span><span class="chip">found by looking</span><span class="chip">67 controls</span></p>
+    <p class="what"><b>Three things were built in a row and I searched the actual screen for all of
+    them: zero hits.</b> Everything meant to make the cost argument concrete could only be reached by
+    typing a command at a terminal, which for the person the argument is aimed at is not reachable at
+    all. That included the single number the whole pitch rests on.</p>
+    <p class="proof"><b>Wiring the first one up is what exposed the real defect, and it is the worst
+    kind.</b> The panel came back blank &mdash; and the panel was not the problem. <b>The program
+    never handed the setting to the part that uses it.</b> The configuration was read, the field
+    existed, the parser worked, and nothing joined the two ends. So <b>the feature had been dead in
+    the shipped build from the day it landed</b>: set the option, start the service, and nothing
+    whatsoever happens.</p>
+    <p class="proof"><b>Nothing caught it because every test built the object by hand.</b> They
+    exercised the parser, the endpoint, and now the screen &mdash; while skipping the one connection
+    that exists only in the real program. That is this workspace&rsquo;s own written lesson turning
+    up somewhere new: <b>a test that supplies the input under test can never tell you whether
+    anything actually produces that input.</b> It took starting the real thing and looking at it.</p>
+    <p class="proof"><b>The guard written for it is general, not a patch for this one setting.</b>
+    Any option read from the environment that the program never mentions now fails the build, because
+    an option nobody reads is dead configuration &mdash; somebody sets it, and nothing happens. It
+    reads the program as TEXT rather than inspecting it while running, for a precise reason: <b>the
+    defect is a MISSING line, and a missing line has nothing to inspect.</b> It ships with a proof
+    that it catches this exact case, and with a second proof that it is looking at anything at all
+    &mdash; &ldquo;every option is used&rdquo; passes trivially against an empty list.</p>
+    <p class="proof"><b>Looking also caught two things no automated check here could.</b> The panel
+    read <em>&ldquo;1 billable blocks&rdquo;</em>, and a disclaimer ran straight into the next
+    sentence as <em>&ldquo;&hellip;not what this platform charges Rates read 2026-08-20.&rdquo;</em>
+    Every substring check passed both. A reader notices both instantly.</p>
+    <p class="proof"><b>And one existing sabotage-check had quietly stopped guarding anything.</b>
+    It targeted the paragraph that the run-on fix had just split in two, so it no longer matched
+    &mdash; and the harness said <em>&ldquo;the mutation did not apply, so this case proved
+    nothing&rdquo;</em> rather than reporting a pass. <b>A check whose target has moved is a check
+    that guards nothing</b>, and the only reason that was visible is that this harness refuses to
+    count a red it cannot explain.</p>
+    <p class="proof"><b>The hardest part to get right survived onto the screen intact.</b> The
+    retrospective panel answers &ldquo;would this cap have fired?&rdquo; and must never read as
+    reassurance &mdash; sampled measurements can prove a cap <em>would</em> have fired and can never
+    prove it would not. On screen it reads <b>&ldquo;not seen crossed in what was recorded&rdquo;</b>,
+    carries the sentence explaining why that is not the same as safety, and puts <b>&ldquo;6 of 7,800
+    possible&rdquo;</b> in the panel title where it cannot be scrolled past.</p>
+    <p class="where">tare 59563d3 &hellip; 0c64b83 &middot; 18 test packages, 67 sabotage controls, 51 screen checks &middot; opened in a browser, not only asserted on</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 27</div>
+  <div>
+    <p class="name">sabot is public &mdash; and verifying the README&rsquo;s own promises falsified one of its numbers
+      <span class="chip live">public repo</span><span class="chip">9th open-source tool</span><span class="chip">131s, not &ldquo;a couple of minutes&rdquo;</span></p>
+    <p class="what"><b>In plain terms:</b> the harness that breaks a rule on purpose to find out
+    whether your tests would notice is now something a stranger can clone. It went out with the
+    licence, the ignore file that keeps compiled <code>.pyc</code> paths out of a public tree, and
+    <b>two commits &mdash; which is its real history, not a squashed snapshot.</b> Worth stating
+    plainly: sabot was genuinely written in one sitting, so one commit is the truth here, unlike the
+    two repos republished in August precisely because their history had been flattened away.</p>
+    <p class="proof"><b>Swept before anything left the machine, and the sweep found the thing it was
+    written for.</b> Grepping the working directory flagged three files carrying this machine&rsquo;s
+    absolute paths and username &mdash; all of them compiled <code>__pycache__</code> artifacts, all
+    untracked, so none could reach the repo. That was <em>confirmed against the tracked file list
+    rather than assumed</em>, because a staging tree leaked exactly these once before. Seven source
+    files, zero hits.</p>
+    <p class="proof"><b>Verified the way a stranger meets it, not by reading the diff.</b> Cloned
+    from the public URL into a fresh directory and ran the README&rsquo;s own first command: it
+    reproduced the documented output verbatim &mdash; two rules CAUGHT with the catching test named,
+    the canary correctly ignored, tree restored GREEN. 13 tests pass from that clone. The raw file
+    was pulled back off GitHub and re-swept: <b>zero occurrences of the username</b>.</p>
+    <p class="proof"><b>Then the selfcheck was timed for the first time, and a claim died.</b>
+    <code>sabot.selfcheck.toml</code> said its test subset &ldquo;keeps the selfcheck under a couple
+    of minutes&rdquo;. It takes <b>131 seconds</b> &mdash; eleven seconds over, and worse on a slower
+    machine, because it runs that subset once per mutation plus a baseline and a restore pass. The
+    comment now carries the measured figure, the date, the 75s full-suite number beside it, and the
+    reason it scales that way. <b>Nobody had ever run a clock on it</b>; the claim was written from
+    expectation, which is the same defect this whole log is about, sitting in the README of the tool
+    built to catch it. Fixed in the source first so the public repo and the workspace copy cannot
+    drift.</p>
+    <p class="where">github.com/automatedworkflowllc-design/sabot &middot; MIT &middot; dev ba5b154 &middot; selfcheck exits 0 with all three of its own rules CAUGHT and the canary ignored &middot; RELIABILITY-MAP updated</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 27</div>
+  <div>
+    <p class="name">The rules-vs-LLM eval now has a sealed exam &mdash; and a grader proven able to fail either side
+      <span class="chip live">oakhammock</span><span class="chip">60 cases, one pass</span><span class="chip">unseen by both layers</span><span class="chip staged">model half waits on the key</span></p>
+    <p class="what"><b>The head-to-head this is building toward:</b> the hand-written parser against
+    a small, cheap model, behind the <em>same</em> tested engine, on the <em>same</em> corpus &mdash;
+    with cheapness as the headline, per Colin. That comparison is only honest on sentences neither
+    side has ever seen, and corpora 1&ndash;4 have all been repaired against, which makes them
+    memorised answer keys. <b>Corpus 5 is the sealed exam:</b> 60 fresh sentences written in one
+    pass, ground truth taken from the menu rather than from either layer&rsquo;s behaviour, and
+    committed <em>as data</em> this time &mdash; the first four corpora survive only as test pins.</p>
+    <p class="proof"><b>The one check that has touched it reads names, never behaviour.</b> A
+    <code>--lint-only</code> mode verifies every expected dish exists in the real seed and runs no
+    proposer &mdash; so a ground-truth typo cannot grade both layers against a dish that is not
+    there, and the corpus stays unseen. Fail closed: a planted misspelling
+    (&ldquo;Snapperr&rdquo;) made the suite refuse the whole corpus, naming the entry, before it
+    was believed.</p>
+    <p class="proof"><b>The grader was proven with stub proposers only, so nothing real ran the
+    exam.</b> One classifier for both layers &mdash; right / asked / could_not / WRONG &mdash; and
+    every verdict fires at least once in its control suite, with WRONG firing in <em>both</em>
+    directions: the wrong dish ordered, and the silent pick where a question was owed &mdash; the
+    cup-vs-bowl case, where &ldquo;understood&rdquo; bills $4.50 for a $3.50 soup. A proposer that
+    <em>crashes</em> grades WRONG rather than vanishing from the denominator, because a grader
+    that skips crashes flatters whichever layer crashes more. Both pytest wrappers were sabotaged
+    and watched fail &mdash; a classifier that cannot say WRONG, then the corpus typo &mdash; and
+    restored byte-identical.</p>
+    <p class="proof"><b>What the exam covers, because the coverage is the claim:</b> the allergy
+    probes the plan requires (an allergy question answered with food is WRONG; handing to the
+    kitchen is right), fresh not-on-menu compounds the kitchen has never made, corrections
+    mid-sentence, quantity/person/time words doing non-dish jobs, and the Wednesday cold soup
+    probed on the pinned Thursday. <b>Standing rule restated in the plan and the corpus header:</b>
+    nobody runs corpus 5 through either layer until the eval takes both as-found numbers, and no
+    repair pass happens before the headline.</p>
+    <p class="where">oakhammock 08e39a3 &middot; web/corpus5.json + score_corpus.js + test_score_corpus.js &middot; 78 pass &middot; steps 2&ndash;5 blocked only on the API key; nothing here calls a model</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 26</div>
+  <div>
+    <p class="name">sabot: the break-it-on-purpose harness, extracted into a tool that guards itself
+      <span class="chip live">sabot</span><span class="chip">13 tests</span><span class="chip">runs on itself</span><span class="chip">stdlib only</span></p>
+    <p class="what"><b>Five bespoke versions of the same harness were written by hand in one
+    August week</b> &mdash; 48 sabotage controls on a dining demo&rsquo;s parser and engine, 5 on
+    its UI, more on the telemetry gateway. Each broke a rule on purpose, ran the suite, and
+    reported whether anything noticed. sabot is that pattern as a ~280-line stdlib-only tool with
+    a TOML config: <em>if this rule were broken on purpose, would any test notice?</em></p>
+    <p class="proof"><b>The reason it is a tool rather than a snippet is that the pattern&rsquo;s
+    own failure modes cost more time that week than the defects it found.</b> An invalid mutation
+    (a no-op edit read as a missing test); a sabotage that replaced a literal existing only in a
+    different view of the same page; a neutered guard that stopped a package compiling, so every
+    case went red and a runner reported 10/10 CAUGHT while verifying nothing. So the rules are
+    baked in: the anchor must exist exactly once, the mutated file must still LOAD (INVALID, never
+    CAUGHT), restore is byte-verified with the baseline re-run after, one invocation per case with
+    output and status together &mdash; <b>and a canary mutation that must NOT be caught, with a
+    run that has no canary failing by default.</b> An unvalidated runner is not evidence.</p>
+    <p class="proof"><b>Its own first test run proved the warning it ships with.</b> My
+    &ldquo;suite that detects any change&rdquo; fixture looked for a marker word the canary edit
+    did not remove &mdash; it detected almost nothing, the test was the defect, and sabot&rsquo;s
+    verdict was right. Rewritten to compare bytes. A <code>return</code> inside the restore
+    <code>finally</code> &mdash; which would have swallowed an in-flight exception at exactly the
+    moment restore matters most &mdash; was caught by a SyntaxWarning on first import and fixed
+    before the suite ever ran.</p>
+    <p class="proof"><b>It dogfoods: <code>sabot.selfcheck.toml</code> runs the tool on its own
+    source.</b> Three of its rules are broken in turn &mdash; the ambiguous-anchor refusal, the
+    broken-file INVALID verdict, the no-canary failure &mdash; and its own suite catches each,
+    canary ignored, tree restored and proven green. The README walkthrough is itself a test, so
+    it cannot rot; the suite sits where the nightly sweep discovers it, so &ldquo;what runs
+    it&rdquo; is not &ldquo;nothing&rdquo;. README states the blind spot up front: it proves
+    tests CAN fail, not that they are correct, and nothing validates the operator&rsquo;s
+    mutation.</p>
+    <p class="gap"><b>Open, honestly:</b> packaged for GitHub, push is Colin&rsquo;s. Also
+    planned and logged, both waiting on inputs: the LLM-swap measurement for the dining demo
+    (parser vs a cheap model behind the same tested engine, corpus 5 written before the model
+    ever runs &mdash; waits on an API key and on Colin&rsquo;s GM for any named publication) and
+    the elderly-voice STT benchmark (waits on consent, entirely their call).</p>
+    <p class="where">dev/sabot 5b94939 &middot; 13 tests + example-as-test + selfcheck &middot; RELIABILITY-MAP entry per its own admission rule &middot; the suite is discovered by <code>_ops/run_suites.py</code>, so the nightly sweep runs it without anyone registering anything</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 27</div>
+  <div>
+    <p class="name">I had called this unanswerable two days ago &mdash; half of it was, and the other half is now shipped
+      <span class="chip live">Tare</span><span class="chip">lower bound only</span><span class="chip">4th roadmap drift, mine</span><span class="chip">61 controls</span></p>
+    <p class="what"><b>Two days ago I said &ldquo;if I had set this limit last month, what would it
+    have refused?&rdquo; could not be answered honestly, and shipped only the storage that would
+    make it possible later. That was right about the <em>simulation</em> and too pessimistic about
+    the <em>question</em>.</b> There is an honest half, it is the useful half, and it now works.</p>
+    <p class="proof"><b>The whole design is one asymmetry.</b> Cardinality is sampled every few
+    minutes, so what is kept is dots, not a line. That makes exactly one direction of answer
+    truthful: <b>&ldquo;this limit WOULD have been hit&rdquo; is provable</b> &mdash; a recorded
+    sample above it is something that actually happened. <b>&ldquo;this limit would NOT have been
+    hit&rdquo; is not</b>, because the moment it was crossed can sit in the gap between two
+    samples.</p>
+    <p class="proof"><b>So every answer is a floor, and says so in the answer itself.</b> When
+    nothing recorded exceeded the limit, the reply reads: <em>none of the retained measurements
+    exceeded this limit, which is <b>NOT the same as saying it was never exceeded</b></em> &mdash;
+    and then explains why. That one sentence is the entire reason this can exist without lying, so
+    it ships with a deliberate sabotage that fails the build if it ever starts reading like
+    reassurance.</p>
+    <p class="proof"><b>It never draws the line between the dots.</b> Interpolating and reporting
+    the area underneath is exactly the confident, authoritative, invented chart that stopped the
+    simulation being built in the first place. Every number returned is either something observed
+    or a count of things observed.</p>
+    <p class="proof"><b>And it reports how little it saw.</b> The live run answered from <b>4
+    measurements out of 7,714 possible &mdash; 0.05% of the month</b>, and prints that alongside the
+    answer. <b>Stating it is the result, not a disclaimer:</b> an answer drawn from a twentieth of a
+    percent of the period should be read that way, and hiding it would be presenting a gap as data.
+    Asked about a month with nothing recorded at all, it <b>refuses outright and returns no count</b>
+    &mdash; &ldquo;zero over the limit&rdquo; computed from nothing reads as &ldquo;you were
+    fine&rdquo;, which is the most expensive thing it could say.</p>
+    <p class="proof"><b>Proven against real retained data, all three ways it can answer:</b> a limit
+    under the observed peak came back <em>would have been crossed</em>, naming two measurements over
+    and the peak of 61; a limit above it came back <em>not observed crossed</em> carrying the full
+    caveat; and a month with no measurements refused.</p>
+    <p class="proof"><b>Separately: the plan had gone stale for the fourth time, and this time I did
+    it.</b> Two features shipped on the 25th with design records, guides, tests and sabotage
+    controls &mdash; and appeared <em>nowhere</em> in the roadmap for two days, days after I wrote
+    the warning about the previous three. <b>The interesting part is why the guard missed it.</b> It
+    compares the summary table against the sections below, so it catches the two halves disagreeing
+    &mdash; and is <b>completely blind to something missing from both</b>. A consistency check
+    between two copies cannot see what is absent from each, which is the flaw in every check that
+    compares a thing to itself. The note now says to read the history of changes against the file,
+    not just the file.</p>
+    <p class="where">tare c979a09 + 74f3b60 &middot; 17 test packages, 61 sabotage controls &middot; verified against the running system, not only in tests</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 25</div>
   <div>
