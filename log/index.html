@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">212 entries · newest first within each group</p>
+  <p class="stamp">213 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,46 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 27</div>
+  <div>
+    <p class="name">The daily sheet reads itself now &mdash; and a price it cannot point at in the paper is refused
+      <span class="chip live">phase 2, reading half</span><span class="chip">12/12 slots on the real sheet</span><span class="chip">~half a cent</span><span class="chip">quote-or-refuse</span></p>
+    <p class="what"><b>In plain terms:</b> a kitchen fills in a paper Line Up sheet every day and
+    somebody then retypes it &mdash; the re-keying that costs one person her break daily, and the
+    reason this project exists. The writing half was already built. This is the reading half: paste
+    the sheet, get back a proposed menu for the day.</p>
+    <p class="proof"><b>The safety boundary is a quote check, not a prompt rule, and that
+    distinction is the whole design.</b> Every price and every allergen row must come back as the
+    <em>exact substring the model read it from</em>, and the code then checks that substring is
+    genuinely in the sheet. <b>A figure invented from nowhere cannot survive, because it cannot quote
+    a source that does not exist.</b> Ragged spacing is forgiven, since a pasted Word table arrives
+    messy &mdash; and nothing else is: <code>$1.40</code> against a sheet reading <code>$14</code> is
+    refused, pinned by its own test.</p>
+    <p class="proof"><b>It proposes and never applies, and every refusal is surfaced rather than
+    swallowed.</b> A cell whose price fails the quote check still delivers its dish, with the price
+    listed for a human to confirm &mdash; silently dropping it would look identical to a sheet that
+    never had a price. An unknown slot is discarded before it can reach the writer. <b>A blank cell
+    is left out entirely</b>, so the kitchen leaving Cold Soup empty means &ldquo;no change&rdquo;
+    rather than emptying that part of the menu &mdash; both real sheets had blank cells.</p>
+    <p class="proof"><b>Tested against the real sheet's content rather than a fixture written to
+    pass.</b> Fed the actual 8/20 contents: <b>all 12 filled slots read, all five prices correct,
+    both allergen rows mapped</b> (&ldquo;white pepper, dairy&rdquo; &rarr; pepper, milk), and the
+    two genuinely blank slots correctly omitted. Nothing needed a human. <b>About half a cent per
+    sheet.</b></p>
+    <p class="proof"><b>Both quote checks were sabotaged and watched fail before being believed</b>
+    &mdash; the allergen one prints <em>&ldquo;a fabricated allergen row was kept&rdquo;</em>, which
+    is the failure that matters most here, since this writes the list every &ldquo;may contain&rdquo;
+    hint downstream is derived from. File restored byte-identical. The parsing is pure and offline,
+    so the part that can hurt somebody is the part under test and the network wrapper stays thin; one
+    test drives the real writer with the transcriber's own output, because two halves that do not fit
+    are a demo rather than a pipeline.</p>
+    <p class="proof"><b>Stated rather than glossed:</b> this reads <em>text</em>, and the kitchen
+    works in <em>photographs</em>. The photo path and scheduling a sheet for a future day are both
+    still to do, and both are written into the scope doc rather than implied by this entry.</p>
+    <p class="where">dev/oakhammock abe5334 &middot; lineup_ai.py &middot; 82 pass &middot; 3 offline tests, 2 sabotage controls</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 27</div>
   <div>
