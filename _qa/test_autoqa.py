@@ -170,5 +170,83 @@ deploy('REPORTS a live site 90 minutes behind origin/main',
 deploy('REPORTS an unreadable API response rather than assuming healthy',
        _sha, 'nonsense', True)
 
+# ---------------------------------------------------------------- controls
+# check_controls asks: can you see the button? Added 2026-08-28 after 24
+# elements shipped with pill geometry and no surface -- 18 computed fully
+# transparent, and 4 of them were the "Email these numbers to Colin" link that
+# only exists after a successful run, i.e. the conversion step.
+from autoqa import _rules, _provides, _has_surface
+
+# the shared shell, reproduced exactly: geometry, and a TRANSPARENT border
+BASE = ('.btn{display:inline-flex;border-radius:999px;padding:.8rem 1.4rem;'
+        'border:1px solid transparent;}'
+        '.btn-primary{background:var(--ink);color:var(--paper);}'
+        '.btn-ghost{background:transparent;border-color:var(--line-strong);}')
+FIX = '.btn:not([class*="btn-"]){background:transparent;border-color:var(--line-strong);}'
+
+def control(name, css, classes, want_defect, tag='a'):
+    rules = _rules(css)
+    seen = any(_provides(s, set(classes.split()), tag) and _has_surface(d)
+               for s, d in rules)
+    ok = (not seen) == want_defect
+    print(('  PASS  ' if ok else '  FAIL  ') + name +
+          ('' if ok else '  -> visible=%s' % seen))
+    if not ok:
+        fails.append(name)
+
+print('\nAutoQA control-visibility suite\n')
+
+# 0. the compliant fixture. Without this, every "REPORTS" case below could be
+#    passing on a matcher that flags everything.
+control('SILENT on .btn.btn-primary (a filled button is fine)',
+        BASE, 'btn btn-primary', False)
+control('SILENT on .btn.btn-ghost (a bordered button is fine)',
+        BASE, 'btn btn-ghost', False)
+
+# 1. the defect as it shipped
+control('REPORTS a bare .btn on the shell palette -- the 8/28 defect',
+        BASE, 'btn', True)
+control('REPORTS it on a <button> too (the browser grey is not our surface)',
+        BASE, 'btn', True, tag='button')
+
+# 2. the fix
+control('SILENT on a bare .btn once the :not() rule is present',
+        BASE + FIX, 'btn', False)
+control('SILENT on the runtime-injected <a class="btn"> CTA',
+        BASE + FIX, 'btn', False)
+
+# 3. the :not() must not become a blanket excuse
+control('REPORTS .btn.btn-primary if btn-primary loses its background',
+        '.btn{border:1px solid transparent;}.btn-primary{font-weight:600;}' + FIX,
+        'btn btn-primary', True)
+
+# 4. the other palette. almanac/redline define .btn AS the filled primary;
+#    flagging them would be a false alarm on two correct pages.
+control('SILENT on the tokens palette, where bare .btn IS the filled primary',
+        '.btn{background:var(--ink);border:1px solid var(--ink);}', 'btn', False)
+
+# 5. THE REGRESSION THAT NEARLY SHIPPED A DEAD GATE, pinned with the exact rule
+#    that caused it. The first version returned "covered" for ANY selector it
+#    could not parse. The shell's decorative pseudo-elements are unparseable and
+#    carry a background, so `.pullquote::before` marked every button covered and
+#    the check stayed green with the fix deleted -- it could not go red.
+#    These four are the real rules, named because a plausible-looking stand-in
+#    does not reproduce it: `body{background}` PARSES, and is rejected on the
+#    tag, so a test written against it passes while the engine is broken. That
+#    was the first draft of this case, and the mutation caught it.
+for _sel in ('.pullquote::before', 'ul.checks li::before', 'ol.steps li::before',
+             'ul.trust li::before'):
+    control('REPORTS despite %s{background} -- a decoration is not our surface' % _sel,
+            BASE + _sel + '{background:var(--green);}', 'btn', True)
+control('REPORTS despite body{background} -- an unrelated rule is not a surface',
+        BASE + 'body{background:#FBFAF3;}*{box-sizing:border-box;}', 'btn', True)
+control('SILENT when an unparsed selector genuinely names .btn',
+        BASE + '.hero > .btn:first-child{background:var(--ink);}', 'btn', False)
+
+# 6. base state is what ships; a hover rule is not a surface
+control('REPORTS when only :hover supplies the border',
+        '.btn{border:1px solid transparent;}.btn:hover{border-color:var(--ink);}',
+        'btn', True)
+
 print('\n%s' % ('ALL PASS' if not fails else 'FAILED: %s' % ', '.join(fails)))
 sys.exit(1 if fails else 0)

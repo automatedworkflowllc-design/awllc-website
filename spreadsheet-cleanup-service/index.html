@@ -76,6 +76,32 @@
   .btn-primary:hover{ background:#000; color:var(--paper); transform:translateY(-2px); }
   .btn-ghost{ background:transparent; color:var(--ink); border-color:var(--line-strong); }
   .btn-ghost:hover{ border-color:var(--ink); transform:translateY(-2px); }
+  /* A .btn carrying no colour modifier gets NO background and a TRANSPARENT border from the base
+     rule above - full button geometry, pill radius, padding, weight, and nothing you can see the
+     edge of. 24 of them shipped that way, and they were counted in the DOM rather than by grep
+     because the halves differ. 20 are present at load - 13 <a>, which render as bare text that
+     merely happens to be bold and well spaced, and 7 <button>, of which 18-of-20 computed fully
+     transparent while 2 fell back to the browser's grey box: unstyled, but at least visible.
+     THE OTHER 4 ARE THE WORST OF THEM and no static read of these pages would ever show them:
+     they are injected by script AFTER a successful analysis - the "Email these numbers to Colin"
+     link on four of the free tools. That is the conversion step, invisible at the one moment the
+     visitor has just been given a reason to press it.
+     Every automated gate passed all 24: nothing in _qa/ asks whether a control looks like a
+     control, which is why this is now also a push gate.
+     Fixed here rather than at 24 call sites because "which of these should be filled" is a
+     per-page design judgement nothing forces today, and because 13 of the 15 pages are generated,
+     so a markup fix means editing 13 builders. Ghost is the conservative default: visible, and
+     lighter than four filled buttons stacked down one tool page. It mirrors .btn-ghost in all
+     three properties deliberately - the background:transparent is not redundant, it is what
+     removes the browser's grey from those 7 buttons, which a border-only fix leaves in place
+     (measured: an unmodified .btn on a <button> computes rgb(240,240,240) until this line).
+     SCOPE, measured rather than assumed: this is a defect of THIS palette only. /almanac/ and
+     /redline/ are self-contained on _brand/tokens.py, where an unmodified .btn IS the filled
+     primary (background:var(--ink)) and .btn.ghost is the secondary - their 3 are correct as
+     written, and this rule cannot reach them anyway. Do not "fix" them to match.
+     :not() keeps it off any explicit .btn-primary / .btn-ghost / .btn-green / .btn-halo. */
+  .btn:not([class*="btn-"]){ background:transparent; color:var(--ink); border-color:var(--line-strong); }
+  .btn:not([class*="btn-"]):hover{ border-color:var(--ink); transform:translateY(-2px); }
   .hero-meta{ margin:1.5rem 0 0; font-family:var(--mono); font-size:.74rem; letter-spacing:.02em; color:var(--ink-faint); }
   .hero-meta b{ color:var(--ink); font-weight:600; }
 

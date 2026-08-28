@@ -374,11 +374,144 @@ def check_analytics():
 
 
 
+SURFACE = ('background', 'background-color', 'border', 'border-color')
+STATE = (':hover', ':focus', ':active', ':visited', ':disabled')
+
+
+def _has_surface(decls):
+    """Does this declaration block give the element an edge you can see?
+
+    'transparent' is the whole point: the shared .btn base sets
+    `border:1px solid transparent` and no background, which is geometry with
+    no surface -- so a rule may only count if it names a colour that is not
+    transparent. var(), a hex and rgb() all count; none/inherit/initial do not.
+    """
+    for prop, val in decls:
+        if prop not in SURFACE:
+            continue
+        v = val.lower()
+        if 'transparent' in v or 'none' in v:
+            continue
+        if 'var(' in v or '#' in v or 'rgb' in v or 'hsl' in v:
+            return True
+    return False
+
+
+def _rules(css):
+    out = []
+    css = re.sub(r'/\*.*?\*/', ' ', css, flags=re.S)
+    for m in re.finditer(r'([^{}]+)\{([^{}]*)\}', css):
+        decls = []
+        for d in m.group(2).split(';'):
+            if ':' in d:
+                p, _, v = d.partition(':')
+                decls.append((p.strip().lower(), v.strip()))
+        out.append((' '.join(m.group(1).split()), decls))
+    return out
+
+
+def _provides(sel, classes, tag):
+    """Conservative selector match, base state only.
+
+    Deliberately PERMISSIVE where it cannot be sure. A selector it cannot parse
+    but which mentions .btn is treated as providing a surface, so an unusual
+    rule produces a miss rather than a false alarm -- the same trade the compose
+    sweep makes. A gate people learn to ignore is worse than a narrow one.
+    """
+    for alt in sel.split(','):
+        alt = alt.strip()
+        if any(s in alt for s in STATE):
+            continue
+        last = re.split(r'[ >+~]', alt)[-1]
+        conds = re.findall(r':not\(\[class\*=[\'"]([^\'"]+)[\'"]\]\)', last)
+        bare = re.sub(r':not\([^)]*\)', '', last)
+        if not re.match(r'^(\w+)?(\.[\w-]+)*$', bare):
+            # Unparsed. Assume covered ONLY if the selector actually mentions one
+            # of this element's classes. The first version returned True here
+            # unconditionally, so `body{background:...}` matched every button and
+            # the gate stayed green with the fix deleted -- it could not go red.
+            if any('.' + c in alt for c in classes):
+                return True
+            continue
+        want_tag = re.match(r'^(\w+)', bare)
+        if want_tag and want_tag.group(1).lower() != tag:
+            continue
+        need = set(re.findall(r'\.([\w-]+)', bare))
+        if not need.issubset(classes):
+            continue
+        if any(any(c in k for k in classes) for c in conds):
+            continue                          # the :not() excludes this element
+        return True
+    return False
+
+
+def check_controls():
+    """Does any page ship a control with button geometry and no visible surface?
+
+    WHY THIS EXISTS. Measured 2026-08-28: 24 elements across 15 pages carried
+    the shared `btn` class with no colour modifier. The base rule gives them
+    pill geometry, padding and weight but no background and a TRANSPARENT
+    border, so 18 of them computed as bare text and the rest fell back to the
+    browser's grey. Four were the "Email these numbers to Colin" link injected
+    after a successful run -- the conversion step on four free tools. Eleven
+    gates passed all of it, because none of them asks the only question that
+    would have caught it: can you see the button?
+
+    BLIND SPOT, stated rather than discovered later. This reads each page's own
+    CSS with a small matcher; it cannot resolve a surface inherited from an
+    ancestor, and it says nothing about CONTRAST -- a control the same colour as
+    its background passes here. It answers "is there a surface at all", which is
+    the failure that actually shipped.
+    """
+    sys.path.insert(0, os.path.join(ROOT, '_brand'))
+    from apply_analytics import pages
+    examined = 0
+    for rel in pages():
+        try:
+            html = io.open(os.path.join(ROOT, rel), encoding='utf-8').read()
+        except Exception as e:
+            defect('controls', '%s unreadable: %s' % (rel, e)); continue
+        rules = []
+        for blk in re.findall(r'<style[^>]*>(.*?)</style>', html, re.S | re.I):
+            rules.extend(_rules(blk))
+        if not rules:
+            continue
+        seen = set()
+        for m in re.finditer(r'class=["\']([^"\']*)["\']', html):
+            classes = set(m.group(1).split())
+            if 'btn' not in classes:
+                continue
+            j = html.rfind('<', 0, m.start())
+            t = re.match(r'<(\w+)', html[j:])
+            tag = t.group(1).lower() if t else 'a'
+            key = (tuple(sorted(classes)), tag)
+            if key in seen:
+                continue
+            seen.add(key)
+            examined += 1
+            if not any(_provides(s, classes, tag) and _has_surface(d)
+                       for s, d in rules):
+                defect('controls',
+                       '%s: <%s class="%s"> has button geometry but no visible '
+                       'surface -- it renders as bare text'
+                       % (rel, tag, ' '.join(sorted(classes))))
+    # Extraction control. "No defects" and "looked at nothing" print the same
+    # way, and this check depends on two things that move independently: the
+    # page list, and `btn` still being the shared button class. If a rename ever
+    # empties this, it must be loud rather than green. 30-odd controls is the
+    # standing figure; anything near zero means the check has stopped looking.
+    if examined < 10:
+        defect('controls',
+               'examined only %d control(s) site-wide -- this check has stopped '
+               'finding buttons, so its green result means nothing' % examined)
+
+
 def main():
     # --fast skips the network sweep. Used by the pre-push hook, where the live
     # site is still the OLD build and so tells you nothing about what you're
     # about to ship.
-    checks = [check_workbooks, check_pages, check_staleness, check_analytics]
+    checks = [check_workbooks, check_pages, check_staleness, check_analytics,
+              check_controls]
     if '--fast' not in sys.argv:
         # Both need the network, so both stay out of the push gate -- and
         # check_deploy would be meaningless there anyway, since the deploy it
