@@ -75,7 +75,26 @@ def defect(area, msg):
 
 def tracked(pat):
     out = subprocess.run(['git', 'ls-files', pat], cwd=ROOT, capture_output=True, text=True)
-    return [f for f in out.stdout.splitlines() if f.strip()]
+    return [f for f in out.stdout.splitlines() if f.strip() and not unpublished(f)]
+
+def unpublished(rel):
+    """True for paths Jekyll never serves, which therefore cannot be pages.
+
+    Jekyll excludes directories whose name starts with an underscore, and that exclusion is the ONLY
+    reason _brand/, _qa/ and _scratch/ are not on the public web. So an .html file inside one is a
+    template or a fixture, never something a visitor or a crawler can reach.
+
+    Auditing them as pages produces defects that are real-sounding and unfixable: on 2026-08-28 two
+    1280x720 Gumroad render templates, committed to _brand/ purely so they would stop existing only
+    in an abandoned clone, were flagged for a missing canonical link, a missing viewport, missing
+    contact details, absence from the sitemap, and having nothing link to them. Every one of those
+    is correct about a PAGE and meaningless about a template that is never served -- and the only
+    way to satisfy them would have been to delete the file the commit existed to preserve.
+
+    Deliberately structural rather than a list of directory names: a future _fixtures/ or _drafts/
+    is excluded the day it appears, which is when the rule is easiest to forget.
+    """
+    return any(part.startswith('_') for part in rel.replace('\\', '/').split('/')[:-1])
 
 def read(rel):
     return io.open(os.path.join(ROOT, rel), encoding='utf-8', errors='replace').read()

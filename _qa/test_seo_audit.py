@@ -280,6 +280,40 @@ def main():
     ok('so looking twice does not launder the defect into a pass',
        code2 == 1, 'second look exited %s' % code2)
 
+    # 13. HTML inside an underscore directory is not a page and must not be audited as one --
+    #     BUT the exclusion must not blind the gate to real pages. A narrowing is exactly the
+    #     change that quietly stops a guard working, so both directions are checked here.
+    root = CLEAN()
+    template = root / '_brand' / 'render'
+    template.mkdir(parents=True)
+    # Deliberately awful by page standards: no canonical, no viewport, no contact details, in no
+    # sitemap, linked from nowhere. All correct about a page; all meaningless about a template
+    # Jekyll never serves.
+    io.open(template / 'cover.html', 'w', encoding='utf-8').write(
+        '<!doctype html><meta charset="utf-8"><style>body{width:1280px}</style><div>cover art</div>')
+    subprocess.run(['git', 'add', '-A'], cwd=str(root), capture_output=True, text=True)
+    code, data, raw = run(root)
+    ok('a template under an underscore directory is not audited as a page',
+       code == 0 and not any('_brand' in d.get('msg', '') for d in data['defects']),
+       'exit %s | %s' % (code, [d['msg'][:80] for d in data['defects']][:4]))
+
+    # The other direction. The same file at a served path must still be caught, or the exclusion
+    # has been written too wide and the gate now ignores real pages.
+    served = root / 'render'
+    served.mkdir()
+    io.open(served / 'index.html', 'w', encoding='utf-8').write(
+        '<!doctype html><meta charset="utf-8"><style>body{width:1280px}</style><div>cover art</div>')
+    subprocess.run(['git', 'add', '-A'], cwd=str(root), capture_output=True, text=True)
+    code, data, raw = run(root)
+    # Asserted on the DEFECT LIST, not the exit code. This audit is a regression gate: it exits
+    # non-zero when defects rise above a recorded baseline, and a fresh fixture has no baseline to
+    # rise above. Requiring exit 1 here failed against an audit that had found the page and
+    # reported every fault in it correctly - the first version of this check was wrong, not the
+    # code under it.
+    ok('the same file at a SERVED path is still caught',
+       any('render/index.html' in d.get('msg', '') for d in data['defects']),
+       'exit %s | %s' % (code, [d['msg'][:80] for d in data['defects']][:4]))
+
     if fails:
         print('\nSEO CONTROL FAILED on %d check(s). This gate runs on every push and '
               'guards twelve rules across every tracked page; if it cannot go red, '
