@@ -2636,6 +2636,15 @@ p.sub .basis { color: #6E685C; font-size: .9rem; }
   /* One utterance in, one PROPOSAL out. Never touches the cart. */
   function propose(state, text) {
     var intent = detectIntent(text, state);
+    /* A QUESTION ABOUT US IS NOT AN ORDER. "Ok why didnt yoh ask my sides"
+       is not a request for a Side Salad, and reading it as one is worse than
+       the bug it replaced: the echo version was confusedly wrong, this is
+       CONFIDENTLY wrong, and a confident wrong order reaches a kitchen.
+       detectIntent already routes "what is on the menu" to menu, so only an
+       intent that survived to `order` gets here. Anything still reading as an
+       order after opening with why/how/what is a word that happened to match,
+       not a dish anybody asked for. */
+    if (intent === 'order' && neverAnOrder(text)) return { intent: 'unknown' };
     if (intent !== 'order') return { intent: intent };
 
     var matches = matchItems(state, text);
@@ -3135,13 +3144,43 @@ p.sub .basis { color: #6E685C; font-size: .9rem; }
   var OPENS_A_QUESTION = { why: 1, how: 1, what: 1, whats: 1, when: 1,
                            where: 1, who: 1, huh: 1 };
 
+  /* Does this sentence OPEN by asking us something? Looks only at the first
+     few words, skipping filler, because "do you have lasagna" and "can i get
+     a hamburger" are ordinary orders phrased as questions and must keep
+     working. Used in two places on purpose: it decides the INTENT (a question
+     is never an order) and it suppresses the ECHO (nothing in a question is a
+     dish we were asked for). Putting it only in the second place is what let
+     "why didnt you ask my sides" order a Side Salad. */
+  /* A NARROWER SET, for the INTENT only. The broad opener list is safe for
+     suppressing an echo and WRONG for deciding what somebody ordered: "how
+     about the flat iron" and "what about the shawarma" are ordinary ways to
+     order, and an existing test says so -- it caught this the moment the
+     blunt version shipped. "why" is the one opener that can never begin an
+     order, which is exactly the word in the sentence that started this. */
+  var NEVER_AN_ORDER = { why: 1, whys: 1 };
+
+  function neverAnOrder(text) {
+    var all = words(text);
+    for (var q = 0; q < all.length && q < 3; q += 1) {
+      if (NEVER_AN_ORDER[all[q]]) return true;
+      if (!STOP[all[q]] && !FILLER[all[q]] && !NOT_A_DISH[all[q]]) return false;
+    }
+    return false;
+  }
+
+  function opensAQuestion(text) {
+    var all = words(text);
+    for (var q = 0; q < all.length && q < 3; q += 1) {
+      if (OPENS_A_QUESTION[all[q]]) return true;
+      if (!STOP[all[q]] && !FILLER[all[q]] && !NOT_A_DISH[all[q]]) return false;
+    }
+    return false;
+  }
+
   function unmatchedDish(state, text) {
     var claimed = optionClaimedWords(state, norm(text));
     var all = words(text);
-    for (var q = 0; q < all.length && q < 3; q += 1) {
-      if (OPENS_A_QUESTION[all[q]]) return '';
-      if (!STOP[all[q]] && !FILLER[all[q]] && !NOT_A_DISH[all[q]]) break;
-    }
+    if (opensAQuestion(text)) return '';
     var idx = [];
     all.forEach(function (w, i) {
       if (!isUnplaceable(state, w, i, claimed, all)) return;
