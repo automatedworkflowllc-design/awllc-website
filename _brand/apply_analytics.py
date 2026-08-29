@@ -75,6 +75,9 @@ NO_ANALYTICS = {
     'skeleton/index.html',
     'almanac/index.html',
     'proof/notarize/index.html',
+    # 2026-08-28: a self-contained client-side ordering demo. Zero network
+    # calls of its own; tagging it would be the only request the page makes.
+    'dining/index.html',
 }
 
 MARK = '<!-- aw-analytics -->'

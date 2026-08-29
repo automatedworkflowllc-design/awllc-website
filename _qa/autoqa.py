@@ -465,8 +465,25 @@ def check_controls():
     """
     sys.path.insert(0, os.path.join(ROOT, '_brand'))
     from apply_analytics import pages
+    # SELF-CONTAINED PAGES DO NOT SHARE THIS SITE'S `btn` SYSTEM, so the whole
+    # premise of this check is wrong for them. It assumes bare `.btn` comes
+    # from the shared stylesheet, where the base rule supplies geometry and
+    # strips the browser's own button surface -- which is exactly why a bare
+    # `.btn` there renders as naked text. /dining/ is a generated demo that
+    # inlines its OWN complete stylesheet, defines no bare `.btn` rule at all,
+    # and therefore keeps the browser default. Verified visually rather than
+    # argued: every control on that page was screenshotted rendering with a
+    # visible surface before this exemption was written.
+    # It must keep earning itself -- if the file stops existing, this fails.
+    SELF_CONTAINED = {'dining/index.html'}
+    for rel in SELF_CONTAINED:
+        if not os.path.exists(os.path.join(ROOT, rel)):
+            defect('controls', 'exempt page %s no longer exists -- drop the '
+                               'exemption rather than leaving it covering nothing' % rel)
     examined = 0
     for rel in pages():
+        if rel.replace('\\', '/') in SELF_CONTAINED:
+            continue
         try:
             html = io.open(os.path.join(ROOT, rel), encoding='utf-8').read()
         except Exception as e:
