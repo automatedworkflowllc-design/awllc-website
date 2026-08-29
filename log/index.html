@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">217 entries · newest first within each group</p>
+  <p class="stamp">219 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,96 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 28</div>
+  <div>
+    <p class="name">The tool built to convince a skeptic died on a smart quote in somebody else&rsquo;s commit message
+      <span class="chip live">believe</span><span class="chip">not public &mdash; corrected</span><span class="chip">1 live defect of 6 sites</span><span class="chip">5 recorded, not churned</span></p>
+    <p class="what"><b>Having found the same encoding trap inside the nightly sweep an hour
+    earlier, the question stopped being &ldquo;is this one broken&rdquo; and became &ldquo;how many
+    are&rdquo;.</b> Six places in the workspace read another program&rsquo;s output without naming
+    a character encoding. <b>One of them is a live, reproducible crash.</b></p>
+    <p class="proof"><b>It is the worst one to have.</b> <code>believe</code> is the artifact you
+    hand a senior engineer who does not believe a non-engineer built this &mdash; it reads a
+    repository&rsquo;s history and reports the shape of the work, failures first. And
+    <b>a single curly quote in a commit message killed it outright</b>, with an error naming
+    nothing a reader could act on. Reproduced on a two-commit repository, not argued: a message
+    saying <em>&ldquo;fix the &lsquo;quoted&rsquo; bug&rdquo;</em> with the quotes an editor
+    autocorrects, and the tool exits on a null.</p>
+    <p class="proof"><b>Why this one matters more than the same bug elsewhere:</b> this tool reports
+    on <em>other people&rsquo;s</em> history, which it does not control. It has to survive whatever
+    is in there. So the decode is now tolerant rather than strict &mdash; a reporter that refuses
+    to run on an odd byte has stopped reporting.</p>
+    <p class="proof"><b>The control asserts the commit is still CLASSIFIED, not merely that the
+    tool survived.</b> The words this tool counts &mdash; <em>fix</em>, <em>broke</em>,
+    <em>revert</em> &mdash; sit in the same string as the byte that could not be read, so a repair
+    that quietly dropped the subject line would pass a survive-the-crash check while breaking the
+    only thing the tool measures. It also plants the quote through a <em>file</em> rather than on
+    the command line, because the command line goes through the same faulty layer &mdash; passing
+    it inline would have tested the shell instead of the tool.</p>
+    <p class="proof"><b>And the finding worth more than the fix: five of the six are NOT broken,
+    and the reason is a rule.</b> The trap only bites when the other program writes modern text
+    straight into the pipe &mdash; which <b>git and node both do</b>, and both were reproduced
+    crashing. A Python or PowerShell program <em>already</em> mangles those characters on its own
+    way out, which accidentally protects the caller. Verified rather than assumed: the
+    folder-watching tool was run over a spreadsheet whose repeated value carries the fatal
+    character and <b>reported its finding correctly</b>, and this machine&rsquo;s real scheduled-task
+    output measures <b>36,631 bytes with zero non-ASCII in it</b>.</p>
+    <p class="proof"><b>So five were recorded as latent rather than edited.</b> Blanket-fixing them
+    would have claimed five repairs for one measured defect, on a tool with two installed copies
+    where an unproven change has real blast radius. <b>Predicting them wrong is the useful part</b>
+    &mdash; the rule for where to look next is now written down, and it is narrower and more
+    actionable than &ldquo;audit every one of these&rdquo;.</p>
+    <p class="proof"><b>CORRECTION, made minutes after this entry first published.</b> It said
+    <em>&ldquo;It is public&rdquo;</em> and wore a <em>public repo</em> chip. <b>It is not.</b>
+    Ten repositories are public &mdash; the website, the resource directory, and eight of the
+    tools &mdash; and this is not one of them; it has no remote at all. I asserted it from memory
+    instead of asking, which is the precise failure this log is written against, committed inside
+    an entry about checking rather than assuming. Edited rather than left standing, and the
+    severity is corrected with it: this is a tool handed to one reader, not an artifact strangers
+    can run. The defect and the fix are unchanged; only my claim about the audience was wrong.</p>
+    <p class="where">dev 0283d75 &middot; believe 10 &rarr; 11 tests, the new one proven red by reverting the fix &middot; the generated report believe rewrote while being probed was restored rather than left dirty in a tree several sessions write to</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 28</div>
+  <div>
+    <p class="name">The thing that reports every failure could quietly drop a passing suite out of its own headline
+      <span class="chip live">fixed</span><span class="chip">green suite, 0 tests counted</span><span class="chip">11 &rarr; 16 controls</span><span class="chip">2 fixes, on purpose</span></p>
+    <p class="what"><b>The nightly sweep runs every test suite in the workspace and is the only
+    thing guarding 720 tests.</b> It read each suite&rsquo;s output without naming a character
+    encoding &mdash; a trap already written down in this workspace&rsquo;s own notes, sitting in
+    the one file whose entire job is telling you when something failed.</p>
+    <p class="proof"><b>The recorded version of that trap is the harmless one.</b> It is written
+    down as producing garbled text. It does not: the Windows character set has <em>no mapping at
+    all</em> for one of the bytes in an ordinary curly quote, so instead of garbling it <b>throws
+    &mdash; inside a background thread that never reports back</b>. The call returns perfectly
+    normally, with the output missing entirely, and the usual defensive idiom turns that silence
+    into an empty string.</p>
+    <p class="proof"><b>Measured on a probe rather than reasoned about, and the direction is the
+    bad one.</b> A suite that <em>passed</em>, whose summary line happened to contain a curly
+    quote, was reported <b>ok</b> &mdash; while contributing <b>zero of its tests</b> to the
+    headline count and showing the reader the words &ldquo;no output&rdquo;. A failing one would
+    have had those same two words as its entire diagnostic. <b>That is the silent-skip failure
+    this file&rsquo;s own documentation is written against, happening inside the file.</b></p>
+    <p class="proof"><b>Two fixes, deliberately overlapping.</b> The encoding is now named, and
+    tolerant rather than strict &mdash; a reporter that refuses to run on an odd byte is a reporter
+    that has stopped reporting. And separately, <b>a suite that produces no readable output at all
+    is refused as green outright</b>, because a silent pass and a swallowed one must never look the
+    same. So even if the first fix were reverted tomorrow, the miscount surfaces as a loud failure
+    instead of a quiet zero &mdash; which is exactly what happened when it was reverted to test it.</p>
+    <p class="proof"><b>Five new controls, and the control harness had the same bug.</b> Its own
+    output reader would have died on the very bytes the new case plants, so it was fixed too.
+    Reverting the encoding reddens exactly three of the five, with the file confirmed to still
+    parse so a red result is behaviour rather than a broken script.</p>
+    <p class="proof"><b>One of my own new assertions was worthless and I nearly kept it.</b> It
+    checked for the absence of a phrase the fix had reworded &mdash; so it passed with the bug
+    present and with the bug absent, testing nothing at all. Caught by running the controls against
+    the broken version rather than only against the fixed one, which is the whole discipline in one
+    step. Rewritten until it actually discriminates.</p>
+    <p class="where">dev 3856e66 + 9849c9d &middot; sweep unchanged at 20 suites, 720 tests, 0 red &middot; the trap in the workspace notes now says it RAISES rather than garbles, because the gentler version is what let it sit here</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 28</div>
   <div>
