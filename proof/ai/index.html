@@ -225,6 +225,123 @@ td{border-top:1px solid #E4DFD1;padding:.5rem .6rem;vertical-align:top}
 margin:1.3rem 0}
 .box.hard{border-left:4px solid #B4452C}
 
+:root{
+  --ground:#EFF1F4; --card:#FFFFFF; --well:#F7F8FA;
+  --ink:#14181F; --mut:#5A6472; --line:#DDE1E7; --line-2:#C3CAD4;
+  --accent:#1B4D8F;
+  --bad:#A8324A; --warn:#B0741E; --good:#2E6B4F; --idle:#7C8698;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1116; --card:#161B22; --well:#1B2129;
+    --ink:#E6EAF0; --mut:#98A2B3; --line:#252C36; --line-2:#39424F;
+    --accent:#6FA8F5;
+    --bad:#E8798F; --warn:#E3A94A; --good:#5FBF92; --idle:#7C8698;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1116; --card:#161B22; --well:#1B2129;
+  --ink:#E6EAF0; --mut:#98A2B3; --line:#252C36; --line-2:#39424F;
+  --accent:#6FA8F5;
+  --bad:#E8798F; --warn:#E3A94A; --good:#5FBF92; --idle:#7C8698;
+}
+
+*{box-sizing:border-box}
+.ai-report{
+  margin:0; background:var(--ground); color:var(--ink);
+  font:15.5px/1.6 var(--sans); -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:60rem;margin:0 auto;padding:2.6rem 1.3rem 4.5rem}
+
+/* ---- masthead: what this tool is, in the tool's own words ---- */
+header.rs{margin-bottom:1.5rem}
+.rs-tool{
+  font-family:var(--mono); font-size:.74rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--accent); font-weight:600;
+}
+h1{font-size:1.6rem;line-height:1.2;letter-spacing:-.015em;margin:.3rem 0 .35rem;text-wrap:balance}
+.rs-asks{color:var(--mut);margin:0;max-width:44rem;text-wrap:pretty}
+.rs-when{font-family:var(--mono);font-size:.74rem;color:var(--mut);margin-top:.7rem}
+
+/* ---- the verdict band: the answer, before any detail ---- */
+.rs-verdict{
+  display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;
+  border:1px solid var(--line-2); border-left-width:4px; border-radius:.5rem;
+  background:var(--card); padding:.9rem 1.1rem; margin:1.4rem 0 1.8rem;
+}
+.rs-verdict .tag{
+  font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.rs-verdict .say{font-size:1.02rem}
+.rs-verdict.ok{border-left-color:var(--good)}   .rs-verdict.ok .tag{color:var(--good)}
+.rs-verdict.bad{border-left-color:var(--bad)}   .rs-verdict.bad .tag{color:var(--bad)}
+.rs-verdict.warn{border-left-color:var(--warn)} .rs-verdict.warn .tag{color:var(--warn)}
+.rs-verdict.idle{border-left-color:var(--idle)} .rs-verdict.idle .tag{color:var(--idle)}
+
+/* ---- counts ---- */
+.rs-stats{display:flex;gap:.5rem;flex-wrap:wrap;margin:0 0 1.8rem}
+.rs-stat{border:1px solid var(--line);border-radius:.55rem;background:var(--card);padding:.5rem .8rem}
+.rs-stat b{display:block;font-family:var(--mono);font-size:1.3rem;line-height:1.15;
+  font-variant-numeric:tabular-nums}
+.rs-stat span{font-size:.66rem;color:var(--mut);text-transform:uppercase;letter-spacing:.08em}
+.rs-stat.bad b{color:var(--bad)} .rs-stat.good b{color:var(--good)} .rs-stat.warn b{color:var(--warn)}
+
+h2{font-size:.76rem;text-transform:uppercase;letter-spacing:.11em;color:var(--mut);
+  font-weight:600;margin:2.4rem 0 .5rem;padding-bottom:.45rem;border-bottom:1px solid var(--line)}
+
+/* ---- wide content scrolls in its own box, never the page ---- */
+.rs-tw{overflow-x:auto;border:1px solid var(--line);border-radius:.5rem;margin:.9rem 0}
+table{border-collapse:collapse;width:100%;min-width:30rem;font-size:.9rem}
+th{text-align:left;font-size:.66rem;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--mut);font-weight:600;padding:.6rem .8rem;background:var(--well);
+  border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:.55rem .8rem;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.m,.m{font-family:var(--mono);font-size:.84em;color:var(--mut);white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.bad{color:var(--bad);font-weight:600} .warn{color:var(--warn);font-weight:600}
+.ok{color:var(--good);font-weight:600} .idle{color:var(--idle)}
+
+.rs-box{border:1px solid var(--line);background:var(--card);border-radius:.55rem;
+  padding:.95rem 1.15rem;margin:1.1rem 0}
+.rs-box.hard{border-left:4px solid var(--bad)}
+
+code,pre{font-family:var(--mono)}
+pre{background:var(--well);border:1px solid var(--line);border-radius:.5rem;
+  padding:.9rem 1rem;overflow-x:auto;font-size:.84rem;line-height:1.55}
+
+/* ---- the blind spot: on the artifact, not only in the README ---- */
+footer.rs{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);
+  color:var(--mut);font-size:.85rem}
+footer.rs .lbl{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--mut);display:block;margin-bottom:.25rem}
+footer.rs .blind{color:var(--ink);margin:0 0 .8rem;max-width:46rem;text-wrap:pretty}
+
+/* ---------------------------------------------------------------------
+   TRANSITION LAYER -- the class names the six tools already emit, mapped
+   onto the tokens above. This exists so a tool can adopt the shared look by
+   swapping ONE constant, without restructuring HTML that a scheduled job
+   depends on tonight. Six report generators rewritten in one pass is how you
+   break the nightly audit and the flatline audit in the same evening.
+
+   It is a shim, and shims rot: as each tool moves to page()/verdict()/
+   stat_row() its aliases here should go. test_report_shell.py asserts this
+   block still styles every legacy class any tool still emits, so it cannot
+   silently stop covering one.
+   --------------------------------------------------------------------- */
+.sub{color:var(--mut);margin:0 0 1.3rem;font-size:.94rem;max-width:46rem;text-wrap:pretty}
+.tot{display:flex;gap:.5rem;flex-wrap:wrap;margin:1.2rem 0 1.6rem}
+.t{border:1px solid var(--line);border-radius:.55rem;background:var(--card);padding:.5rem .8rem}
+.t b{display:block;font-family:var(--mono);font-size:1.3rem;line-height:1.15;
+  font-variant-numeric:tabular-nums}
+.t span{font-size:.66rem;color:var(--mut);text-transform:uppercase;letter-spacing:.08em}
+.box{border:1px solid var(--line);background:var(--card);border-radius:.55rem;
+  padding:.95rem 1.15rem;margin:1.2rem 0}
+.box.hard{border-left:4px solid var(--bad)}
+
 .ai-report{max-width:none;padding:0;margin:0;background:none}
 .ai-intro{color:var(--ink-soft);max-width:42rem;margin:.2rem 0 1rem}
 .pe{border:1px solid var(--line);border-left:4px solid var(--accent,var(--green,#1E7A47));
@@ -277,7 +394,7 @@ removed later without the chain showing it.</p>
 <div class="ai-report">
 <h1>What our AI did &mdash; Automated Workflow</h1>
 <p class="sub">Every action taken by an automated model, what it was allowed to read, who signed
-it off, and how it turned out. Generated 2026-08-29T18:19:12 from a
+it off, and how it turned out. Generated 2026-08-30T04:41:07 from a
 signed, hash-chained ledger.</p>
 
 <div class="tot">
