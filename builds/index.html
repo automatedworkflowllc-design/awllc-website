@@ -76,6 +76,32 @@
   .btn-primary:hover{ background:#000; color:var(--paper); transform:translateY(-2px); }
   .btn-ghost{ background:transparent; color:var(--ink); border-color:var(--line-strong); }
   .btn-ghost:hover{ border-color:var(--ink); transform:translateY(-2px); }
+  /* A .btn carrying no colour modifier gets NO background and a TRANSPARENT border from the base
+     rule above - full button geometry, pill radius, padding, weight, and nothing you can see the
+     edge of. 24 of them shipped that way, and they were counted in the DOM rather than by grep
+     because the halves differ. 20 are present at load - 13 <a>, which render as bare text that
+     merely happens to be bold and well spaced, and 7 <button>, of which 18-of-20 computed fully
+     transparent while 2 fell back to the browser's grey box: unstyled, but at least visible.
+     THE OTHER 4 ARE THE WORST OF THEM and no static read of these pages would ever show them:
+     they are injected by script AFTER a successful analysis - the "Email these numbers to Colin"
+     link on four of the free tools. That is the conversion step, invisible at the one moment the
+     visitor has just been given a reason to press it.
+     Every automated gate passed all 24: nothing in _qa/ asks whether a control looks like a
+     control, which is why this is now also a push gate.
+     Fixed here rather than at 24 call sites because "which of these should be filled" is a
+     per-page design judgement nothing forces today, and because 13 of the 15 pages are generated,
+     so a markup fix means editing 13 builders. Ghost is the conservative default: visible, and
+     lighter than four filled buttons stacked down one tool page. It mirrors .btn-ghost in all
+     three properties deliberately - the background:transparent is not redundant, it is what
+     removes the browser's grey from those 7 buttons, which a border-only fix leaves in place
+     (measured: an unmodified .btn on a <button> computes rgb(240,240,240) until this line).
+     SCOPE, measured rather than assumed: this is a defect of THIS palette only. /almanac/ and
+     /redline/ are self-contained on _brand/tokens.py, where an unmodified .btn IS the filled
+     primary (background:var(--ink)) and .btn.ghost is the secondary - their 3 are correct as
+     written, and this rule cannot reach them anyway. Do not "fix" them to match.
+     :not() keeps it off any explicit .btn-primary / .btn-ghost / .btn-green / .btn-halo. */
+  .btn:not([class*="btn-"]){ background:transparent; color:var(--ink); border-color:var(--line-strong); }
+  .btn:not([class*="btn-"]):hover{ border-color:var(--ink); transform:translateY(-2px); }
   .hero-meta{ margin:1.5rem 0 0; font-family:var(--mono); font-size:.74rem; letter-spacing:.02em; color:var(--ink-faint); }
   .hero-meta b{ color:var(--ink); font-weight:600; }
 
@@ -200,7 +226,7 @@ padding-left:.6rem}
    "what do I need" without reading prose. Inline spans ran together once the
    text wrapped, which defeated the point. */
 .bd-use{display:grid;grid-template-columns:auto 1fr;gap:.12rem .7rem;margin:0 0 .7rem;
-padding:.55rem .7rem;background:var(--bg-soft);border-radius:.45rem;
+padding:.55rem .7rem;background:var(--bg-soft,var(--well,#ECE8DB));border-radius:.45rem;
 font-size:.78rem;line-height:1.45;color:var(--ink-soft)}
 .bd-use dt{font-family:var(--mono,monospace);font-size:.6rem;letter-spacing:.09em;
 text-transform:uppercase;color:var(--line-strong);padding-top:.18rem}
@@ -210,13 +236,13 @@ text-transform:uppercase;color:var(--line-strong);padding-top:.18rem}
 border-radius:.3rem;padding:.12rem .42rem;color:var(--ink-soft)}
 .bd-tag.live{border-color:var(--accent,var(--green,#1E7A47));color:var(--accent,var(--green,#1E7A47))}
 .bd-note{margin:2.2rem 0 0;padding:1.1rem 1.2rem;border:1px solid var(--line);border-radius:12px;
-background:var(--bg-soft);font-size:.9rem;color:var(--ink-soft)}
+background:var(--bg-soft,var(--well,#ECE8DB));font-size:.9rem;color:var(--ink-soft)}
 /* Ask box. This page is the LinkedIn landing target, and LinkedIn traffic is
    overwhelmingly mobile -- where a mailto: on a phone with no mail app
    configured does nothing at all and the visitor is simply lost. Same failure
    we fixed sitewide on 2026-08-03. A real field beats a link that may be inert. */
 .bd-ask{margin:2.2rem 0 0;padding:1.3rem 1.25rem;border:1px solid var(--line);border-radius:12px;
-background:var(--bg-soft)}
+background:var(--bg-soft,var(--well,#ECE8DB))}
 .bd-ask h2{margin:0 0 .3rem;font-size:1.12rem;letter-spacing:-.01em}
 .bd-ask .bd-asklede{margin:0 0 1rem;font-size:.9rem;color:var(--ink-soft);max-width:34rem}
 .bd-form{display:grid;gap:.75rem;max-width:30rem;margin:0}

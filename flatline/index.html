@@ -78,11 +78,16 @@
   .btn-ghost:hover{ border-color:var(--ink); transform:translateY(-2px); }
   /* A .btn carrying no colour modifier gets NO background and a TRANSPARENT border from the base
      rule above - full button geometry, pill radius, padding, weight, and nothing you can see the
-     edge of. 24 of them shipped that way. Measured, because the two halves fail differently:
-     17 are <a> and render as bare text that merely happens to be bold and well spaced; 7 are
-     <button> and fall back to the browser's own grey box, which is unstyled but at least visible.
-     The 17 were the call to action on 13 pages. Every automated gate passed all 24: nothing in
-     _qa/ asks whether a control looks like a control, which is why this is now also a push gate.
+     edge of. 24 of them shipped that way, and they were counted in the DOM rather than by grep
+     because the halves differ. 20 are present at load - 13 <a>, which render as bare text that
+     merely happens to be bold and well spaced, and 7 <button>, of which 18-of-20 computed fully
+     transparent while 2 fell back to the browser's grey box: unstyled, but at least visible.
+     THE OTHER 4 ARE THE WORST OF THEM and no static read of these pages would ever show them:
+     they are injected by script AFTER a successful analysis - the "Email these numbers to Colin"
+     link on four of the free tools. That is the conversion step, invisible at the one moment the
+     visitor has just been given a reason to press it.
+     Every automated gate passed all 24: nothing in _qa/ asks whether a control looks like a
+     control, which is why this is now also a push gate.
      Fixed here rather than at 24 call sites because "which of these should be filled" is a
      per-page design judgement nothing forces today, and because 13 of the 15 pages are generated,
      so a markup fix means editing 13 builders. Ghost is the conservative default: visible, and
@@ -215,12 +220,12 @@ padding:1rem 1.2rem;margin:1.6rem 0;max-width:42rem}
 .fl-use .fix{margin:0;font-size:.9rem;padding-left:.7rem;border-left:2px solid var(--line-strong)}
 .fl-use .fix b{font-family:var(--mono);font-size:.82rem}
 .fl-checks{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));margin:1.2rem 0 0}
-.fl-check{border:1px solid var(--line);border-radius:.6rem;padding:.8rem 1rem;background:var(--bg-soft)}
+.fl-check{border:1px solid var(--line);border-radius:.6rem;padding:.8rem 1rem;background:var(--bg-soft,var(--well,#ECE8DB))}
 .fl-check b{font-family:var(--mono);font-size:.9rem;display:block;margin-bottom:.2rem}
 .fl-check span{font-size:.88rem;color:var(--ink-soft)}
 .fl-caught{margin:1.2rem 0 0;padding-left:1.15rem;max-width:42rem}
 .fl-caught li{margin:.45rem 0}
-.fl-run{border:1px solid var(--line);border-radius:12px;background:var(--bg-soft);padding:1.3rem;margin:1.6rem 0 0}
+.fl-run{border:1px solid var(--line);border-radius:12px;background:var(--bg-soft,var(--well,#ECE8DB));padding:1.3rem;margin:1.6rem 0 0}
 .fl-run pre{font-family:var(--mono);font-size:.85rem;background:var(--card);border:1px solid var(--line);
 border-radius:.5rem;padding:.8rem 1rem;overflow-x:auto;margin:.6rem 0}
 .fl-cta{margin-top:2rem;padding:1.4rem;border:1px solid var(--line);border-radius:12px;background:var(--card)}
