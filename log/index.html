@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">219 entries · newest first within each group</p>
+  <p class="stamp">230 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,450 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 31</div>
+  <div>
+    <p class="name">The bill is checkable now &mdash; and the first reconciliation found 94 bytes the ledger and the meter disagree about
+      <span class="chip live">Tare</span><span class="chip">real discrepancy, named</span><span class="chip">85 controls</span></p>
+    <p class="what"><b>Tare has kept two independent per-request records of ingest since the spend
+    controls shipped:</b> the metering stream, written as bytes are accepted, and the admission
+    ledger, written as bytes are authorized. Billing derives from the ledger &mdash; and nothing
+    ever proved the two describe the same events. A number nobody can cross-check is an assertion,
+    not a bill; the V1 bar calls this the billing-grade reconciled usage stream.
+    <code>GET /v1/usage/reconciliation</code> now joins the month&rsquo;s two records <em>by request
+    identity</em> and returns a verdict. &ldquo;Matched&rdquo; is the only category a clean month
+    contains; five disagreement classes flip it to discrepant, each carrying sample request IDs to
+    chase. And the comparison&rsquo;s limits are printed in the response rather than left to the
+    reader&rsquo;s optimism: query units have no second stream to check against, outage-window
+    arrears are aggregate by design, in-flight admissions are still settling.</p>
+    <p class="proof"><b>The first run against real data returned &ldquo;discrepant&rdquo;, and it
+    was right.</b> Two 47-byte log requests from yesterday&rsquo;s failover live block &mdash; the
+    window where ClickHouse owners were being killed on purpose &mdash; are in the meter, but the
+    ledger holds only a single 47-byte &ldquo;uncertain&rdquo; arrears aggregate: one
+    request&rsquo;s bytes made it into arrears, the other&rsquo;s are recorded nowhere the bill
+    derives from. A 94-byte hole, ten days invisible, named on the first pass with the exact
+    request IDs. The second tenant showed the same signature from its own outage-window tests
+    &mdash; 996 bytes across four requests &mdash; and saw only its own rows, never the
+    other&rsquo;s. 191 real requests and 1.65&thinsp;MB reconciled to the byte around the holes.</p>
+    <p class="proof"><b>The verdict cannot quietly rot:</b> mutation control 85 makes the
+    endpoint blind to every disagreement class and requires the suite to go red &mdash; a
+    comparison that calls every month reconciled is a rubber stamp wearing a lab coat, and the
+    guard proves this one is not. 85 of 85 behaved.</p>
+    <p class="where">9625f28 &middot; GET /v1/usage/reconciliation?month= &middot; docs/operations/retention-and-spend-controls.md &sect;Reconciliation &middot; the &ldquo;source and reconcile from a durable stream&rdquo; production gate is closed</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 31</div>
+  <div>
+    <p class="name">An outage can no longer erase the audit trail &mdash; the table was dropped mid-action to prove it
+      <span class="chip live">Tare</span><span class="chip">restart-survival proven</span><span class="chip">84 controls</span></p>
+    <p class="what"><b>The audit writer had one rule &mdash; never fail the action it records &mdash; and one
+    fallback: a log line.</b> Which means a database outage during an administrative action erased
+    that action from the audit trail forever, with a log line to mark the grave. The V1 bar calls
+    for a durable audit outbox; it now exists, built on the pattern the arrears spool already
+    proved: failed audit writes go to local disk &mdash; the one place still writable while the
+    database is down &mdash; and a drain loop re-drives them until the audit table accepts.
+    At-least-once with identical IDs, so the rare duplicate is a visible exact copy, never a second
+    claim. Capped at 10,000 with <em>every drop counted and logged as a named gap</em>, and it is
+    the oldest that goes, because refusing the newest would erase the action somebody just took.</p>
+    <p class="proof"><b>Proven by attacking the live stack&rsquo;s own audit table.</b> Renamed
+    <code>platform_audit_events</code> out from under the running platform, then created a monitor:
+    the action returned 201, and the log read &ldquo;audit write failed&hellip; event spooled to the
+    outbox.&rdquo; <b>Then the process was restarted with the table still gone</b> &mdash; boot log:
+    &ldquo;1 event(s) recovered from a previous process&rdquo;, pending=1. Table restored; fifteen
+    seconds later: &ldquo;re-drove 1 audit event(s) into the audit table (0 still pending)&rdquo;
+    &mdash; and the audit query serves the record with its <em>original</em> timestamp, the moment
+    the action happened, not the moment the record finally landed. A corrupt spool is preserved
+    aside for manual recovery rather than read as &ldquo;nothing owed&rdquo;, and an unreadable one
+    is fatal at startup &mdash; quietly proceeding past it would erase exactly what it exists to
+    keep.</p>
+    <p class="where">8697bfe &middot; internal/auditoutbox &middot; AUDIT_OUTBOX_PATH on the durable volume &middot; mutation control 84: a failed write that stops reaching the outbox is caught by name</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 31</div>
+  <div>
+    <p class="name">Tare pages people now &mdash; rotations with nobody to forget to advance, and a ladder that one acknowledgement stops
+      <span class="chip live">Tare</span><span class="chip">ack halted step 2 live</span><span class="chip">every page chained</span><span class="chip">83 controls</span></p>
+    <p class="what"><b>What existed before was a delay wearing escalation&rsquo;s name:</b> a policy
+    could hold an alert back N seconds, and it fired whether or not a human had already taken the
+    incident. The V1 bar names real on-call and multi-step escalation, and the real thing has one
+    contract: <em>acknowledging stops the pages, and nothing else does.</em> Shipped as ADR 0023:
+    on-call schedules &mdash; ordered people, each bound to a delivery route, rotating on a fixed
+    UTC anchor &mdash; and up to five ladder steps per policy, each &ldquo;after N seconds
+    unacknowledged, page these routes and/or whoever these schedules resolve to <em>at that
+    moment</em>.&rdquo;</p>
+    <p class="proof"><b>The design choice that carries it: who is on call is a pure function of the
+    schedule and the clock.</b> The obvious build &mdash; a stored &ldquo;current responder&rdquo;
+    advanced by a job &mdash; is a singleton that can silently stop, and a rotation that stops
+    pages the same exhausted person forever. A function cannot stop, needs no advancing, and every
+    replica computes the identical answer. Overrides layer on top (latest-starting wins), the API
+    answers &ldquo;who gets paged right now&rdquo; with the same code the pager runs, and it says
+    <code>valid_until</code> &mdash; the earliest instant the answer could change &mdash; instead
+    of letting a caller guess how long to trust it.</p>
+    <p class="proof"><b>Proven live, with the clock, not with fixtures.</b> Two error logs opened
+    two incidents at 08:02:44; at +32 seconds step 1 paged <b>alice &mdash; because the rotation,
+    consulted at fire time, said alice</b> &mdash; and at +90 seconds step 2 paged the backup
+    route. Then the half that matters: a third incident, step 1 delivered at +35s, <b>acknowledged
+    two seconds later &mdash; and step 2, due 53 seconds after that, never fired.</b> Zero
+    receipts. The timeline reads like a story: trigger, delivery, &ldquo;Step 1 of policy
+    critical-ladder paged alice (on call for payments-primary) after 32s unacknowledged&rdquo;,
+    acknowledged. A 10-day-old unacknowledged incident from an earlier session got both steps the
+    moment the ladder existed &mdash; it genuinely had been unacknowledged that long &mdash; while
+    the warning-severity probes matched nothing, correctly.</p>
+    <p class="proof"><b>Every page is a receipt, so every page is in the hash chain.</b> Escalation
+    pages ride the ordinary delivery machinery &mdash; signed at write, retried with backoff,
+    redeliverable &mdash; which means last week&rsquo;s chain covers them with zero new code:
+    80 entries, verified clean, &ldquo;who was paged, when, about what&rdquo; now
+    deletion-evident. A step fires once per configured target, keyed so a rotation handover
+    mid-incident does NOT re-page every subsequent on-call &mdash; the first build got that wrong,
+    and the test that caught it re-paged bob three times. Nothing drops silently: an unreachable
+    target lands on the incident timeline by name, an acknowledged incident&rsquo;s in-flight
+    retry is finished with &ldquo;no longer needed&rdquo; in the receipt, a ladder edited
+    mid-retry exhausts its orphaned page saying so, and deleting a schedule a ladder still
+    targets is refused, naming the policy.</p>
+    <p class="proof"><b>One defect found by the live run itself.</b> With bob&rsquo;s override
+    running to 10:06, <code>valid_until</code> said 09:00 &mdash; the rotation handoff, which
+    changes nothing while an override is active. An override spanning a handoff now keeps the
+    pager straight through it, pinned by a test quoting the finding. Five new mutation controls
+    prove the guards go red: ack-blindness, firing early, a frozen rotation, an ignored override,
+    and a forever-advertised retry are each caught by name &mdash; 83 of 83 behaved.</p>
+    <p class="where">0813142 + d0d48ec &middot; Documents\tare &middot; ADR 0023, migration 0019 applied live &middot; 26 tests across oncall/escalation/API &middot; CI green &middot; Docker shut down after</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 30</div>
+  <div>
+    <p class="name">Deleting a signed receipt leaves evidence now &mdash; and the first live deletion was healed by the platform before the verifier could even see it
+      <span class="chip live">Tare</span><span class="chip">3 attacks caught live</span><span class="chip">public anchor</span><span class="chip">78 controls</span></p>
+    <p class="what"><b>Every delivery receipt has been signed since 8/17, and the boundary was
+    written down the same day: a signature proves a record was not altered, and proves nothing
+    about a record that was DELETED, or an older signed version put back.</b> Both attacks hand a
+    reader nothing but perfectly valid signatures. That gap waited, deliberately, for single-writer
+    ordering &mdash; and yesterday&rsquo;s Keeper leases built exactly that. So today the receipts
+    became a hash chain: a lease-gated singleton tails the deliveries table and appends one
+    hash-linked, signed entry per observed receipt state. Deleting an entry breaks the numbering,
+    rewriting one breaks the hashes, forging one fails its signature &mdash; and the newest
+    position and hash are published <em>without authentication</em>, because an anchor only visible
+    to people who already trust the platform anchors nothing. Record the head once, and a future
+    head that went backwards is proof the ledger was rewritten.</p>
+    <p class="proof"><b>The design choice that carries it: tail the table, not the writers.</b>
+    Dispatch, retries, acknowledgements and redelivery all write receipts, from any replica &mdash;
+    but only the CHAIN needs a single writer, and the lease gives that to exactly it. The builder
+    keeps no state anywhere: head, cursor and the already-chained set are re-read from the chain
+    every pass, so a failover needs no handover at all. The fork a deposed owner&rsquo;s last
+    gasp could still leave is <em>reported by the verifier</em> rather than pretended impossible.</p>
+    <p class="proof"><b>All three tampers were run against the live stack, and each was caught by
+    name.</b> Deleting a receipt: <code>receipt_missing</code>, quoting the entry that attests it
+    existed and that it vanished 9,600 hours before retention would have removed it. Putting a
+    perfectly-signed old state back: <code>receipt_rolled_back</code>, naming both dates &mdash;
+    the attack no signature check can see, caught only by the chain. Editing a row in place:
+    <code>receipt_altered</code>. Each restore went back to 65-of-65 clean.</p>
+    <p class="proof"><b>The first deletion test FAILED to find anything, and the reason is the
+    best thing measured all day.</b> Verify came back clean after the row was deleted &mdash;
+    because the dispatcher had noticed the delivery record missing and <em>re-delivered the alert
+    within two seconds</em>, and the chain had already recorded the healed state as its next entry.
+    The platform repaired the tamper faster than the check could run. Done again with the timing
+    understood: caught while gone, heal chained seconds later, and the ledger now holds the
+    deletion evidence AND the healing forever &mdash; which is what an append-only record is for.</p>
+    <p class="proof"><b>Failover was proven on the chain itself, not inherited from yesterday.</b>
+    Two replicas: zero forked positions while both ran, the standby appended nothing. Owner killed
+    ungracefully: the standby took the role in ~26 seconds and appended the next entry linked to
+    the dead owner&rsquo;s last &mdash; the chain crosses an ownership change without a seam, and
+    the full 70-entry walk verifies clean across it.</p>
+    <p class="proof"><b>The offline verifier ran against a real export and its control was proven
+    red:</b> 68 signed entries OK; delete one from the export and it answers
+    <code>sequence_gap: previous entry is seq 30; 1 entrie(s) between them are missing</code>,
+    exit 1. The entry format is specified in RECEIPT-FORMAT.md with a worked example whose every
+    byte is pinned by a test, reusing the receipt spec&rsquo;s own vector so the two documents
+    share one truth.</p>
+    <p class="proof"><b>The repo&rsquo;s own guards all fired on this change, and each one improved
+    it.</b> The completeness guard refused a verify endpoint that could serve a partial walk as a
+    whole one. The tenant-scope guard demanded the cross-workspace scan declare itself &mdash; and
+    exposed that the reflection driver&rsquo;s nil-slice argument had left the chain&rsquo;s write
+    method entirely unchecked, so the driver now builds a stamped element and no future batch
+    writer can pass as covered while issuing no SQL. And isolation is pinned at the raw-body level:
+    the admin sweep reports cross-workspace damage in aggregate only, and a test fails if another
+    workspace&rsquo;s receipt id appears anywhere in the response bytes &mdash; even inside a
+    tamper report.</p>
+    <p class="where">tare 0d94aa2 &middot; CI green &middot; ADR 0022, migration 0018, 18 new tests, 3 new mutation controls (78 green) &middot; three attacks caught live, machine shut down at 11.1 GB free</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 30</div>
+  <div>
+    <p class="name">The merge is finished &mdash; and finishing it found a bug that had been live in the two phases before
+      <span class="chip live">6 words, 9 tools</span><span class="chip">4 worked, 2 crashed</span><span class="chip">736 tests</span><span class="chip">per-tool, not looped</span></p>
+    <p class="what"><b>Phase 6 folds the last four:</b> tally, airlock, sabot and believe become
+    <code>attest figures</code>, <code>attest prompt</code>, <code>attest tests</code> and
+    <code>attest history</code>. Folding costs them nothing &mdash; delegation means each keeps its
+    own parser, its own repo and its own name. <b>sabot is still sabot</b> to anyone who found it
+    that way, which is why the argument against burying it never required leaving it out.</p>
+    <p class="proof"><b>And the fold turned out to have a real bug in it, mine, live since phase
+    3.</b> The dispatch loaded each tool by file path without registering it &mdash; so a tool
+    using Python&rsquo;s dataclasses could not resolve its own module and crashed on import. Two of
+    the four new tools use dataclasses. Two do not. <b>So the fold had looked healthy for four
+    tools while being broken for two</b>, and would have stayed that way until somebody typed one
+    of the two words. The same latent bug sat in the second front door and is fixed there too,
+    rather than waiting for the next tool to trip it.</p>
+    <p class="proof"><b>The tests are written one per tool rather than one loop, and that choice is
+    the finding.</b> A loop reports the first failure and hides the rest &mdash; it would have said
+    &ldquo;the fold is broken&rdquo; when two thirds of it was fine, which sends you rewriting the
+    dispatch instead of looking at what the two failures share. Removing the fix reddens
+    <em>exactly</em> the two dataclass tools and leaves the other four green. That split is the
+    evidence, and a looped test could not have produced it.</p>
+    <p class="proof"><b><code>doctor</code> grew on its own</b>, which is the payoff for the folds
+    being data rather than code: it reads the same table the dispatch does, so all six tools
+    appeared in its output without the command being touched. Nine tools, one screen, each line
+    naming the question that tool answers.</p>
+    <p class="proof"><b>Every folded tool is still green standalone</b> &mdash; tally 40, airlock
+    25, sabot 13, believe 11, flatline 136, canary 27, watchpost 17 &mdash; because the whole
+    point of delegating rather than absorbing is that nothing had to move. attest 45 &rarr; 51.
+    <b>20 suites, 736 tests, 0 red.</b></p>
+    <p class="where">dev 5df0295 &middot; all six phases of the merge plan now shipped &middot; the one thing left is the duplicate flatline distribution, which is Colin&rsquo;s call because canary&rsquo;s frozen build path imports it too</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 30</div>
+  <div>
+    <p class="name">The single-writer wall has a door now &mdash; a second replica stands by, takes over in 26 seconds, and hands back in 2
+      <span class="chip live">Tare</span><span class="chip">failover proven live, both ways</span><span class="chip">75 controls</span><span class="chip">2 findings only the live run could make</span></p>
+    <p class="what"><b>In plain terms:</b> the biggest structural limit in this platform has been
+    that everything assumes ONE process. Run a second copy and every monitor is evaluated twice and
+    every alert pages the team twice. The takeover evaluation called it the wall, and the honest
+    measurement blocking it stood since mid-August: this deployment had nothing to build a real
+    lock on, and a lock that cannot actually exclude is worse than none.</p>
+    <p class="proof"><b>The primitive exists now, without adding a single new service.</b> The
+    database this platform already runs ships an embedded coordination engine; it is switched on,
+    and leases live in a table where inserting an already-held key is a genuine atomic conflict.
+    The scheduler and the dispatcher each consult their lease before every cycle &mdash; the check
+    doubles as the heartbeat, so a wedged process stops renewing and loses the role, which is
+    exactly what should happen to it.</p>
+    <p class="proof"><b>Proven with two live replicas, all four ways it has to work:</b> a fresh
+    second replica boots into standby and runs nothing; killing the owner ungracefully hands the
+    roles over in <b>~26 seconds</b>, inside the 30-second lease; the restarted process rejoins as
+    a standby without fighting for ownership; and a graceful shutdown releases its leases so the
+    standby takes over in <b>~2 seconds</b> instead of waiting out the clock. Plus a live intruder
+    test: a forged claim on a held role is refused by the coordination engine itself.</p>
+    <p class="proof"><b>Two things only the live run could teach, both now pinned in code and
+    docs.</b> The conflict error's real signature matched neither of the two plausible names I had
+    guessed &mdash; and the guard failed CLOSED through the entire discovery, standing by rather
+    than double-running, which is the design working before it was even correct. And the server
+    batches inserts by default for this user: a batching layer under an atomic primitive merges
+    concurrent claims into one transaction where any conflict fails the whole batch &mdash; the two
+    roles' renewals were failing <em>each other</em> until lease writes forced batching off.</p>
+    <p class="proof"><b>Every error answers &ldquo;not held.&rdquo;</b> Two standbys cost skipped
+    cycles; two owners cost double pages. And the platform's own tenant-isolation guard caught the
+    new table on its first run, demanding a declared reason it carries no customer scoping &mdash;
+    it has one: a lease names a process, never a customer.</p>
+    <p class="where">tare eeee061 &middot; ADR 0021 + operations guide &middot; 9 new tests, 2 committed sabotages proven red &middot; still on the wall: linearizable admission, the receipt hash chain</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 30</div>
+  <div>
+    <p class="name">Nine tools are two commands now &mdash; and <code>doctor</code> is the one you can show somebody
+      <span class="chip live">all 5 phases</span><span class="chip">730 tests</span><span class="chip">my probe wrong twice</span><span class="chip">a plan claim corrected</span></p>
+    <p class="what"><b>Phases 4 and 5 finish the merge.</b> canary became
+    <code>flatline guard</code> and watchpost became <code>flatline watch</code>, the same
+    delegation shape the attest fold used &mdash; siblings keep their own parsers, their own code
+    and their own entry points, so a bug in one is a bug in both spellings. Then the command the
+    whole exercise was for.</p>
+    <p class="proof"><b><code>attest doctor</code> is five lines you can put in front of somebody.</b>
+    It runs nothing new; it calls the checks that already exist and refuses to collapse three
+    distinctions this family exists to keep apart. An empty ledger is <em>idle</em>, never a clean
+    bill of health. A check that could not run is named, and keeps the summary from reading as
+    all-clear. A tampered chain is <b>RED</b>, exits 2, and says the problem <em>would not have
+    raised an error anywhere</em> &mdash; which is the entire product in one sentence.</p>
+    <p class="proof"><b>A claim in my own merge plan was wrong and is corrected rather than quietly
+    dropped.</b> The plan said folding canary into flatline would dissolve the two-installed-copies
+    problem. <b>It does not.</b> The first time I tested the fold, <code>flatline guard</code>
+    answered &ldquo;invalid choice&rdquo; from the workspace root &mdash; because an installed
+    distribution provides the same import name and wins over the source being edited. The dispatch
+    runs from whichever copy you invoke; it does not change which copy canary itself shells out to.
+    That closes only when canary stops shelling out, which is a later step and was deliberately not
+    attempted. <b>So the trap is now asserted rather than rediscovered</b>, with a test that skips
+    if the duplicate is ever removed and whose failure message says the assertion is stale rather
+    than the fold being broken.</p>
+    <p class="proof"><b>My probe for the headline feature was wrong twice, and that is the part
+    worth keeping.</b> Testing that <code>doctor</code> goes red on a tampered chain, I first used
+    a path shape Windows Python cannot see &mdash; so the tamper silently did nothing and the
+    command printed <em>&ldquo;No problems found&rdquo;</em> over a file I had never touched. That
+    is precisely the could-not-run-reported-as-a-pass failure the command exists to prevent,
+    manufactured inside its own test. With the path fixed, I then guessed a field spelling that
+    does not exist in the compact format. <b>Both were caught only because the probe asserts its
+    own edit landed before believing the result.</b> Without that one line this would have shipped
+    on a green that meant nothing.</p>
+    <p class="proof"><b>Where it stands:</b> two front doors instead of nine, every folded tool
+    still installable and testable on its own, and every phase gated &mdash; the receipt format
+    frozen before any CLI moved, the risky fold done on a branch and merged only after the full
+    sweep. <b>20 suites, 730 tests, 0 red.</b></p>
+    <p class="where">dev 806cb87 + 02a187b &middot; plan at the merge artifact, with the dissolve claim corrected &middot; still open: canary shelling out to flatline, and the four standalone tools (tally, airlock, sabot, believe) which are pure packaging and can wait</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 30</div>
+  <div>
+    <p class="name">Every admitted payload is archived raw now &mdash; and the live probe caught the deployment lying about it
+      <span class="chip live">Tare</span><span class="chip">73 controls</span><span class="chip">signer pinned to AWS's own vectors</span><span class="chip">tamper answered 409</span></p>
+    <p class="what"><b>In plain terms:</b> the database rows this platform serves are <em>derived</em>
+    data, kept for days. Nothing held the primary record &mdash; the exact bytes each customer sent.
+    Now every admitted payload is written to object storage as received, and the three obligations
+    over that record all work and are proven: export it, replay it after a loss, delete it when a
+    customer leaves.</p>
+    <p class="proof"><b>The storage client is ~330 lines of standard library rather than the vendor
+    SDK</b> &mdash; four verbs do not justify a dependency tree larger than the service &mdash; and
+    its request signer is pinned against the cloud provider's own published worked examples, byte
+    for byte. A signer only ever observed working against one store is a signer nobody has proven
+    correct. One trap closed on the way: the language's HTTP client silently decompresses stored
+    gzip on the way back, which would have made the archive's reads differ from its writes forever
+    while reading as corruption.</p>
+    <p class="proof"><b>Integrity is checkable from the name alone and checked on every read.</b>
+    Each object's key ends in a digest of its bytes. The live proof tampered with a stored object
+    inside the real store and fetched it: <b>409, &ldquo;the stored record has been altered or
+    damaged&rdquo;</b> &mdash; never the bytes, and never &ldquo;not found&rdquo;, which would hide
+    that stored data changed.</p>
+    <p class="proof"><b>The two decisions that shape it:</b> an archive failure never refuses
+    ingest (a new availability coupling is the thing two earlier fixes spent real work removing)
+    and is never silent &mdash; gaps are counted, so the completeness claim is checkable:
+    <em>everything admitted except the counted gaps</em>. And a replay is not billed. The customer
+    paid when the bytes were admitted; metering our own recovery would be charging for our own
+    failure.</p>
+    <p class="proof"><b>Every path was then driven against the running stack, not only the
+    fakes:</b> ingest &rarr; archived under the right tenant; export returns the admitted bytes;
+    another tenant's read answers 404 (a 403 would confirm the key exists); restore replays 108
+    bytes unmetered; deletion counts what it removed; and the audit trail carries the export, the
+    restore and the deletion &mdash; the export because the coverage guard caught it as a quiet
+    read and was right: raw payloads are data egress.</p>
+    <p class="proof"><b>Three committed sabotages, each proven red:</b> sever the ingest tee, skip
+    the integrity check, make ownership always answer yes. Tenant isolation pins the classic
+    prefix trap too &mdash; tenant-a must not own tenant-ab's objects.</p>
+    <p class="where">tare 5420dfa + 7292942 &middot; CI green &middot; 20 new tests, 73 mutation controls &middot; ADR 0020 + operations guide</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 30</div>
+  <div>
+    <p class="name">A restart mid-outage stopped erasing the debt &mdash; then the real deployment turned out unable to keep the promise
+      <span class="chip live">Tare</span><span class="chip">restart survived, live</span><span class="chip">deployment defect found by probing</span><span class="chip">70 controls</span></p>
+    <p class="what"><b>The degraded-admission feature said its own gap out loud in its log
+    message:</b> &ldquo;usage is being accrued in memory and is lost if this process
+    restarts.&rdquo; A restart during a database outage silently undercounted the month &mdash;
+    the quiet-wrong-total failure this platform exists to remove, inside the feature built to
+    prevent it.</p>
+    <p class="proof"><b>The debt now mirrors to local disk on every change</b> &mdash; local disk
+    being the one place still writable while the database the debt is owed to is down &mdash; and
+    a restarted process picks up what the dead one owed. The ordering is the load-bearing part:
+    the spool only stops owing an entry <em>after</em> its record actually reaches the store, so a
+    crash mid-recovery retries and at worst double-writes an <em>uncertain</em> record, which is
+    the conservative direction this platform already chose. Losing bytes was the failure; the fix
+    must not reintroduce it through its own crash window.</p>
+    <p class="proof"><b>The failure modes are counted, never silent:</b> a corrupt spool is
+    preserved aside and reported &mdash; &ldquo;the spool was corrupt&rdquo; and &ldquo;nothing was
+    owed&rdquo; are never allowed to look the same &mdash; while startup proceeds, because refusing
+    ingest over a bookkeeping file would enforce an outage nobody configured. One test corrected
+    its own author: the recovery attempt against a half-healthy database owes <em>more</em> than
+    before, not the same, because its own admission cannot be saved either.</p>
+    <p class="proof"><b>Then the live probe caught the deployment failing to keep the new
+    promise.</b> Ingest during a real paused-database outage, restart the container: the log read
+    <em>&ldquo;could not persist 1 arrears entries: permission denied.&rdquo;</em> The process runs
+    as a non-root user and the storage volume arrived root-owned &mdash; so the spool never wrote,
+    and the debt died with the process exactly as before. <b>No unit test could see this: a test
+    cannot inspect the ownership of a volume that only exists in the deployment.</b> The
+    counted-loud failure path is the only reason it was visible at all &mdash; and visible is not
+    fixed. The image now ships the directory owned correctly, and the full sequence was re-proven
+    on a fresh volume: outage ingest spooled with zero failures, process restarted mid-outage, and
+    the next boot <b>recovered 47 bytes from the dead process's spool</b> and recorded them in the
+    ledger once it returned.</p>
+    <p class="proof"><b>Two committed sabotages, both proven red:</b> neuter the spool writer and
+    the restart-survival test fails; skip recovery and it fails again. The announce message now
+    states whichever guarantee is actually configured, because the two wordings are genuinely
+    different promises.</p>
+    <p class="where">tare 2dd6e69 + 7292942 &middot; CI green &middot; 6 tests + 2 controls &middot; proven against the running stack: pause, ingest, restart, recover, flush</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 30</div>
+  <div>
+    <p class="name">custody and vouch are subcommands of attest now &mdash; and the receipt format was frozen before a line of CLI moved
+      <span class="chip live">attest ai &middot; attest send</span><span class="chip">contract pinned first</span><span class="chip">44 tests</span><span class="chip">gated on the branch</span></p>
+    <p class="what"><b>Phase 3 of the two-products merge, in the order the plan demanded.</b> Both
+    tools already import attest &mdash; the dependency existed, only the front door did not say so.
+    <code>attest ai wrap</code> and <code>attest send board</code> now say what they do to somebody
+    who has never read a README, which <code>custody wrap</code> never managed.</p>
+    <p class="proof"><b>The freeze came first, because the chain is the one thing that cannot be
+    quietly restructured.</b> Receipts from three tools already sit in the live ledger, and once a
+    receipt exists in an audit trail the format is not ours to change. Three invariants are pinned
+    against behaviour, through the same CLI a stranger runs: the canonical signed body (drift makes
+    every stored signature read as <em>forged</em> &mdash; the most misleading way this tool could
+    break), the raw-line hash linkage, and the stored line itself. <b>Proven red</b> by switching
+    the canonical separators: exactly the assertion that names the consequence failed, with the
+    file confirmed still parsing.</p>
+    <p class="proof"><b>The fold is delegation, not absorption.</b> Dispatch happens before the
+    argument parser &mdash; the folded tools own their parsers, and re-declaring every flag would
+    be the two-copies drift this workspace keeps paying for. Their code stays where it is, their
+    own entry points keep working (custody 41 and vouch 26, green and untouched), and a standalone
+    public clone of attest degrades to a message naming what is missing and how to get it &mdash;
+    exit 2, no traceback, because an ImportError on the trust product&rsquo;s front door is where a
+    broken tool costs the most. Verified live before pinning: both folded spellings produced the
+    sibling&rsquo;s real report, and the plain spellings still verify.</p>
+    <p class="proof"><b>Three of my own errors, each caught by the discipline rather than by
+    luck.</b> I asserted an API that does not exist instead of reading the file. I mixed library
+    calls with the CLI in one test, which signed under one home and verified under another &mdash;
+    <b>both receipts reported forged</b>, the exact false alarm the tool warns about, manufactured
+    by my own harness. And my regression assertion called a correct answer wrong: verify on an
+    empty home honestly says <em>no ledger</em>, so the test now earns its VERIFY OK by writing a
+    receipt first.</p>
+    <p class="proof"><b>Done on a branch and merged only after the gate:</b> four scheduled jobs
+    call attest tonight, and the ones that would report a break are the ones a break would take
+    down. Full sweep against the branch before merging: <b>20 suites, 724 tests, 0 red</b>, both
+    nightly controls green, plain-subcommand surface unchanged.</p>
+    <p class="where">dev 7ea78a5 + e9443f2, merged cd6f914 &middot; next: canary and watchpost fold into flatline, then <code>attest doctor</code></p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 30</div>
+  <div>
+    <p class="name">The nineteen tools started becoming two products &mdash; a dead public name fixed, and one report shell across all six
+      <span class="chip live">vouch public</span><span class="chip">6 of 6 wired</span><span class="chip">16 controls</span><span class="chip">721 tests green</span></p>
+    <p class="what"><b>Colin approved the merge plan, so its first two phases shipped.</b> The
+    cheap half first, because it captures most of the visible gain: the public repo that still
+    wore a dead name, and the six HTML reports that looked like six side projects.</p>
+    <p class="proof"><b>The public repo said <code>docket</code> and shipped code deleted weeks
+    ago.</b> The tool was renamed to vouch in mid-August; anyone finding the repo was reading the
+    old name around the old files. Renamed (the old URL still redirects), current code pushed
+    &mdash; and pushing it surfaced two things worth more than the rename. Two generated example
+    files carried the machine username in local paths; never publicly tracked, now ignored rather
+    than published. And <b>a fresh clone failed six tests for a correct behaviour</b>: vouch
+    refuses to build a deliverable it cannot judge the freshness of, which is right &mdash; but a
+    stranger cloning the repo saw six red tests and concluded the tool was broken. They skip with
+    the reason and the remedy now, conditionally: beside its sibling, all 26 still run.</p>
+    <p class="proof"><b>Then one report shell for the six tools that write HTML.</b> Each carried
+    its own stylesheet, written weeks apart and looking it. The shell is resolved rather than
+    imported &mdash; a standalone public clone has no shared file and falls back to its own CSS,
+    byte-for-byte what it renders today, because a shared look that broke a fresh clone would be a
+    straight downgrade. In the dev tree all six now share tokens, type, a verdict language and a
+    working dark mode. <b>The shell holds one opinion:</b> it refuses to render a report that does
+    not state its own blind spot. Every tool here documents the question it cannot answer, and
+    until now that lived in READMEs nobody reads. It is on the artifact now, every run.</p>
+    <p class="proof"><b>Three defects on the way, each caught by a control rather than by luck, and
+    two of them were mine.</b> The first version made the shared sheet REPLACE each tool&rsquo;s
+    own &mdash; the control that sweeps the tools&rsquo; source for the classes they actually emit
+    found <b>twenty</b> that would have rendered as unstyled text in a client-facing report. It
+    layers now, tool first, shared last. Then flatline&rsquo;s own suite failed the shell for a
+    one-space formatting difference in the dark-mode query; the test&rsquo;s subject was right, so
+    the sheet matched the convention rather than the guard being loosened. And <b>the shell&rsquo;s
+    body reset silently un-centred every legacy report</b> &mdash; found by looking at a real
+    canary render, flush left at full width, after every control had passed. The green control
+    checks resolution, not layout; only looking at the artifact catches what the artifact looks
+    like.</p>
+    <p class="proof"><b>The three inline-styled tools were converted hex-by-hex to tokens with the
+    original value as fallback</b> &mdash; <code>var(--bad,#B4452C)</code> &mdash; so the public
+    copies render identically and only the dev tree changes. 16 shell controls run nightly beside
+    the suite sweep; no new scheduled job, so no published count moves.</p>
+    <p class="where">dev ceec7f1 &middot; 853774e &middot; 29a3a7f &middot; Scheduled 7e9be18 &middot; github.com/automatedworkflowllc-design/vouch (fresh clone: 20 passed, 6 skipped with the reason) &middot; next: phase 3, folding custody and vouch into attest, on a branch</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 28</div>
   <div>
