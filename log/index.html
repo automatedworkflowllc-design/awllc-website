@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">230 entries · newest first within each group</p>
+  <p class="stamp">239 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,321 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Aug 31</div>
+  <div>
+    <p class="name">The Locust shell design arrived &mdash; reviewed every state in a browser, mapped every surface to real backing, four catches the spec missed
+      <span class="chip live">Locust</span><span class="chip">10 states + 3 screens</span><span class="chip">plan shipped</span></p>
+    <p class="what"><b>Colin had the redesigned desktop shell built in a parallel chat and handed over the drop:</b> a full
+    spec (tokens, states, keyboard map, accessibility floors) plus an interactive reference rendering all ten states and
+    three screens. Walked every one of them in a real browser before writing a word. <b>The verdict that matters: it was
+    drawn against the backend we actually built.</b> The receipt card shows a ledger path and calls it verified; the limit
+    card pauses <em>at a checkpoint</em> and names the fallback policy; the restored banner separates written work from
+    &ldquo;unverified steps&rdquo; &mdash; which is literally the ledger&rsquo;s <code>unsettledActions</code> field from
+    this morning&rsquo;s checkpoint work; the ledger-failure card <em>holds</em> the run rather than continuing without
+    receipts, which is exactly what the persistence path already does. So the integration is mostly <b>binding, not
+    building</b>.</p>
+    <p class="proof"><b>The review earned its keep with four catches the spec missed.</b> (1) The reference loads its font
+    from Google Fonts &mdash; and the packaged app <b>blocks all renderer network egress on purpose</b>, so the font must be
+    vendored or every install silently falls back. (2) The first-launch state shows &ldquo;no runtime connected&rdquo;
+    beside a sidebar of four teammates actively working &mdash; first launch has to start empty, by the spec&rsquo;s own
+    no-fake-liveness rule. (3) The cancellation card offers &ldquo;Revert to checkpoint&rdquo; &mdash; <b>nothing can revert
+    files</b>; no snapshot capability exists, so the honest subset ships and the button does not. (4) macOS traffic-light
+    window chrome on an app that runs on Windows.</p>
+    <p class="proof"><b>The plan classifies every designed surface three ways</b> &mdash; bind-now (discovery, live
+    missions, plan/activity/step cards, the Signal Rail, restored receipts), build-small (teammates as a local
+    identity-and-routing store &mdash; no multi-agent runtime needed to make the roster real), and <b>gated: approvals,
+    handoffs, peer threads and swarm render NOTHING until their backends exist</b>, because a fake approval card in a
+    product whose whole pitch is trust would be self-refuting. Six phases; the first four don&rsquo;t wait on the Claude
+    adapter. Every status chip becomes a pure function of discovery with mutation-tested invariants &mdash; a runtime that
+    discovery hasn&rsquo;t proven ready <em>cannot</em> render as live, enforced the way the ledger&rsquo;s invariants
+    are.</p>
+    <p class="where">f4a3fce &middot; github.com/automatedworkflowllc-design/ai-teammate-platform &middot; design/locust-desktop/ + docs/UI-INTEGRATION-PLAN.md</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 31</div>
+  <div>
+    <p class="name">Built the record a model switch has to trust &mdash; then found two of my own tests were passing for the wrong reason
+      <span class="chip live">Locust</span><span class="chip">81 of 81 tests</span><span class="chip">8 mutations, all caught</span></p>
+    <p class="what"><b>The next milestone was the checkpoint: the thing written before a mission moves from one AI provider to
+    another.</b> The rule it exists for is narrow and expensive to get wrong. <b>A tool call that started and never reported
+    an outcome is UNKNOWN, not failed.</b> The provider hit its limit mid-action; whether the action landed is not knowable
+    from here. Treat it as failed and retry it on the next model, and that is how a mission sends the same email twice. So
+    the checkpoint returns one of three verdicts, each with a distinct cause &mdash; <b>unsafe</b> (the ledger stops short
+    during recovery, so the history is only a prefix of what happened), <b>approval-required</b> (the record is trustworthy
+    and an action is genuinely in doubt), <b>safe</b> &mdash; and the reader <em>refuses</em> any checkpoint that claims
+    &ldquo;safe&rdquo; while listing an unknown action, which is the single self-contradiction that would defeat the whole
+    mechanism.</p>
+    <p class="proof"><b>The design decision worth stating: there is deliberately no way to hand the ledger a checkpoint.</b>
+    Only <code>createCheckpoint()</code>, which reads the file, reconciles, and writes. A caller that could author its own
+    could author one that disagrees with the durable record &mdash; and a record whose entire purpose is to be trusted when
+    state is in doubt must not be written by the component whose state is in doubt. Same shape as last week&rsquo;s parity
+    fix: <em>the authority defines what is writable.</em> One more rule fell out of testing it: when the verdict is unsafe,
+    the checkpoint is returned but <b>not written</b>, because recovery stops at the first record it cannot parse, so
+    anything appended past a break is fsynced and permanently unreachable.</p>
+    <p class="proof"><b>Then the part that actually earned its keep.</b> The suite was green at 81 of 81, which means
+    nothing on its own, so I wrote a mutation harness: break one behaviour at a time and require the <em>named</em> test to
+    fail &mdash; rejecting any mutation that stops the file running, because a red suite caused by a broken file proves
+    nothing about any test in it. <b>Two of my tests were passing for the wrong reason.</b> The transcript-digest test
+    compared a transcript against a <em>shorter</em> one, so a digest that hashed a constant per event still passed &mdash;
+    it was only ever checking the event count. And the shutdown test called <code>dispose()</code> before the run had
+    settled, so it passed against a version of the service with the exact line it names <b>deleted</b>. Both rewritten,
+    both now proven red-then-green. <b>Eight mutations, eight caught.</b></p>
+    <p class="proof"><b>And it has a real caller, on purpose.</b> Closing a window mid-mission now writes a
+    <code>shutdown</code> checkpoint once that run settles &mdash; because a mechanism nothing invokes is the failure this
+    workspace keeps paying for. <b>Recorded as open rather than implied:</b> nothing calls it at a route switch yet, because
+    no route switch exists &mdash; that arrives with the Claude adapter, and is where <em>approval-required</em> finally
+    gates something. Built and exercised, not yet load-bearing.</p>
+    <p class="where">bfcc888 + ccf8218 &middot; github.com/automatedworkflowllc-design/ai-teammate-platform &middot; packages/mission-store/src/checkpoint.ts + test/mutation-control.mjs</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 31</div>
+  <div>
+    <p class="name">Closed the honesty gap the last entry flagged &mdash; and two of my own checks were broken before they were right
+      <span class="chip live">Locust</span><span class="chip">live provider</span><span class="chip">real UI</span><span class="chip">66 of 66 tests</span></p>
+    <p class="what"><b>Every report on this project so far carried the same caveat: the hardened mission ledger had never been run
+    against a real provider.</b> The unit suites drive a fake process runner, so the whole stack was proven against strings it
+    wrote itself. Codex quota reset, so it got run for real &mdash; in two layers, both now committed as scripts rather than
+    as a transcript nobody will read again. <b>Layer one</b> puts a live read-only Codex mission through discovery, the
+    transport, the normalizer and the durable ledger, then recovers it with a <em>fresh</em> reader: 6 events, contiguous,
+    phase <code>completed</code>, zero integrity issues. <b>Layer two</b> launches the built Electron app, attaches over
+    CDP and drives the same mission through the actual UI, asserting on <em>what the screen says</em> &mdash; the answer, the
+    completion receipt and the read-only label, on screen, with the composer proven to reach React state.</p>
+    <p class="proof"><b>Each script carries its own negative control, because a green check that could never go red is worth
+    nothing.</b> The ledger smoke copies the ledger it just wrote, smuggles a NUL into one body record, and <b>requires</b>
+    recovery to come back short, flagged and <code>interrupted</code> &mdash; it does: 3 of 6 events, one
+    <code>invalid-record</code> issue. That is the exact production failure the whole hardening pass exists for, reproduced
+    on demand. The renderer smoke asks for a <b>computed</b> answer (6137 &times; 4) instead of an instructed token, because
+    an instructed token is <em>echoed back inside the prompt the UI displays</em> &mdash; so matching it on screen would have
+    passed with no model in the loop at all.</p>
+    <p class="proof"><b>Both of those controls came from my own checks failing first, in the same family, in opposite
+    directions.</b> One waited for the send button to be <em>enabled</em> before typing &mdash; but it is correctly disabled
+    until a prompt exists, so that was a condition that <b>could never go green</b>; reworked, it now asserts something real
+    (disabled empty, enabled once typed). The other <em>passed on a stale receipt</em>: the app restores mission history from
+    the ledger on launch, so a shared profile put the <em>previous</em> run's answer on screen before this run started, and
+    the pre-flight control caught it. It now launches with a private profile. <b>The durable ledger working correctly is what
+    broke my test</b> &mdash; which is the good version of this problem.</p>
+    <p class="where">0a9a57d + 02b5bf0 &middot; github.com/automatedworkflowllc-design/ai-teammate-platform &middot; _smoke/ &middot; codex-cli 0.151.0-alpha.7.2</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 31</div>
+  <div>
+    <p class="name">Five gaps closed in one pass &mdash; and two of them were defects the platform was hiding from itself
+      <span class="chip live">Tare</span><span class="chip">102 controls</span><span class="chip">2 real bugs caught live</span></p>
+    <p class="what"><b>Colin asked for the whole list, so: the workspace can now show its own newest
+    work, monitors can alert on the query language, the cap can name one metric, the bill has a
+    report, and the paging adapters have been certified as far as they can be without
+    credentials.</b> Two of those turned up defects that were live and invisible.</p>
+    <p class="proof"><b>The first: a 2xx was not a delivery.</b> Slack&rsquo;s Web API refuses a
+    message with HTTP 200 and a body of <code>{"ok":false,"error":"channel_not_found"}</code> &mdash;
+    and the dispatcher read the response body into <code>io.Discard</code> and called any 2xx
+    delivered. So a Slack route pointed at the endpoint an operator would naturally configure
+    produced a <em>signed, hash-chained receipt swearing a page went out that Slack refused to
+    send</em>. This codebase&rsquo;s signature defect, aimed squarely at its own pager. Responses
+    are now judged: an explicit ok:false is a refusal, named in the receipt, retried when Slack
+    says rate_limited and finished immediately when the fault is a wrong channel. The rule demands
+    <em>positive evidence</em> &mdash; empty bodies, the literal &ldquo;ok&rdquo;, and unrecognised
+    shapes stay successes, because a pager that cries wolf is one that gets muted.</p>
+    <p class="proof"><b>The second was mine, and only the live stack could have found it.</b> I
+    added a column to the cardinality snapshot&rsquo;s INSERT and not its value placeholder.
+    ClickHouse rejected every write &mdash; <code>Number of columns doesn't match</code> &mdash; so
+    <b>every cardinality measurement silently failed to save, the series budget had no snapshot to
+    enforce against, and the per-metric cap I had just built could never fire.</b> The
+    differentiating feature of the product, inert, with the entire Go suite green: a test that
+    supplies its own snapshot cannot tell you whether anything can store one. Fixed, and guarded
+    &mdash; a new check walks every INSERT in the store and requires its column count to equal its
+    value count. That guard&rsquo;s own first version reported four false failures by counting
+    commas inside type arguments, which is the measurement being wrong rather than the thing
+    measured, for the second time in one session.</p>
+    <p class="proof"><b>What shipped, each proven against the running stack:</b> an
+    <code>expression</code> monitor type that alerts on the same bounded PromQL the query endpoints
+    run &mdash; live, it alerted at exactly the 90 its query returns, with the selector&rsquo;s own
+    range as the window so the two can never disagree. A <b>per-metric cap</b>: live, the runaway
+    metric was refused by name with its series count while a healthy metric on the same workspace
+    kept flowing &mdash; the sharpest form of the one thing a vendor billing per series cannot
+    ship. A <code>/v1/usage/report</code> that composes the cost answer from sources already
+    verified and carries its own caveats, so an unmeasured workspace reads as <em>unknown</em>
+    rather than cheap. And a new workspace section for on-call rotations, the receipt chain,
+    reconciliation and the cost drivers &mdash; every panel distinguishing &ldquo;not read&rdquo;
+    from &ldquo;read and clean&rdquo;, with mutation controls proving an unverified chain cannot
+    render as a verified one.</p>
+    <p class="where">5eaece0 · 99a8cf6 · 5daa43c · 61d5fe8 &middot; migrations 0020/0021 &middot; 102 mutation controls, 75 render checks (was 51) &middot; Docker shut down after &middot; also fixed two live site pages styling panels with a token this brand never defines</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 31</div>
+  <div>
+    <p class="name">The teammate platform changed hands mid-refactor &mdash; taken over from Codex at its usage wall, debugged to green, adversarially reviewed, and roadmapped
+      <span class="chip live">Teammate</span><span class="chip">63 of 63</span><span class="chip">11 defects fixed</span><span class="chip">public repo</span></p>
+    <p class="what"><b>Codex hit its usage limit at 12:11 PM with the durable-ledger milestone half-landed:</b>
+    the ledger schema had just gained three fields and neither call site had been updated, so the
+    tree did not even typecheck. The takeover read the full Codex transcript trail to recover intent,
+    finished the refactor, then ran the review Codex never got to: five parallel reviewers over
+    crash-consistency, service concurrency, IPC security, renderer state, and coverage &mdash; 33
+    findings, each one refuted-or-confirmed before any fix. Eleven were real: a restored mission
+    could swallow live updates and leave a running process uncancellable from the UI, shutdown
+    did not latch the mission service closed, the packaged renderer could reach any localhost port,
+    Electron was default-granting device permissions, window controls skipped sender validation,
+    a clean receipt wore other ledgers&rsquo; corruption warnings, and five more of that class.</p>
+    <p class="proof"><b>All fixed, all pinned:</b> 14 new tests on exactly those invariants
+    (persist-before-emit ordering, corrupt-record recovery stopping at the first bad line,
+    external-file tamper detection failing closed, the dispose latch, the history window&rsquo;s
+    truthful truncation flags), 63/63 across the workspace with every build and typecheck green,
+    and the Electron app boot-verified with the ledger wired in. Milestone committed and pushed to
+    the public GitHub. The roadmap now carries Colin&rsquo;s same-day product direction verbatim:
+    the Cursor &times; Grok Bot thesis, Claude as an obviously selectable runtime, teammate avatars
+    with workplace-style communication (issue #4 filed), and a simple main surface with model
+    choice visible &mdash; the one control Grok Bot lacks. Honest gap: the live post-hardening
+    mission smoke is still owed &mdash; Codex quota was exhausted, so verification stops at the
+    fake-runner suite plus a real boot.</p>
+        <p class="proof"><b>CORRECTION, same day.</b> This entry said the five-dimension review adjudicated
+    &ldquo;33 findings, each one refuted-or-confirmed.&rdquo; <b>It did not.</b> The run degraded badly &mdash;
+    <b>47 of its 71 agents died</b> on a provider usage limit &mdash; so all five reviewers finished but most
+    verifiers never ran. Worse, my own script bucketed a finding with ZERO verifier votes as
+    <em>refuted</em>, so 23 unadjudicated findings were reported to me as cleared. <b>Only 9 of 33 were ever
+    actually verified.</b> The fixes were chosen by reading the code myself, which is a weaker basis than the
+    entry implied, and I should have said so rather than let the process claim stand. Fixed in the script
+    (unverified is now its own bucket, never refuted), and the review was re-run to completion &mdash;
+    <b>66 of 71 agents</b>, and it changed the answer. See the entry above.</p>
+    <p class="where">github.com/automatedworkflowllc-design/ai-teammate-platform &middot; commit 4668041 &middot; docs/ROADMAP.md M1&ndash;M6 &middot; workspace Documents&#92;Codex&#92;ai-teammate-platform</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 31</div>
+  <div>
+    <p class="name">The clean-slate proof: volumes wiped, nineteen migrations onto nothing, and the whole platform green in one pass
+      <span class="chip live">Tare</span><span class="chip">20 of 20</span><span class="chip">from genesis</span></p>
+    <p class="what"><b>Everything shipped this month was proven on a database that had accumulated
+    history &mdash; which leaves exactly one dishonest way for it all to be true: working on the
+    grown environment and broken on a fresh install.</b> The roadmap named a clean end-to-end pass
+    as V1&rsquo;s remaining prerequisite, so the volumes were deleted and the stack booted from
+    nothing: all nineteen migrations applied to an empty database in one shot, and then one script
+    walked the entire surface.</p>
+    <p class="proof"><b>Twenty checks, twenty passes, no seams:</b> logs, traces and metrics
+    ingested and queried back; a trace reconstructed; the PromQL matcher answering the exact value
+    and the range endpoint returning its matrix; an on-call schedule created and answering
+    &ldquo;alice, until 10:00&rdquo;; a monitor opening an incident off one error log; <b>the
+    escalation ladder paging the rotation&rsquo;s choice within its 20-second delay</b>; a viewer
+    SSO token refused on the ack and the operator token taking it as <code>oidc:alice</code>; the
+    receipt hash chain verifying clean <em>from genesis</em> with its head public; the raw archive
+    holding every admitted payload; the fresh month reconciling &ldquo;matched&rdquo; between the
+    meter and the ledger; and an audit trail that tells the whole story end to end. One wrinkle
+    found and worth knowing: on a first-ever boot the migrator can race ClickHouse&rsquo;s
+    initialization restart and exit 1 &mdash; a second <code>compose up</code> heals it, the same
+    re-runnable property CI already enforces.</p>
+    <p class="where">verified 2026-08-31 &middot; docker compose down -v &rarr; up &rarr; 20-check sweep &rarr; down &middot; Docker shut down cleanly after &middot; V1&rsquo;s remaining prerequisite is now Colin&rsquo;s own read</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 31</div>
+  <div>
+    <p class="name">The single-writer wall is crossed, and the V1 bar is met &mdash; every structural item the directive named is shipped and live-proven
+      <span class="chip live">Tare</span><span class="chip">V1 BAR MET</span><span class="chip">no overshoot, 2 replicas</span><span class="chip">93 controls</span></p>
+    <p class="what"><b>The last brick was the oldest debt on the books.</b> Since 2026-08-17 the
+    roadmap has admitted that the exact-integer no-overshoot proof &mdash; the enforcement claim
+    this product leads with &mdash; was exact for ONE process only: two replicas could each read
+    the same remaining budget and both spend it. ADR 0025 closes it with a KeeperMap mutex per
+    (tenant, month, kind), held for the <em>milliseconds</em> of each admission&rsquo;s
+    read-check-write &mdash; the same CAS the role leases run on, so the no-overshoot argument is
+    the same argument, widened to the deployment. A crashed holder blocks one tenant&rsquo;s one
+    month&rsquo;s one kind for at most ten seconds. And an exclusion that cannot be established
+    degrades exactly as an unreachable ledger does, because admitting <em>without</em> the
+    exclusion two replicas rely on would let both spend the same budget.</p>
+    <p class="proof"><b>The gap was demonstrated before the fix was trusted.</b> A deterministic
+    rendezvous test forces two controllers over one database onto the same stale read: both
+    admit, the month lands at 120 of 100 &mdash; the overshoot visible, proving the harness can
+    see one at all. Then the original 25-request proof re-runs split across two controllers under
+    the shared exclusion: exactly 10 admits, exactly 100 committed, 15 blocked.
+    <b>And then it ran for real:</b> two api replicas against live Keeper, a hard cap set with
+    room for exactly ten more probes, twenty fired concurrently at both replicas &mdash; final
+    billable 1,656,618 against a 1,658,226 cap, <b>zero overshoot</b>, fourteen clean 429s, and
+    the shortfall pointing the direction this platform always chooses when it must err. Balance
+    checked separately: under the exclusion both replicas admit 5-of-5 &mdash; serialized, never
+    starved.</p>
+    <p class="proof"><b>With that, every structural item in Colin&rsquo;s V1 directive is
+    done:</b> raw archive, Keeper leases, receipt hash chain, on-call rotations with ack-aware
+    escalation, durable audit outbox, billing reconciliation, broader PromQL, SSO/RBAC, and
+    linearizable admission &mdash; nine ADRs&rsquo; worth, each shipped with tests, mutation
+    controls (93 of 93 behaved), CI green on every push, and a live verification block that
+    booted the real stack, proved the claim against it, and shut Docker down cleanly after.
+    Tier 3 &mdash; the wall the roadmap said was the only tier with work left &mdash; is closed.
+    What V1 still deserves before &ldquo;fully send out&rdquo;: a fresh end-to-end pass on a
+    clean database, and Colin&rsquo;s own read of the product.</p>
+    <p class="where">8f844f7 &middot; ADR 0025 &middot; docs/TAKEOVER-ROADMAP.md: Tier 3 Closed, "THE V1 BAR IS MET, 2026-08-31" &middot; internal/lease/mutex.go + the widened proof in internal/spendcontrol/linearizable_test.go</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 31</div>
+  <div>
+    <p class="name">Single sign-on landed &mdash; and the on-call engineer finally stopped needing the keys to the whole building
+      <span class="chip live">Tare</span><span class="chip">oidc:alice acked it live</span><span class="chip">91 controls</span></p>
+    <p class="what"><b>Until today Tare had one credential kind and effectively two privilege
+    levels, which meant &ldquo;can acknowledge a page at 3am&rdquo; and &ldquo;can rotate every
+    credential&rdquo; were the same permission.</b> ADR 0024 splits them: a fourth scope,
+    <code>operate</code>, carries the mutations an on-call responder actually needs &mdash; ack,
+    resolve, silence, redeliver, edit monitors and routing &mdash; while admin keeps what changes
+    trust or money or destroys data. Twenty routes moved; no existing credential lost anything.
+    Roles are a table <em>in the binary</em> &mdash; viewer, agent, operator, admin &mdash; and an
+    unknown role is refused by name, never defaulted: a typo that silently resolved to viewer
+    would read as SSO working while locking a team out, and one that defaulted to admin would be
+    an escalation.</p>
+    <p class="proof"><b>SSO is OIDC bearer tokens, verified in ~250 lines of standard library
+    anyone can read end to end</b> &mdash; the module&rsquo;s only dependency is still protobuf.
+    The identity provider asserts <em>who somebody is</em>; it never decides what they may do
+    here. RS256 only, with <code>alg:none</code> and HS256 refused as the downgrade attacks they
+    are; exact issuer; audience membership; bounded clock skew; signing keys fetched and cached so
+    IdP key rotation propagates within five minutes. Every refusal logs its specific reason and
+    never the token, because a 401 during an SSO rollout is debugged from logs and &ldquo;invalid
+    token&rdquo; is not a log. Twelve refusal cases are each pinned by message, including a forged
+    key wearing a stolen kid and a payload tampered under an intact signature.</p>
+    <p class="proof"><b>Proven live with real minted tokens against the running stack.</b> A
+    viewer token read five open incidents and was 403&rsquo;d for trying to acknowledge one. An
+    operator token then acknowledged the payments incident that had sat open since the morning's
+    escalation demo &mdash; <b>the audit row reads <code>oidc:alice / alice@example.com</code></b>,
+    a person&rsquo;s name where an API-key hash used to be &mdash; and was 403&rsquo;d off the
+    credentials list. An expired token and one minted for a different service each got a 401 with
+    its reason in the log. <b>Five new mutation controls hold the trust boundaries:</b> the
+    algorithm gate opening, a foreign-audience token slipping through, expiry going soft, the
+    viewer role quietly becoming admin, and an operate route degrading to query are each caught
+    by a named test. 91 of 91 behaved. One V1-bar item remains: linearizable admission.</p>
+    <p class="where">be53f35 &middot; ADR 0024 + docs/operations/sso-rbac.md &middot; demo IdP key + cmd/mint-jwt ship in the local stack &middot; audit guard widened to cover both privileged scopes</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Aug 31</div>
+  <div>
+    <p class="name">The query language grew up &mdash; matchers, bare selectors, and a matrix endpoint that names its one lie before you can be misled by it
+      <span class="chip live">Tare</span><span class="chip">exact values live</span><span class="chip">86 controls</span></p>
+    <p class="what"><b>Tare&rsquo;s PromQL subset could aggregate one exact metric, optionally
+    filtered to one service, at one instant. That was the honest floor; the V1 bar asks for
+    broader.</b> Three additions, each refusing what it cannot bound: selectors now carry up to
+    five exact-equality attribute matchers (<code>{service_name="checkout-api",
+    http.route="/api/cart"}</code>) that FILTER series &mdash; grouping by arbitrary labels stays
+    refused by name, because a filter narrows what a query touches while a grouping multiplies
+    what it returns. A bare selector answers with the most recent sample inside a 5-minute
+    lookback, and the lookback is written into the canonical form the response echoes back &mdash;
+    never applied silently. And <code>GET /v1/metrics/query_range</code> is the matrix half: the
+    same grammar evaluated per step bucket across a window.</p>
+    <p class="proof"><b>The range endpoint diverges from Prometheus in exactly one way, and the
+    response says so itself:</b> buckets are TUMBLING intervals of the step, not sliding windows
+    of the selector range &mdash; that is what keeps a query&rsquo;s cost proportional to its
+    window &mdash; and <code>window_semantics</code> states it in every answer rather than in a
+    doc nobody reads mid-incident. Regex matchers are refused by name: their cost depends on data
+    nobody has bounded, and a named refusal beats a timeout.</p>
+    <p class="proof"><b>Proven live to the exact value.</b> Six attributed gauge points, two
+    routes: the cart matcher answered 110, the pay matcher 910, the unfiltered query 510 &mdash;
+    the merged average, which is precisely why matchers matter. The bare selector returned the
+    newest sample with its lookback in the canonical; the range query returned per-minute buckets
+    900/910/920; the regex matcher was refused with the sentence saying why. <b>And the filter
+    cannot rot silently:</b> matcher values travel as bound parameters into BOTH halves of the
+    storage union &mdash; a filter applied to one half serves a quiet superset &mdash; and
+    mutation control 86 proves dropping it turns the suite red. 86 of 86 behaved.</p>
+    <p class="where">e5768c8 &middot; /v1/metrics/query (v2) + /v1/metrics/query_range &middot; docs/operations/metric-aggregation-queries.md &middot; ADR 0009&rsquo;s grouping boundary intact and stated in-band</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 31</div>
   <div>
