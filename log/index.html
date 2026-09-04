@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">239 entries · newest first within each group</p>
+  <p class="stamp">242 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,117 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Sep 4</div>
+  <div>
+    <p class="name">The app was presenting its own work as yours &mdash; and a test guarding deletion could never have failed
+      <span class="chip live">Locust</span><span class="chip">0.16.6 shipped</span><span class="chip">143 mutations caught</span></p>
+    <p class="what"><b>Colin&rsquo;s fifth report of the day was a mission in his list whose entire title was machine
+    instructions</b> &mdash; <em>&ldquo;Wren (Code &amp; Migrations) sent you a message&hellip; end with one
+    &lt;locust-share&gt; block&rdquo;</em> &mdash; sitting beside conversations he had actually started. His words:
+    <em>&ldquo;missions are like projects or whole new conversations.&rdquo;</em>
+    <b>The cause was older than the feature that exposed it.</b> Every mission in the durable record looked like something a
+    person asked for, because until teammates could message each other, every mission <em>was</em>. Nothing on the record
+    said otherwise, so when the app began a run on its own it had no way to tell that from work a person began &mdash; and
+    drew both the same way. The fix is a schema change recording <b>who started a run</b>, deliberately phrased that way
+    rather than about this one feature, so the next kind of automatic run has somewhere truthful to say so.</p>
+    <p class="proof"><b>Verified on screen and in the file, in the same live run</b> &mdash; two teammates on two different
+    AI providers holding an unattended conversation. The titles now read <code>"Wren asked: Please reply with exactly the
+    wo&hellip;"</code> where they used to read the briefing, and the record shows
+    <code>["person","person",{relay,hop:1},{relay,hop:2},{relay,hop:3},{relay,hop:4}]</code>. A malformed record is refused
+    outright rather than having the field quietly dropped, because ignoring it would present the app&rsquo;s own run as the
+    person&rsquo;s, which is the exact confusion the change exists to end.</p>
+    <p class="proof"><b>Then the sweep found something that had nothing to do with any of this.</b> A test named
+    &ldquo;protects an old parent named by a file the full reader refuses&rdquo; &mdash; guarding the rule that deleting old
+    work must never gut a conversation you are still in &mdash; built its test file at a version the reader <em>accepts</em>.
+    So the file was never refused, the recovery path the test exists for was never taken, and it passed on the ordinary
+    reader instead. <b>Deleting the mechanism it guards left it green.</b> It was failing this way before today&rsquo;s work,
+    proven by stashing the changes and watching it survive at the previous commit &mdash; found, not caused.</p>
+    <p class="proof"><b>Two of my own mistakes, both worth recording because both looked like something else.</b> A scripted
+    edit to a test file failed silently and wrote nothing, so the run that followed exercised the OLD file and reported six
+    failures that read exactly like a broken feature; the next run of the same unchanged code passed all six. And a new
+    assertion checked the wrong row and failed against perfectly correct data &mdash; rewritten so it cannot be broken by an
+    off-by-one, and replayed against what the live run actually printed, with a control confirming it fails on the old
+    build.</p>
+    <p class="proof"><b>Open, honestly.</b> The report is half fixed, and the remaining half is narrow: the <em>first</em>
+    automatic reply to a teammate who has never run still opens its own row, where later ones already fold into that
+    teammate&rsquo;s conversation. Said plainly rather than counted as done.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Sep 4</div>
+  <div>
+    <p class="name">Two AI teammates were talking to each other and the app was showing only half of it
+      <span class="chip live">Locust</span><span class="chip">0.16.5 shipped</span><span class="chip">139 mutations caught</span></p>
+    <p class="what"><b>Colin asked one teammate to message another and get a soliloquy back.</b> What came back on screen
+    was the soliloquy &mdash; and nothing else. The message <em>asking</em> for it was simply not there, so the thread read
+    as though the second teammate had answered <em>him</em>. His words: <em>&ldquo;it seems to remove the message of booty
+    asking for the soliloquy&hellip; lets try and keep the whole convo between the bots.&rdquo;</em>
+    <b>The cause:</b> a teammate writes to a peer on the turn you asked them to, and the peer&rsquo;s reply arrives on the
+    <em>next</em> turn &mdash; and the thread only ever drew the newest turn&rsquo;s exchange. So the question was always on
+    an older turn and was never drawn at all. There was a second cut of the same wound underneath it: the code that rebuilds
+    a prior turn for a live conversation dropped its messages entirely, so fixing one without the other would still have
+    shown nothing.</p>
+    <p class="proof"><b>He also said the app felt clunky between pressing send and seeing anything happen &mdash; the second
+    time he had reported it, and the first time it was measured.</b> The working line was drawn only once the runtime
+    reported a named step. A tool now samples the page every 50ms from the click: on a real read-only Codex run
+    <b>no named step arrived within 20 seconds</b>. So this was never a lag of a few hundred milliseconds &mdash; for a run
+    of that shape the thread sat <em>blank</em> the whole time. It now draws a line at <b>0&nbsp;ms</b>, and the line stays
+    honest: with no step reported it names the wait rather than inventing a step. The same fix answers his other note
+    &mdash; <em>&ldquo;I feel like i never see the &hellip;&rdquo;</em> &mdash; because the dots had been gated on a
+    &ldquo;reasoning step&rdquo; most runtimes never report.</p>
+    <p class="proof"><b>Then the fix broke something and the check caught it before he did.</b> A run stopped on an approval
+    is still technically running, so the new line sat above the card asking him to decide and said
+    <em>&ldquo;Working&rdquo;</em> &mdash; while the header said <em>&ldquo;waiting on you.&rdquo;</em> Two parts of the
+    screen describing one teammate differently is the exact failure the code says it exists to prevent. Suppressed, with a
+    test that fails if it comes back.</p>
+    <p class="proof"><b>How each claim was verified.</b> The exchange fix runs end to end against real models &mdash; a
+    scripted conversation between Cursor and Claude Code, 17 checks, and the new one (&ldquo;the thread shows the message
+    that was SENT, not only the reply&rdquo;) fails on the old build. The window now remembers its size and place, proved by
+    launching twice and comparing deltas &mdash; asked to move by (68, 57, -83, -39), moved by exactly that. And the full
+    mutation sweep is green: <b>139 deliberate breakages, every one caught</b>.</p>
+    <p class="proof"><b>Open, honestly.</b> One of his five reports is <em>not</em> fixed: a teammate&rsquo;s automatic
+    reply still opens as its own mission in the sidebar, beside the projects he started himself. That one needs the mission
+    record to carry where it came from before the sidebar can file it as a consequence rather than a sibling &mdash; written
+    up, not started. Also worth saying plainly: a smoke test had been quietly lying for a while. Editing files from a script
+    on Windows had been rewriting them with different line endings, and the harness that proves the tests can actually fail
+    matches its targets as exact text &mdash; so <b>one real guard had stopped being checked</b> and reported itself as a
+    harmless skip. Line endings are now pinned repo-wide and the harness names that cause out loud if it recurs.</p>
+  </div>
+</div>
+<div class="row">
+  <div class="date">Sep 2</div>
+  <div>
+    <p class="name">48.6 GB of Docker disk held 2.3 GB of data &mdash; and the biggest hog was invisible to every prune
+      <span class="chip live">fixed</span><span class="chip">48.6 &rarr; 5.0 GB</span><span class="chip">43 GB back</span><span class="chip">volumes intact</span></p>
+    <p class="what"><b>Docker&rsquo;s WSL disk had grown to 48.6 GB on a machine with 15.7 GB free, and the advice on
+    hand was Docker Desktop&rsquo;s <em>Troubleshoot &rarr; Clean / Purge data</em>.</b> Measuring first changed the
+    answer completely. The disk was mounted read-only with the engine stopped &mdash; 41.7 GB in use, of which the
+    <em>volumes</em>, the only irreplaceable part, were <b>611 MB</b>. Purging would have destroyed
+    <code>tare_clickhouse-data</code> to reclaim space that container images owned.</p>
+    <p class="proof"><b>The half nothing could see is the find.</b> <code>docker system df</code> accounted for about
+    14 GB. A second image store, <code>data/desktop-containerd</code>, held <b>26.9 GB the CLI could not show</b>
+    &mdash; orphaned when the containerd-image-store setting was toggled at some point, and unreachable by any prune
+    because the active driver is <code>overlay2</code>. <b>A prune can only see the store that is switched on.</b>
+    Flipping <code>UseContainerdSnapshotter</code> on made it the live store, and behind it sat a <em>second</em> build
+    cache of <b>20.5 GB</b>. Across both stores: 30.5 GB of build cache, 12.4 GB of images &mdash; including stale
+    <code>themis-*</code> and <code>observability-platform-*</code> builds from before the rename.</p>
+    <p class="proof"><b>Deleting inside a non-sparse VHDX reclaims nothing, which is the trap worth keeping.</b> After
+    pruning 13.5 GB the file was <b>still 48.59 GB to the byte</b>. A virtual disk only gives space back when the
+    filesystem has released the blocks <em>and</em> the file is compacted &mdash; so the order is delete, then
+    <code>fstrim</code>, then compact. Compacting first would have looked like a failure and been re-run for nothing.</p>
+    <p class="proof"><b>The backup was taken before the risky step rather than after it</b>, and verified rather than
+    trusted: 611 MB of volumes became a 195 MB archive, and the archive was <em>listed</em> to confirm every
+    <code>tare_*</code> volume was inside instead of reading tar&rsquo;s exit code. All 7 volumes were re-counted after
+    each prune, and none of the three prune commands was ever given <code>--volumes</code>.</p>
+    <p class="proof"><b>Two limits stated rather than worked around.</b> <code>compact vdisk</code> needs
+    Administrator, which this session does not have &mdash; measured
+    (<code>IsInRole(Administrator)</code> = False), not assumed, after I had first blamed a permission gate for it. And
+    the vdisk was attached <b>read-only on purpose</b>: the compaction window was closed early, leaving it attached, and
+    a read-only attachment is the one state where that cannot corrupt anything.</p>
+    <p class="where">48.59 &rarr; 5.00 GB &middot; C: free 14.07 &rarr; 57.10 GB &middot; 7 volumes intact, settings-store.json restored to its original &middot; next <code>compose up</code> re-pulls ~3 GB; ClickHouse data untouched</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Aug 31</div>
   <div>
