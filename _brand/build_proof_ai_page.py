@@ -89,6 +89,20 @@ def main() -> None:
     head = re.sub(r'(<meta property="og:url" content=").*?(">)', rf'\g<1>{CANON}\g<2>', head)
 
     scoped = (style.group(1) if style else '').replace('body{', '.ai-report{')
+    # custody's report is theme-aware and ships its own light AND dark
+    # palettes. Embedded in a cream site that is a third palette fighting two
+    # others, and the dark half is 22 colours in neither tokens.py nor
+    # awllc_brand.py -- which is exactly what the palette gate is for, and why
+    # it has been blocking every push since 2026-08-30.
+    #
+    # The report is right to be theme-aware on its own; the EMBED is what has
+    # to match the site. So the dark block is dropped here rather than in
+    # custody, and the light variables are pointed at the site's own tokens so
+    # the page reads as part of the site instead of as a tool bolted into it.
+    scoped = _drop_dark_block(scoped)
+    scoped = _drop_rule(scoped, 'data-theme="dark"')
+    for cool, warm in _REPORT_TO_SITE.items():
+        scoped = scoped.replace(cool, warm).replace(cool.lower(), warm)
     page_css = (scoped + '\n.ai-report{max-width:none;padding:0;margin:0;background:none}'
                          '\n.ai-intro{color:var(--ink-soft);max-width:42rem;margin:.2rem 0 1rem}')
     head = head.replace('</head>', f'<style>{page_css}{PLAIN_CSS}</style>\n</head>')
@@ -109,5 +123,96 @@ def main() -> None:
     print(f'wrote {OUT_DIR / "index.html"} ({len(page)} bytes)')
 
 
+# custody's own light theme is cool -- slate greys, a navy accent -- and the
+# site is warm cream. Embedded side by side that reads as a tool bolted into a
+# page rather than part of it, and every one of these is a colour the palette
+# gate has never seen. Mapped semantically, not by eye: ink to ink, accent to
+# accent, good/bad/warn to the site's own status colours.
+#
+# The gate's instruction is "use a token, or add it to the palette on purpose".
+# This is the first of those. Widening the baseline would have been two lines
+# and would have taught the gate to accept whatever custody does next.
+_REPORT_TO_SITE = {
+    '#14181F': '#211D14',  # ink
+    '#1B4D8F': '#3E7FD9',  # accent
+    '#2E6B4F': '#1E7A47',  # good
+    '#A8324A': '#B4452C',  # bad
+    '#B0741E': '#8A6A16',  # warn
+    '#5A6472': '#5C5645',  # muted text
+    '#7C8698': '#6E6555',  # fainter text
+    '#C3CAD4': '#D8D2C2',  # hairline
+    '#EFF1F4': '#F4F1E8',  # page ground
+    '#F7F8FA': '#FBFAF3',  # raised surface
+    '#DDE1E7': '#E4DFD1',  # rule
+}
+
+
+def _drop_rule(css: str, needle: str) -> str:
+    """Remove a top-level rule whose SELECTOR contains `needle`.
+
+    custody stamps its dark palette twice, the way a theme-aware page has to:
+    once behind `prefers-color-scheme` for people who never chose, and once
+    behind `:root[data-theme="dark"]` so an explicit choice wins. Dropping only
+    the media query leaves the second, which is how the first pass at this
+    still left every dark colour in the file.
+    """
+    out = []
+    i = 0
+    while True:
+        brace = css.find('{', i)
+        if brace < 0:
+            out.append(css[i:])
+            return ''.join(out)
+        selector = css[i:brace]
+        depth = 1
+        j = brace + 1
+        while j < len(css) and depth:
+            if css[j] == '{':
+                depth += 1
+            elif css[j] == '}':
+                depth -= 1
+            j += 1
+        if needle not in selector:
+            out.append(css[i:j])
+        i = j
+
+
+def _drop_dark_block(css: str) -> str:
+    """Remove `@media (prefers-color-scheme: dark){...}` and its nested braces.
+
+    Brace counting rather than a regex: the block contains nested rules, and a
+    non-greedy match would stop at the first inner `}` and leave a broken
+    stylesheet behind -- the kind of half-applied edit that renders as a
+    colourless page nobody can diagnose.
+    """
+    out = []
+    i = 0
+    while True:
+        start = css.find('@media', i)
+        if start < 0:
+            out.append(css[i:])
+            return ''.join(out)
+        head_end = css.find('{', start)
+        if head_end < 0:
+            out.append(css[i:])
+            return ''.join(out)
+        head = css[start:head_end]
+        if 'prefers-color-scheme' not in head or 'dark' not in head:
+            out.append(css[i:head_end + 1])
+            i = head_end + 1
+            continue
+        out.append(css[i:start])
+        depth = 1
+        j = head_end + 1
+        while j < len(css) and depth:
+            if css[j] == '{':
+                depth += 1
+            elif css[j] == '}':
+                depth -= 1
+            j += 1
+        i = j
+
+
 if __name__ == '__main__':
     main()
+
