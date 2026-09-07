@@ -6,7 +6,7 @@
   {
    "status": "SUPPORTED",
    "id": "flatline-test-count",
-   "detail": "flatline/index.html still says \"122 tests\""
+   "detail": "flatline/index.html still says \"136 tests\""
   },
   {
    "status": "SUPPORTED",
@@ -61,17 +61,17 @@
   {
    "status": "SUPPORTED",
    "id": "builds-flatline-tests",
-   "detail": "builds/index.html still says \"122 tests, MIT, public\""
+   "detail": "builds/index.html still says \"136 tests, MIT, public\""
   },
   {
    "status": "SUPPORTED",
    "id": "workflow-flatline-tests",
-   "detail": "workflow-automation/index.html still says \"MIT licensed, 122 tests.\""
+   "detail": "workflow-automation/index.html still says \"MIT licensed, 136 tests.\""
   },
   {
    "status": "SUPPORTED",
    "id": "workflow-ledger-tests",
-   "detail": "workflow-automation/index.html still says \"open-source repos, 122 tests\""
+   "detail": "workflow-automation/index.html still says \"open-source repos, 136 tests\""
   },
   {
    "status": "UNCHECKABLE",

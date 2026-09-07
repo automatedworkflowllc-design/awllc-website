@@ -21,3 +21,6 @@ _qa/_seam_out/
 # Holds the worker's SHARED_PASSPHRASE for _brand/build_dining_demo.py. The
 # built page carries it by necessity; the repo does not need a second copy.
 _brand/dining_passphrase.txt
+
+# Generated social cards -- rebuild with _brand/social/, not worth versioning
+_brand/social/out/
