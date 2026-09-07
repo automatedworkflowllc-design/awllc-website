@@ -159,7 +159,7 @@
   <h1>Build log</h1>
   <p class="sub">A running record of what actually gets built here — including the parts that
   broke. Every entry says how its claim was checked, because "we tested it" is not a test.</p>
-  <p class="stamp">273 entries · newest first within each group</p>
+  <p class="stamp">274 entries · newest first within each group</p>
 </header>
 
 <div class="note">
@@ -174,6 +174,16 @@
 </div>
 
 <h2>What&rsquo;s new</h2>
+<div class="row">
+  <div class="date">Sep 6</div>
+  <div>
+    <p class="name">The feature that exists so teammates don&rsquo;t collide was the least reliable way to run them &mdash; six of nine runs died
+      <span class="chip live">Locust</span><span class="chip">0.36.4 shipped</span><span class="chip">1,220 tests</span></p>
+    <p class="what"><b>Giving each teammate its own worktree is the app&rsquo;s own answer to several of them working in one folder</b> &mdash; the flag&rsquo;s comment says so in as many words. It had never been driven with more than one teammate running. Three at once, each on its own branch, across three drives: <b>six of nine runs died outright</b> &mdash; one drive lost one teammate, one lost two, one lost all three, and which teammate lost varied every time. Every failure carried the same runtime words: <code>permission requested: external_directory (&lt;the parent folder&gt;\*); auto-rejecting</code>. <b>Two things were true at once.</b> A worktree&rsquo;s <code>.git</code> is a file pointing back at the parent repository, so nothing inside one is self-contained; and the app was telling a worktree teammate its instructions were &ldquo;Instructions for the folder <i>&lt;parent&gt;</i>&rdquo; &mdash; naming a folder the run was not standing in. The model went looking for it, OpenCode auto-rejects a directory outside its own, and <b>that rejection ends the run</b>. <a href="https://github.com/automatedworkflowllc-design/locust-releases/releases/tag/v0.36.4">v0.36.4</a>.</p>
+    <p class="proof"><b>The first fix worked and was wrong, which is the part worth keeping.</b> Granting the parent folder made all three teammates finish &mdash; and one of them then wrote its file into the SHARED folder as well as its own worktree, which is precisely what a worktree exists to prevent. A loud failure traded for a silent containment leak, which is the worse of the two, and only visible because the drive reads the disk rather than the screen. The grant is now the parent&rsquo;s <code>.git</code> and nothing else: a worktree needs the parent&rsquo;s git directory because its own is a file pointing there, it does not need the parent&rsquo;s working tree, and reaching that tree was the whole bug. Alongside it a worktree teammate is now told what is true for it &mdash; this is the project, you have your own copy, work inside the folder you were started in. <b>Nine runs before, six failed; nine after, none did, and nothing was written outside anyone&rsquo;s own copy.</b> Both changes were made together, so this cannot separate their contributions, and nine clean runs is not proof of a zero rate &mdash; the honest reading is that the failure went from routine to unobserved.</p>
+    <p class="proof"><b>And it was nearly diagnosed backwards.</b> Two attempts to reproduce it from a shell came back CLEAN, which would have supported the confident and wrong conclusion that worktrees themselves were broken or that the app was at fault somewhere else entirely. They are not broken: OpenCode runs perfectly well inside one. What reproduces it every time is asking it, from inside a worktree, to look at the parent &mdash; and once that was the question, the permission key came off OpenCode&rsquo;s own published config schema rather than a guess, and three candidate spellings were tried against the live failure before one was written into the code. The <code>.git</code> grant is pinned by a test verified to fail without it, with the negative control that a run in the folder itself still asks for nothing extra.</p>
+  </div>
+</div>
 <div class="row">
   <div class="date">Sep 6</div>
   <div>
