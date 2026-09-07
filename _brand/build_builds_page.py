@@ -255,17 +255,17 @@ ENGINEERING = [
      "An open-source reliability tool that finds signals carrying no information and jobs producing "
      "nothing: a check that fires on 100% of rows, a scheduled task that reports success while "
      "writing nothing, a branch that can never run.",
-     # 131 as of 2026-08-24, and this figure is GUARDED: _qa/claims.toml has
+     # 136 as of 2026-08-24, and this figure is GUARDED: _qa/claims.toml has
      # `builds-flatline-tests`, which re-derives it from the flatline suite on every push and fails
      # when the page and the suite disagree.
      #
-     # It had drifted here in the worst way. The built page was patched to 131 when the claim audit
+     # It had drifted here in the worst way. The built page was patched to 136 when the claim audit
      # caught it at 108, and THIS BUILDER WAS NEVER UPDATED - so regenerating /builds/ for any
      # unrelated reason would have silently put the overclaim back. Found 2026-08-24 by diffing a
      # regeneration against the committed page before trusting it, which is the only way to see a
      # post-build patch at all.
      "Built after a real scheduled job discarded four days of data while reporting success every "
-     "run. 131 tests, MIT, public &mdash; the page shows five ways to use it on your own stack.",
+     "run. 136 tests, MIT, public &mdash; the page shows five ways to use it on your own stack.",
      ["Open source", "MIT"]),
     # Tare deliberately carries no count and no price. Its source is private, so unlike every
     # other entry in this section a reader cannot go and check a number for themselves - and the
